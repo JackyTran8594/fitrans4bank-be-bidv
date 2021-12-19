@@ -1,11 +1,12 @@
 package com.eztech.fitrans.controller.impl;
 
-import com.eztech.fitrans.security.JwtAuthenticationResponse;
-import com.eztech.fitrans.security.JwtTokenProvider;
-import com.eztech.fitrans.util.MessageConstants;
 import com.eztech.fitrans.dto.request.LoginRequest;
 import com.eztech.fitrans.dto.request.ValidateTokenRequest;
 import com.eztech.fitrans.security.ApiResponse;
+import com.eztech.fitrans.security.JwtAuthenticationResponse;
+import com.eztech.fitrans.security.JwtTokenProvider;
+import com.eztech.fitrans.util.DataUtils;
+import com.eztech.fitrans.util.MessageConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
@@ -23,6 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -50,21 +55,26 @@ public class AuthController {
                             loginRequest.getPassword()
                     )
             );
-            String jwt = tokenProvider.generateToken(authentication);
+            List<String> listRole = new ArrayList<>();
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             UserDetails userDetails =  null;
             //TODO: Test
-//            log.info(new BCryptPasswordEncoder().encode("benspassword"));
             if(SecurityContextHolder.getContext().getAuthentication() != null) {
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal instanceof UserDetails){
                     userDetails = (UserDetails) principal;
                     log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
+                    if(DataUtils.notNullOrEmpty(userDetails.getAuthorities())){
+                        listRole = userDetails.getAuthorities().stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .collect(Collectors.toList());
+                    }
                 }else{
                     log.info("===SecurityContextHolder getPrincipal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
+            String jwt = tokenProvider.generateToken(authentication, listRole);
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {

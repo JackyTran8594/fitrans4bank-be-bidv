@@ -129,7 +129,6 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		// Add JWT token filter
 		http.addFilterBefore(jwtRequestFilter,UsernamePasswordAuthenticationFilter.class);
-		http.addFilterBefore(jwtRequestFilter,UsernamePasswordAuthenticationFilter.class);
 	}
 
 	//Backup
