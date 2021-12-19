@@ -1,0 +1,94 @@
+package com.eztech.fitrans.controller.impl;
+
+import com.eztech.fitrans.security.JwtAuthenticationResponse;
+import com.eztech.fitrans.security.JwtTokenProvider;
+import com.eztech.fitrans.util.MessageConstants;
+import com.eztech.fitrans.dto.request.LoginRequest;
+import com.eztech.fitrans.dto.request.ValidateTokenRequest;
+import com.eztech.fitrans.security.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+
+@RestController
+@RequestMapping("/api/auth")
+@Slf4j
+public class AuthController {
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+
+    @Autowired
+    JwtTokenProvider tokenProvider;
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        if (loginRequest.getUsername().isEmpty() || loginRequest.getPassword().isEmpty()) {
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_EMPTY),
+                    HttpStatus.BAD_REQUEST);
+        }
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
+            );
+            String jwt = tokenProvider.generateToken(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            UserDetails userDetails =  null;
+            //TODO: Test
+//            log.info(new BCryptPasswordEncoder().encode("benspassword"));
+            if(SecurityContextHolder.getContext().getAuthentication() != null) {
+                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (principal instanceof UserDetails){
+                    userDetails = (UserDetails) principal;
+                    log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
+                }else{
+                    log.info("===SecurityContextHolder getPrincipal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+                }
+            }
+
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
+        } catch (BadCredentialsException ex) {
+            log.error(ex.getMessage());
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_INVALID), HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.SYSTEM_ERROR), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @PostMapping("/validatetoken")
+    public ResponseEntity<?> getTokenByCredentials(@Valid @RequestBody ValidateTokenRequest validateToken) {
+        String username = null;
+        String jwt = validateToken.getToken();
+        if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+            username = tokenProvider.getUsernameFromJWT(jwt);
+            //If required we can have one more check here to load the user from LDAP server
+            return ResponseEntity.ok(new ApiResponse(Boolean.TRUE, MessageConstants.VALID_TOKEN + username));
+        } else {
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.INVALID_TOKEN),
+                    HttpStatus.BAD_REQUEST);
+        }
+
+    }
+}
