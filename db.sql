@@ -1457,6 +1457,43 @@ CREATE TABLE `role` (
 insert  into `role`(`role_id`,`name`) values (1,'ROLE_USER');
 insert  into `role`(`role_id`,`name`) values (2,'ROLE_ADMIN');
 
+/*Table structure for table `role_list` */
+
+DROP TABLE IF EXISTS `role_list`;
+
+CREATE TABLE `role_list` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) NOT NULL,
+  `description` varchar(1024) DEFAULT NULL,
+  `status` varchar(25) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+/*Data for the table `role_list` */
+
+insert  into `role_list`(`id`,`code`,`description`,`status`) values (1,'DEPARTMENT_CREATE',NULL,'ACTIVE');
+insert  into `role_list`(`id`,`code`,`description`,`status`) values (2,'DEPARTMENT_UPDATE',NULL,'ACTIVE');
+insert  into `role_list`(`id`,`code`,`description`,`status`) values (3,'DEPARTMENT_DELETE',NULL,'ACTIVE');
+
+/*Table structure for table `role_map` */
+
+DROP TABLE IF EXISTS `role_map`;
+
+CREATE TABLE `role_map` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `role_id` bigint(20) NOT NULL,
+  `role_list_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `role_id` (`role_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+/*Data for the table `role_map` */
+
+insert  into `role_map`(`id`,`role_id`,`role_list_id`) values (1,2,1);
+insert  into `role_map`(`id`,`role_id`,`role_list_id`) values (2,2,2);
+insert  into `role_map`(`id`,`role_id`,`role_list_id`) values (3,2,3);
+
 /*Table structure for table `user_entity` */
 
 DROP TABLE IF EXISTS `user_entity`;
@@ -1494,7 +1531,7 @@ CREATE TABLE `user_role` (
 
 insert  into `user_role`(`user_id`,`role_id`) values (1,1);
 insert  into `user_role`(`user_id`,`role_id`) values (2,2);
-insert  into `user_role`(`user_id`,`role_id`) values (3,2);
+insert  into `user_role`(`user_id`,`role_id`) values (3,1);
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
