@@ -97,7 +97,7 @@ public class DepartmentRepositoryCustomImpl extends BaseCustomRepository<Departm
 
         if (!count && paramNotNullOrEmpty(paramSearch, "pageSize") && !"0".equalsIgnoreCase(String.valueOf(paramSearch.get("pageSize")))) {
             sb.append(" LIMIT :offset,:limit");
-            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")), DataUtils.parseToInt(paramSearch.get("pageSize"))));
+            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")) - 1, DataUtils.parseToInt(paramSearch.get("pageSize"))));
             parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
         }
         return sb.toString();
