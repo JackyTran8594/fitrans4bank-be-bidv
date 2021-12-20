@@ -5,7 +5,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.Map;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Api
 public interface DepartmentApi {
@@ -13,7 +15,7 @@ public interface DepartmentApi {
     @ApiOperation(value = "Get list of department in the System ", response = Iterable.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Suceess"), @ApiResponse(code = 401, message = "Not authorized!"), @ApiResponse(code = 403, message = "Forbidden!"),
             @ApiResponse(code = 404, message = "Not found!")})
-    Page<DepartmentDTO> getList(int pageNumber, int pageSize);
+    Page<DepartmentDTO> getList(@RequestParam Map<String,Object> mapParam, int pageNumber, int pageSize);
 
     @ApiOperation(value = "Get department by department ID", response = DepartmentDTO.class)
     DepartmentDTO getById(Long productId);

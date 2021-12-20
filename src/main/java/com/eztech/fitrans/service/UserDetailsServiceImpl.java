@@ -1,15 +1,14 @@
 package com.eztech.fitrans.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.eztech.fitrans.model.Role;
 import com.eztech.fitrans.model.UserEntity;
+import com.eztech.fitrans.repo.RoleRepository;
 import com.eztech.fitrans.repo.UserRepository;
 import com.eztech.fitrans.util.DataUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -20,22 +19,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
 	private UserRepository repo;
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@Override
-	@Transactional
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = repo.findByUsername(username);
 		if (user != null) {
 			List<String> role = new ArrayList<>();
-			List<Integer> listRole = new ArrayList<>();
-			Set<Role> roles = user.getRoles();
+			List<Long> listRole = new ArrayList<>();
+			List<Role> roles = roleRepository.getRole(user.getId());
 			if(DataUtils.notNullOrEmpty(roles)){
 				listRole = roles.stream()
-						.map(Role::getRoleId)
+						.map(Role::getId)
 						.collect(Collectors.toList());
 				role = repo.getRoleDetail(listRole);
 			}
@@ -45,7 +46,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		}
 	}
 
-	private static List<SimpleGrantedAuthority> buildSimpleGrantedAuthorities(final Set<Role> roles,List<String> roleList) {
+	private static List<SimpleGrantedAuthority> buildSimpleGrantedAuthorities(final List<Role> roles,List<String> roleList) {
 		List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 		for (Role role : roles) {
 			authorities.add(new SimpleGrantedAuthority(role.getName()));

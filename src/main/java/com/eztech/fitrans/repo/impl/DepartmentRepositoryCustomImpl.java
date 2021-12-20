@@ -28,7 +28,7 @@ public class DepartmentRepositoryCustomImpl extends BaseCustomRepository<Departm
     public Integer updateStatus(Long id, String status, String lastUpdatedBy, LocalDateTime lastUpdateDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
-        sb.append("UPDATE department SET status =:status, last_updated_by = :updateBy,last_updated_date=:updateDate WHERE PO_COMPONENT_TYPE_ID = :id ");
+        sb.append("UPDATE department SET status =:status, last_updated_by = :updateBy,last_updated_date=:updateDate WHERE id = :id ");
         parameters.put("id", id);
         parameters.put("status", status);
         parameters.put("updateBy", lastUpdatedBy);
@@ -95,10 +95,10 @@ public class DepartmentRepositoryCustomImpl extends BaseCustomRepository<Departm
             sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.code DESC  "));
         }
 
-        if (!count && paramNotNullOrEmpty(paramSearch, "size") && !"0".equalsIgnoreCase(String.valueOf(paramSearch.get("size")))) {
+        if (!count && paramNotNullOrEmpty(paramSearch, "pageSize") && !"0".equalsIgnoreCase(String.valueOf(paramSearch.get("pageSize")))) {
             sb.append(" LIMIT :offset,:limit");
-            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("page")), DataUtils.parseToInt(paramSearch.get("size"))));
-            parameters.put("limit", DataUtils.parseToInt(paramSearch.get("size")));
+            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")), DataUtils.parseToInt(paramSearch.get("pageSize"))));
+            parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
         }
         return sb.toString();
     }

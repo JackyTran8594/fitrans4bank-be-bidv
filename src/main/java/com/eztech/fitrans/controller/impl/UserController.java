@@ -20,7 +20,6 @@ public class UserController {
     @Autowired
     AuthenticationManager authenticationManager;
 
-
     @Autowired
     JwtTokenProvider tokenProvider;
 

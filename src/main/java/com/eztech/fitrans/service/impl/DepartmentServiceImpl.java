@@ -7,6 +7,7 @@ import com.eztech.fitrans.repo.DepartmentRepository;
 import com.eztech.fitrans.service.DepartmentService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.DataUtils;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,5 +63,17 @@ public class DepartmentServiceImpl implements DepartmentService {
     public List<DepartmentDTO> findAll() {
         List<Department> listData = departmentRepository.findAll();
         return mapper.toDtoBean(listData);
+    }
+
+    @Override
+    public List<DepartmentDTO> search(Map<String, Object> mapParam) {
+        List<Department> listData = departmentRepository.search(mapParam,Department.class);
+        return mapper.toDtoBean(listData);
+
+    }
+
+    @Override
+    public Long count(Map<String, Object> mapParam) {
+        return departmentRepository.count(mapParam);
     }
 }

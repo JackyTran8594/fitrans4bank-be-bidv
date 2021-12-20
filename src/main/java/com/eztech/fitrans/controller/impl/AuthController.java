@@ -7,6 +7,10 @@ import com.eztech.fitrans.security.JwtAuthenticationResponse;
 import com.eztech.fitrans.security.JwtTokenProvider;
 import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.MessageConstants;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,11 +27,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -99,6 +98,6 @@ public class AuthController {
             return new ResponseEntity(new ApiResponse(false, MessageConstants.INVALID_TOKEN),
                     HttpStatus.BAD_REQUEST);
         }
-
     }
+
 }

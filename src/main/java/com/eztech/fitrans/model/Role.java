@@ -2,15 +2,11 @@ package com.eztech.fitrans.model;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,7 +19,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Role implements Serializable {
+public class Role extends Auditable<String> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	public static final String USER = "USER";
 	public static final String ADMIN = "ADMIN";
@@ -31,15 +27,18 @@ public class Role implements Serializable {
 	public static final String ROLE_ADMIN = "ROLE_ADMIN";
 
 	@Id
-	@Column(name = "ROLE_ID")
+	@Column(name = "ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int roleId;
+	private Long id;
 
 	private String name;
+	private String code;
+	private String description;
+
 
 	// bi-directional many-to-many association to User
-	@ManyToMany(mappedBy = "roles")
-	private Set<UserEntity> users;
+//	@ManyToMany(mappedBy = "roles")
+//	private Set<UserEntity> users;
 
 	public Role(String name) {
 		this.name = name;
@@ -70,7 +69,7 @@ public class Role implements Serializable {
 	@Override
 	public String toString() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append("Role [name=").append(name).append("]").append("[id=").append(roleId).append("]");
+		builder.append("Role [name=").append(name).append("]").append("[id=").append(id).append("]");
 		return builder.toString();
 	}
 }

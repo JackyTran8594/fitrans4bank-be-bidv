@@ -16,4 +16,8 @@ public class Constants {
     public static final class RESULT {
         public static final String PROCESS_RETURN_SUCCESS = "true";
     }
+    public static final class ResultSetMapping {
+        public static final String USER_ENTITY_DTO = "userEntityDTO";
+        public static final String PROFILE_DTO = "profileEntityDTO";
+    }
 }
