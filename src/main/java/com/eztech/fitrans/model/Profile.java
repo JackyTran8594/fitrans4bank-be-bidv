@@ -3,20 +3,17 @@ package com.eztech.fitrans.model;
 import com.eztech.fitrans.config.formatdate.LocalDateTimeDeserializer;
 import com.eztech.fitrans.config.formatdate.LocalDateTimeSerializer;
 import com.eztech.fitrans.constants.Constants;
+import com.eztech.fitrans.constants.ProfilePriorityEnum;
+import com.eztech.fitrans.constants.ProfileStateEnum;
+import com.eztech.fitrans.constants.ProfileTypeEnum;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.ColumnResult;
-import javax.persistence.ConstructorResult;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SqlResultSetMapping;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,8 +32,9 @@ import lombok.NoArgsConstructor;
                 @ColumnResult(name = "id", type = Long.class),
                 @ColumnResult(name = "customer_id", type = Long.class),
                 @ColumnResult(name = "staff_id", type = Long.class),
-                @ColumnResult(name = "type", type = String.class),
-                @ColumnResult(name = "priority", type = String.class),
+                @ColumnResult(name = "type", type = Integer.class),
+                @ColumnResult(name = "priority", type = Integer.class),
+                @ColumnResult(name = "state", type = Integer.class),
                 @ColumnResult(name = "process_date", type = LocalDateTime.class),
                 @ColumnResult(name = "last_updated_by", type = String.class),
                 @ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
@@ -55,8 +53,6 @@ public class Profile extends Auditable<String> implements Serializable {
   private Long id;
   @Column(name = "customer_id")
   private Long customerid;
-  private String type;    //Loai giao dich
-  private String priority;    //Mức độ
   @Column(name = "staff_id")
   private Long staffId;   //Cán bộ đang thực hiện
 
@@ -64,4 +60,52 @@ public class Profile extends Auditable<String> implements Serializable {
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   protected LocalDateTime processDate;    //Ngày phát sinh
+
+  //Loai giao dich
+  @Basic
+  private Integer type;
+  @Transient
+  private ProfileTypeEnum profileTypeEnum;
+
+  //Mức độ
+  @Basic
+  private Integer priority;
+  @Transient
+  private ProfilePriorityEnum priorityValue;
+
+  //Trạng thái hồ sơ
+  @Basic
+  private Integer state;
+  @Transient
+  private ProfileStateEnum stateValue;
+
+  @PostLoad
+  void fillTransient() {
+    if (priority != null) {
+      this.priorityValue = ProfilePriorityEnum.of(priority);
+    }
+
+    if (type != null) {
+      this.profileTypeEnum = ProfileTypeEnum.of(type);
+    }
+    if (state != null) {
+      this.stateValue = ProfileStateEnum.of(state);
+    }
+  }
+
+  @PrePersist
+  void fillPersistent() {
+    if (priorityValue != null) {
+      this.priority = priorityValue.getPriority();
+    }
+
+    if (profileTypeEnum != null) {
+      this.type = profileTypeEnum.getType();
+    }
+
+    if (stateValue != null) {
+      this.state = stateValue.getValue();
+    }
+  }
+
 }

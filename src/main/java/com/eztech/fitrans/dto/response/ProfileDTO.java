@@ -2,6 +2,9 @@ package com.eztech.fitrans.dto.response;
 
 import com.eztech.fitrans.config.formatdate.LocalDateTimeDeserializer;
 import com.eztech.fitrans.config.formatdate.LocalDateTimeSerializer;
+import com.eztech.fitrans.constants.ProfilePriorityEnum;
+import com.eztech.fitrans.constants.ProfileStateEnum;
+import com.eztech.fitrans.constants.ProfileTypeEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -21,8 +24,15 @@ public class ProfileDTO implements Serializable {
   private Long customerid;
   private String customerName;
   private String cif;
-  private String type;    //Loai giao dich
-  private String priority;    //Mức độ
+  private Integer type;    //Loai giao dich
+  private String typeEnum;    //Mức độ
+  private Integer priority;    //Mức độ
+  private ProfilePriorityEnum priorityValue;    //Mức độ
+
+  //Tinh trang ho so
+  private Integer state;
+  private String stateEnum;
+
   private Long staffId;   //Cán bộ đang thực hiện
   private String staffName;   //Cán bộ đang thực hiện
 
@@ -40,8 +50,8 @@ public class ProfileDTO implements Serializable {
   private LocalDateTime lastUpdatedDate;
   private String status;
 
-  public ProfileDTO(Long id, Long customerid, Long staffId, String type,
-      String priority, LocalDateTime processDate,
+  public ProfileDTO(Long id, Long customerid, Long staffId, Integer type,
+                    Integer priority, Integer state, LocalDateTime processDate,
       String lastUpdatedBy, LocalDateTime lastUpdatedDate, String status, String cif, String customerName,
       String staffName) {
     this.id = id;
@@ -49,12 +59,36 @@ public class ProfileDTO implements Serializable {
     this.cif = cif;
     this.customerName = customerName;
     this.type = type;
+    if (type != null) {
+      this.typeEnum = ProfileTypeEnum.of(type).getName();
+    }
     this.priority = priority;
+    if (priority != null) {
+      this.priorityValue = ProfilePriorityEnum.of(priority);
+    }
+    this.state = state;
+    if (state != null) {
+      this.stateEnum = ProfileStateEnum.of(state).getName();
+    }
     this.staffId = staffId;
     this.staffName = staffName;
     this.processDate = processDate;
     this.lastUpdatedBy = lastUpdatedBy;
     this.lastUpdatedDate = lastUpdatedDate;
     this.status = status;
+  }
+
+  public void fillTransient(){
+    if (priority != null) {
+      this.priorityValue = ProfilePriorityEnum.of(priority);
+    }
+
+    if (type != null) {
+      this.typeEnum = ProfileTypeEnum.of(type).getName();
+    }
+
+    if (state != null) {
+      this.stateEnum = ProfileStateEnum.of(state).getName();
+    }
   }
 }

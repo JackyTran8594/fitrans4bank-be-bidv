@@ -31,6 +31,7 @@ public class CustomerServiceImpl implements CustomerService {
       if (dto == null) {
         throw new ResourceNotFoundException("Customer " + item.getId() + " not found");
       }
+      dto.setType(item.getType());
       dto.setName(item.getName());
       dto.setStatus(item.getStatus());
       entity = mapper.toPersistenceBean(dto);
@@ -62,13 +63,19 @@ public class CustomerServiceImpl implements CustomerService {
   @Override
   public List<CustomerDTO> findAll() {
     List<Customer> listData = repository.findAll();
-    return mapper.toDtoBean(listData);
+    List<CustomerDTO> listrtn = mapper.toDtoBean(listData);
+    listrtn.stream()
+            .forEach(item -> item.fillTransient());
+    return listrtn;
   }
 
   @Override
   public List<CustomerDTO> search(Map<String, Object> mapParam) {
     List<Customer> listData = repository.search(mapParam, Customer.class);
-    return mapper.toDtoBean(listData);
+    List<CustomerDTO> listrtn = mapper.toDtoBean(listData);
+    listrtn.stream()
+            .forEach(item -> item.fillTransient());
+    return listrtn;
 
   }
 

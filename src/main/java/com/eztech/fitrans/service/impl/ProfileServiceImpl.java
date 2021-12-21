@@ -31,7 +31,12 @@ public class ProfileServiceImpl implements ProfileService {
       if (dto == null) {
         throw new ResourceNotFoundException("Profile " + item.getId() + " not found");
       }
+      dto.setCustomerid(item.getCustomerid());
+      dto.setStaffId(item.getStaffId());
       dto.setStatus(item.getStatus());
+      dto.setState(item.getState());
+      dto.setPriority(item.getPriority());
+      dto.setPriorityValue(item.getPriorityValue());
       entity = mapper.toPersistenceBean(dto);
     } else {
       entity = mapper.toPersistenceBean(item);
@@ -53,7 +58,9 @@ public class ProfileServiceImpl implements ProfileService {
   public ProfileDTO findById(Long id) {
     Optional<Profile> optional = repository.findById(id);
     if (optional.isPresent()) {
-      return mapper.toDtoBean(optional.get());
+      ProfileDTO dto = mapper.toDtoBean(optional.get());
+      dto.fillTransient();
+      return dto;
     }
     return null;
   }
@@ -61,13 +68,15 @@ public class ProfileServiceImpl implements ProfileService {
   @Override
   public List<ProfileDTO> findAll() {
     List<Profile> listData = repository.findAll();
-    return mapper.toDtoBean(listData);
+    List<ProfileDTO> list = mapper.toDtoBean(listData);
+    list.stream()
+            .forEach(item -> item.fillTransient());
+    return list;
   }
 
   @Override
   public List<ProfileDTO> search(Map<String, Object> mapParam) {
-    List<Profile> listData = repository.search(mapParam, Profile.class);
-    return mapper.toDtoBean(listData);
+    return repository.search(mapParam, Profile.class);
 
   }
 
