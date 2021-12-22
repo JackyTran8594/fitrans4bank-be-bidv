@@ -32,6 +32,12 @@ public class CustomerController extends BaseController implements CustomerApi {
   private CustomerService service;
 
   @Override
+  @GetMapping("/all")
+  public List<CustomerDTO> listAll() {
+    return service.findAll();
+  }
+
+  @Override
   @GetMapping("")
   public Page<CustomerDTO> getList(
       @RequestParam Map<String, Object> mapParam,

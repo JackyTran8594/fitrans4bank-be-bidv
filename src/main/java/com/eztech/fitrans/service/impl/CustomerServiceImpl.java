@@ -31,8 +31,11 @@ public class CustomerServiceImpl implements CustomerService {
       if (dto == null) {
         throw new ResourceNotFoundException("Customer " + item.getId() + " not found");
       }
+      dto.setCif(item.getCif());
       dto.setType(item.getType());
       dto.setName(item.getName());
+      dto.setAddress(item.getAddress());
+      dto.setTel(item.getTel());
       dto.setStatus(item.getStatus());
       entity = mapper.toPersistenceBean(dto);
     } else {
