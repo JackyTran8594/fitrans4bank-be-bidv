@@ -57,6 +57,8 @@ public class UserEntity {
 	private Long deparmentId;	//phong ban
 	@Column(name = "`position`")
 	private String position;	//Chuc vu
+	@Column(name = "`email`")
+	private String email;	//Chuc vu
 	// bi-directional many-to-many association to Role
 //	@ManyToMany
 //	@JoinTable(name = "user_role", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = { @JoinColumn(name = "ROLE_ID") })
