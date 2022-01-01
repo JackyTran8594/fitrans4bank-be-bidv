@@ -36,6 +36,8 @@ public class Customer extends Auditable<String> implements Serializable {
         }
     }
 
+
+
     @PrePersist
     void fillPersistent() {
         if (typeEnum != null) {

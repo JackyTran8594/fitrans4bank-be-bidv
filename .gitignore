@@ -24,3 +24,7 @@ hs_err_pid*
 
 target
 .idea
+
+# resources properties
+./application-local.properties
+./application.properties
