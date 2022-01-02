@@ -98,15 +98,20 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
       sb.append(" AND os.status = :status ");
       parameters.put("status", paramSearch.get("status"));
     }
-    if (paramSearch.containsKey("sort")) {
-      sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.id DESC  "));
+
+    if (!count) {
+      if (paramSearch.containsKey("sort")) {
+        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.id DESC  "));
+      }else{
+        sb.append(" ORDER BY os.id desc ");
+      }
     }
 
     if (!count && paramNotNullOrEmpty(paramSearch, "pageSize") && !"0"
         .equalsIgnoreCase(String.valueOf(paramSearch.get("pageSize")))) {
-      sb.append(" LIMIT :offset,:limit");
-      parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")) - 1,
-          DataUtils.parseToInt(paramSearch.get("pageSize"))));
+      sb.append(" OFFSET :offset ROWS ");
+      sb.append(" FETCH NEXT :limit ROWS ONLY ");
+      parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")), DataUtils.parseToInt(paramSearch.get("pageSize"))));
       parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
     }
     return sb.toString();

@@ -38,6 +38,9 @@ public class RoleController extends BaseController implements RoleApi {
       @RequestParam int pageNumber,
       @RequestParam int pageSize
   ) {
+    if(pageNumber > 0){
+      pageNumber = pageNumber - 1;
+    }
     mapParam.put("pageNumber", pageNumber);
     mapParam.put("pageSize", pageSize);
     Pageable pageable = pageRequest(new ArrayList<>(), pageSize, pageNumber);

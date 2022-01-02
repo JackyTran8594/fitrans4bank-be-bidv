@@ -5,13 +5,14 @@ import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.model.UserEntity;
 import com.eztech.fitrans.repo.UserRepositoryCustom;
 import com.eztech.fitrans.util.DataUtils;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class UserRepositoryCustomImpl extends BaseCustomRepository<UserEntity> implements
-    UserRepositoryCustom {
+        UserRepositoryCustom {
     @Override
     public List search(Map searchDTO, Class aClass) {
         Map<String, Object> parameters = new HashMap<>();
@@ -92,12 +93,18 @@ public class UserRepositoryCustomImpl extends BaseCustomRepository<UserEntity> i
             sb.append(" AND os.status = :status ");
             parameters.put("status", paramSearch.get("status"));
         }
-        if (paramSearch.containsKey("sort")) {
-            sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.username ASC  "));
+
+        if (!count) {
+            if (paramSearch.containsKey("sort")) {
+                sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.username ASC  "));
+            } else {
+                sb.append(" ORDER BY os.id desc ");
+            }
         }
 
         if (!count && paramNotNullOrEmpty(paramSearch, "pageSize") && !"0".equalsIgnoreCase(String.valueOf(paramSearch.get("pageSize")))) {
-            sb.append(" LIMIT :offset,:limit");
+            sb.append(" OFFSET :offset ROWS ");
+            sb.append(" FETCH NEXT :limit ROWS ONLY ");
             parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")), DataUtils.parseToInt(paramSearch.get("pageSize"))));
             parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
         }
