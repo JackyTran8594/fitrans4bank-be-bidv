@@ -36,10 +36,10 @@ public class StaffContactController extends BaseController implements StaffConta
 
     @Override
     @GetMapping("")
-    public Page<StaffContactDTO> getList(@RequestParam Map<String, Object> mapParam,@RequestParam int pageNumber,@RequestParam int pageSize)
-    {
+    public Page<StaffContactDTO> getList(@RequestParam Map<String, Object> mapParam, @RequestParam int pageNumber,
+            @RequestParam int pageSize) {
         // TODO Auto-generated method stub
-        if(pageNumber > 0) {
+        if (pageNumber > 0) {
             pageNumber = pageNumber - 1;
         }
         mapParam.put("pageNumber", pageNumber);
@@ -55,7 +55,7 @@ public class StaffContactController extends BaseController implements StaffConta
     public StaffContactDTO getById(@PathVariable(value = "id") Long id) {
         // TODO Auto-generated method stub
         StaffContactDTO dto = staffContactService.findById(id);
-        if(dto == null) {
+        if (dto == null) {
             throw new ResourceNotFoundException("StaffContact" + id + "not found");
         }
         return dto;
@@ -71,7 +71,7 @@ public class StaffContactController extends BaseController implements StaffConta
     @Override
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public StaffContactDTO update(@PathVariable(value = "id")  Long id,@RequestBody StaffContactDTO dto) {
+    public StaffContactDTO update(@PathVariable(value = "id") Long id, @RequestBody StaffContactDTO dto) {
         // TODO Auto-generated method stub
         dto.setId(id);
         return staffContactService.save(dto);
@@ -82,6 +82,15 @@ public class StaffContactController extends BaseController implements StaffConta
     public Boolean delete(@PathVariable(value = "id") Long id) {
         // TODO Auto-generated method stub
         staffContactService.deleteById(id);
+        return true;
+    }
+
+    @PostMapping("/deleteList")
+    public Boolean deleteList(@RequestBody List<Long> listData) {
+        // TODO Auto-generated method stub
+        for (Long id : listData) {
+            staffContactService.deleteById(id);
+        }
         return true;
     }
 

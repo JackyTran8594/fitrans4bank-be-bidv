@@ -6,7 +6,7 @@ import java.util.Map;
 import com.eztech.fitrans.dto.response.StaffContactDTO;
 
 public interface StaffContactService {
-    
+
     StaffContactDTO save(StaffContactDTO staffContact);
 
     void deleteById(Long id);
@@ -18,4 +18,6 @@ public interface StaffContactService {
     List<StaffContactDTO> search(Map<String, Object> mapParam);
 
     Long count(Map<String, Object> mapParam);
+
+    
 }

@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface StaffContactRepository extends JpaRepository<StaffContact, Long>, StaffContactRepositoryCustom{
-    
+public interface StaffContactRepository extends JpaRepository<StaffContact, Long>, StaffContactRepositoryCustom {
+
 }
