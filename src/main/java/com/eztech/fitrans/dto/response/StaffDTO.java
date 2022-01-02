@@ -19,7 +19,8 @@ public class StaffDTO implements Serializable {
 
   private Long id;
   private String name;
-
+  private Integer departmentId;
+  private String note;
   private String createdBy;
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
