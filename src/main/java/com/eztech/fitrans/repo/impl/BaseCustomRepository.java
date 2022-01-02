@@ -113,10 +113,11 @@ public abstract class BaseCustomRepository<T> {
     Long getCountResult(String query, Map<String, Object> parameters) {
         Query nativeQuery = entityManager.createNativeQuery(query);
         if (CollectionUtils.isEmpty(parameters)) {
-            return ((BigInteger) nativeQuery.getSingleResult()).longValue();
+            return ((Integer) nativeQuery.getSingleResult()).longValue();
         }
         parameters.forEach(nativeQuery::setParameter);
-        return ((BigInteger) nativeQuery.getSingleResult()).longValue();
+        return ((Integer) nativeQuery.getSingleResult()).longValue();
+//        return ((BigInteger) nativeQuery.getSingleResult()).longValue();
     }
 
     //

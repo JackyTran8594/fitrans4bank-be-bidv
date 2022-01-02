@@ -71,6 +71,11 @@ public class DepartmentRepositoryCustomImpl extends BaseCustomRepository<Departm
             parameters.put("id", DataUtils.parseToLong(paramSearch.get("id")));
         }
 
+        if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
+            sb.append(" AND (UPPER(os.code) LIKE :txtSearch OR UPPER(os.name) LIKE :txtSearch) ");
+            parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
+        }
+
         if (paramNotNullOrEmpty(paramSearch, "code")) {
             sb.append(" AND UPPER(os.code) LIKE :code ");
             parameters.put("code", formatLike((String) paramSearch.get("code")).toUpperCase());
@@ -91,13 +96,18 @@ public class DepartmentRepositoryCustomImpl extends BaseCustomRepository<Departm
             parameters.put("description", formatLike((String) paramSearch.get("description")).toUpperCase());
         }
 
-        if (paramSearch.containsKey("sort")) {
-            sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.code DESC  "));
+        if (!count) {
+            if (paramSearch.containsKey("sort")) {
+                sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.code DESC  "));
+            } else {
+                sb.append(" ORDER BY os.id desc ");
+            }
         }
 
         if (!count && paramNotNullOrEmpty(paramSearch, "pageSize") && !"0".equalsIgnoreCase(String.valueOf(paramSearch.get("pageSize")))) {
-            sb.append(" LIMIT :offset,:limit");
-            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")) - 1, DataUtils.parseToInt(paramSearch.get("pageSize"))));
+            sb.append(" OFFSET :offset ROWS ");
+            sb.append(" FETCH NEXT :limit ROWS ONLY ");
+            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")), DataUtils.parseToInt(paramSearch.get("pageSize"))));
             parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
         }
         return sb.toString();

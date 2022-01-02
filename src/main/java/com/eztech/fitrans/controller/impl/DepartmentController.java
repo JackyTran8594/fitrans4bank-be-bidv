@@ -32,6 +32,9 @@ public class DepartmentController extends BaseController implements DepartmentAp
       @RequestParam int pageNumber,
       @RequestParam int pageSize
   ) {
+    if(pageNumber > 0){
+      pageNumber = pageNumber - 1;
+    }
     mapParam.put("pageNumber", pageNumber);
     mapParam.put("pageSize", pageSize);
     Pageable pageable = pageRequest(new ArrayList<>(), pageSize, pageNumber);
