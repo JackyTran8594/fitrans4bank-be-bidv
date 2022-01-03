@@ -24,6 +24,7 @@ hs_err_pid*
 
 target
 .idea
+.vscode
 
 # resources properties
 ./application-local.properties

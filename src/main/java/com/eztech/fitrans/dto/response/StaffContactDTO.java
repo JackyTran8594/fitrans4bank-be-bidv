@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 public class StaffContactDTO implements Serializable {
     private Long id;
     private String cif;
-    private String staffIdCm;
-    private String staffIdCt;
+    private String staffIdCM;
+    private String staffIdCT;
     private String staffIdCustomer;
     private String customerId;
     private String note;

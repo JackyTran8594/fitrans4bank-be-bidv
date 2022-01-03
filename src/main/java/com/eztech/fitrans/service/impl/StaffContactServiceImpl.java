@@ -37,12 +37,16 @@ public class StaffContactServiceImpl implements StaffContactService {
                 throw new ResourceNotFoundException("StaffContact" + item.getId() + " not found");
             }
             dto.setCif(item.getCif());
+            dto.setCustomerId(item.getCustomerId());
+            dto.setStaffIdCM(item.getStaffIdCM());
+            dto.setStaffIdCT(item.getStaffIdCT());
+            dto.setStaffIdCustomer(item.getStaffIdCustomer());
             entity = mapper.toPersistenceBean(dto);
 
         } else {
             entity = mapper.toPersistenceBean(item);
         }
-        return null;
+        return mapper.toDtoBean(repository.save(entity));
     }
 
     @Override

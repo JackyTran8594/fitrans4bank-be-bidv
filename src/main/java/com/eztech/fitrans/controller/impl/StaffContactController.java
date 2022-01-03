@@ -36,16 +36,21 @@ public class StaffContactController extends BaseController implements StaffConta
 
     @Override
     @GetMapping("")
-    public Page<StaffContactDTO> getList(@RequestParam Map<String, Object> mapParam, @RequestParam int pageNumber,
-            @RequestParam int pageSize) {
+    public Page<StaffContactDTO> getList(@RequestParam Map<String, Object> mapParam,
+            @RequestParam(value = "pageNumber") int pageNumber,
+            @RequestParam(value = "pageSize") int pageSize) {
         // TODO Auto-generated method stub
+        List<StaffContactDTO> listData = new ArrayList<StaffContactDTO>();
         if (pageNumber > 0) {
             pageNumber = pageNumber - 1;
         }
         mapParam.put("pageNumber", pageNumber);
         mapParam.put("pageSize", pageSize);
         Pageable pageable = pageRequest(new ArrayList<>(), pageSize, pageNumber);
-        List<StaffContactDTO> listData = staffContactService.search(mapParam);
+        // if (mapParam.isEmpty()) {
+        listData = staffContactService.search(mapParam);
+        // listData = staffContactService.findAll();
+        // }
         Long total = staffContactService.count(mapParam);
         return new PageImpl<>(listData, pageable, total);
     }
@@ -65,6 +70,8 @@ public class StaffContactController extends BaseController implements StaffConta
     @PostMapping("")
     public StaffContactDTO create(@RequestBody StaffContactDTO dto) {
         // TODO Auto-generated method stub
+        System.out.println(dto);
+
         return staffContactService.save(dto);
     }
 
@@ -86,10 +93,10 @@ public class StaffContactController extends BaseController implements StaffConta
     }
 
     @PostMapping("/deleteList")
-    public Boolean deleteList(@RequestBody List<Long> listData) {
+    public Boolean deleteList(@RequestBody List<StaffContactDTO> listData) {
         // TODO Auto-generated method stub
-        for (Long id : listData) {
-            staffContactService.deleteById(id);
+        for (var item : listData) {
+            staffContactService.deleteById(item.getId());
         }
         return true;
     }
