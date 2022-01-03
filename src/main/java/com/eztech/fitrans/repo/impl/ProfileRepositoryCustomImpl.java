@@ -69,8 +69,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
       sb.append(
           "SELECT os.id,os.customer_id,os.staff_id,os.type,os.priority,os.state,os.process_date,os.last_updated_by,os.last_updated_date,os.status,c.cif,c.name as customer_name, s.name as staff_name \n")
           .append(
-              "FROM profile os left join customer c on os.customer_id = c.id AND c.`status` = 'ACTIVE' \n")
-          .append(" left join staff s on os.staff_id = s.id AND s.`status` = 'ACTIVE' ")
+              "FROM profile os left join customer c on os.customer_id = c.id AND c.status = 'ACTIVE' \n")
+          .append(" left join staff s on os.staff_id = s.id AND s.status = 'ACTIVE' ")
           .append("WHERE 1=1 ");
     }
 
