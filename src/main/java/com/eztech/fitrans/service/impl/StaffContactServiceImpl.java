@@ -50,7 +50,7 @@ public class StaffContactServiceImpl implements StaffContactService {
         // TODO Auto-generated method stub
         StaffContactDTO dto = findById(id);
         if (dto == null) {
-            throw new ResourceNotFoundException("StaffContact" + id + "not found");
+            throw new ResourceNotFoundException("StaffContact " + id + "not found");
         }
         repository.deleteById(id);
     }
