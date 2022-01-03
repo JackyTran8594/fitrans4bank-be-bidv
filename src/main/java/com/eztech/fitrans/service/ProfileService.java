@@ -12,6 +12,8 @@ public interface ProfileService {
 
   ProfileDTO findById(Long id);
 
+  ProfileDTO detailById(Long id);
+
   List<ProfileDTO> findAll();
 
   List<ProfileDTO> search(Map<String, Object> mapParam);

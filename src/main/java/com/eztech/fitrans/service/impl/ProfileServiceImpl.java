@@ -66,6 +66,15 @@ public class ProfileServiceImpl implements ProfileService {
   }
 
   @Override
+  public ProfileDTO detailById(Long id) {
+    ProfileDTO dto = repository.detailById(id);
+    if(dto != null){
+      dto.fillTransient();
+    }
+    return dto;
+  }
+
+  @Override
   public List<ProfileDTO> findAll() {
     List<Profile> listData = repository.findAll();
     List<ProfileDTO> list = mapper.toDtoBean(listData);

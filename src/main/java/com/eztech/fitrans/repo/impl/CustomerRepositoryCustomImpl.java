@@ -78,6 +78,11 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
             parameters.put("id", DataUtils.parseToLong(paramSearch.get("id")));
         }
 
+        if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
+            sb.append(" AND (UPPER(cif) LIKE :txtSearch OR UPPER(name) LIKE :txtSearch) ");
+            parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
+        }
+
         if (paramNotNullOrEmpty(paramSearch, "cif")) {
             sb.append(" AND UPPER(cif) LIKE :cif ");
             parameters.put("cif", formatLike((String) paramSearch.get("cif")).toUpperCase());

@@ -1,6 +1,7 @@
 package com.eztech.fitrans.repo.impl;
 
 import com.eztech.fitrans.constants.Constants;
+import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.model.Profile;
 import com.eztech.fitrans.repo.ProfileRepositoryCustom;
 import com.eztech.fitrans.util.DataUtils;
@@ -67,15 +68,15 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
           .append("WHERE 1=1 ");
     } else {
       sb.append(
-          "SELECT os.id,os.customer_id,os.staff_id,os.type,os.priority,os.state,os.process_date,os.last_updated_by,os.last_updated_date,os.status,c.cif,c.name as customer_name, s.name as staff_name \n")
+          "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,c.cif,c.name as customer_name, s.name as staff_name \n")
           .append(
-              "FROM profile os left join customer c on os.customer_id = c.id AND c.status = 'ACTIVE' \n")
-          .append(" left join staff s on os.staff_id = s.id AND s.status = 'ACTIVE' ")
+              "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n")
+          .append(" left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' ")
           .append("WHERE 1=1 ");
     }
 
     if (paramSearch.containsKey("id")) {
-      sb.append(" AND os.id = :id ");
+      sb.append(" AND p.id = :id ");
       parameters.put("id", DataUtils.parseToLong(paramSearch.get("id")));
     }
 
@@ -85,25 +86,25 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     }
 
     if (paramSearch.containsKey("customerId")) {
-      sb.append(" AND os.customer_id = :customerId ");
+      sb.append(" AND p.customer_id = :customerId ");
       parameters.put("customerId", DataUtils.parseToLong(paramSearch.get("customerId")));
     }
 
     if (paramSearch.containsKey("staffId")) {
-      sb.append(" AND os.staff_id = :staffId ");
+      sb.append(" AND p.staff_id = :staffId ");
       parameters.put("staffId", DataUtils.parseToLong(paramSearch.get("staffId")));
     }
 
     if (paramNotNullOrEmpty(paramSearch, "status")) {
-      sb.append(" AND os.status = :status ");
+      sb.append(" AND p.status = :status ");
       parameters.put("status", paramSearch.get("status"));
     }
 
     if (!count) {
       if (paramSearch.containsKey("sort")) {
-        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.id DESC  "));
+        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.id DESC  "));
       }else{
-        sb.append(" ORDER BY os.id desc ");
+        sb.append(" ORDER BY p.id desc ");
       }
     }
 
@@ -115,5 +116,17 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
       parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
     }
     return sb.toString();
+  }
+
+  @Override
+  public ProfileDTO detailById(Long id) {
+    Map<String, Object> parameters = new HashMap<>();
+    String sql = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,c.cif,c.name as customer_name, s.name as staff_name " +
+            "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' " +
+            " left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' " +
+            " where p.id = :id ";
+    parameters.put("id",id);
+    ProfileDTO profileDTO = getSingleResult(sql,Constants.ResultSetMapping.PROFILE_DTO,parameters);
+    return profileDTO;
   }
 }

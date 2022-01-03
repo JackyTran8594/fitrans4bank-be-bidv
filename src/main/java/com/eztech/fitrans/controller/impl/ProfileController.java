@@ -52,7 +52,7 @@ public class ProfileController extends BaseController implements ProfileApi {
   @Override
   @GetMapping("/{id}")
   public ProfileDTO getById(@PathVariable(value = "id") Long id) {
-    ProfileDTO dto = service.findById(id);
+    ProfileDTO dto = service.detailById(id);
     if (dto == null) {
       throw new ResourceNotFoundException("Profile " + id + " not found");
     }
