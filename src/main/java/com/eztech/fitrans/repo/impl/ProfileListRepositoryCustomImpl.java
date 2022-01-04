@@ -1,7 +1,7 @@
 package com.eztech.fitrans.repo.impl;
 
-import com.eztech.fitrans.model.TransactionType;
-import com.eztech.fitrans.repo.TransactionTypeRepositoryCustom;
+import com.eztech.fitrans.model.ProfileList;
+import com.eztech.fitrans.repo.ProfileListRepositoryCustom;
 import com.eztech.fitrans.util.DataUtils;
 
 import java.time.LocalDateTime;
@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TransactionTypeRepositoryCustomImpl extends BaseCustomRepository<TransactionType> implements TransactionTypeRepositoryCustom {
+public class ProfileListRepositoryCustomImpl extends BaseCustomRepository<ProfileList> implements ProfileListRepositoryCustom {
     @Override
     public List search(Map searchDTO, Class aClass) {
         Map<String, Object> parameters = new HashMap<>();
         String sql = buildQuery(searchDTO, parameters, false);
-        return getResultList(sql, TransactionType.class, parameters);
+        return getResultList(sql, ProfileList.class, parameters);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class TransactionTypeRepositoryCustomImpl extends BaseCustomRepository<Tr
     public Integer updateStatus(Long id, String status, String lastUpdatedBy, LocalDateTime lastUpdateDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
-        sb.append("UPDATE transaction_type SET status =:status, last_updated_by = :updateBy,last_updated_date=:updateDate WHERE id = :id ");
+        sb.append("UPDATE profile_list SET status =:status, last_updated_by = :updateBy,last_updated_date=:updateDate WHERE id = :id ");
         parameters.put("id", id);
         parameters.put("status", status);
         parameters.put("updateBy", lastUpdatedBy);
@@ -36,19 +36,18 @@ public class TransactionTypeRepositoryCustomImpl extends BaseCustomRepository<Tr
         return executeUpdate(sb.toString(), parameters);
     }
 
-
     @Override
     public Boolean checkExits(Long id, String code) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
-        sb.append("SELECT COUNT(*) FROM transaction_type WHERE 1=1 ");
+        sb.append("SELECT COUNT(*) FROM profile_list WHERE 1=1 ");
         if (DataUtils.notNull(id)) {
             sb.append(" AND id != :id ");
             parameters.put("id", id);
         }
         if (DataUtils.notNullOrEmpty(code)) {
-            sb.append(" AND UPPER(transaction_id) = :code ");
-            parameters.put("transaction_id", code.trim().toUpperCase());
+            sb.append(" AND UPPER(profile_list_id) = :code ");
+            parameters.put("code", code.trim().toUpperCase());
         }
         sb.append(" AND status > 0");
         return getCountResult(sb.toString(), parameters) > 0L;
@@ -59,11 +58,11 @@ public class TransactionTypeRepositoryCustomImpl extends BaseCustomRepository<Tr
         StringBuilder sb = new StringBuilder();
         if (count) {
             sb.append("SELECT COUNT(id) \n")
-                    .append("FROM transaction_type os\n")
+                    .append("FROM profile_list os\n")
                     .append("WHERE 1=1 ");
         } else {
             sb.append("SELECT os.* \n")
-                    .append("FROM transaction_type os\n")
+                    .append("FROM profile_list os\n")
                     .append("WHERE 1=1 ");
         }
 
@@ -73,28 +72,25 @@ public class TransactionTypeRepositoryCustomImpl extends BaseCustomRepository<Tr
         }
 
         if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
-            sb.append(" AND (UPPER(os.name) LIKE :txtSearch OR UPPER(os.note) LIKE :txtSearch) ");
+            sb.append(" AND (UPPER(os.profile_list_id) LIKE :txtSearch OR (UPPER(os.note) LIKE :txtSearch");
             parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
         }
 
-
         if (paramNotNullOrEmpty(paramSearch, "type")) {
-            sb.append(" AND os.type = :type ");
-            parameters.put("type", paramSearch.get("type"));
+            sb.append(" AND UPPER(os.type) LIKE :type ");
+            parameters.put("type", formatLike((String) paramSearch.get("type")).toUpperCase());
         }
 
-        if (paramNotNullOrEmpty(paramSearch, "transactionDetail")) {
-            sb.append(" AND os.transaction_detail = :transactionDetail ");
-            parameters.put("transactionDetail", paramSearch.get("transactionDetail"));
+        if (paramNotNullOrEmpty(paramSearch, "amount")) {
+            sb.append(" AND os.amount = :amount ");
+            parameters.put("amount", paramSearch.get("amount"));
         }
 
-
-        if (paramNotNullOrEmpty(paramSearch, "transactionId")) {
-            sb.append(" AND os.transaction_id = :transactionId ");
-            parameters.put("transactionId", paramSearch.get("transactionId"));
+        if (paramNotNullOrEmpty(paramSearch, "profileStatus")) {
+            sb.append(" AND os.profile_status = :profileStatus ");
+            parameters.put("profileStatus", paramSearch.get("profileStatus"));
         }
 
-    
         if (paramNotNullOrEmpty(paramSearch, "status")) {
             sb.append(" AND os.status = :status ");
             parameters.put("status", paramSearch.get("status"));
