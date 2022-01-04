@@ -3,12 +3,6 @@ package com.eztech.fitrans.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-/**
- * Cấu hình enum error
- *
- * @author : HoangTD
- * @since : 11/5/2020, Thu
- **/
 @Getter
 @AllArgsConstructor
 public enum ErrorCodeEnum implements Message {

@@ -19,7 +19,7 @@ import static com.eztech.fitrans.constants.Constants.PATH_MESSAGE;
 public class Translator {
 
   private static final MultiResourceBundleControl control
-      = new MultiResourceBundleControl(PATH_MESSAGE + PATH_ERROR, PATH_MESSAGE, PATH_ERROR);
+      = new MultiResourceBundleControl(PATH_MESSAGE, PATH_MESSAGE, PATH_ERROR);
 
   public static String toMessage(Message msg, Object... args) {
     Locale locale = LocaleContextHolder.getLocale();

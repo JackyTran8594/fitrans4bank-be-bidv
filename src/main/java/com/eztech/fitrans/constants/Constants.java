@@ -20,4 +20,12 @@ public class Constants {
         public static final String USER_ENTITY_DTO = "userEntityDTO";
         public static final String PROFILE_DTO = "profileEntityDTO";
     }
+
+
+    public static final class MessageParam {
+        public static final String CIF = "param.customer.cif";
+        public static final String CUSTOMER_NAME = "param.customer.name";
+        public static final String CUSTOMER_ADDRESS = "param.customer.address";
+        public static final String CUSTOMER_TEL = "param.customer.tel";
+    }
 }

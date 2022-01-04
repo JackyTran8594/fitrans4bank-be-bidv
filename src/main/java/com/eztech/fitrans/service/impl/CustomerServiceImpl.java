@@ -1,7 +1,11 @@
 package com.eztech.fitrans.service.impl;
 
+import com.eztech.fitrans.constants.Constants;
 import com.eztech.fitrans.dto.response.CustomerDTO;
+import com.eztech.fitrans.dto.response.ErrorCodeEnum;
+import com.eztech.fitrans.exception.InputInvalidException;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
+import com.eztech.fitrans.locale.Translator;
 import com.eztech.fitrans.model.Customer;
 import com.eztech.fitrans.repo.CustomerRepository;
 import com.eztech.fitrans.service.CustomerService;
@@ -25,6 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
 
   @Override
   public CustomerDTO save(CustomerDTO item) {
+    validate(item);
     Customer entity;
     if (!DataUtils.nullOrZero(item.getId())) {
       CustomerDTO dto = findById(item.getId());
@@ -86,4 +91,36 @@ public class CustomerServiceImpl implements CustomerService {
   public Long count(Map<String, Object> mapParam) {
     return repository.count(mapParam);
   }
+
+  public void validate(CustomerDTO item) {
+    if (DataUtils.isNullOrEmpty(item.getCif())) {
+      throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.CIF));
+    }
+
+    if (DataUtils.notNullOrEmpty(item.getCif()) && item.getCif().length() > 50) {
+      throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CIF), 50);
+    }
+
+    if (DataUtils.isNullOrEmpty(item.getName())) {
+      throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME));
+    }
+
+    if (DataUtils.notNullOrEmpty(item.getName()) && item.getName().length() > 100) {
+      throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME), 100);
+    }
+
+    if (DataUtils.notNullOrEmpty(item.getAddress()) && item.getAddress().length() > 512) {
+      throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_ADDRESS), 512);
+    }
+
+    if (DataUtils.notNullOrEmpty(item.getTel()) && item.getTel().length() > 25) {
+      throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_TEL), 25);
+    }
+
+    boolean checkExit = repository.checkExits(item.getId(),item.getCif());
+    if (checkExit) {
+      throw new InputInvalidException(ErrorCodeEnum.ER0009, Translator.toMessage(Constants.MessageParam.CIF));
+    }
+  }
+
 }

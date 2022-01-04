@@ -50,10 +50,10 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
             parameters.put("id", id);
         }
         if (DataUtils.notNullOrEmpty(code)) {
-            sb.append(" AND cif = :cif ");
-            parameters.put("cif", code.trim().toLowerCase());
+            sb.append(" AND UPPER(cif) = :cif ");
+            parameters.put("cif", code.trim().toUpperCase());
         }
-        sb.append(" AND status > 0");
+        sb.append(" AND status = 'ACTIVE'");
         return getCountResult(sb.toString(), parameters) > 0L;
     }
 
