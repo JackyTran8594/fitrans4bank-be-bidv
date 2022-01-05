@@ -1,22 +1,21 @@
 package com.eztech.fitrans.service.impl;
 
 import com.eztech.fitrans.dto.response.RoleDTO;
+import com.eztech.fitrans.dto.response.RoleTreeDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Role;
-import com.eztech.fitrans.model.UserEntity;
 import com.eztech.fitrans.repo.RoleRepository;
-import com.eztech.fitrans.repo.UserRepository;
 import com.eztech.fitrans.service.RoleService;
-import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.DataUtils;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -75,5 +74,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Long count(Map<String, Object> mapParam) {
         return repository.count(mapParam);
+    }
+
+    @Override
+    public List<RoleTreeDTO>  treeRole() {
+        return repository.mapRoleList();
     }
 }

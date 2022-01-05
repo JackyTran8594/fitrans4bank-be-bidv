@@ -1,29 +1,22 @@
 package com.eztech.fitrans.repo.impl;
 
-import com.eztech.fitrans.dto.response.RoleDTO;
-import com.eztech.fitrans.dto.response.RoleListDTO;
-import com.eztech.fitrans.dto.response.RoleTreeDTO;
-import com.eztech.fitrans.model.Role;
-import com.eztech.fitrans.model.RoleList;
-import com.eztech.fitrans.repo.RoleRepositoryCustom;
-import com.eztech.fitrans.util.BaseMapper;
+import com.eztech.fitrans.model.OptionSet;
+import com.eztech.fitrans.repo.OptionSetRepositoryCustom;
 import com.eztech.fitrans.util.DataUtils;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> implements
-        RoleRepositoryCustom {
-    private static final BaseMapper<RoleList, RoleListDTO> mapper = new BaseMapper<>(RoleList.class, RoleListDTO.class);
+public class OptionSetRepositoryCustomImpl extends BaseCustomRepository<OptionSet> implements
+        OptionSetRepositoryCustom {
 
     @Override
     public List search(Map searchDTO, Class aClass) {
         Map<String, Object> parameters = new HashMap<>();
         String sql = buildQuery(searchDTO, parameters, false);
-        return getResultList(sql, Role.class, parameters);
+        return getResultList(sql, OptionSet.class, parameters);
     }
 
     @Override
@@ -39,7 +32,7 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         sb.append(
-                "UPDATE role SET status =:status, last_updated_by = :updateBy,last_updated_date=:updateDate WHERE id = :id ");
+                "UPDATE option_set SET status =:status, last_updated_by = :updateBy,last_updated_date=:updateDate WHERE id = :id ");
         parameters.put("id", id);
         parameters.put("status", status);
         parameters.put("updateBy", lastUpdatedBy);
@@ -51,7 +44,7 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
     public Boolean checkExits(Long id, String code) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
-        sb.append("SELECT COUNT(*) FROM role WHERE 1=1 ");
+        sb.append("SELECT COUNT(*) FROM option_set WHERE 1=1 ");
         if (DataUtils.notNull(id)) {
             sb.append(" AND id != :id ");
             parameters.put("id", id);
@@ -60,7 +53,7 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
             sb.append(" AND UPPER(code) = :code ");
             parameters.put("code", code.trim().toUpperCase());
         }
-        sb.append(" AND status > 0");
+        sb.append(" AND status = 'ACTIVE'");
         return getCountResult(sb.toString(), parameters) > 0L;
     }
 
@@ -70,11 +63,13 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
         StringBuilder sb = new StringBuilder();
         if (count) {
             sb.append("SELECT COUNT(id) \n")
-                    .append("FROM role os\n")
+                    .append("FROM option_set os\n")
                     .append("WHERE 1=1 ");
         } else {
-            sb.append("SELECT os.* \n")
-                    .append("FROM role os\n")
+            sb.append(
+                    "SELECT os.* \n")
+                    .append(
+                            "FROM option_set os \n")
                     .append("WHERE 1=1 ");
         }
 
@@ -83,13 +78,18 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
             parameters.put("id", DataUtils.parseToLong(paramSearch.get("id")));
         }
 
+        if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
+            sb.append(" AND (UPPER(code) LIKE :txtSearch OR UPPER(name) LIKE :txtSearch) ");
+            parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
+        }
+
         if (paramNotNullOrEmpty(paramSearch, "code")) {
-            sb.append(" AND UPPER(os.code) LIKE :code ");
+            sb.append(" AND UPPER(code) LIKE :code ");
             parameters.put("code", formatLike((String) paramSearch.get("code")).toUpperCase());
         }
 
         if (paramNotNullOrEmpty(paramSearch, "name")) {
-            sb.append(" AND UPPER(os.name) LIKE :name ");
+            sb.append(" AND UPPER(name) LIKE :name ");
             parameters.put("name", formatLike((String) paramSearch.get("name")).toUpperCase());
         }
 
@@ -98,15 +98,9 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
             parameters.put("status", paramSearch.get("status"));
         }
 
-        if (paramNotNullOrEmpty(paramSearch, "description")) {
-            sb.append(" AND UPPER(os.description) LIKE :description ");
-            parameters
-                    .put("description", formatLike((String) paramSearch.get("description")).toUpperCase());
-        }
-
         if (!count) {
             if (paramSearch.containsKey("sort")) {
-                sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.code ASC  "));
+                sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY os.id DESC  "));
             } else {
                 sb.append(" ORDER BY os.id desc ");
             }
@@ -120,35 +114,5 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
             parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
         }
         return sb.toString();
-    }
-
-    @Override
-    public List<RoleTreeDTO> mapRoleList() {
-        Map<String, Object> parameters = new HashMap<>();
-        String sql = "SELECT * FROM role_list order by parent_code asc";
-        List<RoleList> list = getResultList(sql, RoleList.class, parameters);
-        if(DataUtils.isNullOrEmpty(list)){
-            return new ArrayList<>();
-        }
-
-        Map<String, List<RoleListDTO>> map = new HashMap<>();
-        for(RoleList roleList: list){
-            RoleListDTO dto = mapper.toDtoBean(roleList);
-            List<RoleListDTO> listDTOList = map.get(dto.getParentCode());
-            if(DataUtils.isNullOrEmpty(listDTOList)){
-                listDTOList = new ArrayList<>();
-            }
-            listDTOList.add(dto);
-            map.put(dto.getParentCode(), listDTOList);
-        }
-
-        List<RoleTreeDTO> rtn = new ArrayList<>();
-        for (Map.Entry<String, List<RoleListDTO>> entry : map.entrySet()) {
-            RoleTreeDTO roleTreeDTO = new RoleTreeDTO();
-            roleTreeDTO.setName(entry.getKey());
-            roleTreeDTO.setChildren(entry.getValue());
-            rtn.add(roleTreeDTO);
-        }
-        return rtn;
     }
 }

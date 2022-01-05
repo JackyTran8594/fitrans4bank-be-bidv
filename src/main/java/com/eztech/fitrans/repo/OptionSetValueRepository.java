@@ -14,6 +14,8 @@ import java.util.List;
 @Repository
 public interface OptionSetValueRepository extends JpaRepository<OptionSetValue, Long> {
 
+    List<OptionSetValue> findByOptionSetIdAndStatus(Long optionSetId, String status);
+
     List<OptionSetValue> findByOptionSetIdAndNameAndStatus(Long optionSetId, String name, String status);
 
     @Query(value = "SELECT po_option_set_value_id FROM po_option_set_value WHERE id != :id AND po_option_set_id=:optionSetId AND name=:name AND STATUS = :status", nativeQuery = true)

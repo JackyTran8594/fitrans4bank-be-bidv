@@ -2,6 +2,8 @@ package com.eztech.fitrans.controller.impl;
 
 import com.eztech.fitrans.controller.RoleApi;
 import com.eztech.fitrans.dto.response.RoleDTO;
+import com.eztech.fitrans.dto.response.RoleListDTO;
+import com.eztech.fitrans.dto.response.RoleTreeDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.service.RoleService;
 import java.util.ArrayList;
@@ -79,4 +81,11 @@ public class RoleController extends BaseController implements RoleApi {
     service.deleteById(id);
     return true;
   }
+
+  @Override
+  @GetMapping("/tree")
+  public List<RoleTreeDTO> treeAll() {
+    return service.treeRole();
+  }
+
 }

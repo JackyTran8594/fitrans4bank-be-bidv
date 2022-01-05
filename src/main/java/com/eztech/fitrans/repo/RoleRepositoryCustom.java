@@ -1,4 +1,9 @@
 package com.eztech.fitrans.repo;
 
-public interface RoleRepositoryCustom extends BaseRepositoryCustom{
+import com.eztech.fitrans.dto.response.RoleTreeDTO;
+
+import java.util.List;
+
+public interface RoleRepositoryCustom extends BaseRepositoryCustom {
+    List<RoleTreeDTO>  mapRoleList();
 }

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface OptionSetRepository extends JpaRepository<OptionSet, Long> {
+public interface OptionSetRepository extends JpaRepository<OptionSet, Long>, OptionSetRepositoryCustom {
     List<OptionSet> findByCodeAndStatus(String code, String status);
 
     @Query(value = "SELECT po_option_set_id FROM po_option_set WHERE id != :id AND code=:code AND STATUS = :status", nativeQuery = true)
