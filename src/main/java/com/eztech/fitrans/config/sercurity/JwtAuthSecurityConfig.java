@@ -1,7 +1,7 @@
 package com.eztech.fitrans.config.sercurity;
 
 import com.eztech.fitrans.config.JwtAuthenticationEntryPoint;
-import com.eztech.fitrans.config.JwtRequestFilter;
+import com.eztech.fitrans.filter.JwtRequestFilter;
 import com.eztech.fitrans.config.Profiles;
 import com.eztech.fitrans.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;

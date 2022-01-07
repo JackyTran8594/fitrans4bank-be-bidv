@@ -61,13 +61,14 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @Override
   @PostMapping("")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ProfileDTO create(@RequestBody ProfileDTO item) {
     return service.save(item);
   }
 
   @Override
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ProfileDTO update(@PathVariable(value = "id") Long id, @RequestBody ProfileDTO item) {
     item.setId(id);
     return service.save(item);
