@@ -89,7 +89,7 @@ public class ActionLogRepositoryCustomImpl extends BaseCustomRepository<ActionLo
 
         if (paramNotNullOrEmpty(paramSearch, "processTimeTo")) {
             sb.append(" AND os.process_time <= :processTimeTo ");
-            parameters.put("processTimeTo", paramSearch.get("processTimeTo"));
+            parameters.put("processTimeTo", paramSearch.get("processTimeTo") + " 23:59:59.999");
         }
 
         if (paramNotNullOrEmpty(paramSearch, "status")) {
