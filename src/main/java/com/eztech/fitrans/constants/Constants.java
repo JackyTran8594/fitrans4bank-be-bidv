@@ -5,6 +5,7 @@ public class Constants {
     public static final String PATH_ERROR = "i18n/errors";
     public static final String ACTION_USER = "ACTION_USER";
     public static final String ACTIVE = "ACTIVE";
+    public static final String INACTIVE = "INACTIVE";
 
     public static final class TASK_VARIABLE {
         public static final String COMMAND = "command";

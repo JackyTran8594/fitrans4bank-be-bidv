@@ -31,6 +31,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = repo.findByUsername(username);
 		if (user != null) {
+			if(!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+				throw new UsernameNotFoundException("User not found with username: " + username);
+			}
+
 			List<String> role = new ArrayList<>();
 			List<Long> listRole = new ArrayList<>();
 			List<Role> roles = roleRepository.getRole(user.getId());
@@ -42,7 +46,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			}
 			return new User(user.getUsername(), user.getPassword(), buildSimpleGrantedAuthorities(roles, role));
 		} else {
-			throw new UsernameNotFoundException("User not found with username: " + username);
+			log.warn("User not found with username {} ---> Create in db", username);
+			user = new UserEntity();
+			user.setEmail(username + "@bidv.com.vn");
+			user.setFullName(username);
+			user.setUsername(username);
+			user.setStatus("ACTIVE");
+			user.setPassword("");
+			repo.save(user);
+			return new User(user.getUsername(), user.getPassword(), buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
 		}
 	}
 

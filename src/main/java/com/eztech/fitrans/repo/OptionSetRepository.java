@@ -15,23 +15,23 @@ import java.util.List;
 public interface OptionSetRepository extends JpaRepository<OptionSet, Long>, OptionSetRepositoryCustom {
     List<OptionSet> findByCodeAndStatus(String code, String status);
 
-    @Query(value = "SELECT po_option_set_id FROM po_option_set WHERE id != :id AND code=:code AND STATUS = :status", nativeQuery = true)
+    @Query(value = "SELECT option_set_id FROM option_set WHERE id != :id AND code=:code AND STATUS = :status", nativeQuery = true)
     List<Long> findByNotIdCodeAndStatus(@Param("id") Long id,
                                         @Param("code") String code,
                                         @Param("status") String status);
 
-    @Query(value = "SELECT po_option_set_id FROM po_option_set WHERE id IN :listId", nativeQuery = true)
+    @Query(value = "SELECT option_set_id FROM po_option_set WHERE id IN :listId", nativeQuery = true)
     List<Long> findByListId(@Param("listId") List<Long> listId);
 
-    @Query(value = "SELECT count(po_option_set_id) FROM po_option_set WHERE id != :id AND code=:code AND STATUS > 0", nativeQuery = true)
+    @Query(value = "SELECT count(option_set_id) FROM option_set WHERE id != :id AND code=:code AND STATUS > 0", nativeQuery = true)
     Long checkUnique(@Param("id") Long id, @Param("code") String code);
 
-    @Query(value = "SELECT count(po_option_set_id) FROM po_option_set WHERE code=:code AND STATUS > 0", nativeQuery = true)
+    @Query(value = "SELECT count(option_set_id) FROM option_set WHERE code=:code AND STATUS > 0", nativeQuery = true)
     Long checkUnique(@Param("code") String code);
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE po_option_set SET STATUS = :status,last_updated_by = :lastUpdatedBy, last_updated_date = :lastUpdateDate WHERE id = :id", nativeQuery = true)
+    @Query(value = "UPDATE option_set SET STATUS = :status,last_updated_by = :lastUpdatedBy, last_updated_date = :lastUpdateDate WHERE id = :id", nativeQuery = true)
     Integer updateStatus(@Param("id") Long id,
                          @Param("status") Integer status,
                          @Param("lastUpdatedBy") String lastUpdatedBy,

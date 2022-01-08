@@ -2,15 +2,13 @@ package com.eztech.fitrans.controller.impl;
 
 import com.eztech.fitrans.dto.request.LoginRequest;
 import com.eztech.fitrans.dto.request.ValidateTokenRequest;
+import com.eztech.fitrans.exception.BusinessException;
 import com.eztech.fitrans.security.ApiResponse;
 import com.eztech.fitrans.security.JwtAuthenticationResponse;
 import com.eztech.fitrans.security.JwtTokenProvider;
 import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.MessageConstants;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.validation.Valid;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,12 +20,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,7 +38,6 @@ public class AuthController {
 
     @Autowired
     AuthenticationManager authenticationManager;
-
 
     @Autowired
     JwtTokenProvider tokenProvider;
@@ -58,22 +59,22 @@ public class AuthController {
             List<String> listRole = new ArrayList<>();
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            UserDetails userDetails =  null;
+            UserDetails userDetails = null;
             //TODO: Test
             log.info(new BCryptPasswordEncoder().encode("benspassword"));
             log.info("admin: " + new BCryptPasswordEncoder().encode("admin"));
 
-            if(SecurityContextHolder.getContext().getAuthentication() != null) {
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                if (principal instanceof UserDetails){
+                if (principal instanceof UserDetails) {
                     userDetails = (UserDetails) principal;
                     log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
-                    if(DataUtils.notNullOrEmpty(userDetails.getAuthorities())){
+                    if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
                         listRole = userDetails.getAuthorities().stream()
                                 .map(GrantedAuthority::getAuthority)
                                 .collect(Collectors.toList());
                     }
-                }else{
+                } else {
                     log.info("===SecurityContextHolder getPrincipal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
@@ -83,6 +84,33 @@ public class AuthController {
         } catch (BadCredentialsException ex) {
             log.error(ex.getMessage());
             return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_INVALID), HttpStatus.BAD_REQUEST);
+        } catch (UsernameNotFoundException ex) {
+            log.error(ex.getMessage());
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_INACTIVE), HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.SYSTEM_ERROR), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(
+            value = {"/sign-out"},
+            method = {RequestMethod.POST}
+    )
+    @ApiOperation(
+            value = "Revoke access token and refresh token",
+            response = ResponseEntity.class
+    )
+    public ResponseEntity<?> revokeAccessToken(@RequestBody(required = false) Map<String, String> aTokenMap) throws BusinessException {
+        try {
+            if (aTokenMap != null) {
+                if (aTokenMap.containsKey("access_token")) {
+                }
+
+                if (aTokenMap.containsKey("refresh_token")) {
+                }
+            }
+            return ResponseEntity.ok("Success");
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
             return new ResponseEntity(new ApiResponse(false, MessageConstants.SYSTEM_ERROR), HttpStatus.BAD_REQUEST);

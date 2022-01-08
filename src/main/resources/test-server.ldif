@@ -53,3 +53,13 @@ cn: admin
 sn: admin
 uid: admin
 userPassword: $2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS
+
+dn: uid=test,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: test
+sn: test
+uid: test
+userPassword: $2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS

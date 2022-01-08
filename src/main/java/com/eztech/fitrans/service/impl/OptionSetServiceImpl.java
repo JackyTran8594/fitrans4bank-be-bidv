@@ -1,21 +1,27 @@
 package com.eztech.fitrans.service.impl;
 
 import com.eztech.fitrans.constants.Constants;
+import com.eztech.fitrans.dto.response.CustomerDTO;
+import com.eztech.fitrans.dto.response.ErrorCodeEnum;
 import com.eztech.fitrans.dto.response.OptionSetDTO;
 import com.eztech.fitrans.dto.response.OptionSetValueDTO;
+import com.eztech.fitrans.exception.InputInvalidException;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
+import com.eztech.fitrans.locale.Translator;
 import com.eztech.fitrans.model.OptionSet;
 import com.eztech.fitrans.model.OptionSetValue;
 import com.eztech.fitrans.model.Staff;
 import com.eztech.fitrans.repo.OptionSetRepository;
 import com.eztech.fitrans.repo.OptionSetValueRepository;
 import com.eztech.fitrans.service.OptionSetService;
+import com.eztech.fitrans.service.OptionSetValueService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,14 +40,47 @@ public class OptionSetServiceImpl implements OptionSetService {
     @Autowired
     private OptionSetValueRepository optionSetValueRepository;
 
+    @Autowired
+    private OptionSetValueService optionSetValueService;
+
+    public void validate(OptionSetDTO item) {
+        if (DataUtils.isNullOrEmpty(item.getCode())) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.CIF));
+        }
+
+        if (DataUtils.notNullOrEmpty(item.getCode()) && item.getCode().length() > 100) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CIF), 100);
+        }
+
+        if (DataUtils.isNullOrEmpty(item.getName())) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME));
+        }
+
+        if (DataUtils.notNullOrEmpty(item.getName()) && item.getName().length() > 512) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME), 512);
+        }
+
+        if (DataUtils.notNullOrEmpty(item.getDescription()) && item.getDescription().length() > 512) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_ADDRESS), 512);
+        }
+
+        boolean checkExit = repository.checkExits(item.getId(),item.getCode());
+        if (checkExit) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0009, Translator.toMessage(Constants.MessageParam.CIF));
+        }
+    }
+
     @Override
+    @Transactional
     public OptionSetDTO save(OptionSetDTO item) {
+        validate(item);
         OptionSet entity;
         if (!DataUtils.nullOrZero(item.getId())) {
             OptionSetDTO dto = findById(item.getId());
             if (dto == null) {
                 throw new ResourceNotFoundException("OptionSet " + item.getId() + " not found");
             }
+            dto.setCode(item.getCode());
             dto.setName(item.getName());
             dto.setStatus(item.getStatus());
             entity = mapper.toPersistenceBean(dto);
@@ -49,7 +88,13 @@ public class OptionSetServiceImpl implements OptionSetService {
             entity = mapper.toPersistenceBean(item);
         }
 
-        return mapper.toDtoBean(repository.save(entity));
+        entity = repository.save(entity);
+
+        OptionSetDTO dto = mapper.toDtoBean(entity);
+        dto.setOptionSetValueDTOList(item.getOptionSetValueDTOList());
+        //Save option-set-value
+        saveOptionSetValue(dto);
+        return dto;
     }
 
     @Override
@@ -128,5 +173,16 @@ public class OptionSetServiceImpl implements OptionSetService {
     @Override
     public Long count(Map<String, Object> mapParam) {
         return repository.count(mapParam);
+    }
+
+    private void saveOptionSetValue(OptionSetDTO dto){
+        List<OptionSetValueDTO> optionSetValueDTOList = dto.getOptionSetValueDTOList();
+        optionSetValueRepository.updateStatusTmp(dto.getId(),Constants.INACTIVE);
+        if(DataUtils.notNullOrEmpty(optionSetValueDTOList)){
+            for(OptionSetValueDTO valueDTO: optionSetValueDTOList){
+                valueDTO.setOptionSetId(dto.getId());
+                optionSetValueService.save(valueDTO);
+            }
+        }
     }
 }

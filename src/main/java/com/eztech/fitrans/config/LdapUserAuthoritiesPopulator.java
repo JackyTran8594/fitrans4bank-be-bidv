@@ -21,12 +21,6 @@ public class LdapUserAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getGrantedAuthorities(DirContextOperations userData, String username) {
-		Collection<? extends GrantedAuthority> authorities = new HashSet<>();
-		try {
-			authorities = userDetailsService.loadUserByUsername(username).getAuthorities();
-		} catch (Exception e) {
-			log.error("Exception occurred while trying to fetch the user authorities from the database");
-		}
-		return authorities;
+		return userDetailsService.loadUserByUsername(username).getAuthorities();
 	}
 }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,9 +40,9 @@ public class GlobalDefaultExceptionHandler {
         return ResponseFactory.error(ErrorCodeEnum.ER0000, e.getArgs());
     }
 
-    @ExceptionHandler(value = BusinessLogicException.class)
+    @ExceptionHandler(value = BusinessException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorMessageDTO businessLogicExceptionHandler(BusinessLogicException e) {
+    public ErrorMessageDTO businessLogicExceptionHandler(BusinessException e) {
         log.error(e.getMessage(), e);
         return ResponseFactory.error(e.getCode(), e.getArgs());
     }
@@ -95,6 +96,13 @@ public class GlobalDefaultExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessageDTO handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        log.error(e.getMessage(), e);
+        return ResponseFactory.error(ErrorCodeEnum.ER0000, e.getMessage());
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorMessageDTO handleUsernameNotFoundException(UsernameNotFoundException e) {
         log.error(e.getMessage(), e);
         return ResponseFactory.error(ErrorCodeEnum.ER0000, e.getMessage());
     }
