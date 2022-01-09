@@ -18,6 +18,7 @@ public class JwtAuthenticationResponse {
     private String email;
     private UserDetails user;
     private List<String> role;
+    private List<String> permissions;
 
     public JwtAuthenticationResponse(String accessToken,UserDetails userDetails) {
         this.accessToken = accessToken;
@@ -33,6 +34,7 @@ public class JwtAuthenticationResponse {
                 role = userDetails.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList());
+                permissions = role;
             }
         }
     }

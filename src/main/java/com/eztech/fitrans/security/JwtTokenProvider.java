@@ -50,6 +50,7 @@ public class JwtTokenProvider {
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .claim("role", listRole)
+                .claim("permissions", listRole)
                 .compact();
     }
 

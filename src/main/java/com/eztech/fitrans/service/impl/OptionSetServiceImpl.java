@@ -45,28 +45,28 @@ public class OptionSetServiceImpl implements OptionSetService {
 
     public void validate(OptionSetDTO item) {
         if (DataUtils.isNullOrEmpty(item.getCode())) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.CIF));
+            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.OPTIONSET_CODE));
         }
 
         if (DataUtils.notNullOrEmpty(item.getCode()) && item.getCode().length() > 100) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CIF), 100);
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.OPTIONSET_CODE), 100);
         }
 
         if (DataUtils.isNullOrEmpty(item.getName())) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME));
+            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.OPTIONSET_NAME));
         }
 
         if (DataUtils.notNullOrEmpty(item.getName()) && item.getName().length() > 512) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME), 512);
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.OPTIONSET_NAME), 512);
         }
 
         if (DataUtils.notNullOrEmpty(item.getDescription()) && item.getDescription().length() > 512) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_ADDRESS), 512);
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.OPTIONSET_DESC), 512);
         }
 
         boolean checkExit = repository.checkExits(item.getId(),item.getCode());
         if (checkExit) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0009, Translator.toMessage(Constants.MessageParam.CIF));
+            throw new InputInvalidException(ErrorCodeEnum.ER0009, Translator.toMessage(Constants.MessageParam.OPTIONSET_CODE));
         }
     }
 
@@ -82,6 +82,7 @@ public class OptionSetServiceImpl implements OptionSetService {
             }
             dto.setCode(item.getCode());
             dto.setName(item.getName());
+            dto.setDescription(item.getDescription());
             dto.setStatus(item.getStatus());
             entity = mapper.toPersistenceBean(dto);
         } else {
@@ -98,11 +99,13 @@ public class OptionSetServiceImpl implements OptionSetService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         OptionSetDTO dto = findById(id);
         if (dto == null) {
             throw new ResourceNotFoundException("OptionSet " + id + " not found");
         }
+        optionSetValueService.deleteByOptionSet(id);
         repository.deleteById(id);
     }
 

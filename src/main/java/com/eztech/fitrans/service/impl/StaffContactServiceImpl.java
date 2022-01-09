@@ -1,9 +1,5 @@
 package com.eztech.fitrans.service.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import com.eztech.fitrans.dto.response.StaffContactDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.StaffContact;
@@ -11,11 +7,13 @@ import com.eztech.fitrans.repo.StaffContactRepository;
 import com.eztech.fitrans.service.StaffContactService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.DataUtils;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -87,6 +85,11 @@ public class StaffContactServiceImpl implements StaffContactService {
     public Long count(Map<String, Object> mapParam) {
         // TODO Auto-generated method stub
         return repository.count(mapParam);
+    }
+
+    @Override
+    public Boolean findByCif(Long id, String cif) {
+        return repository.checkExits(id, cif);
     }
 
 }

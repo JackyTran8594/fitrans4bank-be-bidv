@@ -33,7 +33,11 @@ public interface StaffContactApi {
     @ApiOperation(value = "Update staffContact by ID", response = StaffContactDTO.class)
     StaffContactDTO update(Long id, StaffContactDTO dto);
 
-    @ApiOperation(value = "Delete staffContact", response = StaffContactDTO.class)
+    @ApiOperation(value = "Delete staffContact", response = Boolean.class)
     Boolean delete(Long id);
+
+    @ApiOperation(value = "Get staffContact by CIF", response = Boolean.class)
+    Boolean getByCode(String cif, Long id);
+
 
 }

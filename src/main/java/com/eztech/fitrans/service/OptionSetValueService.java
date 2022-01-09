@@ -8,6 +8,8 @@ public interface OptionSetValueService {
 
     void deleteById(Long id);
 
+    void deleteByOptionSet(Long optionSetId);
+
     OptionSetValueDTO findById(Long id);
 
 }

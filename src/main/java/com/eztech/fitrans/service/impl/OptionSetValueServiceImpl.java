@@ -58,6 +58,11 @@ public class OptionSetValueServiceImpl implements OptionSetValueService {
     }
 
     @Override
+    public void deleteByOptionSet(Long optionSetId) {
+        repository.deleteByOptionSetId(optionSetId);
+    }
+
+    @Override
     public OptionSetValueDTO findById(Long id) {
         Optional<OptionSetValue> optional = repository.findById(id);
         if (optional.isPresent()) {
@@ -68,23 +73,23 @@ public class OptionSetValueServiceImpl implements OptionSetValueService {
 
     public void validate(OptionSetValueDTO item) {
         if (DataUtils.isNullOrEmpty(item.getName())) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME));
+            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.OPTIONSET_NAME));
         }
 
         if (DataUtils.notNullOrEmpty(item.getName()) && item.getName().length() > 512) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME), 512);
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.OPTIONSET_NAME), 512);
         }
 
         if (DataUtils.isNullOrEmpty(item.getValue())) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME));
+            throw new InputInvalidException(ErrorCodeEnum.ER0003, Translator.toMessage(Constants.MessageParam.OPTIONSET_VALUE));
         }
 
         if (DataUtils.notNullOrEmpty(item.getValue()) && item.getValue().length() > 512) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME), 512);
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.OPTIONSET_VALUE), 512);
         }
 
         if (DataUtils.notNullOrEmpty(item.getDescription()) && item.getDescription().length() > 512) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_ADDRESS), 512);
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.OPTIONSET_DESC), 512);
         }
 
         OptionSetValue checkExit = null;
@@ -94,7 +99,7 @@ public class OptionSetValueServiceImpl implements OptionSetValueService {
             checkExit = repository.checkExits(item.getOptionSetId(), item.getName());
         }
         if (checkExit != null) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0009, Translator.toMessage(Constants.MessageParam.CIF));
+            throw new InputInvalidException(ErrorCodeEnum.ER0009, Translator.toMessage(Constants.MessageParam.OPTIONSET_NAME));
         }
     }
 }

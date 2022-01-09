@@ -25,9 +25,17 @@ public class Constants {
 
 
     public static final class MessageParam {
+        public static final String PARAM_CODE = "param.code";
+        public static final String PARAM_NAME = "param.name";
+        public static final String PARAM_VALUE = "param.value";
+        public static final String PARAM_DESCRIPTION = "param.description";
         public static final String CIF = "param.customer.cif";
         public static final String CUSTOMER_NAME = "param.customer.name";
         public static final String CUSTOMER_ADDRESS = "param.customer.address";
         public static final String CUSTOMER_TEL = "param.customer.tel";
+        public static final String OPTIONSET_CODE = "param.optionset.code";
+        public static final String OPTIONSET_NAME = "param.optionset.name";
+        public static final String OPTIONSET_VALUE = "param.optionset.value";
+        public static final String OPTIONSET_DESC = "param.optionset.description";
     }
 }

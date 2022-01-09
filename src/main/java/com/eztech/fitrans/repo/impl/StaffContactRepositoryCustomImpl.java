@@ -49,7 +49,7 @@ public class StaffContactRepositoryCustomImpl extends BaseCustomRepository<Staff
             sb.append(" AND UPPER(cif) = :code ");
             parameters.put("code", code.trim().toUpperCase());
         }
-        sb.append(" AND status > 0");
+        sb.append(" AND status = 'ACTIVE'");
         return getCountResult(sb.toString(), parameters) > 0L;
     }
 

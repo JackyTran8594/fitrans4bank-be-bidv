@@ -49,9 +49,9 @@ public interface OptionSetValueRepository extends JpaRepository<OptionSetValue, 
     Long checkUnique(@Param("optionSetId") Long optionSetId,
                      @Param("name") String name);
 
-    @Transactional
+    @Modifying
     @Query(value = "DELETE FROM option_set_value WHERE option_set_id = :optionSetId", nativeQuery = true)
-    void deleteByOptionSetId(@Param("optionSetId") Long optionSetId);
+    Integer deleteByOptionSetId(@Param("optionSetId") Long optionSetId);
 
     @Query(value = "SELECT v.name FROM option_set_value v left join option_set o ON o.id = v.option_set_id WHERE o.code = :code  AND v.value=:value AND o.STATUS > 0 AND v.STATUS > 0", nativeQuery = true)
     String getName(@Param("code") String code,
