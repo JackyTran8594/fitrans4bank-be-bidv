@@ -43,7 +43,8 @@ import lombok.NoArgsConstructor;
                 @ColumnResult(name = "state", type = Integer.class),
                 @ColumnResult(name = "cif", type = String.class),
                 @ColumnResult(name = "customer_name", type = String.class),
-                @ColumnResult(name = "staff_name", type = String.class)
+                @ColumnResult(name = "staff_name", type = String.class),
+                @ColumnResult(name = "rate", type = Integer.class)
             }
         )
     }
@@ -80,6 +81,10 @@ public class Profile extends Auditable<String> implements Serializable {
   private Integer state;
   @Transient
   private ProfileStateEnum stateValue;
+
+  //Đánh giá
+  @Column(name = "rate")
+  private Integer rate;
 
   @PostLoad
   void fillTransient() {

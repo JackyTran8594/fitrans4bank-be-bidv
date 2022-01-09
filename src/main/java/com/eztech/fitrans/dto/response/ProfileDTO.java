@@ -51,12 +51,13 @@ public class ProfileDTO implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime lastUpdatedDate;
     private String status;
+    private Integer rate;
 
     public ProfileDTO(Long id, Long customerid, Long staffId, Integer type,
                       Integer priority, LocalDateTime processDate,
                       String createdBy, LocalDateTime createdDate, String lastUpdatedBy, LocalDateTime lastUpdatedDate,
                       String status, Integer state, String cif, String customerName,
-                      String staffName) {
+                      String staffName, Integer rate) {
         this.id = id;
         this.customerid = customerid;
         this.cif = cif;
@@ -81,6 +82,7 @@ public class ProfileDTO implements Serializable {
         this.lastUpdatedBy = lastUpdatedBy;
         this.lastUpdatedDate = lastUpdatedDate;
         this.status = status;
+        this.rate = rate;
     }
 
     public void fillTransient() {

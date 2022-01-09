@@ -68,7 +68,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
           .append("WHERE 1=1 ");
     } else {
       sb.append(
-          "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,c.cif,c.name as customer_name, s.name as staff_name \n")
+          "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.rate ,c.cif,c.name as customer_name, s.name as staff_name \n")
           .append(
               "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n")
           .append(" left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' ")
@@ -100,6 +100,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
       parameters.put("status", paramSearch.get("status"));
     }
 
+    if(paramNotNullOrEmpty(paramSearch, "rate")) {
+      sb.append(" AND p.rate = :rate ");
+      parameters.put("rate", paramSearch.get("rate"));
+    }
+
     if (!count) {
       if (paramSearch.containsKey("sort")) {
         sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.id DESC  "));
@@ -121,7 +126,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
   @Override
   public ProfileDTO detailById(Long id) {
     Map<String, Object> parameters = new HashMap<>();
-    String sql = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,c.cif,c.name as customer_name, s.name as staff_name " +
+    String sql = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,p.rate,c.cif,c.name as customer_name, s.name as staff_name " +
             "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' " +
             " left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' " +
             " where p.id = :id ";
