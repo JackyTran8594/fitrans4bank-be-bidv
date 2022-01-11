@@ -17,7 +17,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-//@JsonInclude(JsonInclude.Include.NON_NULL)
+// @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfileDTO implements Serializable {
@@ -26,21 +26,21 @@ public class ProfileDTO implements Serializable {
     private Long customerid;
     private String customerName;
     private String cif;
-    private Integer type;    //Loai giao dich
-    private String typeEnum;    //Mức độ
-    private Integer priority;    //Mức độ
-    private ProfilePriorityEnum priorityValue;    //Mức độ
+    private Integer type; // Loai giao dich
+    private String typeEnum; // Mức độ
+    private Integer priority; // Mức độ
+    private ProfilePriorityEnum priorityValue; // Mức độ
 
-    //Tinh trang ho so
+    // Tinh trang ho so
     private Integer state;
     private String stateEnum;
 
-    private Long staffId;   //Cán bộ đang thực hiện
-    private String staffName;   //Cán bộ đang thực hiện
+    private Long staffId; // Cán bộ đang thực hiện
+    private String staffName; // Cán bộ đang thực hiện
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    protected LocalDateTime processDate;    //Ngày phát sinh
+    protected LocalDateTime processDate; // Ngày phát sinh
 
     private String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -52,12 +52,13 @@ public class ProfileDTO implements Serializable {
     private LocalDateTime lastUpdatedDate;
     private String status;
     private Integer rate;
+    private Boolean notifyByEmail;
 
     public ProfileDTO(Long id, Long customerid, Long staffId, Integer type,
-                      Integer priority, LocalDateTime processDate,
-                      String createdBy, LocalDateTime createdDate, String lastUpdatedBy, LocalDateTime lastUpdatedDate,
-                      String status, Integer state, String cif, String customerName,
-                      String staffName, Integer rate) {
+            Integer priority, LocalDateTime processDate,
+            String createdBy, LocalDateTime createdDate, String lastUpdatedBy, LocalDateTime lastUpdatedDate,
+            String status, Integer state, String cif, String customerName,
+            String staffName, Integer rate) {
         this.id = id;
         this.customerid = customerid;
         this.cif = cif;
@@ -83,6 +84,7 @@ public class ProfileDTO implements Serializable {
         this.lastUpdatedDate = lastUpdatedDate;
         this.status = status;
         this.rate = rate;
+        this.notifyByEmail = false;
     }
 
     public void fillTransient() {

@@ -86,7 +86,11 @@ public class Profile extends Auditable<String> implements Serializable {
   @Column(name = "rate")
   private Integer rate;
 
-  @PostLoad
+  // Gửi email
+  @Column(name = "notify_by_email", columnDefinition = "BIT")
+  private Boolean notifyByEmail;
+
+  @PostLoad 
   void fillTransient() {
     if (priority != null) {
       this.priorityValue = ProfilePriorityEnum.of(priority);
