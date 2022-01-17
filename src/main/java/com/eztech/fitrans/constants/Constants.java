@@ -7,6 +7,8 @@ public class Constants {
     public static final String ACTIVE = "ACTIVE";
     public static final String INACTIVE = "INACTIVE";
 
+    public static final String LIST_PROFILE_DASHBOARD = "LIST_PROFILE_DASHBOARD";
+
     public static final class TASK_VARIABLE {
         public static final String COMMAND = "command";
         public static final String SUCCESS = "success";

@@ -1,5 +1,6 @@
 package com.eztech.fitrans.filter;
 
+import com.eztech.fitrans.dto.request.LoginRequest;
 import com.eztech.fitrans.dto.response.ErrorMessageDTO;
 import com.eztech.fitrans.model.ActionLog;
 import com.eztech.fitrans.repo.ActionLogRepository;
@@ -44,6 +45,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         final String requestTokenHeader = request.getHeader("Authorization");
         long startTime = System.currentTimeMillis();
+
+        String requestUri = request.getRequestURI();
+        if(requestUri.startsWith("/ws")){
+            ContentCachingResponseWrapper responseCacheWrapperObject = new ContentCachingResponseWrapper((HttpServletResponse) response);
+            chain.doFilter(request, responseCacheWrapperObject);
+            responseCacheWrapperObject.copyBodyToResponse();
+            return;
+        }
+
         String username = null;
         String jwtToken = null;
         // JWT Token is in the form "Bearer token". Remove Bearer word and get
@@ -95,18 +105,40 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         responseCacheWrapperObject.copyBodyToResponse();
         String method = request.getMethod();
         if (!"GET".equalsIgnoreCase(method)) {
-            String requestUri = request.getRequestURI();
             int httpStatus = response.getStatus();
+
+            //
+            if("/api/auth/login".equalsIgnoreCase(requestUri)){
+                try {
+                    CustomHttpServletRequestWrapper wrapper = (CustomHttpServletRequestWrapper) request;
+                    String body = wrapper.getBody();
+
+                    LoginRequest loginRequest = DataUtils.jsonToObject(body, LoginRequest.class);
+                    username = loginRequest.getUsername();
+                }catch (Exception ex){
+                    logger.warn(ex.getMessage());
+                }
+            }
 
             byte[] responseArray = responseCacheWrapperObject.getContentAsByteArray();
             String responseStr = new String(responseArray, "UTF-8");
 
             ErrorMessageDTO errorMessageDTO = DataUtils.jsonToObject(responseStr, ErrorMessageDTO.class);
 
+            String ipAddress = request.getHeader("X-FORWARDED-FOR");
+            if (ipAddress == null) {
+                ipAddress = request.getRemoteAddr() + ":"+request.getRemoteHost();
+            }
+
+            if(ipAddress != null && ipAddress.length() > 50){
+                ipAddress = ipAddress.substring(0,50);
+            }
+
             ActionLog actionLog = ActionLog.builder()
                     .username(username)
                     .url(requestUri)
                     .method(method)
+                    .ip(ipAddress)
                     .description("")
                     .httpStatus(httpStatus)
                     .responseContent((responseStr != null && responseStr.length() <= 4000) ? responseStr : "")

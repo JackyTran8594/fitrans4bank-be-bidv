@@ -31,4 +31,5 @@ public class ActionLogDTO implements Serializable {
     private String responseCode;
     private String responseContent;
     private Long duration;
+    private String ip;
 }

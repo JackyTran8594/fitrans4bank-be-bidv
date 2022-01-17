@@ -19,4 +19,6 @@ public interface ProfileService {
   List<ProfileDTO> search(Map<String, Object> mapParam);
 
   Long count(Map<String, Object> mapParam);
+
+  List<ProfileDTO> dashboard();
 }

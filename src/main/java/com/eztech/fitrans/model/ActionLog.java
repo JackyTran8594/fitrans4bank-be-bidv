@@ -35,6 +35,8 @@ public class ActionLog implements Serializable {
     protected LocalDateTime processTime;
     @Column(name = "method")
     private String method;
+    @Column(name = "ip")
+    private String ip;
     @Column(name = "http_status")
     private Integer httpStatus;
     @Column(name = "response_code")
