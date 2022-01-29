@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 //@Profile(Profiles.JWT_AUTH)
@@ -104,7 +105,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         chain.doFilter(request, responseCacheWrapperObject);
         responseCacheWrapperObject.copyBodyToResponse();
         String method = request.getMethod();
-        if (!"GET".equalsIgnoreCase(method)) {
+        if (!"GET".equalsIgnoreCase(method) && !requestUri.startsWith("/socket/")) {
             int httpStatus = response.getStatus();
 
             //
