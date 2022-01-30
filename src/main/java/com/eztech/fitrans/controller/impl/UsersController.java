@@ -79,4 +79,14 @@ public class UsersController extends BaseController implements UserApi {
     userService.deleteById(id);
     return true;
   }
+
+  @PostMapping("/deleteList")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public Boolean deleteList(@RequestBody List<UserDTO> listData) {
+      // TODO Auto-generated method stub
+      for (var item : listData) {
+        userService.deleteById(item.getId());
+      }
+      return true;
+  }
 }

@@ -74,4 +74,16 @@ public class DepartmentController extends BaseController implements DepartmentAp
     departmentService.deleteById(id);
     return true;
   }
+
+  @PostMapping("/deleteList")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public Boolean deleteList(@RequestBody List<DepartmentDTO> listData) {
+       // TODO Auto-generated method stub
+       for (var item : listData) {
+        departmentService.deleteById(item.getId());
+      }
+    
+    return true;
+  }
+
 }
