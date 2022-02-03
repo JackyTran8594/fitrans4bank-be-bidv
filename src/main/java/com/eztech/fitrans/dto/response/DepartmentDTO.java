@@ -20,7 +20,7 @@ public class DepartmentDTO implements Serializable {
     private Long id;
     private String code;
     private String name;
-    private String desciption;
+    private String description;
     private String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

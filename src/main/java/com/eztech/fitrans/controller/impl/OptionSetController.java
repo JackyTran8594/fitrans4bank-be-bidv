@@ -3,6 +3,7 @@ package com.eztech.fitrans.controller.impl;
 import com.eztech.fitrans.controller.OptionSetApi;
 import com.eztech.fitrans.controller.StaffApi;
 import com.eztech.fitrans.dto.response.OptionSetDTO;
+import com.eztech.fitrans.dto.response.OptionSetMasterData;
 import com.eztech.fitrans.dto.response.OptionSetValueDTO;
 import com.eztech.fitrans.dto.response.StaffDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
@@ -91,5 +92,11 @@ public class OptionSetController extends BaseController implements OptionSetApi 
   public Boolean delete(@PathVariable(value = "id") Long id) {
     service.deleteById(id);
     return true;
+  }
+
+  @GetMapping("/getMasterData") 
+  public List<OptionSetMasterData> getMasterData() {
+    
+    return service.getOptionSetMasterData();
   }
 }

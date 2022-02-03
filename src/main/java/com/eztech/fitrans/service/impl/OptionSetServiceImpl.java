@@ -4,6 +4,7 @@ import com.eztech.fitrans.constants.Constants;
 import com.eztech.fitrans.dto.response.CustomerDTO;
 import com.eztech.fitrans.dto.response.ErrorCodeEnum;
 import com.eztech.fitrans.dto.response.OptionSetDTO;
+import com.eztech.fitrans.dto.response.OptionSetMasterData;
 import com.eztech.fitrans.dto.response.OptionSetValueDTO;
 import com.eztech.fitrans.exception.InputInvalidException;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
@@ -33,6 +34,7 @@ public class OptionSetServiceImpl implements OptionSetService {
 
     private static final BaseMapper<OptionSet, OptionSetDTO> mapper = new BaseMapper<>(OptionSet.class, OptionSetDTO.class);
     private static final BaseMapper<OptionSetValue, OptionSetValueDTO> mapperValue = new BaseMapper<>(OptionSetValue.class, OptionSetValueDTO.class);
+    // private static final BaseMapper<OptionSetValue, OptionSetMasterData> mapperMaster = new BaseMapper<>(OptionSetValue.class, OptionSetMasterData.class);
 
     @Autowired
     private OptionSetRepository repository;
@@ -187,5 +189,26 @@ public class OptionSetServiceImpl implements OptionSetService {
                 optionSetValueService.save(valueDTO);
             }
         }
+    }
+
+    public List<OptionSetMasterData> getOptionSetMasterData() {
+        List<OptionSetMasterData> result = new ArrayList<OptionSetMasterData>();
+        List<OptionSet> optionSets = repository.findAll();
+        List<OptionSetValue> optionSetValues = optionSetValueRepository.findAll();
+        for (OptionSet opt : optionSets) {
+            for (OptionSetValue value : optionSetValues)
+            {
+                OptionSetMasterData ms = new OptionSetMasterData();
+                if(opt.getId() == value.getOptionSetId()) {
+                    ms.setCode(opt.getCode());
+                    ms.setName(value.getName());
+                    ms.setDescription(value.getDescription());
+                    ms.setValue(value.getValue());
+                    ms.setOptionSetId(value.getOptionSetId());
+                    result.add(ms);
+                }
+            }
+        }
+        return result;
     }
 }

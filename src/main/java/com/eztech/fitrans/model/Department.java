@@ -22,5 +22,5 @@ public class Department extends Auditable<String> implements Serializable {
     private Long id;
     private String code;
     private String name;
-    private String desciption;
+    private String description;
 }

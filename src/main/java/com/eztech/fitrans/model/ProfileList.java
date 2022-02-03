@@ -21,7 +21,7 @@ public class ProfileList extends Auditable<String> implements Serializable {
     @Column(name = "profile_list_id")
     private String profileListId;
     @Column(name = "type")
-    private Integer type;
+    private String type;
     @Column(name = "amount")
     private Integer amount;
     @Column(name = "profile_status")

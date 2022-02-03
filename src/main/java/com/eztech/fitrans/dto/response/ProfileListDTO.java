@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class ProfileListDTO implements Serializable {
     private Long id;
     private String profileListId;
-    private Integer type;
+    private String type;
     private Integer amount;
     private String profileStatus;
     private String note;

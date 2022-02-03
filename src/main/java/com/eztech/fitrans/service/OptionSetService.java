@@ -1,6 +1,7 @@
 package com.eztech.fitrans.service;
 
 import com.eztech.fitrans.dto.response.OptionSetDTO;
+import com.eztech.fitrans.dto.response.OptionSetMasterData;
 import com.eztech.fitrans.dto.response.OptionSetValueDTO;
 
 import java.util.List;
@@ -25,4 +26,7 @@ public interface OptionSetService {
   List<OptionSetDTO> search(Map<String, Object> mapParam);
 
   Long count(Map<String, Object> mapParam);
+  
+  List<OptionSetMasterData> getOptionSetMasterData();
+
 }

@@ -31,7 +31,7 @@ public class DepartmentServiceImpl implements DepartmentService {
                 throw new ResourceNotFoundException("Department " + department.getId() + " not found");
             }
             dto.setName(department.getName());
-            dto.setDesciption(department.getDesciption());
+            dto.setDescription(department.getDescription());
             dto.setStatus(department.getStatus());
             entity = mapper.toPersistenceBean(dto);
         }else{
