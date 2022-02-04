@@ -80,4 +80,6 @@ public class ProfileController extends BaseController implements ProfileApi {
     service.deleteById(id);
     return true;
   }
+
+  
 }

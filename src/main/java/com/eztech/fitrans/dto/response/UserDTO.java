@@ -21,6 +21,7 @@ public class UserDTO implements Serializable {
   private String username;
   private String email;
   private String fullName;
+  private String phoneNumber;
   private Long departmentId;
   private String departmentName;
   private String position;
@@ -37,7 +38,7 @@ public class UserDTO implements Serializable {
 
   public UserDTO(Long id, String username, String email, String fullName,
       String position, Long departmentId, String status,
-      String lastUpdatedBy, LocalDateTime lastUpdatedDate, String departmentName) {
+      String lastUpdatedBy, LocalDateTime lastUpdatedDate, String departmentName, String phoneNumber) {
     this.id = id;
     this.username = username;
     this.email = email;
@@ -48,5 +49,6 @@ public class UserDTO implements Serializable {
     this.lastUpdatedBy = lastUpdatedBy;
     this.lastUpdatedDate = lastUpdatedDate;
     this.status = status;
+    this.phoneNumber = phoneNumber;
   }
 }
