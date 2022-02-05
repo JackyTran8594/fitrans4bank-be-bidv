@@ -33,12 +33,12 @@ import lombok.NoArgsConstructor;
 								@ColumnResult(name = "username", type = String.class),
 								@ColumnResult(name = "email", type = String.class),
 								@ColumnResult(name = "full_name", type = String.class),
-								@ColumnResult(name = "phoneNumber", type = String.class),
 								@ColumnResult(name = "position", type = String.class),
 								@ColumnResult(name = "deparment_id", type = Long.class),
 								@ColumnResult(name = "status", type = String.class),
 								@ColumnResult(name = "last_updated_by", type = String.class),
 								@ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
+								@ColumnResult(name = "code", type = String.class),
 								@ColumnResult(name = "name", type = String.class)
 						}
 				)
