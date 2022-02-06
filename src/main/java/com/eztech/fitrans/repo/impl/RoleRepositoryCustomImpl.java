@@ -145,6 +145,7 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
         List<RoleTreeDTO> rtn = new ArrayList<>();
         for (Map.Entry<String, List<RoleListDTO>> entry : map.entrySet()) {
             RoleTreeDTO roleTreeDTO = new RoleTreeDTO();
+            roleTreeDTO.setDescription(entry.getKey());
             roleTreeDTO.setName(entry.getKey());
             roleTreeDTO.setChildren(entry.getValue());
             rtn.add(roleTreeDTO);
