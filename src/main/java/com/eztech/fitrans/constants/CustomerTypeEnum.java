@@ -3,7 +3,9 @@ package com.eztech.fitrans.constants;
 import java.util.stream.Stream;
 
 public enum CustomerTypeEnum {
-    NORMAL(1,"Khách hàng thông thường"),VIP(2,"VIP");
+    NORMAL(1,"Khách hàng thông thường"),
+    VIP(2,"VIP"),
+    UNKNOWN(-1,"UNKNOWN");
 
     private int value;
     private String name;
@@ -25,7 +27,7 @@ public enum CustomerTypeEnum {
         return Stream.of(CustomerTypeEnum.values())
                 .filter(p -> p.getValue() == value)
                 .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+                .orElse(CustomerTypeEnum.UNKNOWN);
     }
 
     @Override

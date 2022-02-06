@@ -3,7 +3,11 @@ package com.eztech.fitrans.constants;
 import java.util.stream.Stream;
 
 public enum ProfileStateEnum {
-    NOT_YET(0,"Chưa bàn giao"),PRE_EXPIRE(1,"Sắp hết hạn"),EXPIRED(2,"Quá hạn"),FINISH(3,"Đã hoàn thành");
+    NOT_YET(0,"Chưa bàn giao"),
+    PRE_EXPIRE(1,"Sắp hết hạn"),
+    EXPIRED(2,"Quá hạn"),
+    FINISH(3,"Đã hoàn thành"),
+    UNKNOWN(-1,"UNKNOWN");
 
     private int value;
     private String name;
@@ -25,7 +29,7 @@ public enum ProfileStateEnum {
         return Stream.of(ProfileStateEnum.values())
                 .filter(p -> p.getValue() == value)
                 .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+                .orElse(ProfileStateEnum.UNKNOWN);
     }
 
     @Override

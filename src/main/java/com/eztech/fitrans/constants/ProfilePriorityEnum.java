@@ -3,7 +3,9 @@ package com.eztech.fitrans.constants;
 import java.util.stream.Stream;
 
 public enum ProfilePriorityEnum {
-    LOW(1), MEDIUM(2), HIGH(3);
+    LOW(1),
+    MEDIUM(2),
+    HIGH(3);
 
     private int priority;
 

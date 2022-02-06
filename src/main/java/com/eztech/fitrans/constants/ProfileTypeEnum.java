@@ -3,7 +3,8 @@ package com.eztech.fitrans.constants;
 import java.util.stream.Stream;
 
 public enum ProfileTypeEnum {
-    VAY(1,"Cho vay");
+    VAY(1,"Cho vay"),
+    UNKNOWN(-1,"UNKNOWN");
 
     private int type;
     private String name;
@@ -25,7 +26,7 @@ public enum ProfileTypeEnum {
         return Stream.of(ProfileTypeEnum.values())
                 .filter(p -> p.getType() == type)
                 .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+                .orElse(ProfileTypeEnum.UNKNOWN);
     }
 
     @Override
