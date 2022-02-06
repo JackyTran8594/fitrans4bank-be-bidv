@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
             columns = {
                 @ColumnResult(name = "id", type = Long.class),
                 @ColumnResult(name = "customer_id", type = Long.class),
-                @ColumnResult(name = "staff_id", type = Long.class),
+                @ColumnResult(name = "staff_id", type = String.class),
                 @ColumnResult(name = "type", type = Integer.class),
                 @ColumnResult(name = "priority", type = Integer.class),
                 @ColumnResult(name = "process_date", type = LocalDateTime.class),
@@ -45,6 +45,7 @@ import lombok.NoArgsConstructor;
                 @ColumnResult(name = "number_of_po", type = Integer.class),
                 @ColumnResult(name = "value", type = BigDecimal.class),
                 @ColumnResult(name = "return_reason", type = String.class),
+                @ColumnResult(name = "category_profile", type = String.class),
                 @ColumnResult(name = "created_by", type = String.class),
                 @ColumnResult(name = "created_date", type = LocalDateTime.class),
                 @ColumnResult(name = "last_updated_by", type = String.class),
@@ -56,6 +57,7 @@ import lombok.NoArgsConstructor;
                 @ColumnResult(name = "cif", type = String.class),
                 @ColumnResult(name = "customer_name", type = String.class),
                 @ColumnResult(name = "staff_name", type = String.class),
+                
             }
         )
         
@@ -70,7 +72,7 @@ public class Profile extends Auditable<String> implements Serializable {
   @Column(name = "customer_id")
   private Long customerid;
   @Column(name = "staff_id")
-  private Long staffId;   //Cán bộ đang thực hiện
+  private String staffId;   //Cán bộ đang thực hiện
 
   @Column(name = "process_date")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -109,6 +111,10 @@ public class Profile extends Auditable<String> implements Serializable {
 
   @Column(name = "value")
   private BigDecimal value; // Giá trị
+
+  @Column(name = "category_profile")
+  private String categoryProfile; // Giá trị
+  
   //Loai giao dich
   @Basic
   private Integer type;

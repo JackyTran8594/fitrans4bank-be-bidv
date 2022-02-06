@@ -8,7 +8,6 @@ import com.eztech.fitrans.constants.ProfileTypeEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.math.BigDecimal;
 
 import java.io.Serializable;
@@ -37,7 +36,7 @@ public class ProfileDTO implements Serializable {
     private Integer state;
     private String stateEnum;
 
-    private Long staffId; // Cán bộ đang thực hiện
+    private String staffId; // Cán bộ đang thực hiện
     private String staffName; // Cán bộ đang thực hiện
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -64,6 +63,7 @@ public class ProfileDTO implements Serializable {
 
     private String staffId_CT; // Cán bộ phòng GDKH
     private String returnReason; // Cán bộ phòng GDKH
+    private String categoryProfile;
     private BigDecimal value; // Giá trị
 
     private String createdBy;
@@ -78,34 +78,41 @@ public class ProfileDTO implements Serializable {
     private Integer rate;
     private Boolean notifyByEmail;
 
-    //p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.time_received_ct, p.time_received_cm, p.end_time,
-// p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,
-// p.status,p.state,p.rate, p.notify_by_email,c.cif,c.name as customer_name, s.name as staff_name
 
-    public ProfileDTO(Long id,
-                      Long customerid,
-                      Long staffId,
-                      Integer type,
-                      Integer priority,
-                      LocalDateTime processDate,
-                      LocalDateTime timeReceived_CT,
-                      LocalDateTime timeReceived_CM,
-                      LocalDateTime endTime,
-                      String staffId_CM,
-                      String staffId_CT,
-                      Integer numberOfBill,
-                      Integer numberOfPO,
-                      BigDecimal value,
-                      String returnReason,
-                      String createdBy, LocalDateTime createdDate, String lastUpdatedBy, LocalDateTime lastUpdatedDate,
-                      String status,
-                      Integer state,
-                      Integer rate,
-                      Boolean notifyByEmail,
-                      String cif,
-                      String customerName,
-                      String staffName
-                      ) {
+    // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct,
+    // p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, 
+    // p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,
+    // p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.rate, 
+    // p.notify_by_email ,c.cif,c.name as customer_name, s.name as staff_name 
+
+    public ProfileDTO(Long id, 
+    Long customerid, 
+    String staffId, 
+    Integer type,
+            Integer priority, 
+            LocalDateTime processDate,
+            LocalDateTime timeReceived_CT,
+            LocalDateTime timeReceived_CM,
+            LocalDateTime endTime,
+            String staffId_CM,
+            String staffId_CT,
+            Integer numberOfBill,
+            Integer numberOfPO,
+            BigDecimal value,
+            String returnReason,
+            String categoryProfile,
+            String createdBy, 
+            LocalDateTime createdDate, 
+            String lastUpdatedBy, 
+            LocalDateTime lastUpdatedDate,
+            String status,
+            Integer state,
+            Integer rate,
+            Boolean notifyByEmail,
+            String cif, 
+            String customerName,
+            String staffName
+           ) {
         this.id = id;
         this.customerid = customerid;
         this.cif = cif;
@@ -131,6 +138,7 @@ public class ProfileDTO implements Serializable {
         this.lastUpdatedDate = lastUpdatedDate;
         this.status = status;
         this.rate = rate;
+        this.notifyByEmail = false;
         this.timeReceived_CM = timeReceived_CM;
         this.timeReceived_CT = timeReceived_CT;
         this.endTime = endTime;
@@ -140,7 +148,7 @@ public class ProfileDTO implements Serializable {
         this.staffId_CT = staffId_CT;
         this.returnReason = returnReason;
         this.value = value;
-        this.notifyByEmail = notifyByEmail;
+        this.categoryProfile = categoryProfile;
     }
 
     public void fillTransient() {
