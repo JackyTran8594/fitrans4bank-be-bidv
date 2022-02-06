@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,9 +45,20 @@ import lombok.NoArgsConstructor;
                 @ColumnResult(name = "cif", type = String.class),
                 @ColumnResult(name = "customer_name", type = String.class),
                 @ColumnResult(name = "staff_name", type = String.class),
-                @ColumnResult(name = "rate", type = Integer.class)
+                @ColumnResult(name = "rate", type = Integer.class),
+                @ColumnResult(name = "time_received_cm", type = LocalDateTime.class),
+                @ColumnResult(name = "time_received_ct", type = LocalDateTime.class),
+                @ColumnResult(name = "end_time", type = LocalDateTime.class),
+                @ColumnResult(name = "number_of_bill", type = Integer.class),
+                @ColumnResult(name = "number_of_po", type = Integer.class),
+                @ColumnResult(name = "staff_id_cm", type = String.class),
+                @ColumnResult(name = "staff_id_ct", type = String.class),
+                @ColumnResult(name = "return_reason", type = String.class),
+                @ColumnResult(name = "value", type = BigDecimal.class),
             }
         )
+        
+       
     }
 )
 public class Profile extends Auditable<String> implements Serializable {
@@ -62,8 +74,40 @@ public class Profile extends Auditable<String> implements Serializable {
   @Column(name = "process_date")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  protected LocalDateTime processDate;    //Ngày phát sinh
+  private LocalDateTime processDate;    //Ngày phát sinh
 
+  @Column(name = "time_received_cm")
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  private LocalDateTime timeReceived_CM;    //Ngày bàn giao QTTD - CM: Credit Management
+
+  @Column(name = "time_received_ct")
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  private LocalDateTime timeReceived_CT;    //Ngày bàn giao GDKH - CT: Customer-Transaction
+
+  @Column(name = "end_time")
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  private LocalDateTime endTime;    //Ngày kết thúc giao dịch
+
+  @Column(name = "number_of_bill")
+  private Integer numberOfBill; //Số lượng hóa đơn
+  
+  @Column(name = "number_of_po")
+  private Integer numberOfPO; //Số lượng ủy nhiệm chi
+
+  @Column(name = "staff_id_cm")
+  private String staffId_CM; //Cán bộ phòng QTTD
+
+  @Column(name = "staff_id_ct")
+  private String staffId_CT; //Cán bộ phòng GDKH
+
+  @Column(name = "return_reason")
+  private String returnReason; //Cán bộ phòng GDKH
+
+  @Column(name = "value")
+  private BigDecimal value; // Giá trị
   //Loai giao dich
   @Basic
   private Integer type;
