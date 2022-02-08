@@ -17,4 +17,6 @@ public interface CustomerService {
   List<CustomerDTO> search(Map<String, Object> mapParam);
 
   Long count(Map<String, Object> mapParam);
+
+  List<CustomerDTO> findByCif(String cif);
 }

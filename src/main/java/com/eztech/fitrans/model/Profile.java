@@ -114,6 +114,9 @@ public class Profile extends Auditable<String> implements Serializable {
 
   @Column(name = "category_profile")
   private String categoryProfile; // Giá trị
+
+  @Column(name = "cif")
+  private String cif; // Giá trị
   
   //Loai giao dich
   @Basic

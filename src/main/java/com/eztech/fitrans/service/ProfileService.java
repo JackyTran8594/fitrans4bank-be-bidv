@@ -21,4 +21,6 @@ public interface ProfileService {
   Long count(Map<String, Object> mapParam);
 
   List<ProfileDTO> dashboard();
+
+  String exportDocument();
 }

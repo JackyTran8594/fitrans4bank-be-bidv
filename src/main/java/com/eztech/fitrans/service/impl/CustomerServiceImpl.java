@@ -73,7 +73,7 @@ public class CustomerServiceImpl implements CustomerService {
     List<Customer> listData = repository.findAll();
     List<CustomerDTO> listrtn = mapper.toDtoBean(listData);
     listrtn.stream()
-            .forEach(item -> item.fillTransient());
+        .forEach(item -> item.fillTransient());
     return listrtn;
   }
 
@@ -82,9 +82,16 @@ public class CustomerServiceImpl implements CustomerService {
     List<Customer> listData = repository.search(mapParam, Customer.class);
     List<CustomerDTO> listrtn = mapper.toDtoBean(listData);
     listrtn.stream()
-            .forEach(item -> item.fillTransient());
+        .forEach(item -> item.fillTransient());
     return listrtn;
 
+  }
+
+  public List<CustomerDTO> findByCif(String cif) {
+      List<Customer> customerEntity = repository.findByCif(cif);
+      List<CustomerDTO> customerDTO = mapper.toDtoBean(customerEntity);
+      customerDTO.stream().forEach(customer -> customer.fillTransient());
+      return customerDTO;
   }
 
   @Override
@@ -106,18 +113,21 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     if (DataUtils.notNullOrEmpty(item.getName()) && item.getName().length() > 100) {
-      throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME), 100);
+      throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_NAME),
+          100);
     }
 
     if (DataUtils.notNullOrEmpty(item.getAddress()) && item.getAddress().length() > 512) {
-      throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_ADDRESS), 512);
+      throw new InputInvalidException(ErrorCodeEnum.ER0010,
+          Translator.toMessage(Constants.MessageParam.CUSTOMER_ADDRESS), 512);
     }
 
     if (DataUtils.notNullOrEmpty(item.getTel()) && item.getTel().length() > 25) {
-      throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_TEL), 25);
+      throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.CUSTOMER_TEL),
+          25);
     }
 
-    boolean checkExit = repository.checkExits(item.getId(),item.getCif());
+    boolean checkExit = repository.checkExits(item.getId(), item.getCif());
     if (checkExit) {
       throw new InputInvalidException(ErrorCodeEnum.ER0009, Translator.toMessage(Constants.MessageParam.CIF));
     }

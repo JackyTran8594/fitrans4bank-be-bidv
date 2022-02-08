@@ -4,6 +4,7 @@ import com.eztech.fitrans.controller.ProfileApi;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.service.ProfileService;
+import com.eztech.fitrans.util.ReadAndWriteDoc;
 
 import java.io.File;
 
@@ -83,6 +84,12 @@ public class ProfileController extends BaseController implements ProfileApi {
   public Boolean delete(@PathVariable(value = "id") Long id) {
     service.deleteById(id);
     return true;
+  }
+
+  @PostMapping("/exportDoc")
+  public String exportDoc(@RequestBody ProfileDTO item) {
+    String strBase64 = service.exportDocument();
+    return strBase64;
   }
 
   

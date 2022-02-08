@@ -8,6 +8,8 @@ import com.eztech.fitrans.repo.ProfileRepository;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.DataUtils;
+import com.eztech.fitrans.util.ReadAndWriteDoc;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -31,6 +33,8 @@ public class ProfileServiceImpl implements ProfileService {
 
     private static final BaseMapper<Profile, ProfileDTO> mapper = new BaseMapper<>(Profile.class,
             ProfileDTO.class);
+
+    private static ReadAndWriteDoc  readandwrite;
     @Autowired
     private ProfileRepository repository;
 
@@ -45,8 +49,11 @@ public class ProfileServiceImpl implements ProfileService {
             if (dto == null) {
                 throw new ResourceNotFoundException("Profile " + item.getId() + " not found");
             }
+            dto.setCif(item.getCif());
             dto.setCustomerid(item.getCustomerid());
             dto.setStaffId(item.getStaffId());
+            dto.setStaffId_CM(item.getStaffId_CM());
+            dto.setStaffId_CT(item.getStaffId_CT());
             dto.setStatus(item.getStatus());
             dto.setState(item.getState());
             dto.setPriority(item.getPriority());
@@ -117,5 +124,17 @@ public class ProfileServiceImpl implements ProfileService {
         return repository.search(mapParam, Profile.class);
     }
 
- 
+    @Override
+    public String exportDocument() {
+        String strDoc= "";
+        try {
+
+            readandwrite.ExportDocFile();
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return strDoc;
+    }
 }

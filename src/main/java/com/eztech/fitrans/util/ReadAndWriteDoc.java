@@ -17,6 +17,10 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageSz;
 
+import lombok.extern.slf4j.Slf4j;
+
+
+@Slf4j
 public class ReadAndWriteDoc {
 
     public static String decodeBase64DocFile(String str) {

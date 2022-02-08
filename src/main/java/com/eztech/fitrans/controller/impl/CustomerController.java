@@ -42,9 +42,8 @@ public class CustomerController extends BaseController implements CustomerApi {
   public Page<CustomerDTO> getList(
       @RequestParam Map<String, Object> mapParam,
       @RequestParam int pageNumber,
-      @RequestParam int pageSize
-  ) {
-    if(pageNumber > 0){
+      @RequestParam int pageSize) {
+    if (pageNumber > 0) {
       pageNumber = pageNumber - 1;
     }
     mapParam.put("pageNumber", pageNumber);
@@ -84,5 +83,14 @@ public class CustomerController extends BaseController implements CustomerApi {
   public Boolean delete(@PathVariable(value = "id") Long id) {
     service.deleteById(id);
     return true;
+  }
+
+  @GetMapping("/Cif/{cif}")
+  public List<CustomerDTO> getByCif(@PathVariable(value = "cif") String cif) {
+    List<CustomerDTO> dto = service.findByCif(cif);
+    if (dto == null) {
+      throw new ResourceNotFoundException("Customer " + cif + "not found");
+    }
+    return dto;
   }
 }
