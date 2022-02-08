@@ -138,7 +138,7 @@ public class ProfileDTO implements Serializable {
         this.lastUpdatedDate = lastUpdatedDate;
         this.status = status;
         this.rate = rate;
-        this.notifyByEmail = false;
+        this.notifyByEmail = notifyByEmail;
         this.timeReceived_CM = timeReceived_CM;
         this.timeReceived_CT = timeReceived_CT;
         this.endTime = endTime;
@@ -149,7 +149,7 @@ public class ProfileDTO implements Serializable {
         this.returnReason = returnReason;
         this.value = value;
         this.categoryProfile = categoryProfile;
-    }
+    }   
 
     public void fillTransient() {
         if (priority != null) {

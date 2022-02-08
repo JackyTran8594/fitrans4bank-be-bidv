@@ -9,13 +9,21 @@ import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.DataUtils;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
+// import java.io.FileInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.print.DocFlavor.URL;
 
 @Service
 @Slf4j
@@ -108,4 +116,6 @@ public class ProfileServiceImpl implements ProfileService {
         mapParam.put("pageSize", 10);
         return repository.search(mapParam, Profile.class);
     }
+
+ 
 }
