@@ -130,15 +130,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public String exportDocument() {
         String strDoc= "";
-        try {
-
-            readandwrite.ExportDocFile();
-            
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        // readandwrite.ExportDocFile();
        
         return strDoc;
     }

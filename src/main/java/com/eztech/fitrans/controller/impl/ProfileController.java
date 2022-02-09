@@ -6,8 +6,10 @@ import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
@@ -24,9 +26,14 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +55,8 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   private static Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
-  private static ReadAndWriteDoc readandwrite;
+  @Autowired
+  private ReadAndWriteDoc readandwrite;
 
   @Override
   @GetMapping("")
@@ -100,63 +108,20 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/exportDoc")
-  public String exportDoc(@RequestBody ProfileDTO item) {
-    String strBase64 = "";
-    // service.exportDocument();
-    // String url = getClass().getResource("")
-    try {
-      URL resource = getClass().getClassLoader().getResource("template/BIDV_Template.docx");
-      URL rootFolder = getClass().getClassLoader().getResource("template");
-      if (resource == null) {
-        throw new IllegalArgumentException("file not found");
-      } else {
+  public ResponseEntity<InputStreamResource> exportDoc(@RequestBody ProfileDTO item) throws FileNotFoundException {
 
-        File file = new File(resource.getPath());
-        // System.out.println(file.getAbsolutePath());
-        // InputStream inpuStream = new FileInputStream(file);
-        // XWPFDocument doc = new XWPFDocument(inpuStream);
-        try (InputStream inpuStream = new FileInputStream(file)) {
-          XWPFDocument docOrigin = new XWPFDocument(inpuStream);
-          XWPFDocument docDes = new XWPFDocument();
-          for (IBodyElement bodyElement : docOrigin.getBodyElements()) {
+    MediaType mediaType = MediaType.APPLICATION_JSON;
+    // readandwrite = new ReadAndWriteDoc();
+    // readandwrite.WriteDocument();
+    readandwrite.ExportDocFile(item);
+    File file = new File("D:\\destination.docx");
+    InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(file));
 
-            BodyElementType elementType = bodyElement.getElementType();
-
-            if (elementType == BodyElementType.TABLE) {
-
-              XWPFTable table = (XWPFTable) bodyElement;
-
-              readandwrite.CopyStyle(docOrigin, docDes, docOrigin.getStyles().getStyle(table.getStyleID()));
-
-              docDes.createTable();
-
-              int pos = docDes.getTables().size() - 1;
-
-              docDes.setTable(pos, table);
-            }
-            String outFile = rootFolder.toURI() + "/destination.docx";
-            FileOutputStream outpuStream = new FileOutputStream(outFile);
-
-            docDes.write(outpuStream);
-            outpuStream.close();
-            docDes.close();
-          }
-        } catch (Exception ex) {
-          System.out.println(ex.getMessage());
-          log.error(ex.getMessage(), ex);
-          logger.error(ex.getMessage(), ex);
-
-          // TODO: handle exception
-        }
-
-        return strBase64;
-      }
-    } catch (Exception ex) {
-      // TODO: handle exception
-      logger.error(ex.getMessage(), ex);
-
-    }
-    return strBase64;
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
+        .contentType(mediaType)
+        .contentLength(file.length()) 
+        .body(inputStreamResource);
 
   }
 }

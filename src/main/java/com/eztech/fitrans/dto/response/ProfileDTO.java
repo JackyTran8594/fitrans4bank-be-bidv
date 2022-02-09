@@ -32,6 +32,8 @@ public class ProfileDTO implements Serializable {
     private Integer priority; // Mức độ
     private ProfilePriorityEnum priorityValue; // Mức độ
 
+    // private String companyName;
+
     // Tinh trang ho so
     private Integer state;
     private String stateEnum;
