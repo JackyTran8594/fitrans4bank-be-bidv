@@ -12,7 +12,10 @@ import com.eztech.fitrans.util.ReadAndWriteDoc;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.poi.xwpf.usermodel.BodyElementType;
+import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -130,11 +133,13 @@ public class ProfileServiceImpl implements ProfileService {
         try {
 
             readandwrite.ExportDocFile();
+            
 
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+       
         return strDoc;
     }
 }
