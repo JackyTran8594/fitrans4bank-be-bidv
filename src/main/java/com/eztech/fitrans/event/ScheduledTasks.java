@@ -88,7 +88,7 @@ public class ScheduledTasks {
                     break;
                 }
 
-                if (!tmp0.getStatus().equalsIgnoreCase(tmp1.getStatus())) {
+                if (!DataUtils.safeEqual(tmp0.getStatus(),tmp1.getStatus())) {
                     different = true;
                     break;
                 }
