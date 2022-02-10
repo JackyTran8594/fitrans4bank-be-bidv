@@ -1,5 +1,6 @@
 package com.eztech.fitrans.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,6 +16,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.eztech.fitrans.dto.response.ProfileDTO;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 
 import org.apache.poi.xwpf.usermodel.BodyElementType;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
@@ -240,6 +245,7 @@ public class ReadAndWriteDoc {
         try {
             // String url = getClass().getResource("")
             URL resource = getClass().getClassLoader().getResource("template/BIDV_Template.docx");
+            URL image = getClass().getClassLoader().getResource("template/bidv.png");
             URL rootFolder = getClass().getClassLoader().getResource("template");
             if (resource == null) {
                 throw new IllegalArgumentException("file not found");
@@ -250,6 +256,8 @@ public class ReadAndWriteDoc {
                 try (FileInputStream inpuStream = new FileInputStream(file)) {
                     XWPFDocument docOrigin = new XWPFDocument(inpuStream);
                     XWPFDocument docDes = new XWPFDocument();
+                    // 5 table in template
+                    int i = 0;
                     for (IBodyElement bodyElement : docOrigin.getBodyElements()) {
 
                         BodyElementType elementType = bodyElement.getElementType();
@@ -260,67 +268,56 @@ public class ReadAndWriteDoc {
 
                             CopyStyle(docOrigin, docDes, docOrigin.getStyles().getStyle(table.getStyleID()));
 
-                            // XWPFTable tableDes = docDes.createTable();
-
-                            int pos = docDes.getTables().size() - 1;
-
-                            docDes.setTable(pos, table);
-                            XWPFTable tableDes = docDes.getTableArray(pos);
-                            if (pos == 2) {
+                            if (i == 1) {
 
                             }
-                            if (pos == 3) {
+                            if (i == 2) {
 
-                                XWPFTableRow row1 = tableDes.getRow(0);
-                                XWPFTableCell cell1 = row1.createCell();
-                                // XWPFParagraph paragraph1 =
-                                // XWPFRun run1 = paragraph1.createRun();
-                                // run1.setText(profile.getStaffId_CM());
+                                XWPFTableRow row1 = table.getRow(0);
+                                XWPFTableCell cell1 = row1.getCell(1);
                                 cell1.setText(profile.getStaffId_CM());
 
-                                XWPFTableRow row2 = tableDes.getRow(1);
-                                XWPFTableCell cell2 = row2.createCell();
-                                // XWPFParagraph paragraph2 = docDes.createParagraph();
-                                // XWPFRun run2 = paragraph2.createRun();
-                                // run2.setText(profile.getStaffId_CM());
+                                XWPFTableRow row2 = table.getRow(1);
+                                XWPFTableCell cell2 = row2.getCell(1);
                                 cell2.setText(profile.getStaffId_CM());
 
-                                XWPFTableRow row3 = tableDes.getRow(2);
-                                XWPFTableCell cell3 = row3.createCell();
-                                // XWPFParagraph paragraph3 = cell3.addParagraph();
-                                // XWPFRun run3 = paragraph3.createRun();
-                                // run3.setText(profile.getCif());
+                                XWPFTableRow row3 = table.getRow(2);
+                                XWPFTableCell cell3 = row3.getCell(1);
                                 cell3.setText(profile.getCif());
 
-                                // XWPFTableRow row4 = tableDes.getRow(3);
+                                // XWPFTableRow row4 = table.getRow(3);
                                 // XWPFTableCell cell4 = row4.getCell(1);
                                 // row1.getCell(1).setText(profile.getCompanyName());
 
-                                XWPFTableRow row5 = tableDes.getRow(4);
-                                XWPFTableCell cell5 = row5.createCell();
+                                XWPFTableRow row5 = table.getRow(4);
+                                XWPFTableCell cell5 = row5.getCell(1);
                                 cell5.setText(profile.getTypeEnum());
 
-                                // XWPFTableRow row6 = tableDes.getRow(5);
+                                // XWPFTableRow row6 = table.getRow(5);
                                 // XWPFTableCell cell6 = row6.getCell(1);
                                 // row1.getCell(1).setText(profile.getNotes());
 
-                                XWPFTableRow row7 = tableDes.getRow(6);
-                                XWPFTableCell cell7 = row7.createCell();
+                                XWPFTableRow row7 = table.getRow(6);
+                                XWPFTableCell cell7 = row7.getCell(1);
                                 cell7.setText(String.valueOf(profile.getValue()));
 
                                 // XWPFTableRow row8 = table.getRow(7);
-                                // XWPFTableCell cell8 = row7.getCell(1);
-                                // row1.getCell(1).setText(profile.getCategoryProfile());
+                                // XWPFTableCell cell8 = row8.getCell(1);
+                                // row8.getCell(1).setText(profile.getCategoryProfile());
 
                             }
-                            if (pos == 4) {
+                            if (i == 3) {
                                 if (profile.getCategoryProfile() != null) {
                                     List<String> categories = convertStringToArray(profile.getCategoryProfile());
-                                    XWPFTableRow oldRow = tableDes.getRows().get(3);
+                                    XWPFTableRow oldRow = table.getRows().get(3);
                                     CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
                                     for (String string : categories) {
-                                        // XWPFTableRow row = new XWPFTableRow(ctrow, tableDes);
-                                        XWPFTableRow row = tableDes.createRow();
+                                        XWPFTableRow row = new XWPFTableRow(ctrow, table);
+                                        XWPFTableCell cell = row.getCell(1);
+                                        cell.removeParagraph(0);
+                                        cell.setText(string);
+                                        
+                                        // XWPFTableRow row = table.createRow();
                                         // int i = 0;
                                         // for (XWPFTableCell cell : row.getTableCells()) {
                                         // for (XWPFParagraph paragraph : cell.getParagraphs()) {
@@ -329,22 +326,27 @@ public class ReadAndWriteDoc {
                                         // }
                                         // }
                                         // }
-                                        row.getCell(0).setText("");
-                                        row.addNewTableCell().setText(string);
-                                        // cell.setText(string);
-                                        // tableDes.addRow(row);
+                                        // row.getCell(0).setText("");
+                                        // row.addNewTableCell().setText(string);
+                                        table.addRow(row);
                                     }
 
                                 }
                             }
-
+                            
                             XWPFParagraph paragraph = docDes.createParagraph();
                             XWPFRun run = paragraph.createRun();
                             run.addBreak();
+
+
+                            docDes.createTable();
+
+                            docDes.setTable(i, table);
+                            i++;
                         }
+                      
 
                     }
-                    // String outFile = rootFolder.toURI() + "/destination.docx";
                     String outFile = "D:\\destination.docx";
                     File outputFile = new File(outFile);
                     outputFile.createNewFile();
@@ -426,5 +428,21 @@ public class ReadAndWriteDoc {
         List<String> array2 = Arrays.asList(array);
         return array2;
     }
+
+
+    public byte[] generateQRCode(String qrContent, int width, int height) {
+        try {
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, BarcodeFormat.QR_CODE, width, height);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", byteArrayOutputStream);
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception e) {
+            //TODO: handle exception
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
 
 }
