@@ -28,7 +28,6 @@ public class ScheduledTasks {
 
     @Scheduled(fixedDelayString = "20000")
     public void fireGreeting() {
-        log.info("-----ScheduledTasks-----");
         List<ProfileDTO> listData = service.dashboard();
         List<ProfileDTO> listOld = null;
         try {

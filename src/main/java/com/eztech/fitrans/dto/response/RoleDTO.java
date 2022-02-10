@@ -31,4 +31,7 @@ public class RoleDTO implements Serializable {
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   private LocalDateTime lastUpdatedDate;
   private String status;
+
+  private String url;
+  private String method;
 }

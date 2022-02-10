@@ -2,6 +2,7 @@ package com.eztech.fitrans.service;
 
 import com.eztech.fitrans.dto.response.RoleDTO;
 import com.eztech.fitrans.dto.response.RoleTreeDTO;
+import com.eztech.fitrans.model.RoleList;
 
 import java.util.List;
 import java.util.Map;
@@ -21,4 +22,6 @@ public interface RoleService {
   Long count(Map<String, Object> mapParam);
 
   List<RoleTreeDTO> treeRole();
+
+  RoleList findByCode(String code);
 }

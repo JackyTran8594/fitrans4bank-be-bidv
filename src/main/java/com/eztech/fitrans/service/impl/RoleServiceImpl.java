@@ -5,12 +5,16 @@ import com.eztech.fitrans.dto.response.RoleTreeDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Role;
+import com.eztech.fitrans.model.RoleList;
+import com.eztech.fitrans.repo.RoleListRepository;
 import com.eztech.fitrans.repo.RoleRepository;
 import com.eztech.fitrans.service.RoleService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.DataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,15 +23,19 @@ import java.util.Optional;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = {"RoleServiceImpl"}, cacheManager = "localCacheManager")
 public class RoleServiceImpl implements RoleService {
     private static final BaseMapper<Role, RoleDTO> mapper = new BaseMapper<>(Role.class, RoleDTO.class);
     @Autowired
     private RoleRepository repository;
 
+    @Autowired
+    private RoleListRepository roleListRepository;
+
     @Override
     public RoleDTO save(RoleDTO entity) {
         Role oldEntity;
-        if(!DataUtils.nullOrZero(entity.getId())) {
+        if (!DataUtils.nullOrZero(entity.getId())) {
             RoleDTO dto = findById(entity.getId());
             if (dto == null) {
                 throw new ResourceNotFoundException("Role " + entity.getId() + " not found");
@@ -35,7 +43,7 @@ public class RoleServiceImpl implements RoleService {
             dto.setName(entity.getName());
             dto.setDescription(entity.getDescription());
             oldEntity = mapper.toPersistenceBean(dto);
-        }else{
+        } else {
             oldEntity = mapper.toPersistenceBean(entity);
         }
 
@@ -54,7 +62,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public RoleDTO findById(Long id) {
         Optional<Role> optional = repository.findById(id);
-        if(optional.isPresent()){
+        if (optional.isPresent()) {
             return mapper.toDtoBean(optional.get());
         }
         return null;
@@ -68,7 +76,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<RoleDTO> search(Map<String, Object> mapParam) {
-        return repository.search(mapParam,UserDTO.class);
+        return repository.search(mapParam, UserDTO.class);
     }
 
     @Override
@@ -77,7 +85,13 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public List<RoleTreeDTO>  treeRole() {
+    public List<RoleTreeDTO> treeRole() {
         return repository.mapRoleList();
+    }
+
+    @Override
+    @Cacheable(key = "#code", cacheManager = "localCacheManager")
+    public RoleList findByCode(String code) {
+        return roleListRepository.findByCode(code);
     }
 }

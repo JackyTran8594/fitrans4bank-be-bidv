@@ -1,7 +1,6 @@
 package com.eztech.fitrans.controller;
 
 import com.eztech.fitrans.dto.response.RoleDTO;
-import com.eztech.fitrans.dto.response.RoleListDTO;
 import com.eztech.fitrans.dto.response.RoleTreeDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

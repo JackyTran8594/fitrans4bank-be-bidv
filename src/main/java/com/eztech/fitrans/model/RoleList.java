@@ -22,4 +22,7 @@ public class RoleList implements Serializable {
     private String description;
     @Column(name = "parent_code")
     private String parentCode;
+
+    private String url;
+    private String method;
 }

@@ -30,11 +30,9 @@ public class Role extends Auditable<String> implements Serializable {
 	@Column(name = "ID")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
 	private String name;
 	private String code;
 	private String description;
-
 
 	// bi-directional many-to-many association to User
 //	@ManyToMany(mappedBy = "roles")

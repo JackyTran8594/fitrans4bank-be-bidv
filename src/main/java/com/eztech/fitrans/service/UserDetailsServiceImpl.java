@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@CacheConfig(cacheNames = {"UserDetailsServiceImpl"}, cacheManager = "localCacheManager")
 public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
@@ -28,6 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	private RoleRepository roleRepository;
 
 	@Override
+	@Cacheable(key = "#username", cacheManager = "localCacheManager")
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = repo.findByUsername(username);
 		if (user != null) {

@@ -3,7 +3,9 @@ package com.eztech.fitrans.filter;
 import com.eztech.fitrans.dto.request.LoginRequest;
 import com.eztech.fitrans.dto.response.ErrorMessageDTO;
 import com.eztech.fitrans.model.ActionLog;
+import com.eztech.fitrans.model.RoleList;
 import com.eztech.fitrans.repo.ActionLogRepository;
+import com.eztech.fitrans.service.RoleService;
 import com.eztech.fitrans.service.UserDetailsServiceImpl;
 import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.JwtTokenUtil;
@@ -12,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -28,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 //@Profile(Profiles.JWT_AUTH)
@@ -37,10 +42,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private final UserDetailsServiceImpl jwtUserDetailsService;
     private final JwtTokenUtil jwtTokenUtil;
     private final ActionLogRepository actionLogRepository;
+    private final RoleService roleService;
 
     @Autowired
     @Qualifier("ayncTaskExecutor")
     private TaskExecutor taskExecutor;
+
+    @Value("${app.checkRole:true}")
+    private Boolean checkRole;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -48,7 +57,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         long startTime = System.currentTimeMillis();
 
         String requestUri = request.getRequestURI();
-        if(requestUri.startsWith("/ws")){
+        String method = request.getMethod();
+        if (requestUri.startsWith("/ws")) {
             ContentCachingResponseWrapper responseCacheWrapperObject = new ContentCachingResponseWrapper((HttpServletResponse) response);
             chain.doFilter(request, responseCacheWrapperObject);
             responseCacheWrapperObject.copyBodyToResponse();
@@ -98,25 +108,46 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 // Spring Security Configurations successfully.
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
+
+            if (checkRole) {
+                List<String> listRole = userDetails.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList());
+
+                boolean havePermission = false;
+                if (DataUtils.notNullOrEmpty(listRole)) {
+                    RoleList roleList;
+                    for (String role : listRole) {
+                        roleList = roleService.findByCode(role);
+                        if (roleList != null && requestUri.startsWith(roleList.getUrl()) && method.equalsIgnoreCase(roleList.getMethod())) {
+                            havePermission = true;
+                            break;
+                        }
+                    }
+                }
+                if (!havePermission) {
+                    //TODO:
+                    log.warn("-----------------------no havePermission {} - {} - {}------------", username, method, requestUri);
+                    ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "no havePermission.");
+                }
+            }
         }
 
         //Lưu action log
         ContentCachingResponseWrapper responseCacheWrapperObject = new ContentCachingResponseWrapper((HttpServletResponse) response);
         chain.doFilter(request, responseCacheWrapperObject);
         responseCacheWrapperObject.copyBodyToResponse();
-        String method = request.getMethod();
+
         if (!"GET".equalsIgnoreCase(method) && !requestUri.startsWith("/socket/")) {
             int httpStatus = response.getStatus();
-
             //
-            if("/api/auth/login".equalsIgnoreCase(requestUri)){
+            if ("/api/auth/login".equalsIgnoreCase(requestUri)) {
                 try {
                     CustomHttpServletRequestWrapper wrapper = (CustomHttpServletRequestWrapper) request;
                     String body = wrapper.getBody();
-
                     LoginRequest loginRequest = DataUtils.jsonToObject(body, LoginRequest.class);
                     username = loginRequest.getUsername();
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     logger.warn(ex.getMessage());
                 }
             }
@@ -128,11 +159,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             String ipAddress = request.getHeader("X-FORWARDED-FOR");
             if (ipAddress == null) {
-                ipAddress = request.getRemoteAddr() + ":"+request.getRemoteHost();
+                ipAddress = request.getRemoteAddr() + ":" + request.getRemoteHost();
             }
 
-            if(ipAddress != null && ipAddress.length() > 50){
-                ipAddress = ipAddress.substring(0,50);
+            if (ipAddress != null && ipAddress.length() > 50) {
+                ipAddress = ipAddress.substring(0, 50);
             }
 
             ActionLog actionLog = ActionLog.builder()
