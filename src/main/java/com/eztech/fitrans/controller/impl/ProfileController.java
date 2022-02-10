@@ -2,7 +2,9 @@ package com.eztech.fitrans.controller.impl;
 
 import com.eztech.fitrans.controller.ProfileApi;
 import com.eztech.fitrans.dto.response.ProfileDTO;
+import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
+import com.eztech.fitrans.service.ProfileHistoryService;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
 
@@ -52,6 +54,9 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @Autowired
   private ProfileService service;
+
+  @Autowired
+  private ProfileHistoryService historyService;
 
   private static Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
@@ -123,5 +128,11 @@ public class ProfileController extends BaseController implements ProfileApi {
         .contentLength(file.length()) 
         .body(inputStreamResource);
 
+  }
+
+  @GetMapping("/history")
+  public List<ProfileHistoryDTO> getHistory() {
+    List<ProfileHistoryDTO> listData = historyService.findAll();
+    return listData;
   }
 }
