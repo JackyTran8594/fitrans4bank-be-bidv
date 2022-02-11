@@ -1,21 +1,31 @@
 package com.eztech.fitrans.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
 import com.eztech.fitrans.dto.response.ProfileDTO;
+import com.eztech.fitrans.dto.response.QRCodeDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
@@ -51,6 +61,7 @@ public class ReadAndWriteDoc {
     // return newStr;
     // }
     private static Logger logger = LoggerFactory.getLogger(ReadAndWriteDoc.class);
+    private static final BaseMapper<ProfileDTO, QRCodeDTO> mapper = new BaseMapper<>(ProfileDTO.class, QRCodeDTO.class);
 
     public void WriteDocument() {
         XWPFDocument document = new XWPFDocument();
@@ -269,7 +280,16 @@ public class ReadAndWriteDoc {
                             CopyStyle(docOrigin, docDes, docOrigin.getStyles().getStyle(table.getStyleID()));
 
                             if (i == 1) {
-
+                                if (profile != null) {
+                                    String strUtf8 = convertJsonStringToUTF8(profile);
+                                    byte[] imageByteArray = generateQRCode(strUtf8, 200, 200);
+                                    InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray);
+                                    XWPFTableRow row = table.getRow(0);
+                                    XWPFTableCell cell = row.getCell(0);
+                                    XWPFParagraph paragraph = cell.addParagraph();
+                                    XWPFRun run = paragraph.createRun();
+                                    run.addPicture(inputByteArrayStream, XWPFDocument.PICTURE_TYPE_PNG, "qrCodeHandOver", 200, 200);
+                                }
                             }
                             if (i == 2) {
 
@@ -316,35 +336,33 @@ public class ReadAndWriteDoc {
                                         XWPFTableCell cell = row.getCell(1);
                                         cell.removeParagraph(0);
                                         cell.setText(string);
-                                        
-                                        // XWPFTableRow row = table.createRow();
-                                        // int i = 0;
-                                        // for (XWPFTableCell cell : row.getTableCells()) {
-                                        // for (XWPFParagraph paragraph : cell.getParagraphs()) {
-                                        // for (XWPFRun r : paragraph.getRuns()) {
-                                        // r.setText("i" + i++, 0);
-                                        // }
-                                        // }
-                                        // }
-                                        // row.getCell(0).setText("");
-                                        // row.addNewTableCell().setText(string);
                                         table.addRow(row);
                                     }
-
                                 }
                             }
-                            
+
+                            if (i == 5) {
+                                if (profile != null) {
+                                    String strUtf8 = convertJsonStringToUTF8(profile);
+                                    byte[] imageByteArray = generateQRCode(strUtf8, 200, 200);
+                                    InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray);
+                                    XWPFTableRow row = table.getRow(0);
+                                    XWPFTableCell cell = row.getCell(1);
+                                    XWPFParagraph paragraph = cell.addParagraph();
+                                    XWPFRun run = paragraph.createRun();
+                                    run.addPicture(inputByteArrayStream, XWPFDocument.PICTURE_TYPE_PNG, "qrCodeEndTransaction", 200, 200);
+                                }
+                            }
+
                             XWPFParagraph paragraph = docDes.createParagraph();
                             XWPFRun run = paragraph.createRun();
                             run.addBreak();
-
 
                             docDes.createTable();
 
                             docDes.setTable(i, table);
                             i++;
                         }
-                      
 
                     }
                     String outFile = "D:\\destination.docx";
@@ -429,20 +447,38 @@ public class ReadAndWriteDoc {
         return array2;
     }
 
-
-    public byte[] generateQRCode(String qrContent, int width, int height) {
+    public static byte[] generateQRCode(String qrContent, int width, int height) {
         try {
+            // Charset charset = Charset.forName("UTF-8");
+            // CharsetEncoder encoder = charset.newEncoder();
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
             BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, BarcodeFormat.QR_CODE, width, height);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", byteArrayOutputStream);
+            // Image.IO
             return byteArrayOutputStream.toByteArray();
         } catch (Exception e) {
-            //TODO: handle exception
+            // TODO: handle exception
             System.out.println(e.getMessage());
         }
         return null;
     }
 
+    public static String convertJsonStringToUTF8(ProfileDTO dto) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            QRCodeDTO qrCodeDTO = mapper.toDtoBean(dto);
+            String jsonStr = objectMapper.writeValueAsString(qrCodeDTO);
+            byte[] bytes = jsonStr.getBytes(StandardCharsets.UTF_8);
+            String utf8EncodedString = new String(bytes, StandardCharsets.UTF_8);
+            return utf8EncodedString;
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println(e.getMessage());
+            logger.error(e.getMessage(), e);
+        }
+        return null;
+    }
 
 }
