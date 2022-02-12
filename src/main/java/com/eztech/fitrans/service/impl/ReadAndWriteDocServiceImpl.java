@@ -14,12 +14,6 @@ import org.springframework.stereotype.Service;
 public class ReadAndWriteDocServiceImpl implements ReadAndWriteDocService {
 
     @Override
-    public void WriteDocument() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     public void ExportDocFile(ProfileDTO profile) {
         // TODO Auto-generated method stub
         

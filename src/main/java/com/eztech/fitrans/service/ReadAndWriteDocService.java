@@ -9,8 +9,6 @@ import org.apache.poi.xwpf.usermodel.XWPFStyle;
 
 public interface ReadAndWriteDocService {
     
-    void WriteDocument() ;
-
     void ExportDocFile(ProfileDTO profile);
 
     void CopyLayout(XWPFDocument srcDoc, XWPFDocument destDoc);
