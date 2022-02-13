@@ -52,11 +52,12 @@ import lombok.NoArgsConstructor;
                 @ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
                 @ColumnResult(name = "status", type = String.class),
                 @ColumnResult(name = "state", type = Integer.class),
-                @ColumnResult(name = "rate", type = Integer.class),
+                @ColumnResult(name = "review", type = Integer.class),
                 @ColumnResult(name = "notify_by_email", type = Boolean.class),
                 @ColumnResult(name = "cif", type = String.class),
                 @ColumnResult(name = "customer_name", type = String.class),
                 @ColumnResult(name = "staff_name", type = String.class),
+                @ColumnResult(name = "review_note", type = String.class),
                 
             }
         )
@@ -137,8 +138,13 @@ public class Profile extends Auditable<String> implements Serializable {
   private ProfileStateEnum stateValue;
 
   //Đánh giá
-  @Column(name = "rate")
-  private Integer rate;
+  @Column(name = "review")
+  private Integer review;
+
+   //Đánh giá
+   @Column(name = "review_note")
+   private String reviewNote;
+ 
 
   // Gửi email
   @Column(name = "notify_by_email", columnDefinition = "BIT")

@@ -116,12 +116,10 @@ public class ProfileController extends BaseController implements ProfileApi {
   public ResponseEntity<InputStreamResource> exportDoc(@RequestBody ProfileDTO item) throws FileNotFoundException {
 
     MediaType mediaType = MediaType.APPLICATION_JSON;
-    // readandwrite = new ReadAndWriteDoc();
-    // readandwrite.WriteDocument();
     readandwrite.ExportDocFile(item);
     File file = new File("D:\\destination.docx");
     InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(file));
-
+    // InputStreamResource inputStr = new Input
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
         .contentType(mediaType)
@@ -130,9 +128,24 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   }
 
-  @GetMapping("/history")
+  @GetMapping("/historyProfile")
   public List<ProfileHistoryDTO> getHistory() {
     List<ProfileHistoryDTO> listData = historyService.findAll();
     return listData;
   }
+
+  @PostMapping("/reivewProfile/{id}")
+  public Boolean reviewProfile(@PathVariable(value = "id") Long id,@RequestBody ProfileDTO item) {
+    item.setId(id);
+    service.save(item);
+    return true;
+  }
+
+  @PostMapping("/confirmProfile/{id}")
+  public Boolean confirmProfile(@PathVariable(value = "id") Long id, @RequestBody ProfileDTO item) {
+    item.setId(id);
+    service.save(item);
+    return true;
+  }
+
 }

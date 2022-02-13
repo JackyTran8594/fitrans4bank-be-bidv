@@ -77,7 +77,8 @@ public class ProfileDTO implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime lastUpdatedDate;
     private String status;
-    private Integer rate;
+    private Integer review;
+    private String reviewNote;
     private Boolean notifyByEmail;
 
 
@@ -85,7 +86,7 @@ public class ProfileDTO implements Serializable {
     // p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, 
     // p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,
     // p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.rate, 
-    // p.notify_by_email ,c.cif,c.name as customer_name, s.name as staff_name 
+    // p.notify_by_email ,c.cif,c.name as customer_name, s.name as staff_name , p.review_note
 
     public ProfileDTO(Long id, 
     Long customerid, 
@@ -109,11 +110,12 @@ public class ProfileDTO implements Serializable {
             LocalDateTime lastUpdatedDate,
             String status,
             Integer state,
-            Integer rate,
+            Integer review,
             Boolean notifyByEmail,
             String cif, 
             String customerName,
-            String staffName
+            String staffName,
+            String reviewNote
            ) {
         this.id = id;
         this.customerid = customerid;
@@ -139,7 +141,7 @@ public class ProfileDTO implements Serializable {
         this.lastUpdatedBy = lastUpdatedBy;
         this.lastUpdatedDate = lastUpdatedDate;
         this.status = status;
-        this.rate = rate;
+        this.review = review;
         this.notifyByEmail = notifyByEmail;
         this.timeReceived_CM = timeReceived_CM;
         this.timeReceived_CT = timeReceived_CT;
@@ -151,6 +153,7 @@ public class ProfileDTO implements Serializable {
         this.returnReason = returnReason;
         this.value = value;
         this.categoryProfile = categoryProfile;
+        this.reviewNote = reviewNote;
     }   
 
     public void fillTransient() {
