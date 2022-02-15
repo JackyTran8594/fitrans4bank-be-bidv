@@ -23,6 +23,7 @@ import java.io.*;
 // import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,9 @@ public class ProfileServiceImpl implements ProfileService {
             dto.setStaffId_CM(item.getStaffId_CM());
             dto.setStaffId_CT(item.getStaffId_CT());
             dto.setStatus(item.getStatus());
+            dto.setReview(item.getReview());
+            dto.setReviewNote(item.getReviewNote());
+            dto.setLastUpdatedDate(LocalDateTime.now());
             dto.setState(item.getState());
             dto.setPriority(item.getPriority());
             dto.setPriorityValue(item.getPriorityValue());

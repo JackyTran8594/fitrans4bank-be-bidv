@@ -128,22 +128,22 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   }
 
-  @GetMapping("/historyProfile")
-  public List<ProfileHistoryDTO> getHistory() {
+  @GetMapping("/historyProfile/{id}")
+  public List<ProfileHistoryDTO> getHistory(@PathVariable(value = "id") Long id) {
     List<ProfileHistoryDTO> listData = historyService.findAll();
     return listData;
   }
 
-  @PostMapping("/reivewProfile/{id}")
-  public Boolean reviewProfile(@PathVariable(value = "id") Long id,@RequestBody ProfileDTO item) {
-    item.setId(id);
+  @PostMapping("/reivewProfile")
+  public Boolean reviewProfile(@RequestBody ProfileDTO item) {
+    item.setId(item.id);
     service.save(item);
     return true;
   }
 
-  @PostMapping("/confirmProfile/{id}")
-  public Boolean confirmProfile(@PathVariable(value = "id") Long id, @RequestBody ProfileDTO item) {
-    item.setId(id);
+  @PostMapping("/confirmProfile")
+  public Boolean confirmProfile(@RequestBody ProfileDTO item) {
+    item.setId(item.id);
     service.save(item);
     return true;
   }

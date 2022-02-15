@@ -23,63 +23,63 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProfileDTO implements Serializable {
 
-    private Long id;
-    private Long customerid;
-    private String customerName;
-    private String cif;
-    private Integer type; // Loai giao dich
-    private String typeEnum; // Mức độ
-    private Integer priority; // Mức độ
-    private ProfilePriorityEnum priorityValue; // Mức độ
+    public Long id;
+    public Long customerid;
+    public String customerName;
+    public String cif;
+    public Integer type; // Loai giao dich
+    public String typeEnum; // Mức độ
+    public Integer priority; // Mức độ
+    public ProfilePriorityEnum priorityValue; // Mức độ
 
     // private String companyName;
 
     // Tinh trang ho so
-    private Integer state;
-    private String stateEnum;
+    public Integer state;
+    public String stateEnum;
 
-    private String staffId; // Cán bộ đang thực hiện
-    private String staffName; // Cán bộ đang thực hiện
-
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime processDate; // Ngày phát sinh
+    public String staffId; // Cán bộ đang thực hiện
+    public String staffName; // Cán bộ đang thực hiện
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime timeReceived_CM; // Ngày bàn giao QTTD - CM: Credit Management
+    public LocalDateTime processDate; // Ngày phát sinh
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime timeReceived_CT; // Ngày bàn giao GDKH - CT: Customer-Transaction
+    public LocalDateTime timeReceived_CM; // Ngày bàn giao QTTD - CM: Credit Management
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime endTime; // Ngày kết thúc giao dịch
+    public LocalDateTime timeReceived_CT; // Ngày bàn giao GDKH - CT: Customer-Transaction
 
-    private Integer numberOfBill; // Số lượng hóa đơn
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    public LocalDateTime endTime; // Ngày kết thúc giao dịch
 
-    private Integer numberOfPO; // Số lượng ủy nhiệm chi
+    public Integer numberOfBill; // Số lượng hóa đơn
+
+    public Integer numberOfPO; // Số lượng ủy nhiệm chi
 
     private String staffId_CM; // Cán bộ phòng QTTD
 
-    private String staffId_CT; // Cán bộ phòng GDKH
-    private String returnReason; // Cán bộ phòng GDKH
-    private String categoryProfile;
-    private BigDecimal value; // Giá trị
+    public String staffId_CT; // Cán bộ phòng GDKH
+    public String returnReason; // Cán bộ phòng GDKH
+    public String categoryProfile;
+    public BigDecimal value; // Giá trị
 
-    private String createdBy;
+    public String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime createdDate;
-    private String lastUpdatedBy;
+    public LocalDateTime createdDate;
+    public String lastUpdatedBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime lastUpdatedDate;
-    private String status;
-    private Integer review;
-    private String reviewNote;
-    private Boolean notifyByEmail;
+    public LocalDateTime lastUpdatedDate;
+    public String status;
+    public Integer review;
+    public String reviewNote;
+    public Boolean notifyByEmail;
 
 
     // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct,
