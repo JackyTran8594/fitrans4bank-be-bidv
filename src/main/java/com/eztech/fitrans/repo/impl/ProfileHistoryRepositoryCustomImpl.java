@@ -2,7 +2,7 @@ package com.eztech.fitrans.repo.impl;
 
 import com.eztech.fitrans.constants.Constants;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
-import com.eztech.fitrans.model.Profile;
+import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.repo.ProfileHistoryRepositoryCustom;
 import com.eztech.fitrans.util.DataUtils;
 import java.time.LocalDateTime;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProfileHistoryRepositoryCustomImpl  extends BaseCustomRepository<Profile> implements
+public class ProfileHistoryRepositoryCustomImpl  extends BaseCustomRepository<ProfileHistory> implements
     ProfileHistoryRepositoryCustom {
 
   @Override

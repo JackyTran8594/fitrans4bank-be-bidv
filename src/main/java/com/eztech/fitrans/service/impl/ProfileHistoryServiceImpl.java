@@ -4,6 +4,7 @@ import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.event.ScheduledTasks;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Profile;
+import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.repo.ProfileHistoryRepository;
 import com.eztech.fitrans.repo.ProfileRepository;
 import com.eztech.fitrans.service.ProfileHistoryService;
@@ -36,7 +37,7 @@ import javax.print.DocFlavor.URL;
 @Slf4j
 public class ProfileHistoryServiceImpl implements ProfileHistoryService {
 
-    private static final BaseMapper<Profile, ProfileHistoryDTO> mapper = new BaseMapper<>(Profile.class,
+    private static final BaseMapper<ProfileHistory, ProfileHistoryDTO> mapper = new BaseMapper<>(ProfileHistory.class,
             ProfileHistoryDTO.class);
 
     @Autowired
@@ -44,7 +45,7 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
 
     @Override
     public ProfileHistoryDTO save(ProfileHistoryDTO item) {
-        Profile entity;
+        ProfileHistory entity;
         if (!DataUtils.nullOrZero(item.getId())) {
             ProfileHistoryDTO dto = findById(item.getId());
             if (dto == null) {
@@ -62,17 +63,8 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
     }
 
     @Override
-    public void deleteById(Long id) {
-        ProfileHistoryDTO dto = findById(id);
-        if (dto == null) {
-            throw new ResourceNotFoundException("Profile " + id + " not found");
-        }
-        repository.deleteById(id);
-    }
-
-    @Override
     public ProfileHistoryDTO findById(Long id) {
-        Optional<Profile> optional = repository.findById(id);
+        Optional<ProfileHistory> optional = repository.findById(id);
         if (optional.isPresent()) {
             ProfileHistoryDTO dto = mapper.toDtoBean(optional.get());
             dto.fillTransient();
@@ -81,33 +73,18 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
         return null;
     }
 
-    @Override
-    public ProfileHistoryDTO detailById(Long id) {
-        ProfileHistoryDTO dto = repository.detailById(id);
-        if (dto != null) {
-            dto.fillTransient();
-        }
-        return dto;
-    }
 
     @Override
     public List<ProfileHistoryDTO> findAll() {
-        List<Profile> listData = repository.findAll();
+        List<ProfileHistory> listData = repository.findAll();
         List<ProfileHistoryDTO> list = mapper.toDtoBean(listData);
         list.stream()
                 .forEach(item -> item.fillTransient());
         return list;
     }
 
-    @Override
-    public List<ProfileHistoryDTO> search(Map<String, Object> mapParam) {
-        return repository.search(mapParam, Profile.class);
+    
 
-    }
-
-    @Override
-    public Long count(Map<String, Object> mapParam) {
-        return repository.count(mapParam);
-    }
+    
 
 }

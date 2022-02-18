@@ -1,9 +1,13 @@
 package com.eztech.fitrans.service.impl;
 
+import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.ProfileDTO;
+import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.event.ScheduledTasks;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Profile;
+import com.eztech.fitrans.model.ProfileHistory;
+import com.eztech.fitrans.repo.ProfileHistoryRepository;
 import com.eztech.fitrans.repo.ProfileRepository;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.util.BaseMapper;
@@ -23,6 +27,7 @@ import java.io.*;
 // import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -38,36 +43,42 @@ public class ProfileServiceImpl implements ProfileService {
     private static final BaseMapper<Profile, ProfileDTO> mapper = new BaseMapper<>(Profile.class,
             ProfileDTO.class);
 
-    private static ReadAndWriteDoc  readandwrite;
+    private static final BaseMapper<ProfileHistory, ProfileHistoryDTO> mapperHistory = new BaseMapper<>(
+            ProfileHistory.class, ProfileHistoryDTO.class);
+
+    private static ReadAndWriteDoc readandwrite;
     @Autowired
     private ProfileRepository repository;
+
+    @Autowired
+    private ProfileHistoryRepository profileHistoryRepo;
 
     @Autowired
     private ScheduledTasks scheduledTasks;
 
     @Override
-    public ProfileDTO save(ProfileDTO item) {
+    public ProfileDTO save(ProfileDTO profile) {
         Profile entity;
-        if (!DataUtils.nullOrZero(item.getId())) {
-            ProfileDTO dto = findById(item.getId());
+        if (!DataUtils.nullOrZero(profile.getId())) {
+            ProfileDTO dto = findById(profile.getId());
             if (dto == null) {
-                throw new ResourceNotFoundException("Profile " + item.getId() + " not found");
+                throw new ResourceNotFoundException("Profile " + profile.getId() + " not found");
             }
-            dto.setCif(item.getCif());
-            dto.setCustomerid(item.getCustomerid());
-            dto.setStaffId(item.getStaffId());
-            dto.setStaffId_CM(item.getStaffId_CM());
-            dto.setStaffId_CT(item.getStaffId_CT());
-            dto.setStatus(item.getStatus());
-            dto.setReview(item.getReview());
-            dto.setReviewNote(item.getReviewNote());
+            dto.setCif(profile.getCif());
+            dto.setCustomerid(profile.getCustomerid());
+            dto.setStaffId(profile.getStaffId());
+            dto.setStaffId_CM(profile.getStaffId_CM());
+            dto.setStaffId_CT(profile.getStaffId_CT());
+            dto.setStatus(profile.getStatus());
+            dto.setReview(profile.getReview());
+            dto.setReviewNote(profile.getReviewNote());
             dto.setLastUpdatedDate(LocalDateTime.now());
-            dto.setState(item.getState());
-            dto.setPriority(item.getPriority());
-            dto.setPriorityValue(item.getPriorityValue());
+            dto.setState(profile.getState());
+            dto.setPriority(profile.getPriority());
+            dto.setPriorityValue(profile.getPriorityValue());
             entity = mapper.toPersistenceBean(dto);
         } else {
-            entity = mapper.toPersistenceBean(item);
+            entity = mapper.toPersistenceBean(profile);
         }
         entity = repository.save(entity);
         scheduledTasks.fireGreeting();
@@ -132,10 +143,36 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public String exportDocument() {
-        String strDoc= "";
-        // readandwrite.ExportDocFile();
-       
-        return strDoc;
+    public Boolean confirmProfile(ConfirmRequest dto) {
+        // TODO Auto-generated method stub
+        Profile entity;
+        ProfileHistory profileHistory = new ProfileHistory();
+        ProfileDTO result = findById(dto.profile.getId());
+        try {
+            if (result == null) {
+                throw new ResourceNotFoundException("Profile" + dto.profile.getId() + "not found");
+            }
+            result.setState(dto.profile.getState());
+            entity = mapper.toPersistenceBean(result);
+            entity = repository.save(entity);
+
+            profileHistory.setProfileId(dto.profile.getId());
+            profileHistory.setTimeReceived(LocalDateTime.now());
+            profileHistory.setState(dto.profile.getState());
+            if (dto.isCM) {
+                profileHistory.setStaffId(dto.profile.getStaffId_CM());
+            }
+            if (dto.isCT) {
+                profileHistory.setStaffId(dto.profile.getStaffId_CT());
+            }
+            profileHistoryRepo.save(profileHistory);
+            return true;
+
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
+
 }

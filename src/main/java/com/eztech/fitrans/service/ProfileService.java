@@ -1,5 +1,6 @@
 package com.eztech.fitrans.service;
 
+import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import java.util.List;
 import java.util.Map;
@@ -22,5 +23,6 @@ public interface ProfileService {
 
   List<ProfileDTO> dashboard();
 
-  String exportDocument();
+  Boolean confirmProfile(ConfirmRequest req);
+
 }

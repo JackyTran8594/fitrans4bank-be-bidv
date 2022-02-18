@@ -165,7 +165,7 @@ public class ReadAndWriteDoc {
                                 if (profile != null) {
 
                                     String strUtf8 = convertJsonStringToUTF8(profile);
-                                    byte[] imageByteArray = generateQRCode(strUtf8, 70, 70);
+                                    byte[] imageByteArray = generateQRCode(strUtf8, 100, 100);
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray)) {
 
@@ -195,7 +195,7 @@ public class ReadAndWriteDoc {
                                 if (profile != null) {
 
                                     String strUtf8 = convertJsonStringToUTF8(profile);
-                                    byte[] imageByteArray = generateQRCode(strUtf8, 70, 70);
+                                    byte[] imageByteArray = generateQRCode(strUtf8, 100, 100);
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray)) {
 

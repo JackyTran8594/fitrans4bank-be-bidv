@@ -1,6 +1,7 @@
 package com.eztech.fitrans.controller.impl;
 
 import com.eztech.fitrans.controller.ProfileApi;
+import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
@@ -142,9 +143,9 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/confirmProfile")
-  public Boolean confirmProfile(@RequestBody ProfileDTO item) {
-    item.setId(item.id);
-    service.save(item);
+  public Boolean confirmProfile(@RequestBody ConfirmRequest item) {
+    ProfileDTO profile = item.profile;
+    service.save(profile);
     return true;
   }
 

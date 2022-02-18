@@ -61,7 +61,7 @@ public class ProfileDTO implements Serializable {
 
     public Integer numberOfPO; // Số lượng ủy nhiệm chi
 
-    private String staffId_CM; // Cán bộ phòng QTTD
+    public String staffId_CM; // Cán bộ phòng QTTD
 
     public String staffId_CT; // Cán bộ phòng GDKH
     public String returnReason; // Cán bộ phòng GDKH
@@ -80,7 +80,6 @@ public class ProfileDTO implements Serializable {
     public Integer review;
     public String reviewNote;
     public Boolean notifyByEmail;
-
 
     // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct,
     // p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, 

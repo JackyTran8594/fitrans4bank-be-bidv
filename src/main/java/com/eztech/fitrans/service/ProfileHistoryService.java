@@ -8,17 +8,11 @@ public interface ProfileHistoryService {
 
   ProfileHistoryDTO save(ProfileHistoryDTO product);
 
-  void deleteById(Long id);
-
   ProfileHistoryDTO findById(Long id);
-
-  ProfileHistoryDTO detailById(Long id);
 
   List<ProfileHistoryDTO> findAll();
 
-  List<ProfileHistoryDTO> search(Map<String, Object> mapParam);
 
-  Long count(Map<String, Object> mapParam);
 
 
 }
