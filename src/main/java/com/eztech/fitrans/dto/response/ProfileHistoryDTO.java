@@ -27,7 +27,7 @@ public class ProfileHistoryDTO implements Serializable {
 
     private Long profileId;
 
-    private String staffId; // Cán bộ đang thực hiện
+    private Long staffId; // Cán bộ đang thực hiện
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -62,7 +62,7 @@ public class ProfileHistoryDTO implements Serializable {
     // p.notify_by_email ,c.cif,c.name as customer_name, s.name as staff_name
 
     public ProfileHistoryDTO(Long id, 
-    String staffId, 
+    Long staffId, 
             String createdBy, 
             LocalDateTime createdDate, 
             String lastUpdatedBy, 

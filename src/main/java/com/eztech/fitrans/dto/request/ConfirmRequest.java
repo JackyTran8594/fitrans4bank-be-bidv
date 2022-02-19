@@ -12,8 +12,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class ConfirmRequest implements Serializable {
 
-    public ProfileDTO profile;
-    public Boolean isCM;
-    public Boolean isCT;  
+    public Long profileId;
+    public String username;
+    public Long departmentId;
+    public Integer state;
 }
 

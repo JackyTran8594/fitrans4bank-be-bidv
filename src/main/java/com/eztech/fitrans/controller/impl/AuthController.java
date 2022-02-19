@@ -6,6 +6,7 @@ import com.eztech.fitrans.exception.BusinessException;
 import com.eztech.fitrans.security.ApiResponse;
 import com.eztech.fitrans.security.JwtAuthenticationResponse;
 import com.eztech.fitrans.security.JwtTokenProvider;
+import com.eztech.fitrans.service.UserDetailsServiceImpl;
 import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.MessageConstants;
 import io.swagger.annotations.ApiOperation;
@@ -42,7 +43,10 @@ public class AuthController {
     @Autowired
     JwtTokenProvider tokenProvider;
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Autowired
+    UserDetailsServiceImpl userDetailsServiceImpl;
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         if (loginRequest.getUsername().isEmpty() || loginRequest.getPassword().isEmpty()) {
@@ -53,14 +57,12 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
-                            loginRequest.getPassword()
-                    )
-            );
+                            loginRequest.getPassword()));
             List<String> listRole = new ArrayList<>();
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
+            String deparmentId = null;
             UserDetails userDetails = null;
-            //TODO: Test
+            // TODO: Test
             log.info(new BCryptPasswordEncoder().encode("123456a@"));
             log.info("admin: " + new BCryptPasswordEncoder().encode("admin"));
 
@@ -68,40 +70,40 @@ public class AuthController {
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal instanceof UserDetails) {
                     userDetails = (UserDetails) principal;
+                    deparmentId = userDetailsServiceImpl.getDepartmentIdByUsername(userDetails.getUsername());
                     log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
                     if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
                         listRole = userDetails.getAuthorities().stream()
                                 .map(GrantedAuthority::getAuthority)
                                 .collect(Collectors.toList());
+
                     }
                 } else {
-                    log.info("===SecurityContextHolder getPrincipal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+                    log.info("===SecurityContextHolder getPrincipal: "
+                            + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
-            String jwt = tokenProvider.generateToken(authentication, listRole);
+            String jwt = tokenProvider.generateToken(authentication, listRole, deparmentId);
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {
             log.error(ex.getMessage());
-            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_INVALID), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_INVALID),
+                    HttpStatus.BAD_REQUEST);
         } catch (UsernameNotFoundException ex) {
             log.error(ex.getMessage());
-            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_INACTIVE), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_INACTIVE),
+                    HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
             return new ResponseEntity(new ApiResponse(false, MessageConstants.SYSTEM_ERROR), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @RequestMapping(
-            value = {"/sign-out"},
-            method = {RequestMethod.POST}
-    )
-    @ApiOperation(
-            value = "Revoke access token and refresh token",
-            response = ResponseEntity.class
-    )
-    public ResponseEntity<?> revokeAccessToken(@RequestBody(required = false) Map<String, String> aTokenMap) throws BusinessException {
+    @RequestMapping(value = { "/sign-out" }, method = { RequestMethod.POST })
+    @ApiOperation(value = "Revoke access token and refresh token", response = ResponseEntity.class)
+    public ResponseEntity<?> revokeAccessToken(@RequestBody(required = false) Map<String, String> aTokenMap)
+            throws BusinessException {
         try {
             if (aTokenMap != null) {
                 if (aTokenMap.containsKey("access_token")) {
@@ -117,14 +119,14 @@ public class AuthController {
         }
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @PostMapping("/validatetoken")
     public ResponseEntity<?> getTokenByCredentials(@Valid @RequestBody ValidateTokenRequest validateToken) {
         String username = null;
         String jwt = validateToken.getToken();
         if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
             username = tokenProvider.getUsernameFromJWT(jwt);
-            //If required we can have one more check here to load the user from LDAP server
+            // If required we can have one more check here to load the user from LDAP server
             return ResponseEntity.ok(new ApiResponse(Boolean.TRUE, MessageConstants.VALID_TOKEN + username));
         } else {
             return new ResponseEntity(new ApiResponse(false, MessageConstants.INVALID_TOKEN),

@@ -4,9 +4,11 @@ import com.eztech.fitrans.controller.ProfileApi;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
+import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.service.ProfileHistoryService;
 import com.eztech.fitrans.service.ProfileService;
+import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
 
 import java.io.ByteArrayOutputStream;
@@ -55,6 +57,9 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @Autowired
   private ProfileService service;
+
+  @Autowired
+  private UserService userService;
 
   @Autowired
   private ProfileHistoryService historyService;
@@ -142,11 +147,36 @@ public class ProfileController extends BaseController implements ProfileApi {
     return true;
   }
 
-  @PostMapping("/confirmProfile")
-  public Boolean confirmProfile(@RequestBody ConfirmRequest item) {
-    ProfileDTO profile = item.profile;
+  @PostMapping("/returnProfile")
+  public Boolean returnProfile(@RequestBody ConfirmRequest item) {
+    ProfileDTO profile = service.findById(item.profileId);
     service.save(profile);
     return true;
   }
+
+  @PostMapping("/confirmProfile")
+  public Boolean confirmProfile(@RequestBody ConfirmRequest item) {
+    ProfileDTO profile = service.findById(item.getProfileId());
+    UserDTO user = userService.findByUsername(item.getUsername());
+    ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
+    if(item.departmentId ==  2)
+    {
+      profile.setStaffId_CM(user.getId());
+    }
+    if(item.departmentId == 3) {
+      profile.setStaffId_CT(user.getId());
+    }
+    
+    profile.setState(item.getState());
+    profileHistory.setProfileId(item.getProfileId());
+    profileHistory.setStaffId(user.getId());
+    service.save(profile);
+    historyService.save(profileHistory);
+    return true;
+  }
+
+
+
+
 
 }

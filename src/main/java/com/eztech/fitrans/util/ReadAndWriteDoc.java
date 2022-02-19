@@ -97,11 +97,11 @@ public class ReadAndWriteDoc {
 
                                 XWPFTableRow row1 = table.getRow(0);
                                 XWPFTableCell cell1 = row1.getCell(1);
-                                cell1.setText(profile.getStaffId_CM());
+                                cell1.setText(profile.getStaffId_CM().toString());
 
                                 XWPFTableRow row2 = table.getRow(1);
                                 XWPFTableCell cell2 = row2.getCell(1);
-                                cell2.setText(profile.getStaffId_CM());
+                                cell2.setText(profile.getStaffId_CM().toString());
 
                                 XWPFTableRow row3 = table.getRow(2);
                                 XWPFTableCell cell3 = row3.getCell(1);

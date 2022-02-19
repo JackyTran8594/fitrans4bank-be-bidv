@@ -76,4 +76,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 		return authorities;
 	}
+
+	public String getDepartmentIdByUsername(String username) {
+		UserEntity user = repo.findByUsername(username);
+		if(DataUtils.isNullOrEmpty(user)) {
+			throw new UsernameNotFoundException("User not found with username: " + username);
+		}
+		return user.getDeparmentId().toString();
+	}
 }

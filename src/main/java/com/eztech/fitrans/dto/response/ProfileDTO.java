@@ -38,7 +38,7 @@ public class ProfileDTO implements Serializable {
     public Integer state;
     public String stateEnum;
 
-    public String staffId; // Cán bộ đang thực hiện
+    public Long staffId; // Cán bộ đang thực hiện
     public String staffName; // Cán bộ đang thực hiện
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -61,9 +61,9 @@ public class ProfileDTO implements Serializable {
 
     public Integer numberOfPO; // Số lượng ủy nhiệm chi
 
-    public String staffId_CM; // Cán bộ phòng QTTD
+    public Long staffId_CM; // Cán bộ phòng QTTD
 
-    public String staffId_CT; // Cán bộ phòng GDKH
+    public Long staffId_CT; // Cán bộ phòng GDKH
     public String returnReason; // Cán bộ phòng GDKH
     public String categoryProfile;
     public BigDecimal value; // Giá trị
@@ -89,15 +89,15 @@ public class ProfileDTO implements Serializable {
 
     public ProfileDTO(Long id, 
     Long customerid, 
-    String staffId, 
+    Long staffId, 
     Integer type,
             Integer priority, 
             LocalDateTime processDate,
             LocalDateTime timeReceived_CT,
             LocalDateTime timeReceived_CM,
             LocalDateTime endTime,
-            String staffId_CM,
-            String staffId_CT,
+            Long staffId_CM,
+            Long staffId_CT,
             Integer numberOfBill,
             Integer numberOfPO,
             BigDecimal value,

@@ -32,15 +32,15 @@ import lombok.NoArgsConstructor;
             columns = {
                 @ColumnResult(name = "id", type = Long.class),
                 @ColumnResult(name = "customer_id", type = Long.class),
-                @ColumnResult(name = "staff_id", type = String.class),
+                @ColumnResult(name = "staff_id", type = Long.class),
                 @ColumnResult(name = "type", type = Integer.class),
                 @ColumnResult(name = "priority", type = Integer.class),
                 @ColumnResult(name = "process_date", type = LocalDateTime.class),
                 @ColumnResult(name = "time_received_ct", type = LocalDateTime.class),
                 @ColumnResult(name = "time_received_cm", type = LocalDateTime.class),
                 @ColumnResult(name = "end_time", type = LocalDateTime.class),
-                @ColumnResult(name = "staff_id_cm", type = String.class),
-                @ColumnResult(name = "staff_id_ct", type = String.class),
+                @ColumnResult(name = "staff_id_cm", type = Long.class),
+                @ColumnResult(name = "staff_id_ct", type = Long.class),
                 @ColumnResult(name = "number_of_bill", type = Integer.class),
                 @ColumnResult(name = "number_of_po", type = Integer.class),
                 @ColumnResult(name = "value", type = BigDecimal.class),
@@ -73,7 +73,7 @@ public class Profile extends Auditable<String> implements Serializable {
   @Column(name = "customer_id")
   private Long customerid;
   @Column(name = "staff_id")
-  private String staffId;   //Cán bộ đang thực hiện
+  private Long staffId;   //Cán bộ đang thực hiện
 
   @Column(name = "process_date")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -105,10 +105,10 @@ public class Profile extends Auditable<String> implements Serializable {
   private String staffId_CM; //Cán bộ phòng QTTD
 
   @Column(name = "staff_id_ct")
-  private String staffId_CT; //Cán bộ phòng GDKH
+  private Long staffId_CT; //Cán bộ phòng GDKH
 
   @Column(name = "return_reason")
-  private String returnReason; //Cán bộ phòng GDKH
+  private Long returnReason; //Cán bộ phòng GDKH
 
   @Column(name = "value")
   private BigDecimal value; // Giá trị

@@ -17,4 +17,6 @@ public interface UserService {
   List<UserDTO> search(Map<String, Object> mapParam);
 
   Long count(Map<String, Object> mapParam);
+
+  UserDTO findByUsername(String username);
 }

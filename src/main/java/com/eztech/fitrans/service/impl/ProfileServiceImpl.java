@@ -144,35 +144,36 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public Boolean confirmProfile(ConfirmRequest dto) {
-        // TODO Auto-generated method stub
-        Profile entity;
-        ProfileHistory profileHistory = new ProfileHistory();
-        ProfileDTO result = findById(dto.profile.getId());
-        try {
-            if (result == null) {
-                throw new ResourceNotFoundException("Profile" + dto.profile.getId() + "not found");
-            }
-            result.setState(dto.profile.getState());
-            entity = mapper.toPersistenceBean(result);
-            entity = repository.save(entity);
+        // // TODO Auto-generated method stub
+        // Profile entity;
+        // ProfileHistory profileHistory = new ProfileHistory();
+        // ProfileDTO result = findById(dto.profile.getId());
+        // try {
+        //     if (result == null) {
+        //         throw new ResourceNotFoundException("Profile" + dto.profile.getId() + "not found");
+        //     }
+        //     result.setState(dto.profile.getState());
+        //     entity = mapper.toPersistenceBean(result);
+        //     entity = repository.save(entity);
 
-            profileHistory.setProfileId(dto.profile.getId());
-            profileHistory.setTimeReceived(LocalDateTime.now());
-            profileHistory.setState(dto.profile.getState());
-            if (dto.isCM) {
-                profileHistory.setStaffId(dto.profile.getStaffId_CM());
-            }
-            if (dto.isCT) {
-                profileHistory.setStaffId(dto.profile.getStaffId_CT());
-            }
-            profileHistoryRepo.save(profileHistory);
-            return true;
+        //     profileHistory.setProfileId(dto.profile.getId());
+        //     profileHistory.setTimeReceived(LocalDateTime.now());
+        //     profileHistory.setState(dto.profile.getState());
+        //     if (dto.isCM) {
+        //         profileHistory.setStaffId(dto.profile.getStaffId_CM());
+        //     }
+        //     if (dto.isCT) {
+        //         profileHistory.setStaffId(dto.profile.getStaffId_CT());
+        //     }
+        //     profileHistoryRepo.save(profileHistory);
+        //     return true;
 
-        } catch (Exception e) {
-            // TODO: handle exception
-            System.out.println(e.getMessage());
-            return false;
-        }
+        // } catch (Exception e) {
+        //     // TODO: handle exception
+        //     System.out.println(e.getMessage());
+        //     return false;
+        // }
+        return null;
     }
 
 }

@@ -59,7 +59,7 @@ public class ProfileHistory extends Auditable<String> implements Serializable {
   private Long profileId;
 
   @Column(name = "staff_id")
-  private String staffId;   //Cán bộ đang thực hiện
+  private Long staffId;   //Cán bộ đang thực hiện
 
   @Column(name = "time_received")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
