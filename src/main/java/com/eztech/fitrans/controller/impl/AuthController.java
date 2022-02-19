@@ -61,7 +61,7 @@ public class AuthController {
 
             UserDetails userDetails = null;
             //TODO: Test
-            log.info(new BCryptPasswordEncoder().encode("benspassword"));
+            log.info(new BCryptPasswordEncoder().encode("123456a@"));
             log.info("admin: " + new BCryptPasswordEncoder().encode("admin"));
 
             if (SecurityContextHolder.getContext().getAuthentication() != null) {
