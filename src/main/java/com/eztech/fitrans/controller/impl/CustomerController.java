@@ -5,23 +5,22 @@ import com.eztech.fitrans.dto.response.CustomerDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.service.CustomerService;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import com.eztech.fitrans.util.ExcelFileWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -83,6 +82,35 @@ public class CustomerController extends BaseController implements CustomerApi {
   public Boolean delete(@PathVariable(value = "id") Long id) {
     service.deleteById(id);
     return true;
+  }
+
+  @RequestMapping(value = "test", method = RequestMethod.GET)
+  public ResponseEntity<byte[]> test() throws Exception {
+    List<CustomerDTO> customerDTOList = service.importFile(null);
+
+    List<String> headerList = Arrays.asList("cif", "Tên khách hàng", "Địa chỉ", "Số điện thoại", "Loại khách hàng", "Loại khách hàng", "Message");
+    List<String> propertyList = Arrays.asList("cif", "name", "address", "tel", "type","typeName", "errorMsg");
+
+    return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            .header("Content-Disposition", "attachment; filename=success.xlsx")
+            .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
+            .body(ExcelFileWriter.writeToExcel(headerList, propertyList, customerDTOList));
+  }
+
+  @Override
+  @RequestMapping(value = "import", method = RequestMethod.POST)
+  public ResponseEntity<byte[]> importFile(@RequestParam("file") MultipartFile file) throws Exception {
+    List<CustomerDTO> customerDTOList = service.importFile(file);
+
+    List<String> headerList = Arrays.asList("cif", "Tên khách hàng", "Địa chỉ", "Số điện thoại", "Loại khách hàng", "Loại khách hàng", "Message");
+    List<String> propertyList = Arrays.asList("cif", "name", "address", "tel", "type","typeName", "errorMsg");
+
+    return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            .header("Content-Disposition", "attachment; filename=success.xlsx")
+            .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
+            .body(ExcelFileWriter.writeToExcel(headerList, propertyList, customerDTOList));
   }
 
   @GetMapping("/Cif/{cif}")

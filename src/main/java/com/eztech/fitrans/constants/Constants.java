@@ -1,5 +1,7 @@
 package com.eztech.fitrans.constants;
 
+import java.io.File;
+
 public class Constants {
     public static final String PATH_MESSAGE = "i18n/messages";
     public static final String PATH_ERROR = "i18n/errors";
@@ -41,5 +43,19 @@ public class Constants {
         public static final String OPTIONSET_NAME = "param.optionset.name";
         public static final String OPTIONSET_VALUE = "param.optionset.value";
         public static final String OPTIONSET_DESC = "param.optionset.description";
+    }
+
+    public static final class TemplateExcel {
+        public static final String TEMPLATE_PRODUCT_XLSX = "template" + File.separator + "import" + File.separator  + "File_mau_import_template.xlsx";
+        public static final String TEMPLATE_IMPORT_CUSTOMER = "template"+ File.separator +"import"+ File.separator +"template_customer.json";
+    }
+
+    public static class MsgKey {
+        public static String MS0000 = "MS0000";
+        public static String MS0001 = "MS0001";
+        public static String MS0002 = "MS0002";
+        public static String MS0003 = "MS0003";
+        public static String MS0004 = "MS0004";
+        public static String MS0005 = "MS0005";
     }
 }

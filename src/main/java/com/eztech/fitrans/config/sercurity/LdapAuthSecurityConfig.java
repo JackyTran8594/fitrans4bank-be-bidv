@@ -118,6 +118,8 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/api/auth/**").permitAll()
 				.antMatchers("/api/public/**").permitAll()
 				.antMatchers("/api/roles/tree").permitAll()
+				.antMatchers("/api/customers/test").permitAll()
+				.antMatchers("/api/test/**").permitAll()
 				.antMatchers(HttpMethod.GET, "/api/author/**").permitAll()
 				.antMatchers(HttpMethod.POST, "/api/author/search").permitAll()
 				.antMatchers(HttpMethod.GET, "/api/book/**").permitAll()

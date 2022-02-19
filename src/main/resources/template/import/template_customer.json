@@ -1,0 +1,49 @@
+[
+  {
+    "Customer":
+    [
+      {
+        "excelHeader": "STT",
+        "excelIndex": 0,
+        "excelColType": "Integer",
+        "excelValue": null,
+        "pojoAttribute": "stt"
+      },
+      {
+        "excelHeader": "CIF",
+        "excelIndex": 1,
+        "excelColType": "String",
+        "excelValue": null,
+        "pojoAttribute": "cif"
+      },
+      {
+        "excelHeader": "Tên khách hàng (*)",
+        "excelIndex": 2,
+        "excelColType": "String",
+        "excelValue": null,
+        "pojoAttribute": "name"
+      },
+	  {
+        "excelHeader": "Địa chỉ",
+        "excelIndex": 3,
+        "excelColType": "String",
+        "excelValue": null,
+        "pojoAttribute": "address"
+      },
+      {
+        "excelHeader": "Số điện thoại",
+        "excelIndex": 4,
+        "excelColType": "String",
+        "excelValue": null,
+        "pojoAttribute": "tel"
+      },
+      {
+        "excelHeader": "Loại khách hàng",
+        "excelIndex": 5,
+        "excelColType": "Integer",
+        "excelValue": null,
+        "pojoAttribute": "type"
+      }
+    ]
+  }
+]

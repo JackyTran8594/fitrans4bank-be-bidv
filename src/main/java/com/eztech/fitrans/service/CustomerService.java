@@ -1,6 +1,8 @@
 package com.eztech.fitrans.service;
 
 import com.eztech.fitrans.dto.response.CustomerDTO;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Map;
 
@@ -19,4 +21,6 @@ public interface CustomerService {
   Long count(Map<String, Object> mapParam);
 
   List<CustomerDTO> findByCif(String cif);
+
+  List<CustomerDTO> importFile(MultipartFile file) throws Exception;
 }

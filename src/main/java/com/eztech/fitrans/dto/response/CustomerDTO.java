@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerDTO implements Serializable {
+public class CustomerDTO extends BaseImportDTO implements Serializable {
 
     private Long id;
     private String cif;
@@ -33,10 +33,16 @@ public class CustomerDTO implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdDate;
     private String lastUpdatedBy;
+
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime lastUpdatedDate;
     private String status;
+
+    //For import excel
+    private Integer stt;
+    private String errorMsg;
+    private Boolean error = false;
 
     public void fillTransient() {
         if (type != null) {
