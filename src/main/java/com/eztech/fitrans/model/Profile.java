@@ -101,7 +101,7 @@ public class Profile extends Auditable<String> implements Serializable {
   private Long staffId_CT; // Cán bộ phòng GDKH
 
   @Column(name = "return_reason")
-  private Long returnReason; // Cán bộ phòng GDKH
+  private String returnReason; // Cán bộ phòng GDKH
 
   @Column(name = "value")
   private BigDecimal value; // Giá trị

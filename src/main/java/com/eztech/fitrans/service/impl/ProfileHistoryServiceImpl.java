@@ -83,6 +83,14 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
         return list;
     }
 
+    @Override
+    public ProfileHistoryDTO findByIdAndState(Long id, Integer state) {
+        // TODO Auto-generated method stub
+        ProfileHistoryDTO profileHistory = repository.deteilByIdAndState(id, state);
+        profileHistory.fillTransient();
+        return profileHistory;
+    }
+
     
 
     

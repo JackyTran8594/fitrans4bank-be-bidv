@@ -18,19 +18,58 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StaffContactDTO implements Serializable {
-    private Long id;
-    private String cif;
-    private String staffIdCM;
-    private String staffIdCT;
-    private String staffIdCustomer;
-    private String customerId;
-    private String note;
-    private String createdBy;
+    public Long id;
+    public String cif;
+    public String staffIdCM;
+    public String staffIdCT;
+    public String staffIdCustomer;
+    public String staffNameCM;
+    public String staffNameCT;
+    public String staffNameCustomer;
+    public String customerId;
+    public String note;
+    public String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime createdDate;
-    private String lastUpdatedByl;
+    public LocalDateTime createdDate;
+    public String lastUpdatedBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime lastUpdateDate;
+    public LocalDateTime lastUpdateDate;
+    public String status;
+
+
+    public StaffContactDTO (Long id,
+        String cif,
+        String customerId,
+        String status,
+        String createdBy,
+        LocalDateTime createdDate,
+        String lastUpdatedBy,
+        LocalDateTime lastUpdateDate,
+        String note,
+        String staffIdCM,
+        String staffIdCT,
+        String staffIdCustomer,
+        String staffNameCM,
+        String staffNameCT,
+        String staffNameCustomer
+    ) {
+        this.id = id;
+        this.cif = cif;
+        this.customerId = customerId;
+        this.status = status;
+        this.createdBy = createdBy;
+        this.createdDate = createdDate;
+        this.lastUpdatedBy = lastUpdatedBy;
+        this.lastUpdateDate = lastUpdateDate;
+        this.note = note;
+        this.staffIdCM = staffIdCM;
+        this.staffIdCT = staffIdCT;
+        this.staffIdCustomer = staffIdCustomer;
+        this.staffNameCM = staffNameCM;
+        this.staffNameCT = staffNameCT;
+        this.staffNameCustomer = staffNameCustomer;
+    };
+
 }

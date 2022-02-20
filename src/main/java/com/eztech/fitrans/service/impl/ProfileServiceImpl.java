@@ -64,19 +64,22 @@ public class ProfileServiceImpl implements ProfileService {
             if (dto == null) {
                 throw new ResourceNotFoundException("Profile " + profile.getId() + " not found");
             }
-            dto.setCif(profile.getCif());
-            dto.setCustomerid(profile.getCustomerid());
-            dto.setStaffId(profile.getStaffId());
-            dto.setStaffId_CM(profile.getStaffId_CM());
-            dto.setStaffId_CT(profile.getStaffId_CT());
-            dto.setStatus(profile.getStatus());
-            dto.setReview(profile.getReview());
-            dto.setReviewNote(profile.getReviewNote());
-            dto.setLastUpdatedDate(LocalDateTime.now());
-            dto.setState(profile.getState());
-            dto.setPriority(profile.getPriority());
-            dto.setPriorityValue(profile.getPriorityValue());
-            entity = mapper.toPersistenceBean(dto);
+            // dto.setCif(profile.getCif());
+            // dto.setCustomerid(profile.getCustomerid());
+            // dto.setStaffId(profile.getStaffId());
+            // dto.setStaffId_CM(profile.getStaffId_CM());
+            // dto.setStaffId_CT(profile.getStaffId_CT());
+            // dto.setStatus(profile.getStatus());
+            // dto.setReview(profile.getReview());
+            // dto.setReviewNote(profile.getReviewNote());
+            // dto.setLastUpdatedDate(LocalDateTime.now());
+            // dto.setState(profile.getState());
+            // dto.setPriority(profile.getPriority());
+            // dto.setPriorityValue(profile.getPriorityValue());
+            // dto.setNote(profile.getNote());
+            // dto.setReturnReason(profile.getReturnReason());
+            profile.setLastUpdatedDate(LocalDateTime.now());
+            entity = mapper.toPersistenceBean(profile);
         } else {
             profile.setState(0);
             entity = mapper.toPersistenceBean(profile);

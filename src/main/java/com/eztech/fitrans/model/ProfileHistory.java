@@ -7,6 +7,7 @@ import com.eztech.fitrans.constants.ProfilePriorityEnum;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.constants.ProfileTypeEnum;
 import com.eztech.fitrans.dto.response.ProfileDTO;
+import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -24,31 +25,31 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @AllArgsConstructor
-// @SqlResultSetMapping(
-//     name = Constants.ResultSetMapping.PROFILE_HISTORY_DTO,
-//     classes = {
-//         @ConstructorResult(
-//             targetClass = PROFILE_HISTORY_DTO.class,
-//             columns = {
-//                 @ColumnResult(name = "id", type = Long.class),
-//                 @ColumnResult(name = "profile_id", type = Long.class),
-//                 @ColumnResult(name = "staff_id", type = String.class),
-//                 @ColumnResult(name = "time_received", type = LocalDateTime.class),
-//                 @ColumnResult(name = "standard_time", type = LocalDateTime.class),
-//                 @ColumnResult(name = "created_by", type = String.class),
-//                 @ColumnResult(name = "created_date", type = LocalDateTime.class),
-//                 @ColumnResult(name = "last_updated_by", type = String.class),
-//                 @ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
-//                 @ColumnResult(name = "status", type = String.class),
-//                 @ColumnResult(name = "state", type = Integer.class),
-//                 @ColumnResult(name = "staff_name", type = String.class),
+@SqlResultSetMapping(
+    name = Constants.ResultSetMapping.PROFILE_HISTORY_DTO,
+    classes = {
+        @ConstructorResult(
+            targetClass = ProfileHistoryDTO.class,
+            columns = {
+                @ColumnResult(name = "id", type = Long.class),
+                @ColumnResult(name = "profile_id", type = Long.class),
+                @ColumnResult(name = "staff_id", type = String.class),
+                @ColumnResult(name = "time_received", type = LocalDateTime.class),
+                @ColumnResult(name = "standard_time", type = LocalDateTime.class),
+                @ColumnResult(name = "created_by", type = String.class),
+                @ColumnResult(name = "created_date", type = LocalDateTime.class),
+                @ColumnResult(name = "last_updated_by", type = String.class),
+                @ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
+                @ColumnResult(name = "status", type = String.class),
+                @ColumnResult(name = "state", type = Integer.class),
+                @ColumnResult(name = "staff_name", type = String.class),
                 
-//             }
-//         )
+            }
+        )
         
        
-//     }
-// )
+    }
+)
 public class ProfileHistory extends Auditable<String> implements Serializable {
 
   @Id

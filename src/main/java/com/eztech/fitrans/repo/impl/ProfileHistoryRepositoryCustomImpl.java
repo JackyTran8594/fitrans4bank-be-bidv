@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ProfileHistoryRepositoryCustomImpl  extends BaseCustomRepository<ProfileHistory> implements
+public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<ProfileHistory> implements
     ProfileHistoryRepositoryCustom {
 
   @Override
@@ -62,16 +62,18 @@ public class ProfileHistoryRepositoryCustomImpl  extends BaseCustomRepository<Pr
   public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
       boolean count) {
     StringBuilder sb = new StringBuilder();
+    String sql_select = "SELECT p.id,p.staff_id,p.state, p.time_received, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, us.full_name as staff_name \n";
+    String sql_from = "FROM profile_history p left join user_entity us on us.id = p.staff_id AND s.status = 'ACTIVE' \n";
     if (count) {
-      sb.append("SELECT COUNT(id) \n")
-          .append("FROM profile os\n")
+      sb.append("SELECT COUNT(p.id) \n")
+          .append(
+              sql_from)
           .append("WHERE 1=1 ");
     } else {
       sb.append(
-          "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct, p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.rate, p.notify_by_email ,c.cif,c.name as customer_name, s.name as staff_name \n")
+          sql_select)
           .append(
-              "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n")
-          .append(" left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' ")
+              sql_from)
           .append("WHERE 1=1 ");
     }
 
@@ -80,14 +82,9 @@ public class ProfileHistoryRepositoryCustomImpl  extends BaseCustomRepository<Pr
       parameters.put("id", DataUtils.parseToLong(paramSearch.get("id")));
     }
 
-    if (paramNotNullOrEmpty(paramSearch, "cif")) {
-      sb.append(" AND c.cif LIKE :cif ");
-      parameters.put("cif", formatLike((String) paramSearch.get("cif")).toLowerCase());
-    }
-
-    if (paramSearch.containsKey("customerId")) {
-      sb.append(" AND p.customer_id = :customerId ");
-      parameters.put("customerId", DataUtils.parseToLong(paramSearch.get("customerId")));
+    if (paramSearch.containsKey("profileId")) {
+      sb.append(" AND p.profile_id = :profileId ");
+      parameters.put("profileId", DataUtils.parseToLong(paramSearch.get("profileId")));
     }
 
     if (paramSearch.containsKey("staffId")) {
@@ -100,15 +97,10 @@ public class ProfileHistoryRepositoryCustomImpl  extends BaseCustomRepository<Pr
       parameters.put("status", paramSearch.get("status"));
     }
 
-    if(paramNotNullOrEmpty(paramSearch, "rate")) {
-      sb.append(" AND p.rate = :rate ");
-      parameters.put("rate", paramSearch.get("rate"));
-    }
-
     if (!count) {
       if (paramSearch.containsKey("sort")) {
         sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.id DESC  "));
-      }else{
+      } else {
         sb.append(" ORDER BY p.id desc ");
       }
     }
@@ -117,21 +109,24 @@ public class ProfileHistoryRepositoryCustomImpl  extends BaseCustomRepository<Pr
         .equalsIgnoreCase(String.valueOf(paramSearch.get("pageSize")))) {
       sb.append(" OFFSET :offset ROWS ");
       sb.append(" FETCH NEXT :limit ROWS ONLY ");
-      parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")), DataUtils.parseToInt(paramSearch.get("pageSize"))));
+      parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")),
+          DataUtils.parseToInt(paramSearch.get("pageSize"))));
       parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
     }
     return sb.toString();
   }
 
   @Override
-  public ProfileHistoryDTO detailById(Long id) {
+  public ProfileHistoryDTO deteilByIdAndState(Long id, Integer state) {
+    // TODO Auto-generated method stub
     Map<String, Object> parameters = new HashMap<>();
-    String sql = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.time_received_ct, p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,p.rate, p.notify_by_email,c.cif,c.name as customer_name, s.name as staff_name " +
-            "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' " +
-            " left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' " +
-            " where p.id = :id ";
-    parameters.put("id",id);
-    ProfileHistoryDTO ProfileHistoryDTO = getSingleResult(sql,Constants.ResultSetMapping.PROFILE_HISTORY_DTO,parameters);
-    return ProfileHistoryDTO;
+    String sql = "SELECT p.id,p.staff_id,p.state, p.time_received, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, us.full_name as staff_name \n"
+        +
+        "FROM profile_history p left join user_entity us on us.id = p.staff_id AND s.status = 'ACTIVE' \n";
+    parameters.put("id", id);
+    parameters.put("state", state);
+    ProfileHistoryDTO profileHistory = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);
+    return profileHistory;
   }
+
 }

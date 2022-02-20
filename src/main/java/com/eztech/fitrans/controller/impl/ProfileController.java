@@ -6,6 +6,7 @@ import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
+import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.service.ProfileHistoryService;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.service.UserService;
@@ -185,6 +186,16 @@ public class ProfileController extends BaseController implements ProfileApi {
     historyService.save(profileHistory);
     return true;
   }
+
+  @GetMapping("/getInfo")
+  public ProfileHistoryDTO getInfoByIdAndState(@RequestParam Map<String, Object> params) {
+    Long id = Long.valueOf(params.get("id").toString());
+    Integer state = Integer.valueOf(params.get("state").toString());
+    ProfileHistoryDTO profileHistory = historyService.findByIdAndState(id, state);
+    return profileHistory;
+  }
+
+
 
 
 
