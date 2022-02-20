@@ -58,6 +58,7 @@ public class UsersController extends BaseController implements UserApi {
     }
     return dto;
   }
+  
 
   @Override
   @PostMapping("")
@@ -89,4 +90,12 @@ public class UsersController extends BaseController implements UserApi {
       }
       return true;
   }
+
+  @GetMapping("/userByDepartment/{id}")
+  public List<UserDTO> getUserByDepartment(@PathVariable(value = "id") Long id) {
+      List<UserDTO> users = userService.findByDepartmentid(id);
+      return users;
+  }
+
+
 }

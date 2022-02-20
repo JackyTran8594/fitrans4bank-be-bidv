@@ -78,6 +78,7 @@ public class ProfileServiceImpl implements ProfileService {
             dto.setPriorityValue(profile.getPriorityValue());
             entity = mapper.toPersistenceBean(dto);
         } else {
+            profile.setState(0);
             entity = mapper.toPersistenceBean(profile);
         }
         entity = repository.save(entity);

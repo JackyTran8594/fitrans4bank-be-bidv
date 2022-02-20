@@ -79,6 +79,7 @@ public class ProfileDTO implements Serializable {
     public String status;
     public Integer review;
     public String reviewNote;
+    public String note;
     public Boolean notifyByEmail;
 
     // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct,
@@ -114,7 +115,8 @@ public class ProfileDTO implements Serializable {
             String cif, 
             String customerName,
             String staffName,
-            String reviewNote
+            String reviewNote,
+            String note
            ) {
         this.id = id;
         this.customerid = customerid;
@@ -153,6 +155,7 @@ public class ProfileDTO implements Serializable {
         this.value = value;
         this.categoryProfile = categoryProfile;
         this.reviewNote = reviewNote;
+        this.note = note;
     }   
 
     public void fillTransient() {

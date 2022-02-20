@@ -84,4 +84,17 @@ public class UserServiceImpl implements UserService {
         UserDTO user = mapper.toDtoBean(entity);
         return user;
     }
+
+    @Override
+    public List<UserDTO> findByDepartmentid(Long departmentId) {
+        // TODO Auto-generated method stub
+          // TODO Auto-generated method stub
+          List<UserEntity> entities =  repository.findByDepartmentid(departmentId);
+          // List<UserEntity> entities =  repository.find
+          List<UserDTO> users = mapper.toDtoBean(entities);
+          return users;
+
+    }
+
+
 }

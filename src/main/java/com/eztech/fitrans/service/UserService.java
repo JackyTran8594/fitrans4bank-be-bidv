@@ -19,4 +19,6 @@ public interface UserService {
   Long count(Map<String, Object> mapParam);
 
   UserDTO findByUsername(String username);
+
+  List<UserDTO> findByDepartmentid(Long departmentId);
 }

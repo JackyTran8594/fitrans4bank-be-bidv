@@ -34,7 +34,7 @@ import lombok.NoArgsConstructor;
 								@ColumnResult(name = "email", type = String.class),
 								@ColumnResult(name = "full_name", type = String.class),
 								@ColumnResult(name = "position", type = String.class),
-								@ColumnResult(name = "deparment_id", type = Long.class),
+								@ColumnResult(name = "department_id", type = Long.class),
 								@ColumnResult(name = "status", type = String.class),
 								@ColumnResult(name = "last_updated_by", type = String.class),
 								@ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
@@ -58,7 +58,7 @@ public class UserEntity {
 	private String fullName;
 	@Column(name = "`phoneNumber`")
 	private String phoneNumber;
-	@Column(name = "`deparment_id`")
+	@Column(name = "`department_id`")
 	private Long deparmentId;	//phong ban
 	@Column(name = "`position`")
 	private String position;	//Chuc vu

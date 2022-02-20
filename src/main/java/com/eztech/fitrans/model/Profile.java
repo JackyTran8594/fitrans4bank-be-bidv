@@ -24,47 +24,40 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
 @AllArgsConstructor
-@SqlResultSetMapping(
-    name = Constants.ResultSetMapping.PROFILE_DTO,
-    classes = {
-        @ConstructorResult(
-            targetClass = ProfileDTO.class,
-            columns = {
-                @ColumnResult(name = "id", type = Long.class),
-                @ColumnResult(name = "customer_id", type = Long.class),
-                @ColumnResult(name = "staff_id", type = Long.class),
-                @ColumnResult(name = "type", type = Integer.class),
-                @ColumnResult(name = "priority", type = Integer.class),
-                @ColumnResult(name = "process_date", type = LocalDateTime.class),
-                @ColumnResult(name = "time_received_ct", type = LocalDateTime.class),
-                @ColumnResult(name = "time_received_cm", type = LocalDateTime.class),
-                @ColumnResult(name = "end_time", type = LocalDateTime.class),
-                @ColumnResult(name = "staff_id_cm", type = Long.class),
-                @ColumnResult(name = "staff_id_ct", type = Long.class),
-                @ColumnResult(name = "number_of_bill", type = Integer.class),
-                @ColumnResult(name = "number_of_po", type = Integer.class),
-                @ColumnResult(name = "value", type = BigDecimal.class),
-                @ColumnResult(name = "return_reason", type = String.class),
-                @ColumnResult(name = "category_profile", type = String.class),
-                @ColumnResult(name = "created_by", type = String.class),
-                @ColumnResult(name = "created_date", type = LocalDateTime.class),
-                @ColumnResult(name = "last_updated_by", type = String.class),
-                @ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
-                @ColumnResult(name = "status", type = String.class),
-                @ColumnResult(name = "state", type = Integer.class),
-                @ColumnResult(name = "review", type = Integer.class),
-                @ColumnResult(name = "notify_by_email", type = Boolean.class),
-                @ColumnResult(name = "cif", type = String.class),
-                @ColumnResult(name = "customer_name", type = String.class),
-                @ColumnResult(name = "staff_name", type = String.class),
-                @ColumnResult(name = "review_note", type = String.class),
-                
-            }
-        )
-        
-       
-    }
-)
+@SqlResultSetMapping(name = Constants.ResultSetMapping.PROFILE_DTO, classes = {
+    @ConstructorResult(targetClass = ProfileDTO.class, columns = {
+        @ColumnResult(name = "id", type = Long.class),
+        @ColumnResult(name = "customer_id", type = Long.class),
+        @ColumnResult(name = "staff_id", type = Long.class),
+        @ColumnResult(name = "type", type = Integer.class),
+        @ColumnResult(name = "priority", type = Integer.class),
+        @ColumnResult(name = "process_date", type = LocalDateTime.class),
+        @ColumnResult(name = "time_received_ct", type = LocalDateTime.class),
+        @ColumnResult(name = "time_received_cm", type = LocalDateTime.class),
+        @ColumnResult(name = "end_time", type = LocalDateTime.class),
+        @ColumnResult(name = "staff_id_cm", type = Long.class),
+        @ColumnResult(name = "staff_id_ct", type = Long.class),
+        @ColumnResult(name = "number_of_bill", type = Integer.class),
+        @ColumnResult(name = "number_of_po", type = Integer.class),
+        @ColumnResult(name = "value", type = BigDecimal.class),
+        @ColumnResult(name = "return_reason", type = String.class),
+        @ColumnResult(name = "category_profile", type = String.class),
+        @ColumnResult(name = "created_by", type = String.class),
+        @ColumnResult(name = "created_date", type = LocalDateTime.class),
+        @ColumnResult(name = "last_updated_by", type = String.class),
+        @ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
+        @ColumnResult(name = "status", type = String.class),
+        @ColumnResult(name = "state", type = Integer.class),
+        @ColumnResult(name = "review", type = Integer.class),
+        @ColumnResult(name = "notify_by_email", type = Boolean.class),
+        @ColumnResult(name = "cif", type = String.class),
+        @ColumnResult(name = "customer_name", type = String.class),
+        @ColumnResult(name = "staff_name", type = String.class),
+        @ColumnResult(name = "review_note", type = String.class),
+        @ColumnResult(name = "note", type = String.class),
+    })
+
+})
 public class Profile extends Auditable<String> implements Serializable {
 
   @Id
@@ -73,42 +66,42 @@ public class Profile extends Auditable<String> implements Serializable {
   @Column(name = "customer_id")
   private Long customerid;
   @Column(name = "staff_id")
-  private Long staffId;   //Cán bộ đang thực hiện
+  private Long staffId; // Cán bộ đang thực hiện
 
   @Column(name = "process_date")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  private LocalDateTime processDate;    //Ngày phát sinh
+  private LocalDateTime processDate; // Ngày phát sinh
 
   @Column(name = "time_received_cm")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  private LocalDateTime timeReceived_CM;    //Ngày bàn giao QTTD - CM: Credit Management
+  private LocalDateTime timeReceived_CM; // Ngày bàn giao QTTD - CM: Credit Management
 
   @Column(name = "time_received_ct")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  private LocalDateTime timeReceived_CT;    //Ngày bàn giao GDKH - CT: Customer-Transaction
+  private LocalDateTime timeReceived_CT; // Ngày bàn giao GDKH - CT: Customer-Transaction
 
   @Column(name = "end_time")
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  private LocalDateTime endTime;    //Ngày kết thúc giao dịch
+  private LocalDateTime endTime; // Ngày kết thúc giao dịch
 
   @Column(name = "number_of_bill")
-  private Integer numberOfBill; //Số lượng hóa đơn
-  
+  private Integer numberOfBill; // Số lượng hóa đơn
+
   @Column(name = "number_of_po")
-  private Integer numberOfPO; //Số lượng ủy nhiệm chi
+  private Integer numberOfPO; // Số lượng ủy nhiệm chi
 
   @Column(name = "staff_id_cm")
-  private String staffId_CM; //Cán bộ phòng QTTD
+  private String staffId_CM; // Cán bộ phòng QTTD
 
   @Column(name = "staff_id_ct")
-  private Long staffId_CT; //Cán bộ phòng GDKH
+  private Long staffId_CT; // Cán bộ phòng GDKH
 
   @Column(name = "return_reason")
-  private Long returnReason; //Cán bộ phòng GDKH
+  private Long returnReason; // Cán bộ phòng GDKH
 
   @Column(name = "value")
   private BigDecimal value; // Giá trị
@@ -118,39 +111,42 @@ public class Profile extends Auditable<String> implements Serializable {
 
   @Column(name = "cif")
   private String cif; // Giá trị
-  
-  //Loai giao dich
+
+  // Loai giao dich
   @Basic
   private Integer type;
   @Transient
   private ProfileTypeEnum profileTypeEnum;
 
-  //Mức độ
+  // Mức độ
   @Basic
   private Integer priority;
   @Transient
   private ProfilePriorityEnum priorityValue;
 
-  //Trạng thái hồ sơ
+  // Trạng thái hồ sơ
   @Basic
   private Integer state;
   @Transient
   private ProfileStateEnum stateValue;
 
-  //Đánh giá
+  // Đánh giá
   @Column(name = "review")
   private Integer review;
 
-   //Đánh giá
-   @Column(name = "review_note")
-   private String reviewNote;
- 
+  // Đánh giá
+  @Column(name = "review_note")
+  private String reviewNote;
+
+  // Đánh giá
+  @Column(name = "note")
+  private String note;
 
   // Gửi email
   @Column(name = "notify_by_email", columnDefinition = "BIT")
   private Boolean notifyByEmail;
 
-  @PostLoad 
+  @PostLoad
   void fillTransient() {
     if (priority != null) {
       this.priorityValue = ProfilePriorityEnum.of(priority);

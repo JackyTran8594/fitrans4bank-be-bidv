@@ -141,17 +141,28 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/reivewProfile")
-  public Boolean reviewProfile(@RequestBody ProfileDTO item) {
+  public ProfileDTO reviewProfile(@RequestBody ProfileDTO item) {
     item.setId(item.id);
-    service.save(item);
-    return true;
+    return  service.save(item);
   }
 
   @PostMapping("/returnProfile")
-  public Boolean returnProfile(@RequestBody ConfirmRequest item) {
-    ProfileDTO profile = service.findById(item.profileId);
-    service.save(profile);
-    return true;
+  public ProfileDTO returnProfile(@RequestBody ProfileDTO item) {
+    // ProfileDTO profile = service.findById(item.getId());
+    return service.save(item);
+  }
+
+  @PostMapping("/transferProfile")
+  public ProfileDTO transferProfile(@RequestBody ProfileDTO item) {
+    // ProfileDTO profile = service.findById(item.getId());
+    // profile.get
+    return service.save(item);
+  }
+
+  @PostMapping("/assignProfile")
+  public ProfileDTO assignProfile(@RequestBody ProfileDTO item) {
+    // ProfileDTO profile = service.findById(item.getId());
+    return service.save(item);
   }
 
   @PostMapping("/confirmProfile")

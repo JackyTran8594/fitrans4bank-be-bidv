@@ -64,8 +64,8 @@ public class UserRepositoryCustomImpl extends BaseCustomRepository<UserEntity> i
                     .append("FROM user_entity os\n")
                     .append("WHERE 1=1 ");
         } else {
-            sb.append("SELECT os.id,os.username,os.email,os.full_name,os.position,os.deparment_id,os.status,os.last_updated_by,os.last_updated_date,d.code, d.name \n")
-                    .append("FROM user_entity os left join department d on os.deparment_id = d.id AND d.status = 'ACTIVE' \n")
+            sb.append("SELECT os.id,os.username,os.email,os.full_name,os.position,os.department_id,os.status,os.last_updated_by,os.last_updated_date,d.code, d.name \n")
+                    .append("FROM user_entity os left join department d on os.department_id = d.id AND d.status = 'ACTIVE' \n")
                     .append("WHERE 1=1 ");
         }
 
