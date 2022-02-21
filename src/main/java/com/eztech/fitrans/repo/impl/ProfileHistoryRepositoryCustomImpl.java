@@ -119,14 +119,23 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
   @Override
   public ProfileHistoryDTO deteilByIdAndState(Long id, Integer state) {
     // TODO Auto-generated method stub
-    Map<String, Object> parameters = new HashMap<>();
-    String sql = "SELECT p.id,p.staff_id,p.state, p.time_received, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, us.full_name as staff_name \n"
-        +
-        "FROM profile_history p left join user_entity us on us.id = p.staff_id AND s.status = 'ACTIVE' \n";
-    parameters.put("id", id);
-    parameters.put("state", state);
-    ProfileHistoryDTO profileHistory = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);
-    return profileHistory;
+    try {
+      Map<String, Object> parameters = new HashMap<>();
+      String sql = "SELECT p.id, p.profile_id, p.staff_id, p.time_received, p.standard_time, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, p.state,us.full_name as staff_name \n"
+          +
+          "FROM profile_history p left join user_entity us on us.id = p.staff_id AND us.status = 'ACTIVE'\n"
+          +
+          "WHERE p.profile_id = :id AND p.state = :state ";
+      parameters.put("id", id);
+      parameters.put("state", state);
+      ProfileHistoryDTO profileHistory = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);
+      return profileHistory;
+      
+    } catch (Exception e) {
+      //TODO: handle exception
+      return null;
+    }
+  
   }
 
 }

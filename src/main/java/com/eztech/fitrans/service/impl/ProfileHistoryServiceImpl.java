@@ -15,23 +15,14 @@ import com.eztech.fitrans.util.ReadAndWriteDoc;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.poi.xwpf.usermodel.BodyElementType;
-import org.apache.poi.xwpf.usermodel.IBodyElement;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-// import java.io.FileInputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import javax.print.DocFlavor.URL;
 
 @Service
 @Slf4j
@@ -39,6 +30,8 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
 
     private static final BaseMapper<ProfileHistory, ProfileHistoryDTO> mapper = new BaseMapper<>(ProfileHistory.class,
             ProfileHistoryDTO.class);
+
+    private static Logger logger = LoggerFactory.getLogger(ProfileHistoryServiceImpl.class);
 
     @Autowired
     private ProfileHistoryRepository repository;
@@ -86,9 +79,10 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
     @Override
     public ProfileHistoryDTO findByIdAndState(Long id, Integer state) {
         // TODO Auto-generated method stub
-        ProfileHistoryDTO profileHistory = repository.deteilByIdAndState(id, state);
-        profileHistory.fillTransient();
-        return profileHistory;
+            ProfileHistoryDTO profileHistory = repository.deteilByIdAndState(id, state);
+            profileHistory.fillTransient();
+            return profileHistory;
+      
     }
 
     

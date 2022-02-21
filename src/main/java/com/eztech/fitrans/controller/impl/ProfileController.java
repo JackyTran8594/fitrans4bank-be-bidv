@@ -130,7 +130,7 @@ public class ProfileController extends BaseController implements ProfileApi {
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
         .contentType(mediaType)
-        .contentLength(file.length()) 
+        .contentLength(file.length())
         .body(inputStreamResource);
 
   }
@@ -144,7 +144,7 @@ public class ProfileController extends BaseController implements ProfileApi {
   @PostMapping("/reivewProfile")
   public ProfileDTO reviewProfile(@RequestBody ProfileDTO item) {
     item.setId(item.id);
-    return  service.save(item);
+    return service.save(item);
   }
 
   @PostMapping("/returnProfile")
@@ -171,14 +171,13 @@ public class ProfileController extends BaseController implements ProfileApi {
     ProfileDTO profile = service.findById(item.getProfileId());
     UserDTO user = userService.findByUsername(item.getUsername());
     ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
-    if(item.departmentId ==  2)
-    {
+    if (item.departmentId == 2) {
       profile.setStaffId_CM(user.getId());
     }
-    if(item.departmentId == 3) {
+    if (item.departmentId == 3) {
       profile.setStaffId_CT(user.getId());
     }
-    
+
     profile.setState(item.getState());
     profileHistory.setProfileId(item.getProfileId());
     profileHistory.setStaffId(user.getId());
@@ -194,11 +193,5 @@ public class ProfileController extends BaseController implements ProfileApi {
     ProfileHistoryDTO profileHistory = historyService.findByIdAndState(id, state);
     return profileHistory;
   }
-
-
-
-
-
-
 
 }
