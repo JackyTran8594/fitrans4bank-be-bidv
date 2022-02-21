@@ -78,15 +78,11 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
 
     @Override
     public ProfileHistoryDTO findByIdAndState(Long id, Integer state) {
-        // TODO Auto-generated method stub
-            ProfileHistoryDTO profileHistory = repository.deteilByIdAndState(id, state);
-            profileHistory.fillTransient();
-            return profileHistory;
-      
+        ProfileHistoryDTO profileHistory = repository.deteilByIdAndState(id, state);
+        if (profileHistory == null) {
+            throw new ResourceNotFoundException("Profile " + id + " not found");
+        }
+        profileHistory.fillTransient();
+        return profileHistory;
     }
-
-    
-
-    
-
 }
