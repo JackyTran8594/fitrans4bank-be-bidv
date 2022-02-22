@@ -189,6 +189,14 @@
 		</dependency>
 		<!-- end qr code -->
 
+		<!-- mail sender -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+			<version>2.5.6</version>
+		</dependency>
+		<!-- end mail sender -->
+
 	</dependencies>
 
 	<build>
