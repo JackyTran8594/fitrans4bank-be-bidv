@@ -1,9 +1,8 @@
 package com.eztech.fitrans.service;
 
-import java.io.IOException;
 import java.util.Map;
 
-import javax.mail.MessagingException;
+
 
 public interface MailSenderService {
     
