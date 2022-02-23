@@ -52,16 +52,6 @@ public class ProfileHistoryDTO implements Serializable {
     public String status;
     public String staffName;
 
-
-    // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,
-    // p.time_received_ct,
-    // p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct,
-    // p.number_of_bill,
-    // p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,
-    // p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,
-    // p.rate,
-    // p.notify_by_email ,c.cif,c.name as customer_name, s.name as staff_name
-
     public ProfileHistoryDTO(Long id, 
     Long profileId,
     Long staffId, 
