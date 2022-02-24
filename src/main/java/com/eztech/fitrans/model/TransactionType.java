@@ -28,4 +28,19 @@ public class TransactionType extends Auditable<String> implements Serializable {
     private String transactionId;
     @Column(name = "note")
     private String note;
+
+    @Column(name = "transaction_detail_2")
+    private String transactionDetail2;
+
+    @Column(name = "standard_time_CM")
+    private Integer standardTimeCM;
+
+    @Column(name = "standard_time_CT")
+    private Integer standardTimeCT;
+
+    @Column(name = "standard_time_checker")
+    private Integer standardTimeChecker;
+
+    @Column(name = "additional_time")
+    private Integer additionalTime;
 }

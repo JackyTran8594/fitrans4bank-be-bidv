@@ -33,4 +33,14 @@ public class TransactionTypeDTO implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime lastUpdatedDate;
     private String status;
+
+    private String transactionDetail2;
+
+    private Integer standardTimeCM;
+
+    private Integer standardTimeCT;
+
+    private Integer standardTimeChecker;
+
+    private Integer additionalTime;
 }
