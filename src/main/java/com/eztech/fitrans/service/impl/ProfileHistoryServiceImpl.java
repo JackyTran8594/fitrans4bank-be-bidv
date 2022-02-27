@@ -77,11 +77,11 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
     }
 
     @Override
-    public ProfileHistoryDTO findByIdAndState(Long id, Integer state) {
-        ProfileHistoryDTO profileHistory = repository.deteilByIdAndState(id, state);
-        if (profileHistory != null) {
-            profileHistory.fillTransient();
+    public List<ProfileHistoryDTO> findByIdAndState(Long id, Integer state) {
+        List<ProfileHistoryDTO> profilesHistory = repository.deteilByIdAndState(id, state);
+        if (profilesHistory != null) {
+            profilesHistory.stream().forEach(item -> item.fillTransient());
         }
-        return profileHistory;
+        return profilesHistory;
     }
 }

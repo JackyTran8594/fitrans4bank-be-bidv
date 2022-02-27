@@ -12,6 +12,7 @@ import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -120,13 +121,12 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/exportDoc")
-  public ResponseEntity<InputStreamResource> exportDoc(@RequestBody ProfileDTO item) throws FileNotFoundException {
+  public ResponseEntity<InputStreamResource> exportDoc(@RequestParam Map<String, Object> mapParam, @RequestBody ProfileDTO item) throws FileNotFoundException {
 
+    String username = mapParam.get("username").toString();
     MediaType mediaType = MediaType.APPLICATION_JSON;
-    readandwrite.ExportDocFile(item);
-    File file = new File("D:\\destination.docx");
+    File file = readandwrite.ExportDocFile(item, username);
     InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(file));
-    // InputStreamResource inputStr = new Input
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
         .contentType(mediaType)
@@ -187,11 +187,11 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @GetMapping("/getInfo")
-  public ProfileHistoryDTO getInfoByIdAndState(@RequestParam Map<String, Object> params) {
+  public List<ProfileHistoryDTO> getInfoByIdAndState(@RequestParam Map<String, Object> params) {
     Long id = Long.valueOf(params.get("id").toString());
     Integer state = Integer.valueOf(params.get("state").toString());
-    ProfileHistoryDTO profileHistory = historyService.findByIdAndState(id, state);
-    return profileHistory;
+    List<ProfileHistoryDTO> profilesHistory = historyService.findByIdAndState(id, state);
+    return profilesHistory;
   }
 
 }

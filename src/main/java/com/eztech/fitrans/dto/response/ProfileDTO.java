@@ -5,6 +5,7 @@ import com.eztech.fitrans.config.formatdate.LocalDateTimeSerializer;
 import com.eztech.fitrans.constants.ProfilePriorityEnum;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.constants.ProfileTypeEnum;
+import com.eztech.fitrans.constants.ProfileStateProcess;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -37,6 +38,9 @@ public class ProfileDTO implements Serializable {
     // Tinh trang ho so
     public Integer state;
     public String stateEnum;
+
+    public Integer profileProcessState;
+    public String processStateEnum;
 
     public Long staffId; // Cán bộ đang thực hiện
     public String staffName; // Cán bộ đang thực hiện
@@ -110,6 +114,7 @@ public class ProfileDTO implements Serializable {
             LocalDateTime lastUpdatedDate,
             String status,
             Integer state,
+            Integer profileProcessState,
             Integer review,
             Boolean notifyByEmail,
             String cif, 
@@ -133,6 +138,11 @@ public class ProfileDTO implements Serializable {
         this.state = state;
         if (state != null) {
             this.stateEnum = ProfileStateEnum.of(state).getName();
+        }
+
+        this.profileProcessState = profileProcessState;
+        if(profileProcessState != null) {
+            this.processStateEnum = ProfileStateProcess.of(profileProcessState).getName();
         }
         this.staffId = staffId;
         this.staffName = staffName;

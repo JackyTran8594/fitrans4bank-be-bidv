@@ -1,9 +1,11 @@
 package com.eztech.fitrans.repo;
 
+import java.util.List;
+
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 
 public interface ProfileHistoryRepositoryCustom extends BaseRepositoryCustom {
 
-    ProfileHistoryDTO deteilByIdAndState(Long id, Integer state);
+    List<ProfileHistoryDTO> deteilByIdAndState(Long id, Integer state);
 
 }

@@ -19,6 +19,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,13 +68,15 @@ public class ReadAndWriteDoc {
     private static Logger logger = LoggerFactory.getLogger(ReadAndWriteDoc.class);
     private static final BaseMapper<ProfileDTO, QRCodeDTO> mapper = new BaseMapper<>(ProfileDTO.class, QRCodeDTO.class);
 
-    public void ExportDocFile(ProfileDTO profile) {
+    public File ExportDocFile(ProfileDTO profile, String username) {
 
         try {
             // String url = getClass().getResource("")
             URL resource = getClass().getClassLoader().getResource("template/BIDV_Template.docx");
             URL image = getClass().getClassLoader().getResource("template/bidv.png");
             URL rootFolder = getClass().getClassLoader().getResource("template");
+            String outFile = "C:\\BIDV\\BBBG_" + username + "_" + Timestamp.valueOf(LocalDateTime.now());
+            File outputFile = new File(outFile);
 
             if (resource == null) {
                 throw new IllegalArgumentException("file not found");
@@ -218,19 +222,19 @@ public class ReadAndWriteDoc {
                         }
 
                     }
-                    String outFile = "D:\\destination.docx";
-                    File outputFile = new File(outFile);
-                    outputFile.createNewFile();
+                    if (!outputFile.exists()) {
+                        outputFile.createNewFile();
+                    }
                     FileOutputStream outpuStream = new FileOutputStream(outputFile);
                     docDes.write(outpuStream);
                     outpuStream.close();
                     docDes.close();
                 } catch (Throwable ex) {
-                    // System.out.println(ex.getMessage());
+                    // TODO: handle exception
                     log.error(ex.getMessage(), ex);
 
-                    // TODO: handle exception
                 }
+                return outputFile;
 
             }
 
@@ -238,6 +242,7 @@ public class ReadAndWriteDoc {
             // TODO: handle exception
             // System.out.println(ex.getMessage());
             log.error(ex.getMessage(), ex);
+            return null;
         }
 
     }

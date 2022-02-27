@@ -12,7 +12,7 @@ public interface ProfileHistoryService {
 
   List<ProfileHistoryDTO> findAll();
 
-  ProfileHistoryDTO findByIdAndState(Long id, Integer state);
+  List<ProfileHistoryDTO> findByIdAndState(Long id, Integer state);
 
 
 

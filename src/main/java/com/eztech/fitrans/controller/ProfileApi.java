@@ -37,5 +37,4 @@ public interface ProfileApi {
   @ApiOperation(value = "Delete profile", response = Boolean.class)
   Boolean delete(Long id);
 
-  // ResponseEntity<InputStreamResource> exportDoc(@RequestBody ProfileDTO item);
 }
