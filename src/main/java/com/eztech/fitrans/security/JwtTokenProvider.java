@@ -49,7 +49,7 @@ public class JwtTokenProvider {
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .claim("departmentCode", departmentCode)
+                .claim("code", departmentCode)
                 .claim("role", listRole)
                 .claim("permissions", listRole)
                 .compact();
