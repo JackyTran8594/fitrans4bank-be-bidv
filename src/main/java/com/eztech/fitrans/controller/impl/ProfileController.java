@@ -1,12 +1,15 @@
 package com.eztech.fitrans.controller.impl;
 
+import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.controller.ProfileApi;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
+import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.ProfileHistory;
+import com.eztech.fitrans.service.DepartmentService;
 import com.eztech.fitrans.service.ProfileHistoryService;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.service.UserService;
@@ -20,7 +23,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +70,9 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @Autowired
   private ProfileHistoryService historyService;
+
+  @Autowired
+  private DepartmentService departmentService;
 
   private static Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
@@ -121,7 +129,8 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/exportDoc")
-  public ResponseEntity<InputStreamResource> exportDoc(@RequestParam Map<String, Object> mapParam, @RequestBody ProfileDTO item) throws FileNotFoundException {
+  public ResponseEntity<InputStreamResource> exportDoc(@RequestParam Map<String, Object> mapParam,
+      @RequestBody ProfileDTO item) throws FileNotFoundException {
 
     String username = mapParam.get("username").toString();
     MediaType mediaType = MediaType.APPLICATION_JSON;
@@ -149,41 +158,98 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @PostMapping("/returnProfile")
   public ProfileDTO returnProfile(@RequestBody ProfileDTO item) {
-    // ProfileDTO profile = service.findById(item.getId());
     return service.save(item);
   }
 
   @PostMapping("/transferProfile")
   public ProfileDTO transferProfile(@RequestBody ProfileDTO item) {
-    // ProfileDTO profile = service.findById(item.getId());
-    // profile.get
     return service.save(item);
   }
 
   @PostMapping("/assignProfile")
   public ProfileDTO assignProfile(@RequestBody ProfileDTO item) {
-    // ProfileDTO profile = service.findById(item.getId());
     return service.save(item);
   }
 
   @PostMapping("/confirmProfile")
   public Boolean confirmProfile(@RequestBody ConfirmRequest item) {
     ProfileDTO profile = service.findById(item.getProfileId());
+    // List<ProfileDTO> profiles = service.
     UserDTO user = userService.findByUsername(item.getUsername());
+    DepartmentDTO department = departmentService.findByCode(item.getCode());
     ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
-    if (item.departmentId == 2) {
-      profile.setStaffId_CM(user.getId());
-    }
-    if (item.departmentId == 3) {
-      profile.setStaffId_CT(user.getId());
-    }
 
-    profile.setState(item.getState());
     profileHistory.setProfileId(item.getProfileId());
+    profileHistory.setDepartmentId(department.getId());
+    profileHistory.setTimeReceived(LocalDateTime.now());
     profileHistory.setStaffId(user.getId());
+
+    // check account admin or not
+    if (item.username.toLowerCase().contains("admin")) {
+      profile.setState(ProfileStateEnum.DELEVERIED.getValue());
+
+      // check department
+      if (department.getName() == "QTTD") {
+        if (profile.timeReceived_CM == null) {
+          profile.setTimeReceived_CM(LocalDateTime.now());
+        }
+      } else if (department.getName() == "GDKH") {
+        if (profile.timeReceived_CT == null) {
+          profile.setTimeReceived_CT(LocalDateTime.now());
+        }
+      }
+
+    } else {
+      Map<String, Object> params = new HashMap<>();
+      Long count = null;
+      params.put("state", ProfileStateEnum.PROCESSING.getValue());
+      // checking: transaction is finished
+      if (item.getIsFinished()) {
+        profile.setState(ProfileStateEnum.FINISHED.getValue());
+        profileHistory.setState(ProfileStateEnum.FINISHED.getValue());
+        
+        // update first row is processing
+        params.put("state", ProfileStateEnum.WAITING.getValue());
+        ProfileDTO firstItem = service.search(params).get(0);
+        firstItem.setState(ProfileStateEnum.PROCESSING.getValue());
+        service.save(firstItem);
+
+      } else {
+        if (department.getName() == "QTTD") {
+          params.put("staffId_CM", user.getId());
+          count = service.count(params);
+          if (count == 1) {
+            profile.setState(ProfileStateEnum.WAITING.getValue());
+            profileHistory.setState(ProfileStateEnum.WAITING.getValue());
+          } else if (count == 0) {
+            profile.setState(ProfileStateEnum.PROCESSING.getValue());
+            profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+          }
+        } else if (department.getName() == "GDKH") {
+          params.put("staffId_CT", user.getId());
+          count = service.count(params);
+          if (count == 1) {
+            profile.setState(ProfileStateEnum.WAITING.getValue());
+            profileHistory.setState(ProfileStateEnum.WAITING.getValue());
+          } else if (count == 0) {
+            profile.setState(ProfileStateEnum.PROCESSING.getValue());
+            profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+          }
+
+        }
+
+      }
+
+    }
     service.save(profile);
     historyService.save(profileHistory);
     return true;
+  }
+
+  @PostMapping("/isFinished")
+  public Boolean isFinished(@RequestBody ConfirmRequest item) {
+    return true;
+
   }
 
   @GetMapping("/getInfo")

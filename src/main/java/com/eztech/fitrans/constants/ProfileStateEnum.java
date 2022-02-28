@@ -4,10 +4,12 @@ import java.util.stream.Stream;
 
 public enum ProfileStateEnum {
     NOT_YET(0,"Chưa bàn giao"),
-    DELEVERIED(1, "Đã bàn giao"),
-    ADDITIONAL(2, "Cần bổ sung"),
-    EXPIRED(3,"Quá hạn"),
-    FINISH(4,"Đã hoàn thành"),
+    TRANFERED(1, "Đã chuyển"),
+    DELEVERIED(2, "Đã bàn giao"),
+    WAITING(3, "Chờ xử lý"),
+    PROCESSING(4, "Đang xử lý"),
+    ADDITIONAL(5, "Cần bổ sung"),
+    FINISHED(6,"Đã hoàn thành"),
     UNKNOWN(-1,"UNKNOWN");
 
     private int value;

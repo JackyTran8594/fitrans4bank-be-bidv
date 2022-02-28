@@ -60,7 +60,7 @@ public class AuthController {
                             loginRequest.getPassword()));
             List<String> listRole = new ArrayList<>();
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String deparmentId = null;
+            String departmentCode = null;
             UserDetails userDetails = null;
             // TODO: Test
             log.info(new BCryptPasswordEncoder().encode("123456a@"));
@@ -70,7 +70,7 @@ public class AuthController {
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal instanceof UserDetails) {
                     userDetails = (UserDetails) principal;
-                    deparmentId = userDetailsServiceImpl.getDepartmentIdByUsername(userDetails.getUsername());
+                    departmentCode = userDetailsServiceImpl.getDepartmentCodeByUsername(userDetails.getUsername());
                     log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
                     if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
                         listRole = userDetails.getAuthorities().stream()
@@ -83,7 +83,7 @@ public class AuthController {
                             + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
-            String jwt = tokenProvider.generateToken(authentication, listRole, deparmentId);
+            String jwt = tokenProvider.generateToken(authentication, listRole, departmentCode);
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {

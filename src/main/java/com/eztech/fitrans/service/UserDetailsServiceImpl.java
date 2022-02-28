@@ -1,7 +1,9 @@
 package com.eztech.fitrans.service;
 
+import com.eztech.fitrans.model.Department;
 import com.eztech.fitrans.model.Role;
 import com.eztech.fitrans.model.UserEntity;
+import com.eztech.fitrans.repo.DepartmentRepository;
 import com.eztech.fitrans.repo.RoleRepository;
 import com.eztech.fitrans.repo.UserRepository;
 import com.eztech.fitrans.util.DataUtils;
@@ -22,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
-@CacheConfig(cacheNames = {"UserDetailsServiceImpl"}, cacheManager = "localCacheManager")
+@CacheConfig(cacheNames = { "UserDetailsServiceImpl" }, cacheManager = "localCacheManager")
 public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
@@ -30,19 +32,22 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Autowired
 	private RoleRepository roleRepository;
 
+	@Autowired
+	private DepartmentRepository departmentRepo;
+
 	@Override
 	@Cacheable(key = "#username", cacheManager = "localCacheManager")
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = repo.findByUsername(username);
 		if (user != null) {
-			if(!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
+			if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
 				throw new UsernameNotFoundException("User not found with username: " + username);
 			}
 
 			List<String> role = new ArrayList<>();
 			List<Long> listRole = new ArrayList<>();
 			List<Role> roles = roleRepository.getRole(user.getId());
-			if(DataUtils.notNullOrEmpty(roles)){
+			if (DataUtils.notNullOrEmpty(roles)) {
 				listRole = roles.stream()
 						.map(Role::getId)
 						.collect(Collectors.toList());
@@ -58,17 +63,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			user.setStatus("ACTIVE");
 			user.setPassword("");
 			repo.save(user);
-			return new User(user.getUsername(), user.getPassword(), buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
+			return new User(user.getUsername(), user.getPassword(),
+					buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
 		}
 	}
 
-	private static List<SimpleGrantedAuthority> buildSimpleGrantedAuthorities(final List<Role> roles,List<String> roleList) {
+	private static List<SimpleGrantedAuthority> buildSimpleGrantedAuthorities(final List<Role> roles,
+			List<String> roleList) {
 		List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 		for (Role role : roles) {
 			authorities.add(new SimpleGrantedAuthority(role.getName()));
 		}
 
-		if(DataUtils.notNullOrEmpty(roleList)){
+		if (DataUtils.notNullOrEmpty(roleList)) {
 			for (String role : roleList) {
 				authorities.add(new SimpleGrantedAuthority(role));
 			}
@@ -77,11 +84,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		return authorities;
 	}
 
-	public String getDepartmentIdByUsername(String username) {
-		UserEntity user = repo.findByUsername(username);
-		if(DataUtils.isNullOrEmpty(user)) {
-			throw new UsernameNotFoundException("User not found with username: " + username);
+	public String getDepartmentCodeByUsername(String username) {
+		// UserEntity user = repo.findByUsername(username);
+		String code = repo.findCodeByUsername(username);
+		if (code == null) {
+			throw new UsernameNotFoundException("Username not found with not found: " + username);
 		}
-		return user.getDeparmentId().toString();
+		return code;
 	}
 }

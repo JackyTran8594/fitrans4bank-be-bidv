@@ -62,7 +62,7 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
   public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
       boolean count) {
     StringBuilder sb = new StringBuilder();
-    String sql_select = "SELECT p.id,p.staff_id,p.state, p.time_received, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, us.full_name as staff_name \n";
+    String sql_select = "SELECT p.id,p.staff_id,p.state, p.time_received, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, us.full_name as staff_name, p.department_id \n";
     String sql_from = "FROM profile_history p left join user_entity us on us.id = p.staff_id AND s.status = 'ACTIVE' \n";
     if (count) {
       sb.append("SELECT COUNT(p.id) \n")
@@ -92,6 +92,11 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
       parameters.put("staffId", DataUtils.parseToLong(paramSearch.get("staffId")));
     }
 
+    if(paramSearch.containsKey("departmentId")) {
+      sb.append("AND p.department_id = :departmentId ");
+      parameters.put("departmentId", DataUtils.parseToLong(paramSearch.get("departmentId")));
+    }
+
     if (paramNotNullOrEmpty(paramSearch, "status")) {
       sb.append(" AND p.status = :status ");
       parameters.put("status", paramSearch.get("status"));
@@ -117,19 +122,19 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
   }
 
   @Override
-  public ProfileHistoryDTO deteilByIdAndState(Long id, Integer state) {
+  public List<ProfileHistoryDTO> deteilByIdAndState(Long id, Integer state) {
     // TODO Auto-generated method stub
     try {
       Map<String, Object> parameters = new HashMap<>();
-      String sql = "SELECT p.id, p.profile_id, p.staff_id, p.time_received, p.standard_time, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, p.state,us.full_name as staff_name \n"
+      String sql = "SELECT p.id, p.profile_id, p.staff_id, p.time_received, p.standard_time, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, p.state,us.full_name as staff_name, p.department_id \n"
           +
           "FROM profile_history p left join user_entity us on us.id = p.staff_id AND us.status = 'ACTIVE'\n"
           +
           "WHERE p.profile_id = :id AND p.state = :state ";
       parameters.put("id", id);
       parameters.put("state", state);
-      ProfileHistoryDTO profileHistory = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);
-      return profileHistory;
+      List<ProfileHistoryDTO> profilesHistory = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);
+      return profilesHistory;
       
     } catch (Exception e) {
       //TODO: handle exception

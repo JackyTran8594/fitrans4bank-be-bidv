@@ -95,6 +95,16 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
       parameters.put("staffId", DataUtils.parseToLong(paramSearch.get("staffId")));
     }
 
+    if (paramSearch.containsKey("staffId_CM")) {
+      sb.append(" AND p.staff_id_cm = :staffId_CM ");
+      parameters.put("staffId_CM", DataUtils.parseToLong(paramSearch.get("staffId_CM")));
+    }
+
+    if (paramSearch.containsKey("staffId_CT")) {
+      sb.append(" AND p.staff_id_ct = :staffId_CT ");
+      parameters.put("staffId_CT", DataUtils.parseToLong(paramSearch.get("staffId_CT")));
+    }
+
     if (paramNotNullOrEmpty(paramSearch, "status")) {
       sb.append(" AND p.status = :status ");
       parameters.put("status", paramSearch.get("status"));

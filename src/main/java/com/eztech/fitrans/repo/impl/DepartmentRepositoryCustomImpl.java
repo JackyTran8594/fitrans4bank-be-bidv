@@ -1,5 +1,6 @@
 package com.eztech.fitrans.repo.impl;
 
+import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.model.Department;
 import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.repo.DepartmentRepositoryCustom;
@@ -112,4 +113,5 @@ public class DepartmentRepositoryCustomImpl extends BaseCustomRepository<Departm
         }
         return sb.toString();
     }
+
 }

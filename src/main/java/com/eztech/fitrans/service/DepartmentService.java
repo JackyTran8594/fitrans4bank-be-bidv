@@ -17,4 +17,6 @@ public interface DepartmentService {
   List<DepartmentDTO> search(Map<String, Object> mapParam);
 
   Long count(Map<String, Object> mapParam);
+
+  DepartmentDTO findByCode(String code);
 }

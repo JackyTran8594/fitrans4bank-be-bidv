@@ -35,6 +35,7 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "status", type = String.class),
         @ColumnResult(name = "state", type = Integer.class),
         @ColumnResult(name = "staff_name", type = String.class),
+        @ColumnResult(name = "department_id", type = Long.class),
 
     })
 })
@@ -59,6 +60,9 @@ public class ProfileHistory extends Auditable<String> implements Serializable {
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   private LocalDateTime standardTime;
+
+  @Column(name="department_id")
+  private Long departmentId;
 
   // Trạng thái hồ sơ
   @Basic

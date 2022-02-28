@@ -76,4 +76,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     public Long count(Map<String, Object> mapParam) {
         return departmentRepository.count(mapParam);
     }
+
+    @Override
+    public DepartmentDTO findByCode(String code) {
+        return departmentRepository.findByCode(code);
+    }
 }

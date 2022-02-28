@@ -1,4 +1,6 @@
 package com.eztech.fitrans.repo;
 
-public interface DepartmentRepositoryCustom extends BaseRepositoryCustom{
+import com.eztech.fitrans.dto.response.DepartmentDTO;
+
+public interface DepartmentRepositoryCustom extends BaseRepositoryCustom {
 }
