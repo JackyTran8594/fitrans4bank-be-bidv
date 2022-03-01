@@ -109,7 +109,7 @@ public class Profile extends Auditable<String> implements Serializable {
   private BigDecimal value; // Giá trị
 
   @Column(name = "category_profile")
-  private String categoryProfile; // Giá trị
+  private String categoryProfile; // danh mục hồ sơ
 
   @Column(name = "cif")
   private String cif; // Giá trị

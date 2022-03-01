@@ -72,7 +72,7 @@ public class ProfileListRepositoryCustomImpl extends BaseCustomRepository<Profil
         }
 
         if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
-            sb.append(" AND (UPPER(os.profile_list_id) LIKE :txtSearch OR (UPPER(os.note) LIKE :txtSearch");
+            sb.append(" AND (UPPER(os.profile_list_id) LIKE :txtSearch OR UPPER(os.note) LIKE :txtSearch OR UPPER(os.type) LIKE :txtSearch OR UPPER(os.amount) LIKE :txtSearch)");
             parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
         }
 

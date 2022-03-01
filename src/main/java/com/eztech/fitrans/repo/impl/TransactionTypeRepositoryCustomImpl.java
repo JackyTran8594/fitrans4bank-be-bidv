@@ -73,7 +73,7 @@ public class TransactionTypeRepositoryCustomImpl extends BaseCustomRepository<Tr
         }
 
         if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
-            sb.append(" AND (UPPER(os.name) LIKE :txtSearch OR UPPER(os.note) LIKE :txtSearch) ");
+            sb.append(" AND (UPPER(os.name) LIKE :txtSearch OR UPPER(os.note) LIKE :txtSearch OR UPPER(os.type) LIKE :txtSearch OR UPPER(os.transaction_detail) LIKE :txtSearch OR UPPER(os.transaction_detail_2) LIKE :txtSearch)");
             parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
         }
 

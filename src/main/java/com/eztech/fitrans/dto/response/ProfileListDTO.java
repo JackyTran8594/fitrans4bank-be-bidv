@@ -18,19 +18,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfileListDTO implements Serializable {
-    private Long id;
-    private String profileListId;
-    private String type;
-    private Integer amount;
-    private String profileStatus;
-    private String note;
-    private String createdBy;
+    public Long id;
+    public String profileListId;
+    public String type;
+    public Integer amount;
+    public String profileStatus;
+    public String note;
+    public String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime createdDate;
-    private String lastUpdatedBy;
+    public LocalDateTime createdDate;
+    public String lastUpdatedBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime lastUpdatedDate;
-    private String status;
+    public LocalDateTime lastUpdatedDate;
+    public String status;
 }

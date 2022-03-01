@@ -24,11 +24,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import java.awt.image.*;
 
 import com.eztech.fitrans.dto.response.ProfileDTO;
+import com.eztech.fitrans.dto.response.ProfileListDTO;
 import com.eztech.fitrans.dto.response.QRCodeDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
@@ -43,18 +45,15 @@ import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFPicture;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFStyle;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHMerge;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 // import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 // import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageSz;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTVMerge;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.STMerge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -68,7 +67,7 @@ public class ReadAndWriteDoc {
     private static Logger logger = LoggerFactory.getLogger(ReadAndWriteDoc.class);
     private static final BaseMapper<ProfileDTO, QRCodeDTO> mapper = new BaseMapper<>(ProfileDTO.class, QRCodeDTO.class);
 
-    public File ExportDocFile(ProfileDTO profile, String username) {
+    public File ExportDocFile(ProfileDTO profile, String username, Map<String, ProfileListDTO> mapParams) {
 
         try {
             // String url = getClass().getResource("")
@@ -141,7 +140,11 @@ public class ReadAndWriteDoc {
                                         XWPFTableRow row = new XWPFTableRow(ctrow, table);
                                         XWPFTableCell cell = row.getCell(1);
                                         cell.removeParagraph(0);
-                                        cell.setText(string);
+                                        cell.setText(mapParams.get(string).type);
+                                        Integer indexCheckBox = Integer.parseInt(mapParams.get(string).profileStatus);
+                                        XWPFTableCell checkBoxCell = row.getCell(indexCheckBox);
+                                        checkBoxCell.setText("x");
+                                        checkBoxCell.setVerticalAlignment(XWPFVertAlign.CENTER);
                                         table.addRow(row);
                                     }
 
@@ -207,7 +210,7 @@ public class ReadAndWriteDoc {
                                         paraImage.setAlignment(ParagraphAlignment.RIGHT);
                                         XWPFRun runImage = paraImage.createRun();
                                         runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
-                                                "fileName.png", Units.toEMU(70), Units.toEMU(70));
+                                                "qrFisnished", Units.toEMU(70), Units.toEMU(70));
                                         inputByteArrayStream.close();
                                     } catch (Exception e) {
                                         // TODO: handle exception

@@ -6,12 +6,16 @@ import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
+import com.eztech.fitrans.dto.response.ProfileListDTO;
+import com.eztech.fitrans.dto.response.TransactionTypeDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.service.DepartmentService;
 import com.eztech.fitrans.service.ProfileHistoryService;
+import com.eztech.fitrans.service.ProfileListService;
 import com.eztech.fitrans.service.ProfileService;
+import com.eztech.fitrans.service.TransactionTypeService;
 import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
 
@@ -23,7 +27,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.Timestamp;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +79,12 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @Autowired
   private DepartmentService departmentService;
+
+  @Autowired
+  private ProfileListService profileListService;
+
+  @Autowired
+  private TransactionTypeService transactionTypeService;
 
   private static Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
@@ -134,7 +146,16 @@ public class ProfileController extends BaseController implements ProfileApi {
 
     String username = mapParam.get("username").toString();
     MediaType mediaType = MediaType.APPLICATION_JSON;
-    File file = readandwrite.ExportDocFile(item, username);
+    Map<String, ProfileListDTO> mapParams = new HashMap<>();
+    String[] categoryId = item.categoryProfile.split(",");
+    for (String str : categoryId) {
+      ProfileListDTO profileListDTO = profileListService.findById(Long.parseLong(str));
+      if (profileListDTO != null) {
+        mapParams.put(profileListDTO.id.toString(), profileListDTO);
+      }
+    }
+
+    File file = readandwrite.ExportDocFile(item, username, mapParams);
     InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(file));
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
@@ -178,11 +199,14 @@ public class ProfileController extends BaseController implements ProfileApi {
     UserDTO user = userService.findByUsername(item.getUsername());
     DepartmentDTO department = departmentService.findByCode(item.getCode());
     ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
+    TransactionTypeDTO transactionType = transactionTypeService.findById(Long.parseLong(profile.getType().toString()));
 
     profileHistory.setProfileId(item.getProfileId());
     profileHistory.setDepartmentId(department.getId());
     profileHistory.setTimeReceived(LocalDateTime.now());
     profileHistory.setStaffId(user.getId());
+
+    DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     // check account admin or not
     if (item.username.toLowerCase().contains("admin")) {
@@ -207,7 +231,7 @@ public class ProfileController extends BaseController implements ProfileApi {
       if (item.getIsFinished()) {
         profile.setState(ProfileStateEnum.FINISHED.getValue());
         profileHistory.setState(ProfileStateEnum.FINISHED.getValue());
-        
+        profile.setEndTime(LocalDateTime.now());
         // update first row is processing
         params.put("state", ProfileStateEnum.WAITING.getValue());
         ProfileDTO firstItem = service.search(params).get(0);
@@ -221,6 +245,39 @@ public class ProfileController extends BaseController implements ProfileApi {
           if (count == 1) {
             profile.setState(ProfileStateEnum.WAITING.getValue());
             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
+            LocalDateTime processTime = profileHistory.timeReceived
+                .plusMinutes(transactionType.getStandardTimeCM() + transactionType.getStandardTimeChecker());
+            Integer additionalTime = 0;
+
+            // check transaction type
+            switch (profile.getType()) {
+              case 1:
+                if (profile.getNumberOfPO() >= 2) {
+                  additionalTime = additionalTime + 5 * profile.getNumberOfPO();
+                }
+                if (profile.getNumberOfBill() >= 2) {
+                  additionalTime = additionalTime + 1 * profile.getNumberOfBill();
+                }
+                break;
+              case 2:
+                if (profile.getNumberOfPO() >= 2) {
+                  additionalTime = additionalTime + 5 * profile.getNumberOfPO();
+                }
+                if (profile.getNumberOfBill() >= 2) {
+                  additionalTime = additionalTime + 1 * profile.getNumberOfBill();
+                }
+                break;
+              default:
+                break;
+            }
+            // if (profile.getType() == 1) {
+
+            // }
+
+            processTime = processTime.plusMinutes(additionalTime);
+
+            profile.setProcessDate(processTime);
+
           } else if (count == 0) {
             profile.setState(ProfileStateEnum.PROCESSING.getValue());
             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
