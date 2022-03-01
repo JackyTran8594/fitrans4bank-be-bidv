@@ -124,7 +124,7 @@ public class CustomerServiceImpl implements CustomerService {
                 throw new CustomerImportException(VALIDATE_FILE_IMPORT, listData);
             }
             for (CustomerDTO dto : listData) {
-//        save(dto);
+                save(dto);
             }
             return listData;
         } catch (IllegalArgumentException ex) {
