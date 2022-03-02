@@ -144,4 +144,17 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     ProfileDTO profileDTO = getSingleResult(sql,Constants.ResultSetMapping.PROFILE_DTO,parameters);
     return profileDTO;
   }
+
+  @Override
+  public List<ProfileDTO> listDashboard() {
+    Map<String, Object> parameters = new HashMap<>();
+    String sql = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct, p.time_received_cm, p.end_time, " +
+            "p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by," +
+            "p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.profile_process_state, p.review, p.notify_by_email ," +
+            "p.cif,c.name as customer_name, s.name as staff_name, p.review_note, p.note \n" +
+            "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n" +
+            " left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' " +
+            " where 1=1 ";
+    return getResultList(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
+  }
 }

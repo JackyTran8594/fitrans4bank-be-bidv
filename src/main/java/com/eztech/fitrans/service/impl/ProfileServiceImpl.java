@@ -125,10 +125,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public List<ProfileDTO> dashboard() {
-        Map<String, Object> mapParam = new HashMap<>();
-        mapParam.put("pageNumber", 0);
-        mapParam.put("pageSize", 10);
-        return repository.search(mapParam, Profile.class);
+        return repository.listDashboard();
     }
 
     @Override

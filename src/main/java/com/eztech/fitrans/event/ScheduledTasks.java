@@ -26,7 +26,7 @@ public class ScheduledTasks {
     @Autowired
     private ProfileService service;
 
-    @Scheduled(fixedDelayString = "20000")
+//    @Scheduled(fixedDelayString = "20000")
     public void fireGreeting() {
         List<ProfileDTO> listData = service.dashboard();
         List<ProfileDTO> listOld = null;
