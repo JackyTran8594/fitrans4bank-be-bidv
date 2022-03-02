@@ -91,9 +91,15 @@ public class UsersController extends BaseController implements UserApi {
       return true;
   }
 
-  @GetMapping("/userByDepartment/{id}")
+  @GetMapping("/userByDepartmentId/{id}")
   public List<UserDTO> getUserByDepartment(@PathVariable(value = "id") Long id) {
       List<UserDTO> users = userService.findByDepartmentid(id);
+      return users;
+  }
+
+  @GetMapping("/userByDepartment/{code}")
+  public List<UserDTO> getUserByDepartment(@PathVariable(value = "code") String code) {
+      List<UserDTO> users = userService.findByCode(code);
       return users;
   }
 

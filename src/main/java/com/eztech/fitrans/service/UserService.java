@@ -21,4 +21,9 @@ public interface UserService {
   UserDTO findByUsername(String username);
 
   List<UserDTO> findByDepartmentid(Long departmentId);
+
+  List<UserDTO> findByCode(String departmentCode);
+
+
+
 }

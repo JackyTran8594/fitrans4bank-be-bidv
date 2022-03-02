@@ -32,15 +32,12 @@ public class TransactionType extends Auditable<String> implements Serializable {
     @Column(name = "transaction_detail_2")
     private String transactionDetail2;
 
-    @Column(name = "standard_time_CM")
+    @Column(name = "standard_time_cm")
     private Integer standardTimeCM;
 
-    @Column(name = "standard_time_CT")
+    @Column(name = "standard_time_ct")
     private Integer standardTimeCT;
 
     @Column(name = "standard_time_checker")
     private Integer standardTimeChecker;
-
-    @Column(name = "additional_time")
-    private Integer additionalTime;
 }

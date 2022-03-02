@@ -40,6 +40,10 @@ public class TransactionTypeServiceImpl implements TransactionTypeService {
             dto.setType(item.getType());
             dto.setTransactionId(item.getTransactionId());
             dto.setTransactionDetail(item.getTransactionDetail());
+            dto.setTransactionDetail2(item.getTransactionDetail2());
+            dto.setStandardTimeCM(item.getStandardTimeCM());
+            dto.setStandardTimeCT(item.getStandardTimeCT());
+            dto.setStandardTimeChecker(item.getStandardTimeChecker());
             dto.setNote(item.getNote());
             entity = mapper.toPersistenceBean(dto);
 
