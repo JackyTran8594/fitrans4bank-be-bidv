@@ -51,7 +51,7 @@ public class ProfileHistoryDTO implements Serializable {
     public LocalDateTime lastUpdatedDate;
     public String status;
     public String staffName;
-    public Long departmentId;
+    public String departmentCode;
 
     public ProfileHistoryDTO(Long id, 
     Long profileId,
@@ -65,7 +65,7 @@ public class ProfileHistoryDTO implements Serializable {
             String status,
             Integer state,
             String staffName,
-            Long departmentId
+            String departmentCode
            ) {
         this.id = id;
         this.state = state;
@@ -81,7 +81,7 @@ public class ProfileHistoryDTO implements Serializable {
         this.lastUpdatedBy = lastUpdatedBy;
         this.lastUpdatedDate = lastUpdatedDate;
         this.status = status;
-        this.departmentId = departmentId;
+        this.departmentCode = departmentCode;
     }
 
     public void fillTransient() {

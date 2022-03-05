@@ -86,6 +86,13 @@ public class ProfileDTO implements Serializable {
     public String note;
     public Boolean notifyByEmail;
 
+    public Integer standardTimeCM;
+    public Integer standardTimeCT;
+    public Integer standardTimeChecker;
+    public Integer additionalTime;
+
+    public String username;
+
     // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct,
     // p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, 
     // p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,
@@ -121,7 +128,8 @@ public class ProfileDTO implements Serializable {
             String customerName,
             String staffName,
             String reviewNote,
-            String note
+            String note,
+            Integer additionalTime
            ) {
         this.id = id;
         this.customerid = customerid;
@@ -166,6 +174,7 @@ public class ProfileDTO implements Serializable {
         this.categoryProfile = categoryProfile;
         this.reviewNote = reviewNote;
         this.note = note;
+        this.additionalTime = additionalTime;
     }   
 
     public void fillTransient() {

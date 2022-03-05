@@ -42,5 +42,5 @@ public class TransactionTypeDTO implements Serializable {
 
     private Integer standardTimeChecker;
 
-    private Integer additionalTime;
+    private Integer additionalTimeMax;
 }

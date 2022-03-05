@@ -188,8 +188,8 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/assignProfile")
-  public ProfileDTO assignProfile(@RequestBody ProfileDTO item) {
-    return service.save(item);
+  public Boolean assignProfile(@RequestBody ProfileDTO item) {
+    return service.assigneProfie(item);
   }
 
   @PostMapping("/confirmProfile")
@@ -202,7 +202,7 @@ public class ProfileController extends BaseController implements ProfileApi {
     TransactionTypeDTO transactionType = transactionTypeService.findById(Long.parseLong(profile.getType().toString()));
 
     profileHistory.setProfileId(item.getProfileId());
-    profileHistory.setDepartmentId(department.getId());
+    profileHistory.setDepartmentCode(department.getCode());
     profileHistory.setTimeReceived(LocalDateTime.now());
     profileHistory.setStaffId(user.getId());
 

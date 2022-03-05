@@ -57,6 +57,7 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "staff_name", type = String.class),
         @ColumnResult(name = "review_note", type = String.class),
         @ColumnResult(name = "note", type = String.class),
+        @ColumnResult(name = "additional_time", type = Integer.class),
     })
 
 })
@@ -152,6 +153,10 @@ public class Profile extends Auditable<String> implements Serializable {
   // Gửi email
   @Column(name = "notify_by_email", columnDefinition = "BIT")
   private Boolean notifyByEmail;
+
+  @Column(name = "additional_time")
+  private Integer additionalTime; // Số lượng ủy nhiệm chi
+
 
   @PostLoad
   void fillTransient() {

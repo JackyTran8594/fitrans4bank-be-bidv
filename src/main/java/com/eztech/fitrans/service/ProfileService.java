@@ -25,4 +25,8 @@ public interface ProfileService {
 
   Boolean confirmProfile(ConfirmRequest req);
 
+  Boolean assigneProfie(ProfileDTO item);
+
+  
+
 }

@@ -1,15 +1,24 @@
 package com.eztech.fitrans.service.impl;
 
+import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
+import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
+import com.eztech.fitrans.dto.response.TransactionTypeDTO;
+import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.event.ScheduledTasks;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Profile;
 import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.repo.ProfileHistoryRepository;
 import com.eztech.fitrans.repo.ProfileRepository;
+import com.eztech.fitrans.service.DepartmentService;
+import com.eztech.fitrans.service.ProfileHistoryService;
 import com.eztech.fitrans.service.ProfileService;
+import com.eztech.fitrans.service.TransactionTypeService;
+import com.eztech.fitrans.service.UserDetailsServiceImpl;
+import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
@@ -20,6 +29,8 @@ import org.apache.poi.xwpf.usermodel.BodyElementType;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +40,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,12 +58,29 @@ public class ProfileServiceImpl implements ProfileService {
     private static final BaseMapper<ProfileHistory, ProfileHistoryDTO> mapperHistory = new BaseMapper<>(
             ProfileHistory.class, ProfileHistoryDTO.class);
 
+    private static Logger logger = LoggerFactory.getLogger(ProfileServiceImpl.class);
+
     private static ReadAndWriteDoc readandwrite;
     @Autowired
     private ProfileRepository repository;
 
+    // @Autowired
+    // private ProfileHistoryRepository profileHistoryRepo;
+
+    // @Autowired
+    // private UserDetailsServiceImpl userDetailsServiceImpl;
+
     @Autowired
-    private ProfileHistoryRepository profileHistoryRepo;
+    private ProfileHistoryService profileHistoryService;
+
+    @Autowired
+    private DepartmentService departmentService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private TransactionTypeService transactionTypeService;
 
     @Autowired
     private ScheduledTasks scheduledTasks;
@@ -63,7 +92,7 @@ public class ProfileServiceImpl implements ProfileService {
             ProfileDTO dto = findById(profile.getId());
             if (dto == null) {
                 throw new ResourceNotFoundException("Profile " + profile.getId() + " not found");
-            }    
+            }
             profile.setLastUpdatedDate(LocalDateTime.now());
             entity = mapper.toPersistenceBean(profile);
         } else {
@@ -129,37 +158,139 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public Boolean confirmProfile(ConfirmRequest dto) {
+    public Boolean confirmProfile(ConfirmRequest item) {
         // // TODO Auto-generated method stub
-        // Profile entity;
-        // ProfileHistory profileHistory = new ProfileHistory();
-        // ProfileDTO result = findById(dto.profile.getId());
-        // try {
-        //     if (result == null) {
-        //         throw new ResourceNotFoundException("Profile" + dto.profile.getId() + "not found");
-        //     }
-        //     result.setState(dto.profile.getState());
-        //     entity = mapper.toPersistenceBean(result);
-        //     entity = repository.save(entity);
+        ProfileDTO profile = findById(item.getProfileId());
+        UserDTO user = userService.findByUsername(item.getUsername());
+        DepartmentDTO department = departmentService.findByCode(item.getCode());
+        ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
+        TransactionTypeDTO transactionType = transactionTypeService
+                .findById(Long.parseLong(profile.getType().toString()));
+        profileHistory.setProfileId(item.getProfileId());
+        profileHistory.setDepartmentCode(department.getCode());
+        profileHistory.setTimeReceived(LocalDateTime.now());
+        profileHistory.setStaffId(user.getId());
 
-        //     profileHistory.setProfileId(dto.profile.getId());
-        //     profileHistory.setTimeReceived(LocalDateTime.now());
-        //     profileHistory.setState(dto.profile.getState());
-        //     if (dto.isCM) {
-        //         profileHistory.setStaffId(dto.profile.getStaffId_CM());
-        //     }
-        //     if (dto.isCT) {
-        //         profileHistory.setStaffId(dto.profile.getStaffId_CT());
-        //     }
-        //     profileHistoryRepo.save(profileHistory);
-        //     return true;
+        // DateTimeFormatter DATE_TIME_FORMATTER =
+        // DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        try {
+            // check account admin or not
+            if (item.username.toLowerCase().contains("admin")) {
+                profile.setState(ProfileStateEnum.DELEVERIED.getValue());
 
-        // } catch (Exception e) {
-        //     // TODO: handle exception
-        //     System.out.println(e.getMessage());
-        //     return false;
-        // }
-        return null;
+                // check department
+                if (department.getName() == "QTTD") {
+                    if (profile.timeReceived_CM == null) {
+                        profile.setTimeReceived_CM(LocalDateTime.now());
+                    }
+                } else if (department.getName() == "GDKH") {
+                    if (profile.timeReceived_CT == null) {
+                        profile.setTimeReceived_CT(LocalDateTime.now());
+                    }
+                }
+
+            } else {
+                Map<String, Object> params = new HashMap<>();
+                Long count = null;
+                params.put("state", ProfileStateEnum.PROCESSING.getValue());
+                // checking: transaction is finished
+                if (item.getIsFinished()) {
+                    profile.setState(ProfileStateEnum.FINISHED.getValue());
+                    profileHistory.setState(ProfileStateEnum.FINISHED.getValue());
+                    profile.setEndTime(LocalDateTime.now());
+                    // update first row is processing
+                    params.put("state", ProfileStateEnum.WAITING.getValue());
+                    ProfileDTO firstItem = search(params).get(0);
+                    firstItem.setState(ProfileStateEnum.PROCESSING.getValue());
+                    save(firstItem);
+
+                } else {
+                    if (department.getName() == "QTTD") {
+                        params.put("staffId_CM", user.getId());
+                        count = count(params);
+                        if (count == 1) {
+                            profile.setState(ProfileStateEnum.WAITING.getValue());
+                            profileHistory.setState(ProfileStateEnum.WAITING.getValue());
+                            LocalDateTime processTime = profileHistory.timeReceived
+                                    .plusMinutes(
+                                            transactionType.getStandardTimeCM()
+                                                    + transactionType.getStandardTimeChecker());
+                            Integer additionalTime = 0;
+
+                            // checkingtransaction type and plusing additional time
+                            switch (profile.getType()) {
+                                case 1:
+                                    if (profile.getNumberOfPO() >= 2) {
+                                        additionalTime = additionalTime + 5 * profile.getNumberOfPO();
+                                    }
+                                    if (profile.getNumberOfBill() >= 2) {
+                                        additionalTime = additionalTime + 1 * profile.getNumberOfBill();
+                                    }
+                                    break;
+                                case 2:
+                                    if (profile.getAdditionalTime() != null) {
+                                        additionalTime = profile.getAdditionalTime();
+                                    }
+                                    break;
+                                case 3:
+                                    break;
+                            }
+                            processTime = processTime.plusMinutes(additionalTime);
+
+                            profile.setProcessDate(processTime);
+
+                        } else if (count == 0) {
+                            profile.setState(ProfileStateEnum.PROCESSING.getValue());
+                            profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+                        }
+                    } else if (department.getName() == "GDKH") {
+                        params.put("staffId_CT", user.getId());
+                        count = count(params);
+                        if (count == 1) {
+                            profile.setState(ProfileStateEnum.WAITING.getValue());
+                            profileHistory.setState(ProfileStateEnum.WAITING.getValue());
+                        } else if (count == 0) {
+                            profile.setState(ProfileStateEnum.PROCESSING.getValue());
+                            profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+                        }
+                    }
+                }
+            }
+            save(profile);
+            profileHistoryService.save(profileHistory);
+            return true;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean assigneProfie(ProfileDTO item) {
+        // TODO Auto-generated method stub
+        try {
+            ProfileDTO dto = findById(item.getId());
+            ProfileHistoryDTO historyDto = new ProfileHistoryDTO();
+            UserDTO user = userService.findByUsername(item.username);
+            if (dto == null) {
+                throw new ResourceNotFoundException("Profile " + item.id + " not found");
+            }
+            historyDto.setTimeReceived(LocalDateTime.now());
+            historyDto.setStaffId(user.getId());
+            historyDto.setState(item.getState());
+            historyDto.setDepartmentCode(user.getDepartmentCode());
+            historyDto.setCreatedBy(user.getFullName());
+            historyDto.setCreatedDate(user.getCreatedDate());
+            profileHistoryService.save(historyDto);
+            return true;
+
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return false;
+        }
+
     }
 
 }
