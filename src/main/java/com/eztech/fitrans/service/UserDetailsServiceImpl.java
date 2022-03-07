@@ -92,4 +92,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		}
 		return code;
 	}
+
+	public String getRoleByUsername(String username) {
+		String role = repo.findRoleByUsername(username);
+		if (role == null) {
+			throw new UsernameNotFoundException("Username not found with not found: " + username);
+
+		}
+		return role;
+	}
 }

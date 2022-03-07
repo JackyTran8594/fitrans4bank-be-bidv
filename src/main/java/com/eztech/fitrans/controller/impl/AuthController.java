@@ -58,7 +58,8 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
                             loginRequest.getPassword()));
-            List<String> listRole = new ArrayList<>();
+            List<String> permissions = new ArrayList<>();
+            String role = null;
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String departmentCode = null;
             UserDetails userDetails = null;
@@ -70,10 +71,11 @@ public class AuthController {
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal instanceof UserDetails) {
                     userDetails = (UserDetails) principal;
+                    role = userDetailsServiceImpl.getRoleByUsername(userDetails.getUsername());
                     departmentCode = userDetailsServiceImpl.getDepartmentCodeByUsername(userDetails.getUsername());
                     log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
                     if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
-                        listRole = userDetails.getAuthorities().stream()
+                        permissions = userDetails.getAuthorities().stream()
                                 .map(GrantedAuthority::getAuthority)
                                 .collect(Collectors.toList());
 
@@ -83,7 +85,7 @@ public class AuthController {
                             + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
-            String jwt = tokenProvider.generateToken(authentication, listRole, departmentCode);
+            String jwt = tokenProvider.generateToken(authentication, role ,permissions, departmentCode);
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {

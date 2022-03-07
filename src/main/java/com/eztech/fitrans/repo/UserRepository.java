@@ -24,4 +24,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
   @Query(value = "SELECT u.* FROM user_entity u, department d WHERE u.department_id = d.id AND d.code = :departmentCode", nativeQuery = true)
   List<UserEntity> findByDepartmentCode(@Param("departmentCode") String departmentCode);
 
+  @Query(value = "SELECT r.name FROM user_entity u, role r, user_role ur WHERE u.id = ur.user_id AND r.id = ur.role_id AND u.username = :username", nativeQuery = true)
+  String findRoleByUsername(@Param("username") String username);
+
 }
