@@ -89,4 +89,11 @@ public class ProfileListServiceImpl implements ProfileListService {
         return repository.count(mapParam);
     }
 
+    @Override
+    public List<ProfileListDTO> findListById(String[] profileListId, Long id) {
+        // TODO Auto-generated method stub
+        List<ProfileList> listData = repository.findListById(profileListId, id);
+        return mapper.toDtoBean(listData);
+    }
+
 }

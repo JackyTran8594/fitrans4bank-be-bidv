@@ -58,6 +58,9 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "review_note", type = String.class),
         @ColumnResult(name = "note", type = String.class),
         @ColumnResult(name = "additional_time", type = Integer.class),
+        @ColumnResult(name = "staff_name_cm", type = String.class),
+        @ColumnResult(name = "staff_name_ct", type = String.class),
+        // @ColumnResult(name = "category_name", type = String.class),
     })
 
 })

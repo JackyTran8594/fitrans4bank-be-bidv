@@ -101,4 +101,19 @@ public class ProfileListController extends BaseController implements ProfileList
         return true;
     }
 
+    @GetMapping("/getListById")
+    public List<ProfileListDTO> getListById(@RequestParam Map<String, Object> params) {
+        String str = params.get("profileListId").toString();
+        String[] profileListId;
+        Long id = Long.parseLong(params.get("id").toString());
+        if (str.contains(",")) {
+            profileListId = str.split(",");
+        } else {
+            profileListId = new String[] { str };
+        }
+
+        return ProfileListService.findListById(profileListId, id);
+
+    }
+
 }

@@ -68,11 +68,14 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
           .append("WHERE 1=1 ");
     } else {
       sb.append(
-          "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct, p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.profile_process_state, p.review, p.notify_by_email ,p.cif,c.name as customer_name, s.name as staff_name, p.review_note, p.note, p.additional_time \n")
+          "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct, p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.profile_process_state, p.review, p.notify_by_email ,p.cif,c.name as customer_name, u.full_name  as staff_name, p.review_note, p.note, p.additional_time,  ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct\n")
           .append(
               "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n")
-          .append(" left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' ")
+          .append("left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n")
+          .append("left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n")
+          .append("left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n")
           .append("WHERE 1=1 ");
+
     }
 
     if (paramSearch.containsKey("id")) {
@@ -110,7 +113,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
       parameters.put("status", paramSearch.get("status"));
     }
 
-    if(paramNotNullOrEmpty(paramSearch, "review")) {
+    if (paramNotNullOrEmpty(paramSearch, "review")) {
       sb.append(" AND p.review = :review ");
       parameters.put("review", paramSearch.get("review"));
     }
@@ -118,7 +121,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     if (!count) {
       if (paramSearch.containsKey("sort")) {
         sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.id DESC  "));
-      }else{
+      } else {
         sb.append(" ORDER BY p.id desc ");
       }
     }
@@ -127,7 +130,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         .equalsIgnoreCase(String.valueOf(paramSearch.get("pageSize")))) {
       sb.append(" OFFSET :offset ROWS ");
       sb.append(" FETCH NEXT :limit ROWS ONLY ");
-      parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")), DataUtils.parseToInt(paramSearch.get("pageSize"))));
+      parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")),
+          DataUtils.parseToInt(paramSearch.get("pageSize"))));
       parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
     }
     return sb.toString();
@@ -136,25 +140,53 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
   @Override
   public ProfileDTO detailById(Long id) {
     Map<String, Object> parameters = new HashMap<>();
-    String sql = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.time_received_ct, p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.profile_process_state, p.review, p.notify_by_email,p.cif,c.name as customer_name, s.name as staff_name, p.review_note, p.note,  p.additional_time " +
-            "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' " +
-            " left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' " +
-            " where p.id = :id ";
-    parameters.put("id",id);
-    ProfileDTO profileDTO = getSingleResult(sql,Constants.ResultSetMapping.PROFILE_DTO,parameters);
+    // String sql = "SELECT
+    // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.time_received_ct,
+    // p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct,
+    // p.number_of_bill, p.number_of_po, p.value, p.return_reason,
+    // p.category_profile,
+    // p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,
+    // p.profile_process_state, p.review, p.notify_by_email,p.cif,c.name as
+    // customer_name, s.name as staff_name, p.review_note, p.note, p.additional_time
+    // " +
+    // "FROM profile p left join customer c on p.customer_id = c.id AND c.status =
+    // 'ACTIVE' " +
+    // " left join user_entity u on p.staff_id = s.id AND s.status = 'ACTIVE' " +
+    // " where p.id = :id ";
+
+    String sql = "SELECT  p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.time_received_ct," + 
+    "p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct," +
+    "p.number_of_bill, p.number_of_po, p.value, p.return_reason, " +
+    "p.category_profile," + 
+    "p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state," +
+    "p.profile_process_state, p.review, p.notify_by_email,p.cif,c.name as customer_name," +
+    "u.full_name as staff_name, p.review_note, p.note, p.additional_time , ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct \n"
+        +
+        "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n" +
+        "left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n" +
+        "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
+        "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
+        "where p.id = :id ";
+    parameters.put("id", id);
+    ProfileDTO profileDTO = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
     return profileDTO;
   }
 
   @Override
   public List<ProfileDTO> listDashboard() {
     Map<String, Object> parameters = new HashMap<>();
-    String sql = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct, p.time_received_cm, p.end_time, " +
-            "p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by," +
-            "p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.profile_process_state, p.review, p.notify_by_email ," +
-            "p.cif,c.name as customer_name, s.name as staff_name, p.review_note, p.note, p.additional_time \n" +
-            "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n" +
-            " left join staff s on p.staff_id = s.id AND s.status = 'ACTIVE' " +
-            " where 1=1 ";
+    String sql = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct, p.time_received_cm, p.end_time, "
+        +
+        "p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,"
+        +
+        "p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.profile_process_state, p.review, p.notify_by_email ,"
+        +
+        "p.cif,c.name as customer_name, u.full_name as staff_name, p.review_note, p.note, p.additional_time,  ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct \n" +
+        "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n" +
+        "left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n" +
+        "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
+        "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
+        " where 1=1 ";
     return getResultList(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
   }
 }
