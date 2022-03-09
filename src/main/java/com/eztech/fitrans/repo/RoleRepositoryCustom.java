@@ -8,5 +8,5 @@ import java.util.List;
 public interface RoleRepositoryCustom extends BaseRepositoryCustom {
     List<RoleTreeDTO>  mapRoleList();
 
-    List<RoleTreeDTO> mapMenuRole();
+    List<MenuRoleTreeDTO> mapMenuRole();
 }

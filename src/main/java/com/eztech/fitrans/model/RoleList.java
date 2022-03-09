@@ -23,6 +23,7 @@ import java.io.Serializable;
                 @ColumnResult(name = "parent_code", type = String.class),
                 @ColumnResult(name = "code", type = String.class),
                 @ColumnResult(name = "description", type = String.class),
+                @ColumnResult(name = "depth", type = Integer.class),
         })
 })
 public class RoleList implements Serializable {

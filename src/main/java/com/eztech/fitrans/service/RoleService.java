@@ -24,7 +24,7 @@ public interface RoleService {
 
   List<RoleTreeDTO> treeRole();
 
-  List<RoleTreeDTO> menuRole();
+  List<MenuRoleTreeDTO> menuRole();
 
   RoleList findByCode(String code);
 }

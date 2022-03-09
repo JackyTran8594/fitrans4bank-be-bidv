@@ -21,5 +21,6 @@ public class MenuRoleTreeDTO implements Serializable {
     public String parentCode;
     public String code;
     public String description;
+    public Integer depth;
 
 }

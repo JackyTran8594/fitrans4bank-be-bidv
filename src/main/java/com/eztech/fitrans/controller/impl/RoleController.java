@@ -90,7 +90,7 @@ public class RoleController extends BaseController implements RoleApi {
   }
 
   @GetMapping("/menuRole")
-  public List<RoleTreeDTO> menuRole() {
+  public List<MenuRoleTreeDTO> menuRole() {
     return service.menuRole();
   }
 

@@ -159,16 +159,16 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
     }
 
     @Override
-    public List<RoleTreeDTO> mapMenuRole() {
+    public List<MenuRoleTreeDTO> mapMenuRole() {
         // TODO Auto-generated method stub
         Map<String, Object> parameters = new HashMap<>();
         // menu_recursive
         String sql = "WITH menu_recursive AS ( \n" +
-                " SELECT rl.menu, rl.menu_name, rl.parent_code, rl.code, rl.description \n" +
+                " SELECT rl.menu, rl.menu_name, rl.parent_code, rl.code, rl.description,  1 as depth \n" +
                 "FROM [role_list] AS rl \n" +
                 "WHERE rl.parent_code IS NULL OR rl.parent_code = '' \n" +
                 "UNION all \n" +
-                "select rl2.menu, rl2.menu_name,rl2.parent_code, rl2.code, rl2.description \n" +
+                "select rl2.menu, rl2.menu_name,rl2.parent_code, rl2.code, rl2.description, mr.depth + 1 \n" +
                 "FROM role_list AS rl2 \n" +
                 "INNER JOIN menu_recursive AS mr ON mr.menu = rl2.parent_code) \n" +
                 "SELECT * FROM menu_recursive";
@@ -177,31 +177,6 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
         if (DataUtils.isNullOrEmpty(menuRoles)) {
             return new ArrayList<>();
         }
-
-        List<MenuRoleTreeDTO> menu = new ArrayList<>();
-        List<MenuRoleTreeDTO> subMenu = new ArrayList<>();
-        List<MenuRoleTreeDTO> subMenu2 = new ArrayList<>();
-        for (MenuRoleTreeDTO item : menuRoles) {
-            // MenuRoleTreeDTO dto = menuMapper.toDtoBean(item);
-            if (DataUtils.isNullOrEmpty(item.getParentCode())) {
-                MenuRoleTreeDTO tree = new MenuRoleTreeDTO();
-                menu.add(tree);
-            }              
-            
-        }
-
-        for (MenuRoleTreeDTO parent : menu) {
-            List<MenuRoleTreeDTO> lstSub = new ArrayList<MenuRoleTreeDTO>();
-            for (MenuRoleTreeDTO sub : subMenu) {
-                if (parent.getMenu().equals(sub.getParentCode()) && !DataUtils.isNullOrEmpty(sub.getParentCode())
-                        && !DataUtils.isNullOrEmpty(parent.getMenu())) {
-                    lstSub.add(sub);
-                }
-
-            }
-            // parent.setSubMenu(lstSub);
-        }
-        List<RoleTreeDTO> lst = new ArrayList<RoleTreeDTO>();
-        return lst;
+        return menuRoles;
     }
 }

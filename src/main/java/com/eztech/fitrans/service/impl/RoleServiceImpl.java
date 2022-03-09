@@ -156,9 +156,9 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public List<RoleTreeDTO> menuRole() {
+    public List<MenuRoleTreeDTO> menuRole() {
         // TODO Auto-generated method stub
-        List<RoleTreeDTO> menuRoles = repository.mapMenuRole();
+        List<MenuRoleTreeDTO> menuRoles = repository.mapMenuRole();
         return menuRoles;
     }
 }
