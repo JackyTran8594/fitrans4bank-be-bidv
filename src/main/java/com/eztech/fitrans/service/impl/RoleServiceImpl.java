@@ -1,5 +1,6 @@
 package com.eztech.fitrans.service.impl;
 
+import com.eztech.fitrans.dto.response.MenuRoleTreeDTO;
 import com.eztech.fitrans.dto.response.RoleDTO;
 import com.eztech.fitrans.dto.response.RoleTreeDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
@@ -152,5 +153,12 @@ public class RoleServiceImpl implements RoleService {
             }
             roleMapRepository.saveAll(roleMapList);
         }
+    }
+
+    @Override
+    public List<RoleTreeDTO> menuRole() {
+        // TODO Auto-generated method stub
+        List<RoleTreeDTO> menuRoles = repository.mapMenuRole();
+        return menuRoles;
     }
 }

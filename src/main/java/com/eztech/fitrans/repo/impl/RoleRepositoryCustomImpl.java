@@ -1,5 +1,7 @@
 package com.eztech.fitrans.repo.impl;
 
+import com.eztech.fitrans.constants.Constants;
+import com.eztech.fitrans.dto.response.MenuRoleTreeDTO;
 import com.eztech.fitrans.dto.response.RoleDTO;
 import com.eztech.fitrans.dto.response.RoleListDTO;
 import com.eztech.fitrans.dto.response.RoleTreeDTO;
@@ -18,6 +20,8 @@ import java.util.Map;
 public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> implements
         RoleRepositoryCustom {
     private static final BaseMapper<RoleList, RoleListDTO> mapper = new BaseMapper<>(RoleList.class, RoleListDTO.class);
+    private static final BaseMapper<MenuRoleTreeDTO, MenuRoleTreeDTO> menuMapper = new BaseMapper<>(
+            MenuRoleTreeDTO.class, MenuRoleTreeDTO.class);
 
     @Override
     public List search(Map searchDTO, Class aClass) {
@@ -35,7 +39,7 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
 
     @Override
     public Integer updateStatus(Long id, String status, String lastUpdatedBy,
-                                LocalDateTime lastUpdateDate) {
+            LocalDateTime lastUpdateDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         sb.append(
@@ -66,7 +70,7 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
 
     @Override
     public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
-                             boolean count) {
+            boolean count) {
         StringBuilder sb = new StringBuilder();
         if (count) {
             sb.append("SELECT COUNT(id) \n")
@@ -116,7 +120,8 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
                 .equalsIgnoreCase(String.valueOf(paramSearch.get("pageSize")))) {
             sb.append(" OFFSET :offset ROWS ");
             sb.append(" FETCH NEXT :limit ROWS ONLY ");
-            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")), DataUtils.parseToInt(paramSearch.get("pageSize"))));
+            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")),
+                    DataUtils.parseToInt(paramSearch.get("pageSize"))));
             parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
         }
         return sb.toString();
@@ -127,15 +132,15 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
         Map<String, Object> parameters = new HashMap<>();
         String sql = "SELECT * FROM role_list order by parent_code asc";
         List<RoleList> list = getResultList(sql, RoleList.class, parameters);
-        if(DataUtils.isNullOrEmpty(list)){
+        if (DataUtils.isNullOrEmpty(list)) {
             return new ArrayList<>();
         }
 
         Map<String, List<RoleListDTO>> map = new HashMap<>();
-        for(RoleList roleList: list){
+        for (RoleList roleList : list) {
             RoleListDTO dto = mapper.toDtoBean(roleList);
             List<RoleListDTO> listDTOList = map.get(dto.getParentCode());
-            if(DataUtils.isNullOrEmpty(listDTOList)){
+            if (DataUtils.isNullOrEmpty(listDTOList)) {
                 listDTOList = new ArrayList<>();
             }
             listDTOList.add(dto);
@@ -151,5 +156,52 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
             rtn.add(roleTreeDTO);
         }
         return rtn;
+    }
+
+    @Override
+    public List<RoleTreeDTO> mapMenuRole() {
+        // TODO Auto-generated method stub
+        Map<String, Object> parameters = new HashMap<>();
+        // menu_recursive
+        String sql = "WITH menu_recursive AS ( \n" +
+                " SELECT rl.menu, rl.menu_name, rl.parent_code, rl.code, rl.description \n" +
+                "FROM [role_list] AS rl \n" +
+                "WHERE rl.parent_code IS NULL OR rl.parent_code = '' \n" +
+                "UNION all \n" +
+                "select rl2.menu, rl2.menu_name,rl2.parent_code, rl2.code, rl2.description \n" +
+                "FROM role_list AS rl2 \n" +
+                "INNER JOIN menu_recursive AS mr ON mr.menu = rl2.parent_code) \n" +
+                "SELECT * FROM menu_recursive";
+
+        List<MenuRoleTreeDTO> menuRoles = getResultList(sql, Constants.ResultSetMapping.MENU_ROLE_DTO, parameters);
+        if (DataUtils.isNullOrEmpty(menuRoles)) {
+            return new ArrayList<>();
+        }
+
+        List<MenuRoleTreeDTO> menu = new ArrayList<>();
+        List<MenuRoleTreeDTO> subMenu = new ArrayList<>();
+        List<MenuRoleTreeDTO> subMenu2 = new ArrayList<>();
+        for (MenuRoleTreeDTO item : menuRoles) {
+            // MenuRoleTreeDTO dto = menuMapper.toDtoBean(item);
+            if (DataUtils.isNullOrEmpty(item.getParentCode())) {
+                MenuRoleTreeDTO tree = new MenuRoleTreeDTO();
+                menu.add(tree);
+            }              
+            
+        }
+
+        for (MenuRoleTreeDTO parent : menu) {
+            List<MenuRoleTreeDTO> lstSub = new ArrayList<MenuRoleTreeDTO>();
+            for (MenuRoleTreeDTO sub : subMenu) {
+                if (parent.getMenu().equals(sub.getParentCode()) && !DataUtils.isNullOrEmpty(sub.getParentCode())
+                        && !DataUtils.isNullOrEmpty(parent.getMenu())) {
+                    lstSub.add(sub);
+                }
+
+            }
+            // parent.setSubMenu(lstSub);
+        }
+        List<RoleTreeDTO> lst = new ArrayList<RoleTreeDTO>();
+        return lst;
     }
 }

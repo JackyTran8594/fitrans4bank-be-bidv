@@ -15,6 +15,13 @@ import java.util.List;
 public class RoleTreeDTO implements Serializable {
     private static final long serialVersionUID = 1L;
     private String name;
+    private String menu;
     private String description;
+    private String code;
+
     private List<RoleListDTO> children;
+
+    private List<MenuRoleTreeDTO> subMenu;
+
+  
 }

@@ -1,6 +1,7 @@
 package com.eztech.fitrans.controller.impl;
 
 import com.eztech.fitrans.controller.RoleApi;
+import com.eztech.fitrans.dto.response.MenuRoleTreeDTO;
 import com.eztech.fitrans.dto.response.RoleDTO;
 import com.eztech.fitrans.dto.response.RoleListDTO;
 import com.eztech.fitrans.dto.response.RoleTreeDTO;
@@ -86,6 +87,11 @@ public class RoleController extends BaseController implements RoleApi {
   @GetMapping("/tree")
   public List<RoleTreeDTO> treeAll() {
     return service.treeRole();
+  }
+
+  @GetMapping("/menuRole")
+  public List<RoleTreeDTO> menuRole() {
+    return service.menuRole();
   }
 
 }

@@ -1,5 +1,6 @@
 package com.eztech.fitrans.service;
 
+import com.eztech.fitrans.dto.response.MenuRoleTreeDTO;
 import com.eztech.fitrans.dto.response.RoleDTO;
 import com.eztech.fitrans.dto.response.RoleTreeDTO;
 import com.eztech.fitrans.model.RoleList;
@@ -22,6 +23,8 @@ public interface RoleService {
   Long count(Map<String, Object> mapParam);
 
   List<RoleTreeDTO> treeRole();
+
+  List<RoleTreeDTO> menuRole();
 
   RoleList findByCode(String code);
 }
