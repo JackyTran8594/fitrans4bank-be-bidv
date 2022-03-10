@@ -12,6 +12,8 @@ public interface CustomerService {
 
   void deleteById(Long id);
 
+  void deleteById(List<Long> ids);
+
   CustomerDTO findById(Long id);
 
   List<CustomerDTO> findAll();

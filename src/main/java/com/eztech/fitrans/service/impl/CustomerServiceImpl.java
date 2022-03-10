@@ -47,6 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepository repository;
 
     @Override
+    @Transactional
     public CustomerDTO save(CustomerDTO item) {
         validate(item);
         Customer entity;
@@ -70,12 +71,21 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         CustomerDTO dto = findById(id);
         if (dto == null) {
             throw new ResourceNotFoundException("Customer " + id + " not found");
         }
         repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(List<Long> ids) {
+        if(DataUtils.notNullOrEmpty(ids)){
+            repository.delete(ids);
+        }
     }
 
     @Override

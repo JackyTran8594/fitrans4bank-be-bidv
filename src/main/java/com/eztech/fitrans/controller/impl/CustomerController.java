@@ -4,11 +4,10 @@ import com.eztech.fitrans.controller.CustomerApi;
 import com.eztech.fitrans.dto.response.CustomerDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.service.CustomerService;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
+import java.util.*;
+
+import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.ExcelFileWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +83,13 @@ public class CustomerController extends BaseController implements CustomerApi {
     return true;
   }
 
+  @Override
+  @DeleteMapping("")
+  public Boolean delete(@RequestParam(value = "ids") List<Long> ids) {
+    service.deleteById(ids);
+    return true;
+  }
+
   @RequestMapping(value = "test", method = RequestMethod.GET)
   public ResponseEntity<byte[]> test() throws Exception {
     List<CustomerDTO> customerDTOList = service.importFile(null);
@@ -96,6 +102,30 @@ public class CustomerController extends BaseController implements CustomerApi {
             .header("Content-Disposition", "attachment; filename=success.xlsx")
             .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
             .body(ExcelFileWriter.writeToExcel(headerList, propertyList, customerDTOList));
+  }
+
+  @Override
+  @RequestMapping(value = "download", method = RequestMethod.GET)
+  public ResponseEntity<byte[]> downloadTemplate() throws Exception {
+    Map<String, Object> mapParam = new HashMap<>();
+    mapParam.put("pageNumber", 1);
+    mapParam.put("pageSize", 1);
+    List<CustomerDTO> listData = service.search(mapParam);
+    if(DataUtils.notNullOrEmpty(listData)){
+      int i = 1;
+      for(CustomerDTO dto: listData){
+        dto.setStt(i++);
+      }
+    }
+
+    List<String> headerList = Arrays.asList("STT","CIF", "Tên khách hàng", "Địa chỉ", "Số điện thoại", "Loại khách hàng (1: Thông thường, 2: VIP)");
+    List<String> propertyList = Arrays.asList("stt","cif", "name", "address", "tel", "type");
+
+    return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+            .header("Content-Disposition", "attachment; filename=template.xlsx")
+            .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
+            .body(ExcelFileWriter.writeToExcel(headerList, propertyList, listData));
   }
 
   @Override

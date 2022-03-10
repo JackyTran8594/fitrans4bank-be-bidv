@@ -79,7 +79,7 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
         }
 
         if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
-            sb.append(" AND (UPPER(cif) LIKE :txtSearch OR UPPER(name) LIKE :txtSearch) ");
+            sb.append(" AND (UPPER(cif) LIKE :txtSearch OR UPPER(name) LIKE :txtSearch OR UPPER(tel) LIKE :txtSearch OR UPPER(address) LIKE :txtSearch OR UPPER(type) LIKE :txtSearch OR UPPER(status) LIKE :txtSearch) ");
             parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
         }
 
