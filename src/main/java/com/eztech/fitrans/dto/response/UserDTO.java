@@ -35,7 +35,7 @@ public class UserDTO implements Serializable {
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   private LocalDateTime lastUpdatedDate;
   private String status;
-
+  private Long roleId;
 
   public UserDTO(Long id, String username, String email, String fullName,
       String position, Long departmentId, String status,

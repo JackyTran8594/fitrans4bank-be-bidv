@@ -3,6 +3,7 @@ package com.eztech.fitrans.service.impl;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.UserEntity;
+import com.eztech.fitrans.repo.RoleRepository;
 import com.eztech.fitrans.repo.UserRepository;
 import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.BaseMapper;
@@ -36,9 +37,25 @@ public class UserServiceImpl implements UserService {
             dto.setPosition(entity.getPosition());
             dto.setDepartmentId(entity.getDepartmentId());
             dto.setStatus(entity.getStatus());
+
             oldEntity = mapper.toPersistenceBean(dto);
+            
+            if(!DataUtils.isNullOrEmpty(dto.getRoleId())) {
+                Boolean isSave = repository.updateUserRole(dto.getId(), dto.getRoleId());
+                if(isSave.equals(false)) {
+                    throw new ResourceNotFoundException("User " + entity.getId() + " not found");
+                }
+            }
+
         }else{
             oldEntity = mapper.toPersistenceBean(entity);
+            // repository.save(oldEntity);
+            // if(!DataUtils.isNullOrEmpty(entity.getRoleId())) {
+            //     Boolean isSave = repository.updateUserRole(dto.getId(), dto.getRoleId());
+            //     if(isSave.equals(false)) {
+            //         throw new ResourceNotFoundException("User " + entity.getId() + " not found");
+            //     }
+            // }
         }
 
         return mapper.toDtoBean(repository.save(oldEntity));
@@ -56,8 +73,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO findById(Long id) {
         Optional<UserEntity> optionalDepartmentDTO = repository.findById(id);
+
         if(optionalDepartmentDTO.isPresent()){
-            return mapper.toDtoBean(optionalDepartmentDTO.get());
+            UserDTO dto = mapper.toDtoBean(optionalDepartmentDTO.get());
+            Long roleId = repository.findRoleIdByUserId(id);
+            if(!DataUtils.isNullOrEmpty(roleId)) {
+                dto.setRoleId(roleId);
+            } 
+            return dto;
         }
         return null;
     }

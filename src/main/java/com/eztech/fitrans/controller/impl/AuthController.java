@@ -60,6 +60,7 @@ public class AuthController {
                             loginRequest.getPassword()));
             List<String> permissions = new ArrayList<>();
             String role = null;
+            Long userId = null;
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String departmentCode = null;
             UserDetails userDetails = null;
@@ -72,6 +73,7 @@ public class AuthController {
                 if (principal instanceof UserDetails) {
                     userDetails = (UserDetails) principal;
                     role = userDetailsServiceImpl.getRoleByUsername(userDetails.getUsername());
+                    
                     departmentCode = userDetailsServiceImpl.getDepartmentCodeByUsername(userDetails.getUsername());
                     log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
                     if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
