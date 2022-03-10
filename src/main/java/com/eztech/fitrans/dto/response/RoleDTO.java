@@ -36,5 +36,6 @@ public class RoleDTO implements Serializable {
 
   private String url;
   private String method;
-  private List<Long> roles;
+  private List<String> roles;
+
 }

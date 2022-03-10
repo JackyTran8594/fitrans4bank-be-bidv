@@ -76,7 +76,7 @@ public class RoleServiceImpl implements RoleService {
         if (optional.isPresent()) {
             RoleDTO dto = mapper.toDtoBean(optional.get());
             //Get list role map
-            List<Long> listRoleMap = roleMapRepository.getRoleMap(dto.getId());
+            List<String> listRoleMap = roleMapRepository.getRoleMap(dto.getId());
             dto.setRoles(listRoleMap);
             return dto;
         }
@@ -112,29 +112,29 @@ public class RoleServiceImpl implements RoleService {
 
 
     private void saveRoleMap(RoleDTO dto) {
-        List<Long> newRoles = dto.getRoles();
+        List<String> newRoles = dto.getRoles();
         if (DataUtils.notNull(newRoles) && newRoles.isEmpty()) {
             //chi viec delete
             roleMapRepository.deleteRoleMap(dto.getId());
             return;
         }
 
-        List<Long> listRoleMap = roleMapRepository.getRoleMap(dto.getId());
+        List<String> listRoleMap = roleMapRepository.getRoleMap(dto.getId());
 
         if (DataUtils.isNullOrEmpty(listRoleMap) && DataUtils.notNullOrEmpty(newRoles)) {
             //chi viec insert
             List<RoleMap> roleMapList = new ArrayList<>(newRoles.size());
-            for (Long roleList : newRoles) {
+            for (String roleList : newRoles) {
                 RoleMap roleMap = new RoleMap();
                 roleMap.setRoleId(dto.getId());
-                roleMap.setRoleListId(roleList);
+                roleMap.setRoleListCode(roleList);
                 roleMapList.add(roleMap);
             }
             roleMapRepository.saveAll(roleMapList);
             return;
         }
 
-        List<Long> listDelete = new ArrayList<>(listRoleMap.size());
+        List<String> listDelete = new ArrayList<>(listRoleMap.size());
         listDelete.addAll(listRoleMap);
         listDelete.removeIf(newRoles::contains);
         if (DataUtils.notNullOrEmpty(listDelete)) {
@@ -145,10 +145,10 @@ public class RoleServiceImpl implements RoleService {
         newRoles.removeIf(listRoleMap::contains);
         if (DataUtils.notNullOrEmpty(newRoles)) {
             List<RoleMap> roleMapList = new ArrayList<>(newRoles.size());
-            for (Long roleList : newRoles) {
+            for (String roleList : newRoles) {
                 RoleMap roleMap = new RoleMap();
                 roleMap.setRoleId(dto.getId());
-                roleMap.setRoleListId(roleList);
+                roleMap.setRoleListCode(roleList);
                 roleMapList.add(roleMap);
             }
             roleMapRepository.saveAll(roleMapList);

@@ -16,6 +16,6 @@ public class RoleMap implements Serializable {
     private Long id;
     @Column(name = "roleId")
     private Long roleId;
-    @Column(name = "role_list_id")
-    private Long roleListId;
+    @Column(name = "role_list_code")
+    private String roleListCode;
 }

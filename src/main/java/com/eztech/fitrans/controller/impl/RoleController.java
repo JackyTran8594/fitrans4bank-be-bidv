@@ -70,7 +70,7 @@ public class RoleController extends BaseController implements RoleApi {
 
   @Override
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  // @PreAuthorize("hasRole('ROLE_ADMIN')")
   public RoleDTO update(@PathVariable(value = "id") Long id, @RequestBody RoleDTO item) {
     item.setId(id);
     return service.save(item);

@@ -11,8 +11,8 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 public interface RoleMapRepository extends JpaRepository<RoleMap, Long> {
-    @Query(value = "SELECT * FROM role_map r WHERE r.role_id = :roleId", nativeQuery = true)
-    List<Long> getRoleMap(@Param("roleId") Long roleId);
+    @Query(value = "SELECT r.role_list_code FROM role_map r WHERE r.role_id = :roleId", nativeQuery = true)
+    List<String> getRoleMap(@Param("roleId") Long roleId);
 
     @Modifying
     @Transactional
@@ -21,7 +21,7 @@ public interface RoleMapRepository extends JpaRepository<RoleMap, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "DELETE FROM role_map WHERE role_id = :roleId AND role_list_id IN :roleListId", nativeQuery = true)
-    Integer deleteRoleMap(@Param("roleId") Long roleId, @Param("roleListId") List<Long> roleListId);
+    @Query(value = "DELETE FROM role_map WHERE role_id = :roleId AND role_list_code IN :roleListCode", nativeQuery = true)
+    Integer deleteRoleMap(@Param("roleId") Long roleId, @Param("roleListCode") List<String> roleListCode);
 
 }
