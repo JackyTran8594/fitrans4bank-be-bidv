@@ -110,6 +110,10 @@ public class ProfileServiceImpl implements ProfileService {
             throw new ResourceNotFoundException("Profile " + id + " not found");
         }
         repository.deleteById(id);
+        ProfileHistoryDTO profileHis = profileHistoryService.findById(id);
+        if (profileHis != null) {
+            profileHistoryService.deleteByProfileId(id);
+        }
     }
 
     @Override
@@ -159,11 +163,9 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public Boolean confirmProfile(ConfirmRequest item) {
-        // // TODO Auto-generated method stub
-        ProfileDTO profile = findById(item.getProfileId());
-        if (DataUtils.isNullObject(profile)) {
-            throw new ResourceNotFoundException("User " + profile.getId() + " not found");
-        }
+        // // TODO Auto-generated method stub\
+        ProfileDTO profile = item.getProfile();
+
         UserDTO user = userService.findByUsername(item.getUsername());
         if (DataUtils.isNullObject(user)) {
             throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
@@ -188,6 +190,7 @@ public class ProfileServiceImpl implements ProfileService {
             // check account admin or not
             if (item.username.toLowerCase().contains("admin")) {
                 profile.setState(ProfileStateEnum.DELEVERIED.getValue());
+                profileHistory.setState(ProfileStateEnum.DELEVERIED.getValue());
 
                 // check department
                 if (item.getCode() == "QTTD") {
@@ -267,9 +270,14 @@ public class ProfileServiceImpl implements ProfileService {
                     }
                 }
             }
-            ProfileDTO dto = save(profile);
-            profileHistory.setProfileId(dto.getId());
-            profileHistoryService.save(profileHistory);
+
+            if (DataUtils.isNullOrEmpty(profile.getId())) {
+                ProfileDTO dto = save(profile);
+                profileHistory.setProfileId(dto.getId());
+            } else {
+                profileHistory.setProfileId(profile.getId());
+                profileHistoryService.save(profileHistory);
+            }
             return true;
         } catch (Exception e) {
             // TODO: handle exception
@@ -297,7 +305,7 @@ public class ProfileServiceImpl implements ProfileService {
             logger.error(e.getMessage(), e);
             return null;
         }
-       
+
     }
 
 }

@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 @Slf4j
 public class ProfileHistoryServiceImpl implements ProfileHistoryService {
@@ -66,7 +65,6 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
         return null;
     }
 
-
     @Override
     public List<ProfileHistoryDTO> findAll() {
         List<ProfileHistory> listData = repository.findAll();
@@ -83,5 +81,11 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
             profilesHistory.stream().forEach(item -> item.fillTransient());
         }
         return profilesHistory;
+    }
+
+    @Override
+    public void deleteByProfileId(Long id) {
+        repository.deleteByProfileId(id);
+
     }
 }
