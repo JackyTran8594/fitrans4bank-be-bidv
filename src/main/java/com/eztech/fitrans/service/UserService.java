@@ -10,6 +10,8 @@ public interface UserService {
 
   void deleteById(Long id);
 
+  void deleteById(List<Long> ids);
+
   UserDTO findById(Long id);
 
   List<UserDTO> findAll();

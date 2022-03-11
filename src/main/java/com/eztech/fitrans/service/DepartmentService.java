@@ -10,6 +10,8 @@ public interface DepartmentService {
 
   void deleteById(Long id);
 
+  void deleteById(List<Long> ids);
+
   DepartmentDTO findById(Long id);
 
   List<DepartmentDTO> findAll();

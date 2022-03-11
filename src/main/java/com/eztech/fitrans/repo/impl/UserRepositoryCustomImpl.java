@@ -74,6 +74,11 @@ public class UserRepositoryCustomImpl extends BaseCustomRepository<UserEntity> i
             parameters.put("id", DataUtils.parseToLong(paramSearch.get("id")));
         }
 
+        if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
+            sb.append(" AND (UPPER(os.username) LIKE :txtSearch OR UPPER(os.email) LIKE :txtSearch OR UPPER(os.full_name) LIKE :txtSearch) ");
+            parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
+        }
+
         if (paramNotNullOrEmpty(paramSearch, "username")) {
             sb.append(" AND os.username LIKE :username ");
             parameters.put("username", formatLike((String) paramSearch.get("username")).toLowerCase());

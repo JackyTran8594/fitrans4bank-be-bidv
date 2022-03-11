@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ public class RoleServiceImpl implements RoleService {
     private RoleMapRepository roleMapRepository;
 
     @Override
+    @Transactional
     public RoleDTO save(RoleDTO entity) {
         RoleDTO rtn;
         Role oldEntity;
@@ -62,12 +64,22 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         RoleDTO dto = findById(id);
         if (dto == null) {
             throw new ResourceNotFoundException("Role " + id + " not found");
         }
         repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(List<Long> ids) {
+        if(DataUtils.notNullOrEmpty(ids)){
+            repository.delete(ids);
+            roleMapRepository.deleteRoleMap(ids);
+        }
     }
 
     @Override

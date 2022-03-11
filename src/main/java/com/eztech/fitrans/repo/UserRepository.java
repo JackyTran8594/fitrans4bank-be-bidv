@@ -3,9 +3,12 @@ package com.eztech.fitrans.repo;
 import com.eztech.fitrans.model.UserEntity;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import javax.transaction.Transactional;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRepositoryCustom {
@@ -27,10 +30,18 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
   @Query(value = "SELECT r.name FROM user_entity u, role r, user_role ur WHERE u.id = ur.user_id AND r.id = ur.role_id AND u.username = :username", nativeQuery = true)
   String findRoleByUsername(@Param("username") String username);
 
-  @Query(value = "SELECT r.id FROM  user_role ur WHERE ur.user_id = :userId", nativeQuery = true)
+  @Query(value = "SELECT TOP  1 ur.role_id FROM  user_role ur WHERE ur.user_id = :userId", nativeQuery = true)
   Long findRoleIdByUserId(@Param("userId") Long userId);
 
   @Query(value = "UPDATE user_role SET role_id = :roleId  WHERE user_id = :userId", nativeQuery = true)
   Boolean updateUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
+
+  @Modifying
+  @Transactional
+  @Query(value = "DELETE  FROM user_entity WHERE id IN :ids", nativeQuery = true)
+  Integer delete(@Param("ids") List<Long> id);
+
+  @Query(value = "SELECT r.name  FROM role r WHERE r.id in (SELECT role_id from user_role ur WHERE ur.user_id = :userId) and r.status = 'ACTIVE'", nativeQuery = true)
+  List<String> listRole(@Param("userId") Long userId);
 
 }

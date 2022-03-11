@@ -87,6 +87,11 @@ public class RoleRepositoryCustomImpl extends BaseCustomRepository<Role> impleme
             parameters.put("id", DataUtils.parseToLong(paramSearch.get("id")));
         }
 
+        if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
+            sb.append(" AND (UPPER(os.code) LIKE :txtSearch OR UPPER(os.name) LIKE :txtSearch) ");
+            parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
+        }
+
         if (paramNotNullOrEmpty(paramSearch, "code")) {
             sb.append(" AND UPPER(os.code) LIKE :code ");
             parameters.put("code", formatLike((String) paramSearch.get("code")).toUpperCase());

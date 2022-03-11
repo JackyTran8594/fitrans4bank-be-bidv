@@ -34,6 +34,9 @@ public interface RoleApi {
     @ApiOperation(value = "Delete role", response = Boolean.class)
     Boolean delete(Long id);
 
+    @ApiOperation(value = "Delete list role", response = Boolean.class)
+    Boolean delete(List<Long> ids);
+
     @ApiOperation(value = "Map tree role")
     List<RoleTreeDTO> treeAll();
 }

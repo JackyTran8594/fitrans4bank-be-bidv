@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private DepartmentRepository departmentRepository;
 
     @Override
+    @Transactional
     public DepartmentDTO save(DepartmentDTO department) {
         Department entity;
         if(!DataUtils.nullOrZero(department.getId())) {
@@ -42,12 +44,21 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         DepartmentDTO dto = findById(id);
         if (dto == null) {
             throw new ResourceNotFoundException("Department " + id + " not found");
         }
         departmentRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(List<Long> ids) {
+        if(DataUtils.notNullOrEmpty(ids)){
+            departmentRepository.delete(ids);
+        }
     }
 
     @Override

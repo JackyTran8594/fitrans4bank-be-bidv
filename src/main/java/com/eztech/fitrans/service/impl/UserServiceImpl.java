@@ -16,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import javax.transaction.Transactional;
 
 @Service
 @Slf4j
@@ -25,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private UserRepository repository;
 
     @Override
+    @Transactional
     public UserDTO save(UserDTO entity) {
         UserEntity oldEntity;
         if(!DataUtils.nullOrZero(entity.getId())) {
@@ -62,12 +66,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         UserDTO dto = findById(id);
         if (dto == null) {
             throw new ResourceNotFoundException("User " + id + " not found");
         }
         repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(List<Long> ids) {
+        if(DataUtils.notNullOrEmpty(ids)){
+            repository.delete(ids);
+        }
     }
 
     @Override
@@ -93,7 +106,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> search(Map<String, Object> mapParam) {
-        return repository.search(mapParam,UserDTO.class);
+        List<UserDTO> list = repository.search(mapParam,UserDTO.class);
+        if(DataUtils.notNullOrEmpty(list)){
+            for(UserDTO dto: list){
+                List<String> listRole = repository.listRole(dto.getId());
+                dto.setListRole(listRole);
+                if(DataUtils.notNullOrEmpty(listRole)){
+                    dto.setRoles(StringUtils.collectionToDelimitedString(listRole , " - "));
+                }
+            }
+        }
+        return list;
     }
 
     @Override
