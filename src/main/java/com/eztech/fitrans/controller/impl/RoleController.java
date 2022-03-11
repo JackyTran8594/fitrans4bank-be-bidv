@@ -84,6 +84,13 @@ public class RoleController extends BaseController implements RoleApi {
   }
 
   @Override
+  @DeleteMapping("")
+  public Boolean delete(@RequestParam(value = "ids") List<Long> ids) {
+    service.deleteById(ids);
+    return true;
+  }
+
+  @Override
   @GetMapping("/tree")
   public List<RoleTreeDTO> treeAll() {
     return service.treeRole();

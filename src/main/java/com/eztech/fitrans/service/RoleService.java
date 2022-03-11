@@ -14,6 +14,8 @@ public interface RoleService {
 
   void deleteById(Long id);
 
+  void deleteById(List<Long> ids);
+
   RoleDTO findById(Long id);
 
   List<RoleDTO> findAll();

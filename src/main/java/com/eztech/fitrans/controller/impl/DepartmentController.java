@@ -75,6 +75,13 @@ public class DepartmentController extends BaseController implements DepartmentAp
     return true;
   }
 
+  @Override
+  @DeleteMapping("")
+  public Boolean delete(@RequestParam(value = "ids") List<Long> ids) {
+    departmentService.deleteById(ids);
+    return true;
+  }
+
   @PostMapping("/deleteList")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public Boolean deleteList(@RequestBody List<DepartmentDTO> listData) {

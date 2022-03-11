@@ -5,6 +5,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,4 +30,7 @@ public interface DepartmentApi {
 
     @ApiOperation(value = "Delete department by department ID", response = Boolean.class)
     Boolean delete(Long productId);
+
+    @ApiOperation(value = "Delete list department", response = Boolean.class)
+    Boolean delete(List<Long> ids);
 }

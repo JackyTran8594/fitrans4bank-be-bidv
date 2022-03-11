@@ -5,6 +5,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,4 +33,7 @@ public interface UserApi {
 
   @ApiOperation(value = "Delete user", response = Boolean.class)
   Boolean delete(Long id);
+
+  @ApiOperation(value = "Delete list user", response = Boolean.class)
+  Boolean delete(List<Long> ids);
 }
