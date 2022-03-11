@@ -52,6 +52,7 @@ public class ProfileHistoryDTO implements Serializable {
     public String status;
     public String staffName;
     public String departmentCode;
+    private Long departmentId;
 
     public ProfileHistoryDTO(Long id, 
     Long profileId,

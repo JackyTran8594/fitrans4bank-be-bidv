@@ -161,29 +161,40 @@ public class ProfileServiceImpl implements ProfileService {
     public Boolean confirmProfile(ConfirmRequest item) {
         // // TODO Auto-generated method stub
         ProfileDTO profile = findById(item.getProfileId());
+        if (DataUtils.isNullObject(profile)) {
+            throw new ResourceNotFoundException("User " + profile.getId() + " not found");
+        }
         UserDTO user = userService.findByUsername(item.getUsername());
+        if (DataUtils.isNullObject(user)) {
+            throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
+        }
         DepartmentDTO department = departmentService.findByCode(item.getCode());
+        if (DataUtils.isNullObject(department)) {
+            throw new ResourceNotFoundException("department " + item.getCode() + " not found");
+        }
         ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
         TransactionTypeDTO transactionType = transactionTypeService
                 .findById(Long.parseLong(profile.getType().toString()));
+        if (DataUtils.isNullObject(transactionType)) {
+            throw new ResourceNotFoundException("transaction Type " + profile.getType().toString() + " not found");
+        }
+
         profileHistory.setProfileId(item.getProfileId());
-        profileHistory.setDepartmentCode(department.getCode());
+        profileHistory.setDepartmentId(department.getId());
         profileHistory.setTimeReceived(LocalDateTime.now());
         profileHistory.setStaffId(user.getId());
 
-        // DateTimeFormatter DATE_TIME_FORMATTER =
-        // DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         try {
             // check account admin or not
             if (item.username.toLowerCase().contains("admin")) {
                 profile.setState(ProfileStateEnum.DELEVERIED.getValue());
 
                 // check department
-                if (department.getName() == "QTTD") {
+                if (item.getCode() == "QTTD") {
                     if (profile.timeReceived_CM == null) {
                         profile.setTimeReceived_CM(LocalDateTime.now());
                     }
-                } else if (department.getName() == "GDKH") {
+                } else if (item.getCode() == "GDKH") {
                     if (profile.timeReceived_CT == null) {
                         profile.setTimeReceived_CT(LocalDateTime.now());
                     }
@@ -205,7 +216,7 @@ public class ProfileServiceImpl implements ProfileService {
                     save(firstItem);
 
                 } else {
-                    if (department.getName() == "QTTD") {
+                    if (item.getCode() == "QTTD") {
                         params.put("staffId_CM", user.getId());
                         count = count(params);
                         if (count == 1) {
@@ -243,7 +254,7 @@ public class ProfileServiceImpl implements ProfileService {
                             profile.setState(ProfileStateEnum.PROCESSING.getValue());
                             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
                         }
-                    } else if (department.getName() == "GDKH") {
+                    } else if (item.getCode() == "GDKH") {
                         params.put("staffId_CT", user.getId());
                         count = count(params);
                         if (count == 1) {
@@ -256,7 +267,8 @@ public class ProfileServiceImpl implements ProfileService {
                     }
                 }
             }
-            save(profile);
+            ProfileDTO dto = save(profile);
+            profileHistory.setProfileId(dto.getId());
             profileHistoryService.save(profileHistory);
             return true;
         } catch (Exception e) {
@@ -267,30 +279,25 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public Boolean assigneProfie(ProfileDTO item) {
-        // TODO Auto-generated method stub
+    public ProfileDTO saveHistory(ConfirmRequest item) {
         try {
-            ProfileDTO dto = findById(item.getId());
-            ProfileHistoryDTO historyDto = new ProfileHistoryDTO();
-            UserDTO user = userService.findByUsername(item.username);
-            if (dto == null) {
-                throw new ResourceNotFoundException("Profile " + item.id + " not found");
-            }
-            historyDto.setTimeReceived(LocalDateTime.now());
-            historyDto.setStaffId(user.getId());
-            historyDto.setState(item.getState());
-            historyDto.setDepartmentCode(user.getDepartmentCode());
-            historyDto.setCreatedBy(user.getFullName());
-            historyDto.setCreatedDate(user.getCreatedDate());
-            profileHistoryService.save(historyDto);
-            return true;
-
+            ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
+            UserDTO user = userService.findByUsername(item.getUsername());
+            DepartmentDTO department = departmentService.findByCode(item.getCode());
+            profileHistory.setDepartmentCode(department.getCode());
+            profileHistory.setTimeReceived(LocalDateTime.now());
+            profileHistory.setStaffId(user.getId());
+            profileHistory.setState(item.profile.getState());
+            ProfileDTO dto = save(item.profile);
+            profileHistory.setProfileId(dto.getId());
+            profileHistoryService.save(profileHistory);
+            return dto;
         } catch (Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
-            return false;
+            return null;
         }
-
+       
     }
 
 }

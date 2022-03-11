@@ -97,8 +97,9 @@ public class UsersController extends BaseController implements UserApi {
       return users;
   }
 
-  @GetMapping("/userByDepartment/{code}")
-  public List<UserDTO> getUserByDepartment(@PathVariable(value = "code") String code) {
+  @GetMapping("/userByDepartment")
+  public List<UserDTO> getUserByDepartment(@RequestParam Map<String, Object> params) {
+      String code = params.get("code").toString();
       List<UserDTO> users = userService.findByCode(code);
       return users;
   }

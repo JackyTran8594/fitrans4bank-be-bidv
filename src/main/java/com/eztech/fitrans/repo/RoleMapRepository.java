@@ -24,4 +24,8 @@ public interface RoleMapRepository extends JpaRepository<RoleMap, Long> {
     @Query(value = "DELETE FROM role_map WHERE role_id = :roleId AND role_list_code IN :roleListCode", nativeQuery = true)
     Integer deleteRoleMap(@Param("roleId") Long roleId, @Param("roleListCode") List<String> roleListCode);
 
+
+    @Query(value = "SELECT * FROM role_map r WHERE r.role_id = :roleId", nativeQuery = true)
+    List<RoleMap> findByRoleId(@Param("roleId") Long roleId);
+
 }

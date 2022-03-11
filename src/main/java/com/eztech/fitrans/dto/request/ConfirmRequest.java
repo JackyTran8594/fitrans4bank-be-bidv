@@ -19,5 +19,7 @@ public class   ConfirmRequest implements Serializable {
     public String username;
     public String code;
     public Boolean isFinished;
+
+    public ProfileDTO profile;
 }
 

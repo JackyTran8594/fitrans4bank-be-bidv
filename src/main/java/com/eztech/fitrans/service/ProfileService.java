@@ -7,7 +7,9 @@ import java.util.Map;
 
 public interface ProfileService {
 
-  ProfileDTO save(ProfileDTO product);
+  ProfileDTO save(ProfileDTO profile);
+
+  ProfileDTO saveHistory(ConfirmRequest confirmRequest);
 
   void deleteById(Long id);
 
@@ -24,9 +26,6 @@ public interface ProfileService {
   List<ProfileDTO> dashboard();
 
   Boolean confirmProfile(ConfirmRequest req);
-
-  Boolean assigneProfie(ProfileDTO item);
-
   
 
 }

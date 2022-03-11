@@ -32,7 +32,7 @@ public class ProfileDTO implements Serializable {
     public String typeEnum; // Mức độ
     public Integer priority; // Mức độ
     public ProfilePriorityEnum priorityValue; // Mức độ
-
+    public Integer transactionType;
     // private String companyName;
 
     // Tinh trang ho so
@@ -134,7 +134,8 @@ public class ProfileDTO implements Serializable {
             String note,
             Integer additionalTime,
             String staffNameCM,
-            String staffNameCT
+            String staffNameCT,
+            Integer transactionType
            ) {
         this.id = id;
         this.customerid = customerid;
@@ -182,6 +183,7 @@ public class ProfileDTO implements Serializable {
         this.additionalTime = additionalTime;
         this.staffNameCM = staffNameCM;
         this.staffNameCT = staffNameCT;
+        this.transactionType = transactionType;
     }   
 
     public void fillTransient() {

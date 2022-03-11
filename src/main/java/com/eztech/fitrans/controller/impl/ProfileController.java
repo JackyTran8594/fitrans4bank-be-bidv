@@ -25,8 +25,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,12 +49,14 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -120,14 +127,14 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @Override
   @PostMapping("")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  // @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ProfileDTO create(@RequestBody ProfileDTO item) {
     return service.save(item);
   }
 
   @Override
   @PutMapping("/{id}")
-  @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+  // @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
   public ProfileDTO update(@PathVariable(value = "id") Long id, @RequestBody ProfileDTO item) {
     item.setId(id);
     return service.save(item);
@@ -142,10 +149,9 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @PostMapping("/exportDoc")
   public ResponseEntity<InputStreamResource> exportDoc(@RequestParam Map<String, Object> mapParam,
-      @RequestBody ProfileDTO item) throws FileNotFoundException {
+      @RequestBody ProfileDTO item) throws FileNotFoundException, IOException {
 
     String username = mapParam.get("username").toString();
-    MediaType mediaType = MediaType.APPLICATION_JSON;
     Map<String, ProfileListDTO> mapParams = new HashMap<>();
     String[] categoryId = item.categoryProfile.split(",");
     for (String str : categoryId) {
@@ -156,10 +162,23 @@ public class ProfileController extends BaseController implements ProfileApi {
     }
 
     File file = readandwrite.ExportDocFile(item, username, mapParams);
+  
+    HttpHeaders respHeaders = new HttpHeaders();
+    // respHeaders.setContentType(new MediaType("text", "json"));
+    respHeaders.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+    respHeaders.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+
+    // Path path = Paths.get(file.getAbsolutePath());
+    // ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
     InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(file));
+    // return ResponseEntity.ok()
+    //     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName()+ ".docx")
+    //     .contentType(mediaType)
+    //     .contentLength(file.length())
+    //     .body(inputStreamResource);
     return ResponseEntity.ok()
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
-        .contentType(mediaType)
+        .headers(respHeaders)
+        .contentType(MediaType.parseMediaType("application/octet-stream"))
         .contentLength(file.length())
         .body(inputStreamResource);
 
@@ -178,135 +197,23 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/returnProfile")
-  public ProfileDTO returnProfile(@RequestBody ProfileDTO item) {
-    return service.save(item);
+  public ProfileDTO returnProfile(@RequestBody ConfirmRequest item) {
+    return service.saveHistory(item);
   }
 
   @PostMapping("/transferProfile")
-  public ProfileDTO transferProfile(@RequestBody ProfileDTO item) {
-    return service.save(item);
+  public ProfileDTO transferProfile(@RequestBody ConfirmRequest item) {
+    return service.saveHistory(item);
   }
 
   @PostMapping("/assignProfile")
-  public Boolean assignProfile(@RequestBody ProfileDTO item) {
-    return service.assigneProfie(item);
+  public ProfileDTO assignProfile(@RequestBody ConfirmRequest item) {
+    return service.saveHistory(item);
   }
 
   @PostMapping("/confirmProfile")
   public Boolean confirmProfile(@RequestBody ConfirmRequest item) {
-    ProfileDTO profile = service.findById(item.getProfileId());
-    // List<ProfileDTO> profiles = service.
-    UserDTO user = userService.findByUsername(item.getUsername());
-    DepartmentDTO department = departmentService.findByCode(item.getCode());
-    ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
-    TransactionTypeDTO transactionType = transactionTypeService.findById(Long.parseLong(profile.getType().toString()));
-
-    profileHistory.setProfileId(item.getProfileId());
-    profileHistory.setDepartmentCode(department.getCode());
-    profileHistory.setTimeReceived(LocalDateTime.now());
-    profileHistory.setStaffId(user.getId());
-
-    DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-    // check account admin or not
-    if (item.username.toLowerCase().contains("admin")) {
-      profile.setState(ProfileStateEnum.DELEVERIED.getValue());
-
-      // check department
-      if (department.getName() == "QTTD") {
-        if (profile.timeReceived_CM == null) {
-          profile.setTimeReceived_CM(LocalDateTime.now());
-        }
-      } else if (department.getName() == "GDKH") {
-        if (profile.timeReceived_CT == null) {
-          profile.setTimeReceived_CT(LocalDateTime.now());
-        }
-      }
-
-    } else {
-      Map<String, Object> params = new HashMap<>();
-      Long count = null;
-      params.put("state", ProfileStateEnum.PROCESSING.getValue());
-      // checking: transaction is finished
-      if (item.getIsFinished()) {
-        profile.setState(ProfileStateEnum.FINISHED.getValue());
-        profileHistory.setState(ProfileStateEnum.FINISHED.getValue());
-        profile.setEndTime(LocalDateTime.now());
-        // update first row is processing
-        params.put("state", ProfileStateEnum.WAITING.getValue());
-        ProfileDTO firstItem = service.search(params).get(0);
-        firstItem.setState(ProfileStateEnum.PROCESSING.getValue());
-        service.save(firstItem);
-
-      } else {
-        if (department.getName() == "QTTD") {
-          params.put("staffId_CM", user.getId());
-          count = service.count(params);
-          if (count == 1) {
-            profile.setState(ProfileStateEnum.WAITING.getValue());
-            profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-            LocalDateTime processTime = profileHistory.timeReceived
-                .plusMinutes(transactionType.getStandardTimeCM() + transactionType.getStandardTimeChecker());
-            Integer additionalTime = 0;
-
-            // check transaction type
-            switch (profile.getType()) {
-              case 1:
-                if (profile.getNumberOfPO() >= 2) {
-                  additionalTime = additionalTime + 5 * profile.getNumberOfPO();
-                }
-                if (profile.getNumberOfBill() >= 2) {
-                  additionalTime = additionalTime + 1 * profile.getNumberOfBill();
-                }
-                break;
-              case 2:
-                if (profile.getNumberOfPO() >= 2) {
-                  additionalTime = additionalTime + 5 * profile.getNumberOfPO();
-                }
-                if (profile.getNumberOfBill() >= 2) {
-                  additionalTime = additionalTime + 1 * profile.getNumberOfBill();
-                }
-                break;
-              default:
-                break;
-            }
-            // if (profile.getType() == 1) {
-
-            // }
-
-            processTime = processTime.plusMinutes(additionalTime);
-
-            profile.setProcessDate(processTime);
-
-          } else if (count == 0) {
-            profile.setState(ProfileStateEnum.PROCESSING.getValue());
-            profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-          }
-        } else if (department.getName() == "GDKH") {
-          params.put("staffId_CT", user.getId());
-          count = service.count(params);
-          if (count == 1) {
-            profile.setState(ProfileStateEnum.WAITING.getValue());
-            profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-          } else if (count == 0) {
-            profile.setState(ProfileStateEnum.PROCESSING.getValue());
-            profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-          }
-
-        }
-
-      }
-
-    }
-    service.save(profile);
-    historyService.save(profileHistory);
-    return true;
-  }
-
-  @PostMapping("/isFinished")
-  public Boolean isFinished(@RequestBody ConfirmRequest item) {
-    return true;
-
+    return service.confirmProfile(item);
   }
 
   @GetMapping("/getInfo")

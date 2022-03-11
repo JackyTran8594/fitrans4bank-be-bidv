@@ -2,7 +2,9 @@ package com.eztech.fitrans.service.impl;
 
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
+import com.eztech.fitrans.model.RoleMap;
 import com.eztech.fitrans.model.UserEntity;
+import com.eztech.fitrans.repo.RoleMapRepository;
 import com.eztech.fitrans.repo.RoleRepository;
 import com.eztech.fitrans.repo.UserRepository;
 import com.eztech.fitrans.service.UserService;
@@ -39,26 +41,21 @@ public class UserServiceImpl implements UserService {
             dto.setStatus(entity.getStatus());
 
             oldEntity = mapper.toPersistenceBean(dto);
-            
+            repository.save(oldEntity);
             if(!DataUtils.isNullOrEmpty(dto.getRoleId())) {
-                Boolean isSave = repository.updateUserRole(dto.getId(), dto.getRoleId());
-                if(isSave.equals(false)) {
-                    throw new ResourceNotFoundException("User " + entity.getId() + " not found");
-                }
+                repository.updateUserRole(dto.getId(), dto.getRoleId());
             }
 
         }else{
             oldEntity = mapper.toPersistenceBean(entity);
-            // repository.save(oldEntity);
-            // if(!DataUtils.isNullOrEmpty(entity.getRoleId())) {
-            //     Boolean isSave = repository.updateUserRole(dto.getId(), dto.getRoleId());
-            //     if(isSave.equals(false)) {
-            //         throw new ResourceNotFoundException("User " + entity.getId() + " not found");
-            //     }
-            // }
+            oldEntity = repository.save(oldEntity);
+            if(!DataUtils.isNullOrEmpty(entity.getRoleId())) {
+                repository.createUserRole(oldEntity.getId(), entity.getRoleId());
+            }
+
         }
 
-        return mapper.toDtoBean(repository.save(oldEntity));
+        return mapper.toDtoBean(oldEntity);
     }
 
     @Override

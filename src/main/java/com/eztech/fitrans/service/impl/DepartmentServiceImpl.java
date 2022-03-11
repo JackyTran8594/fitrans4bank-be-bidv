@@ -79,6 +79,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentDTO findByCode(String code) {
-        return departmentRepository.findByCode(code);
+        Department data = departmentRepository.findByCode(code);
+        return mapper.toDtoBean(data);
     }
 }

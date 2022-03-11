@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -74,9 +75,10 @@ public class ReadAndWriteDoc {
             URL resource = getClass().getClassLoader().getResource("template/BIDV_Template.docx");
             URL image = getClass().getClassLoader().getResource("template/bidv.png");
             URL rootFolder = getClass().getClassLoader().getResource("template");
-            String outFile = "C:\\BIDV\\BBBG_" + username + "_" + Timestamp.valueOf(LocalDateTime.now());
-            File outputFile = new File(outFile);
-
+            String folder = "C:\\BIDV_BBBG\\";
+            String filename = "BBBG_" + username + "_" + Timestamp.valueOf(LocalDateTime.now()).getTime() + ".docx";
+            File outputFile = new File(folder + filename);
+            ;
             if (resource == null) {
                 throw new IllegalArgumentException("file not found");
             } else {
@@ -225,7 +227,12 @@ public class ReadAndWriteDoc {
                         }
 
                     }
-                    if (!outputFile.exists()) {
+
+                    // File fileOuput = new File(folder + filename);
+                    if (!Files.isDirectory(Paths.get(folder))) {
+                        new File(folder).mkdir();
+                        outputFile.createNewFile();
+                    } else {
                         outputFile.createNewFile();
                     }
                     FileOutputStream outpuStream = new FileOutputStream(outputFile);
