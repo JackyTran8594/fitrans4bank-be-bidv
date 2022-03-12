@@ -101,7 +101,11 @@ public class StaffContactRepositoryCustomImpl extends BaseCustomRepository<Staff
 
         if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
             sb.append(
-                    " AND (UPPER(staffCM.cif) LIKE :txtSearch OR UPPER(staffCM.staff_id_cm) LIKE :txtSearch OR UPPER(staffCM.cif) LIKE :txtSearch OR UPPER(staffCM.full_name) LIKE :txtSearch OR UPPER(staffCustomer.full_name) LIKE :txtSearch OR UPPER(staffCT.full_name) LIKE :txtSearch) ");
+                    " AND (UPPER(staffCM.cif) LIKE :txtSearch OR UPPER(staffCM.staff_id_cm) LIKE :txtSearch " +
+                            "OR UPPER(staffCM.customer_id) LIKE :txtSearch " +
+                            "OR UPPER(staffCM.cif) LIKE :txtSearch OR UPPER(staffCM.full_name) LIKE :txtSearch " +
+                            "OR UPPER(staffCustomer.full_name) LIKE :txtSearch " +
+                            "OR UPPER(staffCT.full_name) LIKE :txtSearch) ");
             parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
         }
 
