@@ -51,8 +51,10 @@ public class UserServiceImpl implements UserService {
             oldEntity = mapper.toPersistenceBean(dto);
             repository.save(oldEntity);
             if(!DataUtils.isNullOrEmpty(dto.getRoleId())) {
+                repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
                 repository.updateUserRole(dto.getId(), dto.getRoleId());
             } else {
+                repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
                 repository.createUserRole(dto.getId(), entity.getRoleId());
             }
 
