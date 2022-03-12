@@ -49,6 +49,10 @@ public class UserServiceImpl implements UserService {
             dto.setLastUpdatedDate(LocalDateTime.now());
 
             oldEntity = mapper.toPersistenceBean(dto);
+
+            if(DataUtils.isNullOrEmpty(oldEntity.getPassword())){
+                oldEntity.setPassword("$2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6");
+            }
             repository.save(oldEntity);
             if(!DataUtils.isNullOrEmpty(dto.getRoleId())) {
                 repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
@@ -61,7 +65,6 @@ public class UserServiceImpl implements UserService {
         }else{
             entity.setLastUpdatedDate(LocalDateTime.now());;
             oldEntity = mapper.toPersistenceBean(entity);
-            
             oldEntity = repository.save(oldEntity);
             if(!DataUtils.isNullOrEmpty(entity.getRoleId())) {
                 repository.createUserRole(oldEntity.getId(), entity.getRoleId());
