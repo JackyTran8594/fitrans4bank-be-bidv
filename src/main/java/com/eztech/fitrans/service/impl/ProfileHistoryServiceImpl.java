@@ -69,6 +69,7 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
     public List<ProfileHistoryDTO> findAll() {
         List<ProfileHistory> listData = repository.findAll();
         List<ProfileHistoryDTO> list = mapper.toDtoBean(listData);
+        
         list.stream()
                 .forEach(item -> item.fillTransient());
         return list;

@@ -167,15 +167,7 @@ public class ProfileController extends BaseController implements ProfileApi {
     // respHeaders.setContentType(new MediaType("text", "json"));
     respHeaders.setCacheControl("must-revalidate, post-check=0, pre-check=0");
     respHeaders.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
-
-    // Path path = Paths.get(file.getAbsolutePath());
-    // ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
     InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(file));
-    // return ResponseEntity.ok()
-    //     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName()+ ".docx")
-    //     .contentType(mediaType)
-    //     .contentLength(file.length())
-    //     .body(inputStreamResource);
     return ResponseEntity.ok()
         .headers(respHeaders)
         .contentType(MediaType.parseMediaType("application/octet-stream"))
