@@ -20,4 +20,7 @@ public interface RoleRepository extends JpaRepository<Role, Long>, RoleRepositor
     @Query(value = "DELETE  FROM role WHERE id IN :ids", nativeQuery = true)
     Integer delete(@Param("ids") List<Long> id);
 
+    @Query(value = "SELECT count(*) FROM user_role WHERE role_id = :id", nativeQuery = true)
+    Long countUserByRole(@Param("id") Long id);
+
 }

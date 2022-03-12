@@ -1,10 +1,9 @@
 package com.eztech.fitrans.service.impl;
 
-import com.eztech.fitrans.dto.response.MenuRoleTreeDTO;
-import com.eztech.fitrans.dto.response.RoleDTO;
-import com.eztech.fitrans.dto.response.RoleTreeDTO;
-import com.eztech.fitrans.dto.response.UserDTO;
+import com.eztech.fitrans.dto.response.*;
+import com.eztech.fitrans.exception.BusinessException;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
+import com.eztech.fitrans.locale.Translator;
 import com.eztech.fitrans.model.Role;
 import com.eztech.fitrans.model.RoleList;
 import com.eztech.fitrans.model.RoleMap;
@@ -25,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.eztech.fitrans.constants.Constants.MsgKey.MS0001;
 
 @Service
 @Slf4j
@@ -70,13 +71,24 @@ public class RoleServiceImpl implements RoleService {
         if (dto == null) {
             throw new ResourceNotFoundException("Role " + id + " not found");
         }
+        validateDelete(id);
         repository.deleteById(id);
+    }
+
+    private void validateDelete(Long id) {
+        Long count = repository.countUserByRole(id);
+        if (0L < count) {
+            throw new BusinessException(ErrorCodeEnum.ER9999, "Nhóm quyền đang được sử dụng!");
+        }
     }
 
     @Override
     @Transactional
     public void deleteById(List<Long> ids) {
-        if(DataUtils.notNullOrEmpty(ids)){
+        if (DataUtils.notNullOrEmpty(ids)) {
+            for(Long id: ids){
+                validateDelete(id);
+            }
             repository.delete(ids);
             roleMapRepository.deleteRoleMap(ids);
         }
