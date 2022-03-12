@@ -35,7 +35,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
 
   
   @Modifying
-  @Transactional
   @Query(value = "UPDATE user_role SET role_id = :roleId  WHERE user_id = :userId", nativeQuery = true)
   Integer updateUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
 
@@ -43,6 +42,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
   @Transactional
   @Query(value = "INSERT INTO user_role (user_id, role_id) VALUES (:userId, :roleId)", nativeQuery = true)
   Integer createUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
+
+  @Modifying
+  @Query(value = "DELETE FROM user_role WHERE user_id = :userId AND role_id != :roleId", nativeQuery = true)
+  Integer deleteByRoleUser(@Param("userId") Long userId, @Param("roleId") Long roleId);
 
   @Modifying
   @Transactional
