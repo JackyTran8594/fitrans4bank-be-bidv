@@ -34,11 +34,14 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
   Long findRoleIdByUserId(@Param("userId") Long userId);
 
   
+  @Modifying
+  @Transactional
   @Query(value = "UPDATE user_role SET role_id = :roleId  WHERE user_id = :userId", nativeQuery = true)
   Integer updateUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
 
-  
-  @Query(value = "INSERT INTO(userId, roleId) VALUES (:userId, :roleId)", nativeQuery = true)
+  @Modifying
+  @Transactional
+  @Query(value = "INSERT INTO user_role (user_id, role_id) VALUES (:userId, :roleId)", nativeQuery = true)
   Integer createUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
 
   @Modifying

@@ -64,8 +64,10 @@ public class UserRepositoryCustomImpl extends BaseCustomRepository<UserEntity> i
                     .append("FROM user_entity os\n")
                     .append("WHERE 1=1 ");
         } else {
-            sb.append("SELECT os.id,os.username,os.email,os.full_name,os.position,os.department_id,os.status,os.last_updated_by,os.last_updated_date,d.code, d.name \n")
+            sb.append("SELECT os.id,os.username,os.email,os.full_name,os.position,os.department_id,os.status,os.last_updated_by,os.last_updated_date,d.code, d.name, r.id as role_id, r.name as role_name \n")
                     .append("FROM user_entity os left join department d on os.department_id = d.id AND d.status = 'ACTIVE' \n")
+                    .append("left join user_role ur on ur.user_id = os.id \n")
+                    .append("left join role r on r.id = ur.role_id \n")
                     .append("WHERE 1=1 ");
         }
 
@@ -92,6 +94,11 @@ public class UserRepositoryCustomImpl extends BaseCustomRepository<UserEntity> i
         if (paramNotNullOrEmpty(paramSearch, "fullName")) {
             sb.append(" AND UPPER(os.full_name) LIKE :fullName ");
             parameters.put("fullName", formatLike((String) paramSearch.get("fullName")).toUpperCase());
+        }
+
+        if (paramNotNullOrEmpty(paramSearch, "roleName")) {
+            sb.append(" AND UPPER(r.name) LIKE :roleName ");
+            parameters.put("roleName", formatLike((String) paramSearch.get("roleName")).toUpperCase());
         }
 
         if (paramNotNullOrEmpty(paramSearch, "status")) {

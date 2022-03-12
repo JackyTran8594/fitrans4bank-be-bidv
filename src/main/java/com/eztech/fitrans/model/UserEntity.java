@@ -39,7 +39,9 @@ import lombok.NoArgsConstructor;
 								@ColumnResult(name = "last_updated_by", type = String.class),
 								@ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
 								@ColumnResult(name = "code", type = String.class),
-								@ColumnResult(name = "name", type = String.class)
+								@ColumnResult(name = "name", type = String.class),
+								@ColumnResult(name = "role_id", type = Long.class),
+								@ColumnResult(name = "role_name", type = String.class)
 						}
 				)
 		}
@@ -59,7 +61,7 @@ public class UserEntity {
 	@Column(name = "`phoneNumber`")
 	private String phoneNumber;
 	@Column(name = "`department_id`")
-	private Long deparmentId;	//phong ban
+	private Long departmentId;	//phong ban
 	@Column(name = "`position`")
 	private String position;	//Chuc vu
 	@Column(name = "`email`")
