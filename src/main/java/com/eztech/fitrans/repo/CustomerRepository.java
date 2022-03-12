@@ -12,7 +12,11 @@ import java.util.List;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long>, CustomerRepositoryCustom {
-     List<Customer> findByCif(String cif);
+     
+     // @Query(value = "SELECT * FROM customer WHERE cif LIKE :cif", nativeQuery = true)
+     // List<Customer> findByCif(@Param("cif") String cif);
+     List<Customer> findByCifContains(String cif);
+     
 
      @Modifying
      @Transactional

@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
             dto.setStatus(entity.getStatus());
             dto.setPhoneNumber(entity.getPhoneNumber());
             dto.setLastUpdatedDate(LocalDateTime.now());
-
+            dto.setRoleId(entity.getRoleId());
             oldEntity = mapper.toPersistenceBean(dto);
             repository.save(oldEntity);
             if(!DataUtils.isNullOrEmpty(dto.getRoleId())) {

@@ -117,7 +117,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     public List<CustomerDTO> findByCif(String cif) {
-        List<Customer> customerEntity = repository.findByCif(cif);
+        List<Customer> customerEntity = repository.findByCifContains(cif.trim());
         List<CustomerDTO> customerDTO = mapper.toDtoBean(customerEntity);
         customerDTO.stream().forEach(customer -> customer.fillTransient());
         return customerDTO;

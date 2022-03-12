@@ -62,13 +62,25 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
   public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
       boolean count) {
     StringBuilder sb = new StringBuilder();
+    String sql_select = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct, p.time_received_cm, p.end_time, "
+    +
+    "p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,p.created_date,p.last_updated_by,"
+    +
+    "p.last_updated_date,p.status,p.state, p.profile_process_state, p.review, p.notify_by_email ,p.cif,c.name as customer_name, u.full_name  as staff_name, p.review_note, "
+    +
+    "p.note, p.additional_time,  ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type \n";
     if (count) {
-      sb.append("SELECT COUNT(id) \n")
-          .append("FROM profile os\n")
+      sb.append("SELECT COUNT(p.id) \n")
+      .append(
+        "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n")
+    .append("left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n")
+    .append("left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n")
+    .append("left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n")
+    .append("left join transaction_type trans on trans.id = p.type \n")
           .append("WHERE 1=1 ");
     } else {
-      sb.append(
-          "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct, p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.profile_process_state, p.review, p.notify_by_email ,p.cif,c.name as customer_name, u.full_name  as staff_name, p.review_note, p.note, p.additional_time,  ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type \n")
+     
+      sb.append(sql_select)
           .append(
               "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n")
           .append("left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n")
@@ -79,49 +91,14 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     }
 
-    if (paramSearch.containsKey("id")) {
-      sb.append(" AND p.id = :id ");
-      parameters.put("id", DataUtils.parseToLong(paramSearch.get("id")));
-    }
-
-    if (paramNotNullOrEmpty(paramSearch, "cif")) {
-      sb.append(" AND p.cif LIKE :cif ");
-      parameters.put("cif", formatLike((String) paramSearch.get("cif")).toLowerCase());
-    }
-
-    if (paramSearch.containsKey("customerId")) {
-      sb.append(" AND p.customer_id = :customerId ");
-      parameters.put("customerId", DataUtils.parseToLong(paramSearch.get("customerId")));
-    }
-
-    if (paramSearch.containsKey("staffId")) {
-      sb.append(" AND p.staff_id = :staffId ");
-      parameters.put("staffId", DataUtils.parseToLong(paramSearch.get("staffId")));
-    }
-
-    if (paramSearch.containsKey("staffId")) {
-      sb.append(" AND p.staff_id = :staffId ");
-      parameters.put("staffId", DataUtils.parseToLong(paramSearch.get("staffId")));
-    }
-
-    if (paramSearch.containsKey("transactionType")) {
-      sb.append(" AND trans.type = :transactionType ");
-      parameters.put("transactionType", DataUtils.parseToInt(paramSearch.get("transactionType")));
-    }
-
-    if (paramSearch.containsKey("staffId_CT")) {
-      sb.append(" AND p.staff_id_ct = :staffId_CT ");
-      parameters.put("staffId_CT", DataUtils.parseToLong(paramSearch.get("staffId_CT")));
-    }
-
-    if (paramNotNullOrEmpty(paramSearch, "status")) {
-      sb.append(" AND p.status = :status ");
-      parameters.put("status", paramSearch.get("status"));
-    }
-
-    if (paramNotNullOrEmpty(paramSearch, "review")) {
-      sb.append(" AND p.review = :review ");
-      parameters.put("review", paramSearch.get("review"));
+    String sql_search_name = "AND (p.cif LIKE :txtSearch OR c.name LIKE :txtSearch OR u.full_name LIKE :txtSearch OR uct.full_name LIKE :txtSearch OR ucm.full_name LIKE :txtSearch "
+        +
+        "OR p.return_reason LIKE :txtSearch OR p.review_note LIKE :txtSearch OR p.note LIKE :txtSearch ";
+    String sql_search_value = "OR CAST(p.value AS varchar(100)) LIKE :txtSearch  OR CAST(p.type AS varchar(100))  LIKE :txtSearch  OR CAST(p.number_of_bill AS varchar(100))  LIKE :txtSearch "
+        + "OR CAST(p.number_of_po AS varchar(100)) LIKE :txtSearch OR CAST(p.state AS varchar(100)) LIKE :txtSearch) \n";
+    if (paramSearch.containsKey("txtSearch")) {
+      sb.append(sql_search_name).append(sql_search_value);
+      parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch").toString().toLowerCase()));
     }
 
     if (!count) {
@@ -146,33 +123,20 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
   @Override
   public ProfileDTO detailById(Long id) {
     Map<String, Object> parameters = new HashMap<>();
-    // String sql = "SELECT
-    // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.time_received_ct,
-    // p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct,
-    // p.number_of_bill, p.number_of_po, p.value, p.return_reason,
-    // p.category_profile,
-    // p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,
-    // p.profile_process_state, p.review, p.notify_by_email,p.cif,c.name as
-    // customer_name, s.name as staff_name, p.review_note, p.note, p.additional_time
-    // " +
-    // "FROM profile p left join customer c on p.customer_id = c.id AND c.status =
-    // 'ACTIVE' " +
-    // " left join user_entity u on p.staff_id = s.id AND s.status = 'ACTIVE' " +
-    // " where p.id = :id ";
 
-    String sql = "SELECT  p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.time_received_ct," + 
-    "p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct," +
-    "p.number_of_bill, p.number_of_po, p.value, p.return_reason, " +
-    "p.category_profile," + 
-    "p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state," +
-    "p.profile_process_state, p.review, p.notify_by_email,p.cif,c.name as customer_name," +
-    "u.full_name as staff_name, p.review_note, p.note, p.additional_time , ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type  \n"
+    String sql = "SELECT p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.time_received_ct," +
+        "p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct," +
+        "p.number_of_bill, p.number_of_po, p.value, p.return_reason, " +
+        "p.category_profile," +
+        "p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state," +
+        "p.profile_process_state, p.review, p.notify_by_email,p.cif,c.name as customer_name," +
+        "u.full_name as staff_name, p.review_note, p.note, p.additional_time , ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type  \n"
         +
         "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n" +
         "left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n" +
         "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
         "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
-        "left join transaction_type trans on trans.id = p.type \n"+
+        "left join transaction_type trans on trans.id = p.type \n" +
         "where p.id = :id ";
     parameters.put("id", id);
     ProfileDTO profileDTO = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
@@ -188,12 +152,13 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         +
         "p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.profile_process_state, p.review, p.notify_by_email ,"
         +
-        "p.cif,c.name as customer_name, u.full_name as staff_name, p.review_note, p.note, p.additional_time,  ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type \n" +
+        "p.cif,c.name as customer_name, u.full_name as staff_name, p.review_note, p.note, p.additional_time,  ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type \n"
+        +
         "FROM profile p left join customer c on p.customer_id = c.id AND c.status = 'ACTIVE' \n" +
         "left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n" +
         "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
         "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
-        "left join transaction_type trans on trans.id = p.type \n"+
+        "left join transaction_type trans on trans.id = p.type \n" +
         " where 1=1 ";
     return getResultList(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
   }
