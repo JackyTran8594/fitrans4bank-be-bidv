@@ -42,13 +42,14 @@ public class UserDTO implements Serializable {
   private String roles;
   private String roleName;
 
-  public UserDTO(Long id, String username, String email, String fullName,
+  public UserDTO(Long id, String username, String email, String fullName, String phoneNumber,
       String position, Long departmentId, String status,
       String lastUpdatedBy, LocalDateTime lastUpdatedDate, String departmentCode, String departmentName, Long roleId, String roleName) {
     this.id = id;
     this.username = username;
     this.email = email;
     this.fullName = fullName;
+    this.phoneNumber = phoneNumber;
     this.departmentId = departmentId;
     this.departmentName = departmentName;
     this.position = position;

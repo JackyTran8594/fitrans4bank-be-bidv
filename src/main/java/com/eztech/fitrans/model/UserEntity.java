@@ -6,19 +6,11 @@ import com.eztech.fitrans.constants.Constants;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.ColumnResult;
-import javax.persistence.ConstructorResult;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SqlResultSetMapping;
-
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -33,6 +25,7 @@ import lombok.NoArgsConstructor;
 								@ColumnResult(name = "username", type = String.class),
 								@ColumnResult(name = "email", type = String.class),
 								@ColumnResult(name = "full_name", type = String.class),
+								@ColumnResult(name = "phone_number", type = String.class),
 								@ColumnResult(name = "position", type = String.class),
 								@ColumnResult(name = "department_id", type = Long.class),
 								@ColumnResult(name = "status", type = String.class),
@@ -58,7 +51,7 @@ public class UserEntity {
 	private String password;
 	@Column(name = "`full_name`")
 	private String fullName;
-	@Column(name = "`phoneNumber`")
+	@Column(name = "`phone_number`")
 	private String phoneNumber;
 	@Column(name = "`department_id`")
 	private Long departmentId;	//phong ban

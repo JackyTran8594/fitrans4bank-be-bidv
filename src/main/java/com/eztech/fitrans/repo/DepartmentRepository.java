@@ -1,6 +1,5 @@
 package com.eztech.fitrans.repo;
 
-import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.model.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,5 +20,9 @@ public interface DepartmentRepository extends JpaRepository<Department, Long>,De
     @Transactional
     @Query(value = "DELETE  FROM department WHERE id IN :ids", nativeQuery = true)
     Integer delete(@Param("ids") List<Long> id);
+
+
+    @Query(value = "SELECT count(*) FROM user_entity WHERE department_id = :id AND status = 'ACTIVE'", nativeQuery = true)
+    Long countUserByDep(@Param("id") Long id);
 
 }

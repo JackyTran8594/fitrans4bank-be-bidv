@@ -1,28 +1,25 @@
 package com.eztech.fitrans.service.impl;
 
+import com.eztech.fitrans.constants.Constants;
+import com.eztech.fitrans.dto.response.OptionSetDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
-import com.eztech.fitrans.model.RoleMap;
 import com.eztech.fitrans.model.UserEntity;
-import com.eztech.fitrans.repo.RoleMapRepository;
-import com.eztech.fitrans.repo.RoleRepository;
 import com.eztech.fitrans.repo.UserRepository;
+import com.eztech.fitrans.service.OptionSetService;
 import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.DataUtils;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -30,6 +27,8 @@ public class UserServiceImpl implements UserService {
     private static final BaseMapper<UserEntity, UserDTO> mapper = new BaseMapper<>(UserEntity.class, UserDTO.class);
     @Autowired
     private UserRepository repository;
+    @Autowired
+    private OptionSetService optionSetService;
 
     @Override
     @Transactional
@@ -56,7 +55,10 @@ public class UserServiceImpl implements UserService {
             repository.save(oldEntity);
             if(!DataUtils.isNullOrEmpty(dto.getRoleId())) {
                 repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
-                repository.updateUserRole(dto.getId(), dto.getRoleId());
+                Integer updatedRole = repository.updateUserRole(dto.getId(), dto.getRoleId());
+                if(0 >= updatedRole){
+                    repository.createUserRole(dto.getId(), entity.getRoleId());
+                }
             } else {
                 repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
                 repository.createUserRole(dto.getId(), entity.getRoleId());
@@ -118,11 +120,17 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> search(Map<String, Object> mapParam) {
         List<UserDTO> list = repository.search(mapParam,UserDTO.class);
         if(DataUtils.notNullOrEmpty(list)){
+            Map<String,String> mapVitri = optionSetService.getMapValueByCode(Constants.OptionSetKey.VI_TRI, true);
             for(UserDTO dto: list){
                 List<String> listRole = repository.listRole(dto.getId());
                 dto.setListRole(listRole);
                 if(DataUtils.notNullOrEmpty(listRole)){
                     dto.setRoles(StringUtils.collectionToDelimitedString(listRole , " - "));
+                }
+
+                //Fill Chức vụ
+                if(mapVitri.containsKey(dto.getPosition())){
+                    dto.setPosition(mapVitri.get(dto.getPosition()));
                 }
             }
         }

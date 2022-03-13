@@ -23,10 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -66,7 +63,7 @@ public class OptionSetServiceImpl implements OptionSetService {
             throw new InputInvalidException(ErrorCodeEnum.ER0010, Translator.toMessage(Constants.MessageParam.OPTIONSET_DESC), 512);
         }
 
-        boolean checkExit = repository.checkExits(item.getId(),item.getCode());
+        boolean checkExit = repository.checkExits(item.getId(), item.getCode());
         if (checkExit) {
             throw new InputInvalidException(ErrorCodeEnum.ER0009, Translator.toMessage(Constants.MessageParam.OPTIONSET_CODE));
         }
@@ -148,6 +145,29 @@ public class OptionSetServiceImpl implements OptionSetService {
     }
 
     @Override
+    public Map getMapValueByCode(String code, boolean revertPr) {
+        Map<String, String> rtn = new HashMap<>();
+        try {
+            OptionSetDTO optionSetDTO = detailByCode(code);
+            List<OptionSetValueDTO> optionSetValueList = optionSetDTO.getOptionSetValueDTOList();
+            if (DataUtils.notNullOrEmpty(optionSetValueList)) {
+                if (revertPr) {
+                    for (OptionSetValueDTO valueDTO : optionSetValueList) {
+                        rtn.put(valueDTO.getValue(), valueDTO.getName());
+                    }
+                } else {
+                    for (OptionSetValueDTO valueDTO : optionSetValueList) {
+                        rtn.put(valueDTO.getName(), valueDTO.getValue());
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            log.warn(ex.getMessage(), ex);
+        }
+        return rtn;
+    }
+
+    @Override
     public List<OptionSetValueDTO> listByCode(String code) {
         List<OptionSet> list = repository.findByCodeAndStatus(code, Constants.ACTIVE);
         if (DataUtils.isNullOrEmpty(list)) {
@@ -180,11 +200,11 @@ public class OptionSetServiceImpl implements OptionSetService {
         return repository.count(mapParam);
     }
 
-    private void saveOptionSetValue(OptionSetDTO dto){
+    private void saveOptionSetValue(OptionSetDTO dto) {
         List<OptionSetValueDTO> optionSetValueDTOList = dto.getOptionSetValueDTOList();
-        optionSetValueRepository.updateStatusTmp(dto.getId(),Constants.INACTIVE);
-        if(DataUtils.notNullOrEmpty(optionSetValueDTOList)){
-            for(OptionSetValueDTO valueDTO: optionSetValueDTOList){
+        optionSetValueRepository.updateStatusTmp(dto.getId(), Constants.INACTIVE);
+        if (DataUtils.notNullOrEmpty(optionSetValueDTOList)) {
+            for (OptionSetValueDTO valueDTO : optionSetValueDTOList) {
                 valueDTO.setOptionSetId(dto.getId());
                 optionSetValueService.save(valueDTO);
             }
@@ -196,10 +216,9 @@ public class OptionSetServiceImpl implements OptionSetService {
         List<OptionSet> optionSets = repository.findAll();
         List<OptionSetValue> optionSetValues = optionSetValueRepository.findAll();
         for (OptionSet opt : optionSets) {
-            for (OptionSetValue value : optionSetValues)
-            {
+            for (OptionSetValue value : optionSetValues) {
                 OptionSetMasterData ms = new OptionSetMasterData();
-                if(opt.getId() == value.getOptionSetId()) {
+                if (opt.getId() == value.getOptionSetId()) {
                     ms.setCode(opt.getCode());
                     ms.setName(value.getName());
                     ms.setDescription(value.getDescription());

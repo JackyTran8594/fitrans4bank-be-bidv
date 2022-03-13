@@ -60,4 +60,9 @@ public class Constants {
         public static String MS0004 = "MS0004";
         public static String MS0005 = "MS0005";
     }
+
+    public static final class OptionSetKey {
+        public static String VI_TRI = "VI_TRI";
+        public static String LOAI_GIAO_DICH = "LOAI_GIAO_DICH";
+    }
 }
