@@ -173,7 +173,8 @@ public class ReadAndWriteDoc {
                             if (i == 0) {
                                 if (profile != null) {
 
-                                    String strUtf8 = convertJsonStringToUTF8(profile);
+                                    // String strUtf8 = convertJsonStringToUTF8(profile);
+                                    String strUtf8 = profile.getId().toString();
                                     byte[] imageByteArray = generateQRCode(strUtf8, 100, 100);
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray)) {
@@ -203,7 +204,8 @@ public class ReadAndWriteDoc {
 
                                 if (profile != null) {
 
-                                    String strUtf8 = convertJsonStringToUTF8(profile);
+                                    // String strUtf8 = convertJsonStringToUTF8(profile);
+                                    String strUtf8 = profile.getId().toString();
                                     byte[] imageByteArray = generateQRCode(strUtf8, 100, 100);
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray)) {

@@ -192,6 +192,7 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             // check account admin or not
             if (item.username.toLowerCase().contains("admin")) {
+              
                 profile.setState(ProfileStateEnum.RECEIVED.getValue());
                 profileHistory.setState(ProfileStateEnum.RECEIVED.getValue());
 
