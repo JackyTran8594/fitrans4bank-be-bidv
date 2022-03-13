@@ -122,7 +122,7 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
   }
 
   @Override
-  public List<ProfileHistoryDTO> deteilByIdAndState(Long id, Integer state) {
+  public List<ProfileHistoryDTO> deteilByIdAndState(Long id, List<Integer> state) {
     // TODO Auto-generated method stub
     try {
       Map<String, Object> parameters = new HashMap<>();
@@ -130,7 +130,7 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
           +
           "FROM profile_history p left join user_entity us on us.id = p.staff_id AND us.status = 'ACTIVE'\n"
           +
-          "WHERE p.profile_id = :id AND p.state = :state ";
+          "WHERE p.profile_id = :id AND p.state IN :state ";
       parameters.put("id", id);
       parameters.put("state", state);
       List<ProfileHistoryDTO> profilesHistory = getResultList(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);

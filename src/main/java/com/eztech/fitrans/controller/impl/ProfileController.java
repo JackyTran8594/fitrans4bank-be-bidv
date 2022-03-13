@@ -36,9 +36,12 @@ import java.security.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -211,7 +214,7 @@ public class ProfileController extends BaseController implements ProfileApi {
   @GetMapping("/getInfo")
   public List<ProfileHistoryDTO> getInfoByIdAndState(@RequestParam Map<String, Object> params) {
     Long id = Long.valueOf(params.get("id").toString());
-    Integer state = Integer.valueOf(params.get("state").toString());
+    List<Integer> state = Arrays.stream(params.get("state").toString().split(",")).map(Integer::parseInt).collect(Collectors.toList());
     List<ProfileHistoryDTO> profilesHistory = historyService.findByIdAndState(id, state);
     return profilesHistory;
   }

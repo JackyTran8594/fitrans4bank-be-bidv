@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProfileHistoryRepository extends JpaRepository<ProfileHistory, Long>, ProfileHistoryRepositoryCustom {
 
+    @Modifying
     @Query(value = "DELETE  FROM profile_history WHERE profile_id = :id", nativeQuery = true)
     Integer deleteByProfileId(@Param("id") Long id);
 

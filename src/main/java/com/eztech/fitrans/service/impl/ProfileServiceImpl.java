@@ -221,14 +221,14 @@ public class ProfileServiceImpl implements ProfileService {
                     
                     List<ProfileDTO> listData = repository.getProfileWithParams(params);
 
-                    if (DataUtils.isNullOrEmpty(listData)) {
+                    if (listData.size() == 1) {
                         ProfileDTO dto = listData.get(0);
                         dto.setState(ProfileStateEnum.PROCESSING.getValue());
                         save(dto);
                     }
 
                 } else {
-                    if (item.getCode() == "QTTD") {
+                    if (item.getCode().equals("QTTD")) {
                         params.put("staffId_CM", user.getId());
                         List<ProfileDTO> listData = repository.getProfileWithParams(params);
                         if (listData.size() == 1) {
@@ -266,7 +266,7 @@ public class ProfileServiceImpl implements ProfileService {
                             profile.setState(ProfileStateEnum.PROCESSING.getValue());
                             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
                         }
-                    } else if (item.getCode() == "GDKH") {
+                    } else if (item.getCode().equals("GDKH")) {
                         params.put("staffId_CT", user.getId());
                         List<ProfileDTO> listData = repository.getProfileWithParams(params);
                         if (listData.size() == 1) {
