@@ -48,6 +48,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
   Integer deleteByRoleUser(@Param("userId") Long userId, @Param("roleId") Long roleId);
 
   @Modifying
+  @Query(value = "DELETE FROM user_role WHERE user_id = :userId", nativeQuery = true)
+  Integer deleteByUserId(@Param("userId") Long userId);
+  
+  @Modifying
   @Transactional
   @Query(value = "DELETE  FROM user_entity WHERE id IN :ids", nativeQuery = true)
   Integer delete(@Param("ids") List<Long> id);

@@ -44,7 +44,7 @@ public class UserDTO implements Serializable {
 
   public UserDTO(Long id, String username, String email, String fullName,
       String position, Long departmentId, String status,
-      String lastUpdatedBy, LocalDateTime lastUpdatedDate, String departmentCode, String departmentName, Long roleId, String roleName) {
+      String lastUpdatedBy, LocalDateTime lastUpdatedDate, String departmentCode, String departmentName, Long roleId, String roleName, String phoneNumber) {
     this.id = id;
     this.username = username;
     this.email = email;
@@ -58,5 +58,6 @@ public class UserDTO implements Serializable {
     this.departmentCode = departmentCode;
     this.roleId = roleId;
     this.roleName = roleName;
+    this.phoneNumber = phoneNumber;
   }
 }

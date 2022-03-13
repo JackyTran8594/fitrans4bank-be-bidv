@@ -37,7 +37,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String generateToken(Authentication authentication, String role ,List<String> listPermission, String departmentCode) {
+    public String generateToken(Authentication authentication, String role ,List<String> listPermission, String departmentCode, String position) {
 
         LdapUserDetailsImpl userPrincipal = (LdapUserDetailsImpl) authentication.getPrincipal();
 
@@ -50,6 +50,7 @@ public class JwtTokenProvider {
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .claim("code", departmentCode)
+                .claim("position", position)
                 .claim("role", role)
                 .claim("permissions", listPermission)
                 .compact();

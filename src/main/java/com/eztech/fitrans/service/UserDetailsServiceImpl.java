@@ -101,4 +101,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		}
 		return role;
 	}
+
+	public String getPositionByUsername(String username) {
+		UserEntity user = repo.findByUsername(username);
+		if(user == null) {
+			throw new UsernameNotFoundException("Username not found with not found: " + username);
+		}
+		return user.getPosition();
+
+	}
 }

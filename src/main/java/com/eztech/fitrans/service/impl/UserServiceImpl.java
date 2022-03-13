@@ -48,17 +48,22 @@ public class UserServiceImpl implements UserService {
             dto.setPhoneNumber(entity.getPhoneNumber());
             dto.setLastUpdatedDate(LocalDateTime.now());
             dto.setRoleId(entity.getRoleId());
+            
             oldEntity = mapper.toPersistenceBean(dto);
-
+            
             if(DataUtils.isNullOrEmpty(oldEntity.getPassword())){
-                oldEntity.setPassword("$2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6");
+                if(oldEntity.getUsername().trim().toLowerCase()== "admin") {
+                    oldEntity.setPassword("$2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS");
+                } else {
+                    oldEntity.setPassword("$2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G");
+                }
             }
             repository.save(oldEntity);
             if(!DataUtils.isNullOrEmpty(dto.getRoleId())) {
-                repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
+                // repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
                 repository.updateUserRole(dto.getId(), dto.getRoleId());
             } else {
-                repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
+                // repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
                 repository.createUserRole(dto.getId(), entity.getRoleId());
             }
 
@@ -83,6 +88,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("User " + id + " not found");
         }
         repository.deleteById(id);
+        repository.deleteByUserId(id);
     }
 
     @Override

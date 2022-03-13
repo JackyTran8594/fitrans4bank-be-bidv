@@ -41,7 +41,8 @@ import lombok.NoArgsConstructor;
 								@ColumnResult(name = "code", type = String.class),
 								@ColumnResult(name = "name", type = String.class),
 								@ColumnResult(name = "role_id", type = Long.class),
-								@ColumnResult(name = "role_name", type = String.class)
+								@ColumnResult(name = "role_name", type = String.class),
+								@ColumnResult(name = "phone_number", type = String.class)
 						}
 				)
 		}

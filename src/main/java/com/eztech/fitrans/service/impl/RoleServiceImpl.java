@@ -73,6 +73,8 @@ public class RoleServiceImpl implements RoleService {
         }
         validateDelete(id);
         repository.deleteById(id);
+        // delete all mapping user_role with roleId
+        repository.deleteByRoleId(id);
     }
 
     private void validateDelete(Long id) {
