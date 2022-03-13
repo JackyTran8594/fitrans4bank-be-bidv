@@ -36,7 +36,6 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "state", type = Integer.class),
         @ColumnResult(name = "staff_name", type = String.class),
         @ColumnResult(name = "department_id", type = Long.class),
-        @ColumnResult(name = "department_name", type = String.class),
     })
 })
 public class ProfileHistory extends Auditable<String> implements Serializable {

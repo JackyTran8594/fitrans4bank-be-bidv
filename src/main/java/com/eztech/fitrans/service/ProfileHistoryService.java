@@ -14,6 +14,8 @@ public interface ProfileHistoryService {
 
   List<ProfileHistoryDTO> findByIdAndState(Long id, Integer state);
 
+  List<ProfileHistoryDTO> profileHistoryDetail(Long id);
+
   void deleteByProfileId(Long id);
 
 }

@@ -133,7 +133,28 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
           "WHERE p.profile_id = :id AND p.state = :state ";
       parameters.put("id", id);
       parameters.put("state", state);
-      List<ProfileHistoryDTO> profilesHistory = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);
+      List<ProfileHistoryDTO> profilesHistory = getResultList(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);
+      return profilesHistory;
+      
+    } catch (Exception e) {
+      //TODO: handle exception
+      return null;
+    }
+  
+  }
+
+  @Override
+  public List<ProfileHistoryDTO> profileHistoryDetail(Long id) {
+    // TODO Auto-generated method stub
+    try {
+      Map<String, Object> parameters = new HashMap<>();
+      String sql = "SELECT p.id, p.profile_id, p.staff_id, p.time_received, p.standard_time, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, p.state,us.full_name as staff_name, p.department_id \n"
+          +
+          "FROM profile_history p left join user_entity us on us.id = p.staff_id AND us.status = 'ACTIVE'\n"
+          +
+          "WHERE p.profile_id = :id ";
+      parameters.put("id", id);
+      List<ProfileHistoryDTO> profilesHistory = getResultList(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);
       return profilesHistory;
       
     } catch (Exception e) {

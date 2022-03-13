@@ -89,4 +89,10 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
         repository.deleteByProfileId(id);
 
     }
+
+    @Override
+    public List<ProfileHistoryDTO> profileHistoryDetail(Long id) {
+        List<ProfileHistoryDTO> profilesHistory = repository.profileHistoryDetail(id);
+        return profilesHistory;
+    }
 }

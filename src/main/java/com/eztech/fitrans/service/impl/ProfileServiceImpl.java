@@ -88,6 +88,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ProfileDTO save(ProfileDTO profile) {
         Profile entity;
+
         if (!DataUtils.nullOrZero(profile.getId())) {
             ProfileDTO dto = findById(profile.getId());
             if (dto == null) {
@@ -110,10 +111,12 @@ public class ProfileServiceImpl implements ProfileService {
             throw new ResourceNotFoundException("Profile " + id + " not found");
         }
         repository.deleteById(id);
-        ProfileHistoryDTO profileHis = profileHistoryService.findById(id);
-        if (profileHis != null) {
-            profileHistoryService.deleteByProfileId(id);
-        }
+        // List<ProfileHistoryDTO> profileHis =
+        // profileHistoryService.findByProfileId(id);
+        // if (profileHis != null) {
+        // profileHistoryService.deleteByProfileId(id);
+        // }
+        profileHistoryService.deleteByProfileId(id);
     }
 
     @Override
@@ -189,8 +192,8 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             // check account admin or not
             if (item.username.toLowerCase().contains("admin")) {
-                profile.setState(ProfileStateEnum.DELEVERIED.getValue());
-                profileHistory.setState(ProfileStateEnum.DELEVERIED.getValue());
+                profile.setState(ProfileStateEnum.RECEIVED.getValue());
+                profileHistory.setState(ProfileStateEnum.RECEIVED.getValue());
 
                 // check department
                 if (item.getCode() == "QTTD") {
@@ -214,15 +217,21 @@ public class ProfileServiceImpl implements ProfileService {
                     profile.setEndTime(LocalDateTime.now());
                     // update first row is processing
                     params.put("state", ProfileStateEnum.WAITING.getValue());
-                    ProfileDTO firstItem = search(params).get(0);
-                    firstItem.setState(ProfileStateEnum.PROCESSING.getValue());
-                    save(firstItem);
+                    params.put("username", item.getUsername());
+                    
+                    List<ProfileDTO> listData = repository.getProfileWithParams(params);
+
+                    if (DataUtils.isNullOrEmpty(listData)) {
+                        ProfileDTO dto = listData.get(0);
+                        dto.setState(ProfileStateEnum.PROCESSING.getValue());
+                        save(dto);
+                    }
 
                 } else {
                     if (item.getCode() == "QTTD") {
                         params.put("staffId_CM", user.getId());
-                        count = count(params);
-                        if (count == 1) {
+                        List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                        if (listData.size() == 1) {
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
                             LocalDateTime processTime = profileHistory.timeReceived
@@ -253,17 +262,17 @@ public class ProfileServiceImpl implements ProfileService {
 
                             profile.setProcessDate(processTime);
 
-                        } else if (count == 0) {
+                        } else if (listData.size() == 0) {
                             profile.setState(ProfileStateEnum.PROCESSING.getValue());
                             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
                         }
                     } else if (item.getCode() == "GDKH") {
                         params.put("staffId_CT", user.getId());
-                        count = count(params);
-                        if (count == 1) {
+                        List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                        if (listData.size() == 1) {
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-                        } else if (count == 0) {
+                        } else if (listData.size() == 0) {
                             profile.setState(ProfileStateEnum.PROCESSING.getValue());
                             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
                         }
@@ -289,10 +298,18 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ProfileDTO saveHistory(ConfirmRequest item) {
         try {
+
             ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
             UserDTO user = userService.findByUsername(item.getUsername());
+            if (DataUtils.isNullObject(user)) {
+                throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
+            }
             DepartmentDTO department = departmentService.findByCode(item.getCode());
+            if (DataUtils.isNullObject(department)) {
+                throw new ResourceNotFoundException("department " + department.getCode() + " not found");
+            }
             profileHistory.setDepartmentCode(department.getCode());
+            profileHistory.setDepartmentId(department.getId());
             profileHistory.setTimeReceived(LocalDateTime.now());
             profileHistory.setStaffId(user.getId());
             profileHistory.setState(item.profile.getState());

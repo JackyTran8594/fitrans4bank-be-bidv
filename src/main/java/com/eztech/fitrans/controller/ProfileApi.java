@@ -1,5 +1,6 @@
 package com.eztech.fitrans.controller;
 
+import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,7 +30,7 @@ public interface ProfileApi {
   ProfileDTO getById(Long id);
 
   @ApiOperation(value = "Create profile", response = ProfileDTO.class)
-  ProfileDTO create(ProfileDTO dto);
+  ProfileDTO create(ConfirmRequest dto);
 
   @ApiOperation(value = "Update profile by ID", response = ProfileDTO.class)
   ProfileDTO update(Long id, ProfileDTO dto);

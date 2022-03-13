@@ -128,8 +128,8 @@ public class ProfileController extends BaseController implements ProfileApi {
   @Override
   @PostMapping("")
   // @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-  public ProfileDTO create(@RequestBody ProfileDTO item) {
-    return service.save(item);
+  public ProfileDTO create(@RequestBody ConfirmRequest item) {
+    return service.saveHistory(item);
   }
 
   @Override
@@ -178,7 +178,7 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @GetMapping("/historyProfile/{id}")
   public List<ProfileHistoryDTO> getHistory(@PathVariable(value = "id") Long id) {
-    List<ProfileHistoryDTO> listData = historyService.findAll();
+    List<ProfileHistoryDTO> listData = historyService.profileHistoryDetail(id);
     return listData;
   }
 
