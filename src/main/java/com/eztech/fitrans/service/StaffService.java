@@ -17,4 +17,6 @@ public interface StaffService {
   List<StaffDTO> search(Map<String, Object> mapParam);
 
   Long count(Map<String, Object> mapParam);
+
+ 
 }

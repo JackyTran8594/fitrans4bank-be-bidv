@@ -1,6 +1,8 @@
 package com.eztech.fitrans.repo;
 
 import com.eztech.fitrans.model.Staff;
+import com.eztech.fitrans.model.StaffContact;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -20,16 +20,16 @@ import java.time.LocalDateTime;
         @ConstructorResult(targetClass = StaffContactDTO.class, columns = {
                 @ColumnResult(name = "id", type = Long.class),
                 @ColumnResult(name = "cif", type = String.class),
-                @ColumnResult(name = "customer_id", type = String.class),
+                @ColumnResult(name = "customer_id", type = Long.class),
                 @ColumnResult(name = "status", type = String.class),
                 @ColumnResult(name = "created_by", type = String.class),
                 @ColumnResult(name = "created_date", type = LocalDateTime.class),
                 @ColumnResult(name = "last_updated_by", type = String.class),
                 @ColumnResult(name = "last_updated_date", type = LocalDateTime.class),
                 @ColumnResult(name = "note", type = String.class),
-                @ColumnResult(name = "staff_id_cm", type = String.class),
-                @ColumnResult(name = "staff_id_ct", type = String.class),
-                @ColumnResult(name = "staff_id_customer", type = String.class),
+                @ColumnResult(name = "staff_id_cm", type = Long.class),
+                @ColumnResult(name = "staff_id_ct", type = Long.class),
+                @ColumnResult(name = "staff_id_customer", type = Long.class),
                 @ColumnResult(name = "staffNameCM", type = String.class),
                 @ColumnResult(name = "staffNameCustomer", type = String.class),
                 @ColumnResult(name = "staffNameCT", type = String.class),
@@ -43,13 +43,13 @@ public class StaffContact extends Auditable<String> implements Serializable {
     @Column(name = "cif")
     private String cif;
     @Column(name = "staff_id_cm")
-    private String staffIdCM;
+    private Long staffIdCM;
     @Column(name = "staff_id_ct")
-    private String staffIdCT;
+    private Long staffIdCT;
     @Column(name = "staff_id_customer")
-    private String staffIdCustomer;
+    private Long staffIdCustomer;
     @Column(name = "customer_id")
-    private String customerId;
+    private Long customerId;
     @Column(name = "note")
     private String note;
 }

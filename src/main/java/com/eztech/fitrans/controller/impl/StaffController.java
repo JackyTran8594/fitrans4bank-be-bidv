@@ -59,6 +59,8 @@ public class StaffController extends BaseController implements StaffApi {
     return dto;
   }
 
+  
+
   @Override
   @PostMapping("")
   public StaffDTO create(@RequestBody StaffDTO item) {
@@ -67,7 +69,7 @@ public class StaffController extends BaseController implements StaffApi {
 
   @Override
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  // @PreAuthorize("hasRole('ROLE_ADMIN')")
   public StaffDTO update(@PathVariable(value = "id") Long id, @RequestBody StaffDTO item) {
     item.setId(id);
     return service.save(item);

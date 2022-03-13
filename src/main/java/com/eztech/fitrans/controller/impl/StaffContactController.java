@@ -27,8 +27,8 @@ public class StaffContactController extends BaseController implements StaffConta
     @Override
     @GetMapping("")
     public Page<StaffContactDTO> getList(@RequestParam Map<String, Object> mapParam,
-                                         @RequestParam(value = "pageNumber") int pageNumber,
-                                         @RequestParam(value = "pageSize") int pageSize) {
+            @RequestParam(value = "pageNumber") int pageNumber,
+            @RequestParam(value = "pageSize") int pageSize) {
         List<StaffContactDTO> listData = new ArrayList<StaffContactDTO>();
         if (pageNumber > 0) {
             pageNumber = pageNumber - 1;
@@ -86,8 +86,17 @@ public class StaffContactController extends BaseController implements StaffConta
     @Override
     @GetMapping("/cif/{cif}")
     public Boolean getByCode(@PathVariable(value = "cif") String cif,
-                             @RequestParam(value = "id", required = false) Long id) {
+            @RequestParam(value = "id", required = false) Long id) {
         return staffContactService.findByCif(id, cif);
+    }
+
+    @GetMapping("/customer/{id}")
+    public StaffContactDTO getByCustomerId(@PathVariable(value = "id") Long id) {
+        StaffContactDTO dto = staffContactService.findByCustomerId(id);
+        if (dto == null) {
+            throw new ResourceNotFoundException("Staff " + id + " not found");
+        }
+        return dto;
     }
 
 }

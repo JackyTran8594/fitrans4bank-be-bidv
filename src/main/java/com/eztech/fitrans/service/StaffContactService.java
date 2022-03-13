@@ -20,4 +20,6 @@ public interface StaffContactService {
     Long count(Map<String, Object> mapParam);
 
     Boolean findByCif(Long id, String cif);
+
+    StaffContactDTO findByCustomerId(Long id);
 }

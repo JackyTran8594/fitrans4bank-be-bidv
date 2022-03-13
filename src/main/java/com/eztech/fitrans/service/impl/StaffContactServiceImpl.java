@@ -92,4 +92,13 @@ public class StaffContactServiceImpl implements StaffContactService {
         return repository.checkExits(id, cif);
     }
 
+    @Override
+    public StaffContactDTO findByCustomerId(Long id) {
+        StaffContact optional = repository.findByCustomerId(id);
+        if (optional == null) {
+            return null;
+        }
+        return mapper.toDtoBean(optional);
+    }
+
 }

@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StaffContactRepository extends JpaRepository<StaffContact, Long>, StaffContactRepositoryCustom {
 
+    StaffContact findByCustomerId(Long id);
 }

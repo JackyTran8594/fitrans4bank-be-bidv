@@ -20,13 +20,13 @@ import lombok.NoArgsConstructor;
 public class StaffContactDTO implements Serializable {
     public Long id;
     public String cif;
-    public String staffIdCM;
-    public String staffIdCT;
-    public String staffIdCustomer;
+    public Long staffIdCM;
+    public Long staffIdCT;
+    public Long staffIdCustomer;
     public String staffNameCM;
     public String staffNameCT;
     public String staffNameCustomer;
-    public String customerId;
+    public Long customerId;
     public String note;
     public String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -41,16 +41,16 @@ public class StaffContactDTO implements Serializable {
 
     public StaffContactDTO (Long id,
         String cif,
-        String customerId,
+        Long customerId,
         String status,
         String createdBy,
         LocalDateTime createdDate,
         String lastUpdatedBy,
         LocalDateTime lastUpdateDate,
         String note,
-        String staffIdCM,
-        String staffIdCT,
-        String staffIdCustomer,
+        Long staffIdCM,
+        Long staffIdCT,
+        Long staffIdCustomer,
         String staffNameCM,
         String staffNameCT,
         String staffNameCustomer
