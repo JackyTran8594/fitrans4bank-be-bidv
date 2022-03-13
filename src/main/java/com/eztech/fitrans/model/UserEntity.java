@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 								@ColumnResult(name = "username", type = String.class),
 								@ColumnResult(name = "email", type = String.class),
 								@ColumnResult(name = "full_name", type = String.class),
-								@ColumnResult(name = "phone_number", type = String.class),
 								@ColumnResult(name = "position", type = String.class),
 								@ColumnResult(name = "department_id", type = Long.class),
 								@ColumnResult(name = "status", type = String.class),

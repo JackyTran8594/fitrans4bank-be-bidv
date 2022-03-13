@@ -42,7 +42,7 @@ public class UserDTO implements Serializable {
   private String roles;
   private String roleName;
 
-  public UserDTO(Long id, String username, String email, String fullName, String phoneNumber,
+  public UserDTO(Long id, String username, String email, String fullName,
       String position, Long departmentId, String status,
       String lastUpdatedBy, LocalDateTime lastUpdatedDate, String departmentCode, String departmentName, Long roleId, String roleName, String phoneNumber) {
     this.id = id;
