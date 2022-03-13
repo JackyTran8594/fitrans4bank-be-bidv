@@ -1,6 +1,8 @@
 package com.eztech.fitrans.service.impl;
 
 import com.eztech.fitrans.dto.response.DepartmentDTO;
+import com.eztech.fitrans.dto.response.ErrorCodeEnum;
+import com.eztech.fitrans.exception.BusinessException;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Department;
 import com.eztech.fitrans.repo.DepartmentRepository;
@@ -50,6 +52,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         if (dto == null) {
             throw new ResourceNotFoundException("Department " + id + " not found");
         }
+        validateDelete(id);
         departmentRepository.deleteById(id);
     }
 
@@ -57,6 +60,9 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Transactional
     public void deleteById(List<Long> ids) {
         if(DataUtils.notNullOrEmpty(ids)){
+            for(Long id: ids){
+                validateDelete(id);
+            }
             departmentRepository.delete(ids);
         }
     }
@@ -92,5 +98,12 @@ public class DepartmentServiceImpl implements DepartmentService {
     public DepartmentDTO findByCode(String code) {
         Department data = departmentRepository.findByCode(code);
         return mapper.toDtoBean(data);
+    }
+
+    private void validateDelete(Long id) {
+        Long count = departmentRepository.countUserByDep(id);
+        if (0L < count) {
+            throw new BusinessException(ErrorCodeEnum.ER9999, "Phòng ban đang được sử dụng!");
+        }
     }
 }

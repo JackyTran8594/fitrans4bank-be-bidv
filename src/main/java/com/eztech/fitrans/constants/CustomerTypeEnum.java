@@ -4,7 +4,7 @@ import java.util.stream.Stream;
 
 public enum CustomerTypeEnum {
     NORMAL(1,"Khách hàng thông thường"),
-    VIP(2,"VIP"),
+    VIP(2,"Khách hàng VIP"),
     UNKNOWN(-1,"UNKNOWN");
 
     private int value;

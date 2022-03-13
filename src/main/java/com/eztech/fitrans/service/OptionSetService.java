@@ -19,6 +19,8 @@ public interface OptionSetService {
 
   OptionSetDTO detailByCode(String code);
 
+  Map getMapValueByCode(String code, boolean revertPr);
+
   List<OptionSetValueDTO> listByCode(String code);
 
   List<OptionSetDTO> findAll();
