@@ -90,7 +90,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
           .append("left join user_entity ucm on p.staff_id_cm = ucm.id  \n")
           .append("left join user_entity uct on p.staff_id_ct = uct.id  \n")
           .append("left join transaction_type trans on trans.id = p.type \n")
-          .append("WHERE 1=1 ");
+          .append("WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)");
     } else {
 
       sb.append(sql_select)
@@ -102,7 +102,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
           .append("left join user_entity ucm on p.staff_id_cm = ucm.id  \n")
           .append("left join user_entity uct on p.staff_id_ct = uct.id  \n")
           .append("left join transaction_type trans on trans.id = p.type \n")
-          .append("WHERE 1=1 ");
+          .append("WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)");
 
     }
 
@@ -222,9 +222,9 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
         "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
         "left join transaction_type trans on trans.id = p.type \n" +
-
-        "where p.id = :id AND p.state = :state";
+        "where p.id = :id AND p.state = :state AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)";
     parameters.put("id", id);
+    parameters.put("state", state);
     ProfileDTO profileDTO = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
     return profileDTO;
   }
@@ -266,7 +266,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
         "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
         "left join transaction_type trans on trans.id = p.type \n" +
-        "where 1 = 1 ";
+        "where 1 = 1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)";
 
     return getResultList(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
   }
@@ -310,7 +310,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
         "left join transaction_type trans on trans.id = p.type \n";
 
-    sb.append(sql).append("WHERE 1=1 ");
+    sb.append(sql).append("WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)");
     if (params.containsKey("staffId_CT")) {
       sb.append("AND p.staff_id_ct = :staffId_CT ");
       parameters.put("staffId_CT", DataUtils.parseToLong(params.get("staffId_CT")));
