@@ -22,7 +22,7 @@ public class ProfileListDTO implements Serializable {
     public String profileListId;
     public String type;
     public Integer amount;
-    public String profileStatus;
+    public Integer profileStatus;
     public String note;
     public String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)

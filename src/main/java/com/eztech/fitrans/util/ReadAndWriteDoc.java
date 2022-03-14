@@ -143,7 +143,8 @@ public class ReadAndWriteDoc {
                                         XWPFTableCell cell = row.getCell(1);
                                         cell.removeParagraph(0);
                                         cell.setText(mapParams.get(string).type);
-                                        Integer indexCheckBox = Integer.parseInt(mapParams.get(string).profileStatus);
+                                        // Integer indexCheckBox = Integer.parseInt(mapParams.get(string).profileStatus);
+                                        Integer indexCheckBox = mapParams.get(string).profileStatus;
                                         XWPFTableCell checkBoxCell = row.getCell(indexCheckBox);
                                         checkBoxCell.setText("x");
                                         checkBoxCell.setVerticalAlignment(XWPFVertAlign.CENTER);
