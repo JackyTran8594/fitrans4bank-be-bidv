@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.eztech.fitrans.constants.Constants.ACTIVE;
+
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
@@ -70,7 +72,8 @@ public class UserServiceImpl implements UserService {
             }
 
         }else{
-            entity.setLastUpdatedDate(LocalDateTime.now());;
+            entity.setLastUpdatedDate(LocalDateTime.now());
+            entity.setStatus(ACTIVE);
             oldEntity = mapper.toPersistenceBean(entity);
             oldEntity = repository.save(oldEntity);
             if(!DataUtils.isNullOrEmpty(entity.getRoleId())) {

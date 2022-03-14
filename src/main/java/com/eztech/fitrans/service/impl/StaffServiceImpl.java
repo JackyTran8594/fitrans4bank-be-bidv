@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.eztech.fitrans.constants.Constants.ACTIVE;
+
 @Service
 @Slf4j
 public class StaffServiceImpl implements StaffService {
@@ -36,6 +38,7 @@ public class StaffServiceImpl implements StaffService {
       entity = mapper.toPersistenceBean(dto);
     } else {
       entity = mapper.toPersistenceBean(item);
+      entity.setStatus(ACTIVE);
     }
 
     return mapper.toDtoBean(repository.save(entity));

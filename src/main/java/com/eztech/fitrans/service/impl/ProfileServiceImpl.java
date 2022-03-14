@@ -48,6 +48,8 @@ import java.util.Optional;
 
 import javax.print.DocFlavor.URL;
 
+import static com.eztech.fitrans.constants.Constants.ACTIVE;
+
 @Service
 @Slf4j
 public class ProfileServiceImpl implements ProfileService {
@@ -98,6 +100,7 @@ public class ProfileServiceImpl implements ProfileService {
             entity = mapper.toPersistenceBean(profile);
         } else {
             entity = mapper.toPersistenceBean(profile);
+            entity.setStatus(ACTIVE);
         }
         entity = repository.save(entity);
         scheduledTasks.fireGreeting();

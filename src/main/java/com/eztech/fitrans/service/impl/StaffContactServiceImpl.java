@@ -1,6 +1,9 @@
 package com.eztech.fitrans.service.impl;
 
+import com.eztech.fitrans.dto.response.ErrorCodeEnum;
 import com.eztech.fitrans.dto.response.StaffContactDTO;
+import com.eztech.fitrans.exception.BusinessException;
+import com.eztech.fitrans.exception.InputInvalidException;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.StaffContact;
 import com.eztech.fitrans.repo.StaffContactRepository;
@@ -15,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.eztech.fitrans.constants.Constants.ACTIVE;
+
 @Service
 @Slf4j
 public class StaffContactServiceImpl implements StaffContactService {
@@ -27,7 +32,7 @@ public class StaffContactServiceImpl implements StaffContactService {
 
     @Override
     public StaffContactDTO save(StaffContactDTO item) {
-        // TODO Auto-generated method stub
+        validate(item);
         StaffContact entity;
         if (!DataUtils.nullOrZero(item.getId())) {
             StaffContactDTO dto = findById(item.getId());
@@ -43,6 +48,7 @@ public class StaffContactServiceImpl implements StaffContactService {
 
         } else {
             entity = mapper.toPersistenceBean(item);
+            entity.setStatus(ACTIVE);
         }
         return mapper.toDtoBean(repository.save(entity));
     }
@@ -54,6 +60,7 @@ public class StaffContactServiceImpl implements StaffContactService {
         if (dto == null) {
             throw new ResourceNotFoundException("StaffContact " + id + "not found");
         }
+        validateDelete(id);
         repository.deleteById(id);
     }
 
@@ -99,6 +106,28 @@ public class StaffContactServiceImpl implements StaffContactService {
             return null;
         }
         return mapper.toDtoBean(optional);
+    }
+
+    public void validate(StaffContactDTO item) {
+        if (DataUtils.isNullOrEmpty(item.getCif())) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0003, "CIF");
+        }
+
+        if (DataUtils.notNullOrEmpty(item.getCif()) && item.getCif().length() > 50) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, "CIF", 50);
+        }
+
+        boolean checkExit = repository.checkExits(item.getId(), item.getCif());
+        if (checkExit) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0009, "Mã CIF");
+        }
+    }
+
+    private void validateDelete(Long id) {
+        Long count = repository.countProfile(id);
+        if (0L < count) {
+            throw new BusinessException(ErrorCodeEnum.ER9999, "Đầu mối đang được sử dụng!");
+        }
     }
 
 }

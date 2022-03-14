@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static com.eztech.fitrans.constants.Constants.ACTIVE;
+
 @Service
 @Slf4j
 public class OptionSetValueServiceImpl implements OptionSetValueService {
@@ -42,6 +44,7 @@ public class OptionSetValueServiceImpl implements OptionSetValueService {
             entity = mapper.toPersistenceBean(dto);
         } else {
             entity = mapper.toPersistenceBean(item);
+            entity.setStatus(ACTIVE);
         }
 
         entity = repository.save(entity);

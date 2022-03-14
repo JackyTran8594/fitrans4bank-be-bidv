@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static com.eztech.fitrans.constants.Constants.ACTIVE;
+
 @Service
 @Slf4j
 public class ProfileHistoryServiceImpl implements ProfileHistoryService {
@@ -49,6 +51,7 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
             entity = mapper.toPersistenceBean(dto);
         } else {
             entity = mapper.toPersistenceBean(item);
+            entity.setStatus(ACTIVE);
         }
         entity = repository.save(entity);
         return mapper.toDtoBean(entity);

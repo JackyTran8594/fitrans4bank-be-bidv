@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.eztech.fitrans.constants.Constants.ACTIVE;
 import static com.eztech.fitrans.constants.Constants.MsgKey.MS0001;
 
 @Service
@@ -55,6 +56,7 @@ public class RoleServiceImpl implements RoleService {
             oldEntity = mapper.toPersistenceBean(dto);
         } else {
             oldEntity = mapper.toPersistenceBean(entity);
+            entity.setStatus(ACTIVE);
         }
 
         rtn = mapper.toDtoBean(repository.save(oldEntity));

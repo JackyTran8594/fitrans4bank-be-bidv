@@ -50,7 +50,7 @@ public class DepartmentRepositoryCustomImpl extends BaseCustomRepository<Departm
             sb.append(" AND UPPER(code) = :code ");
             parameters.put("code", code.trim().toUpperCase());
         }
-        sb.append(" AND status > 0");
+        sb.append(" AND status = 'ACTIVE'");
         return getCountResult(sb.toString(), parameters) > 0L;
     }
 
