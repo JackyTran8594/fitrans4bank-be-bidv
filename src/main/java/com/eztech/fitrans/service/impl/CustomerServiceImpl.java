@@ -65,6 +65,7 @@ public class CustomerServiceImpl implements CustomerService {
             entity = mapper.toPersistenceBean(dto);
         } else {
             entity = mapper.toPersistenceBean(item);
+            entity.setStatus(ACTIVE);
         }
 
         return mapper.toDtoBean(repository.save(entity));

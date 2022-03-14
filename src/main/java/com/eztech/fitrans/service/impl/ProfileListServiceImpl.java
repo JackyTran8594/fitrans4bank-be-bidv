@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static com.eztech.fitrans.constants.Constants.ACTIVE;
+
 @Service
 @Slf4j
 public class ProfileListServiceImpl implements ProfileListService {
@@ -42,9 +44,9 @@ public class ProfileListServiceImpl implements ProfileListService {
             dto.setProfileListId(item.getProfileListId());
             dto.setNote(item.getNote());
             entity = mapper.toPersistenceBean(dto);
-
         } else {
             entity = mapper.toPersistenceBean(item);
+            entity.setStatus(ACTIVE);
         }
         return mapper.toDtoBean(repository.save(entity));
     }

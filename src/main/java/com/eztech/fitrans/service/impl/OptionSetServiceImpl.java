@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.*;
 
+import static com.eztech.fitrans.constants.Constants.ACTIVE;
+
 @Service
 @Slf4j
 public class OptionSetServiceImpl implements OptionSetService {
@@ -86,6 +88,7 @@ public class OptionSetServiceImpl implements OptionSetService {
             entity = mapper.toPersistenceBean(dto);
         } else {
             entity = mapper.toPersistenceBean(item);
+            entity.setStatus(ACTIVE);
         }
 
         entity = repository.save(entity);
