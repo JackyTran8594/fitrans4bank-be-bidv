@@ -111,5 +111,12 @@ public class UsersController extends BaseController implements UserApi {
       return users;
   }
 
+  @GetMapping("/getByUsername")
+  public UserDTO getByUsername(@RequestParam Map<String, Object> params) {
+    String code = params.get("code").toString();
+      UserDTO user = userService.findByUsername(code);
+      return user;
+  }
+
 
 }
