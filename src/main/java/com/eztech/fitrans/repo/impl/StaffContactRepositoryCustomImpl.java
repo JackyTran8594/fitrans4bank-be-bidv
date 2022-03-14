@@ -59,7 +59,11 @@ public class StaffContactRepositoryCustomImpl extends BaseCustomRepository<Staff
     @Override
     public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters, boolean count) {
         StringBuilder sb = new StringBuilder();
-        String selectSql = "SELECT staffCM.cif, staffCM.id, staffCM.customer_id,  staffCM.status, staffCM.created_by, staffCM.created_date, staffCM.last_updated_by, staffCM.last_updated_date, staffCM.note, staffCM.staff_id_cm, staffCT.staff_id_ct, staffCustomer.staff_id_customer, staffCM.full_name as staffNameCM, staffCustomer.full_name as staffNameCustomer, staffCT.full_name as staffNameCT \n";
+        String selectSql = "SELECT staffCM.cif, staffCM.id, staffCM.customer_id,  staffCM.status, staffCM.created_by, " +
+                "staffCM.created_date, staffCM.last_updated_by, staffCM.last_updated_date, staffCM.note, " +
+                "staffCM.staff_id_cm, staffCT.staff_id_ct, staffCustomer.staff_id_customer, " +
+                "staffCM.full_name as staffNameCM, staffCustomer.full_name as staffNameCustomer, " +
+                "staffCT.full_name as staffNameCT, c.name as customerName \n";
         String staffCMstr_select = "(SELECT sc.cif, sc.id, sc.customer_id, sc.staff_id_cm, sc.status, sc.created_by, sc.created_date, sc.last_updated_by, sc.last_updated_date, sc.note, us.full_name \n";
         String staffCMstr_from = "FROM [test].[dbo].[staff_contact] sc left JOIN dbo.user_entity us on sc.staff_id_cm = us.id) as staffCM \n";
         String staffCTstr_select = "( SELECT sc.cif, sc.id, sc.staff_id_ct, us.full_name \n";
@@ -90,6 +94,7 @@ public class StaffContactRepositoryCustomImpl extends BaseCustomRepository<Staff
                     .append("LEFT JOIN \n")
                     .append(staffCustomer_select)
                     .append(staffCustomer_from)
+                    .append(" left join customer c on staffCM.cif = c.cif and c.status = 'ACTIVE' ")
                     .append("WHERE 1=1");
 
         }

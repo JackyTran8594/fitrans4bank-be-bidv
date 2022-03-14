@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
                 @ColumnResult(name = "staffNameCM", type = String.class),
                 @ColumnResult(name = "staffNameCustomer", type = String.class),
                 @ColumnResult(name = "staffNameCT", type = String.class),
+                @ColumnResult(name = "customerName", type = String.class),
         })
 })
 @Table(name = "staff_contact")

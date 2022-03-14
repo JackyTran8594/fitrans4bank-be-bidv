@@ -27,6 +27,7 @@ public class StaffContactDTO implements Serializable {
     public String staffNameCT;
     public String staffNameCustomer;
     public Long customerId;
+    public String customerName;
     public String note;
     public String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -53,7 +54,8 @@ public class StaffContactDTO implements Serializable {
         Long staffIdCustomer,
         String staffNameCM,
         String staffNameCT,
-        String staffNameCustomer
+        String staffNameCustomer,
+        String customerName
     ) {
         this.id = id;
         this.cif = cif;
@@ -70,6 +72,7 @@ public class StaffContactDTO implements Serializable {
         this.staffNameCM = staffNameCM;
         this.staffNameCT = staffNameCT;
         this.staffNameCustomer = staffNameCustomer;
+        this.customerName = customerName;
     };
 
 }
