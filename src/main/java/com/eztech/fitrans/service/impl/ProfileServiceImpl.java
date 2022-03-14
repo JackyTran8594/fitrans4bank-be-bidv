@@ -131,8 +131,8 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public ProfileDTO detailById(Long id) {
-        ProfileDTO dto = repository.detailById(id);
+    public ProfileDTO detailById(Long id, Integer state) {
+        ProfileDTO dto = repository.detailById(id, state);
         if (dto != null) {
             dto.fillTransient();
         }
@@ -198,6 +198,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                 // check department
                 if (item.getCode() == "QTTD") {
+               
                     if (profile.timeReceived_CM == null) {
                         profile.setTimeReceived_CM(LocalDateTime.now());
                     }
@@ -302,12 +303,17 @@ public class ProfileServiceImpl implements ProfileService {
 
             ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
             UserDTO user = userService.findByUsername(item.getUsername());
+          
             if (DataUtils.isNullObject(user)) {
                 throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
             }
             DepartmentDTO department = departmentService.findByCode(item.getCode());
             if (DataUtils.isNullObject(department)) {
                 throw new ResourceNotFoundException("department " + department.getCode() + " not found");
+            }
+            // save staffId when create profile
+            if(item.getCode().equals("QLKH")) {
+                item.getProfile().setStaffId(user.getId());
             }
             profileHistory.setDepartmentCode(department.getCode());
             profileHistory.setDepartmentId(department.getId());

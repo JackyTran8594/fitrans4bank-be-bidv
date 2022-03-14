@@ -15,7 +15,7 @@ public interface ProfileService {
 
   ProfileDTO findById(Long id);
 
-  ProfileDTO detailById(Long id);
+  ProfileDTO detailById(Long id, Integer state);
 
   List<ProfileDTO> findAll();
 

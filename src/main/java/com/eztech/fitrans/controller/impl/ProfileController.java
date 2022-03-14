@@ -119,9 +119,11 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @Override
-  @GetMapping("/{id}")
-  public ProfileDTO getById(@PathVariable(value = "id") Long id) {
-    ProfileDTO dto = service.detailById(id);
+  @GetMapping("/getByIdAndState")
+  public ProfileDTO getById(@RequestParam Map<String, Object> mapParam) {
+    Long id = Long.parseLong(mapParam.get("id").toString());
+    Integer state = Integer.parseInt(mapParam.get("state").toString());
+    ProfileDTO dto = service.detailById(id, state);
     if (dto == null) {
       throw new ResourceNotFoundException("Profile " + id + " not found");
     }

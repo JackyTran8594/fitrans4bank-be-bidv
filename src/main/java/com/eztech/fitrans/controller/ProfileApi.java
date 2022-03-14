@@ -27,7 +27,7 @@ public interface ProfileApi {
       int pageSize);
 
   @ApiOperation(value = "Get profile by ID", response = ProfileDTO.class)
-  ProfileDTO getById(Long id);
+  ProfileDTO getById(@RequestParam Map<String, Object> mapParam);
 
   @ApiOperation(value = "Create profile", response = ProfileDTO.class)
   ProfileDTO create(ConfirmRequest dto);

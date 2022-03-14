@@ -95,6 +95,8 @@ public class ProfileDTO implements Serializable {
 
     public String staffNameCM;
     public String staffNameCT;
+    public String staffNameLast;
+
 
     // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct,
     // p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, 
@@ -108,31 +110,32 @@ public class ProfileDTO implements Serializable {
     Integer type,
             Integer priority, 
             LocalDateTime processDate,
-            LocalDateTime timeReceived_CT,
-            LocalDateTime timeReceived_CM,
-            LocalDateTime endTime,
+            String createdBy, 
+            LocalDateTime createdDate, 
+              String lastUpdatedBy, 
+            LocalDateTime lastUpdatedDate,
+            String status,
+            Integer state,
+            Integer review,
+            Boolean notifyByEmail,
             Long staffId_CM,
             Long staffId_CT,
             Integer numberOfBill,
             Integer numberOfPO,
             BigDecimal value,
+            LocalDateTime timeReceived_CT,
+            LocalDateTime timeReceived_CM,
+            LocalDateTime endTime,
             String returnReason,
             String categoryProfile,
-            String createdBy, 
-            LocalDateTime createdDate, 
-            String lastUpdatedBy, 
-            LocalDateTime lastUpdatedDate,
-            String status,
-            Integer state,
-            Integer profileProcessState,
-            Integer review,
-            Boolean notifyByEmail,
             String cif, 
-            String customerName,
-            String staffName,
             String reviewNote,
             String note,
+            Integer profileProcessState,
             Integer additionalTime,
+            String staffNameLast,
+            String customerName,
+            String staffName,
             String staffNameCM,
             String staffNameCT,
             Integer transactionType
@@ -184,6 +187,7 @@ public class ProfileDTO implements Serializable {
         this.staffNameCM = staffNameCM;
         this.staffNameCT = staffNameCT;
         this.transactionType = transactionType;
+        this.staffNameLast = staffNameLast;
     }   
 
     public void fillTransient() {

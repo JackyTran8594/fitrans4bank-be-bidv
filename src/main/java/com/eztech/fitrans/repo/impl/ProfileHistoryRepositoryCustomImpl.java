@@ -63,7 +63,7 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
       boolean count) {
     StringBuilder sb = new StringBuilder();
     String sql_select = "SELECT p.id,p.staff_id,p.state, p.time_received, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, us.full_name as staff_name, p.department_id \n";
-    String sql_from = "FROM profile_history p left join user_entity us on us.id = p.staff_id AND s.status = 'ACTIVE' \n";
+    String sql_from = "FROM profile_history p left join user_entity us on us.id = p.staff_id AND us.status = 'ACTIVE' \n";
     if (count) {
       sb.append("SELECT COUNT(p.id) \n")
           .append(
