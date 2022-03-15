@@ -60,7 +60,7 @@ public class StaffContactController extends BaseController implements StaffConta
 
     @Override
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
+    // @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
     public StaffContactDTO update(@PathVariable(value = "id") Long id, @RequestBody StaffContactDTO dto) {
         dto.setId(id);
         return staffContactService.save(dto);
@@ -68,14 +68,14 @@ public class StaffContactController extends BaseController implements StaffConta
 
     @Override
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
+    // @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
     public Boolean delete(@PathVariable(value = "id") Long id) {
         staffContactService.deleteById(id);
         return true;
     }
 
     @PostMapping("/deleteList")
-    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
+    // @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
     public Boolean deleteList(@RequestBody List<StaffContactDTO> listData) {
         for (var item : listData) {
             staffContactService.deleteById(item.getId());

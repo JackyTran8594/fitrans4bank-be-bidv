@@ -117,9 +117,9 @@ public class ProfileServiceImpl implements ProfileService {
         // List<ProfileHistoryDTO> profileHis =
         // profileHistoryService.findByProfileId(id);
         // if (profileHis != null) {
-        // profileHistoryService.deleteByProfileId(id);
-        // }
         profileHistoryService.deleteByProfileId(id);
+        // }
+        // profileHistoryService.deleteByProfileId(id);
     }
 
     @Override
@@ -186,11 +186,6 @@ public class ProfileServiceImpl implements ProfileService {
         if (DataUtils.isNullObject(transactionType)) {
             throw new ResourceNotFoundException("transaction Type " + profile.getType().toString() + " not found");
         }
-
-        profileHistory.setProfileId(item.getProfileId());
-        profileHistory.setDepartmentId(department.getId());
-        profileHistory.setTimeReceived(LocalDateTime.now());
-        profileHistory.setStaffId(user.getId());
 
         try {
             // check account admin or not
@@ -273,10 +268,22 @@ public class ProfileServiceImpl implements ProfileService {
 
                         // checking process of profile
                         if (listData.size() == 1) {
-                            ProfileDTO profile_first = listData.get(0);
+                            ProfileDTO profile_first = new ProfileDTO();
 
-                            // check time received
-                            boolean isAfter = profileHistory.getTimeReceived().isAfter(profile_first.getEndTime());
+                            params.put("state", ProfileStateEnum.WAITING.getValue());
+                            List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params);
+                            LocalDateTime endDate = LocalDateTime.now();
+                            if (listDataWaiting.size() == 1) {
+                                // check time received
+                                profile_first = listDataWaiting.get(0);
+                                endDate = profile_first.getProcessDate();
+
+                            } else {
+                                profile_first = listData.get(0);
+                                endDate = profile_first.getEndTime();
+                            }
+                            boolean isAfter = profileHistory.getTimeReceived()
+                                    .isAfter(endDate);
                             if (isAfter) {
                                 processTime = profileHistory.timeReceived
                                         .plusMinutes(
@@ -299,6 +306,7 @@ public class ProfileServiceImpl implements ProfileService {
                             // processTime = processTime.plus(listData.get(0).getEndTime());
 
                         } else if (listData.size() == 0) {
+
                             profile.setState(ProfileStateEnum.PROCESSING.getValue());
                             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
                             processTime = profileHistory.timeReceived
@@ -318,9 +326,16 @@ public class ProfileServiceImpl implements ProfileService {
                             int day = tomorrow.getDayOfMonth();
                             int minutes = transactionType.getStandardTimeCM()
                                     + transactionType.getStandardTimeChecker();
+                            int hour = 0;
+                            if (minutes > 60) {
+                                hour = 8 + minutes / 60;
+                                minutes = minutes % 60;
+                            } else {
+                                hour = 8;
+                            }
 
                             // set proces time = tomorrow
-                            processTime = LocalDateTime.of(year, month, day, 8, minutes);
+                            processTime = LocalDateTime.of(year, month, day, hour, minutes);
                             // processTime = LocalDateTime.
                         }
                         profile.setProcessDate(processTime);
@@ -347,6 +362,10 @@ public class ProfileServiceImpl implements ProfileService {
             // profileHistoryService.save(profileHistory);
             // }
             save(profile);
+            profileHistory.setProfileId(item.getProfileId());
+            profileHistory.setDepartmentId(department.getId());
+            profileHistory.setTimeReceived(LocalDateTime.now());
+            profileHistory.setStaffId(user.getId());
             profileHistory.setProfileId(profile.getId());
             profileHistoryService.save(profileHistory);
             return true;
@@ -388,6 +407,19 @@ public class ProfileServiceImpl implements ProfileService {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
             return null;
+        }
+
+    }
+
+    @Override
+    public void deleteList(List<Long> ids) {
+        // TODO Auto-generated method stub
+        try {
+            repository.deleteList(ids);
+            profileHistoryService.deleteListByProfileId(ids);
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
         }
 
     }

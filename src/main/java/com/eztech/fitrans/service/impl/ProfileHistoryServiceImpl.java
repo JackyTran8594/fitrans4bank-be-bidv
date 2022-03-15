@@ -89,7 +89,11 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
 
     @Override
     public void deleteByProfileId(Long id) {
-        repository.deleteByProfileId(id);
+        
+        Integer repo = repository.deleteByProfileId(id);
+        if(repo > 0) {
+            
+        }
 
     }
 
@@ -97,5 +101,18 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
     public List<ProfileHistoryDTO> profileHistoryDetail(Long id) {
         List<ProfileHistoryDTO> profilesHistory = repository.profileHistoryDetail(id);
         return profilesHistory;
+    }
+
+    @Override
+    public void deleteListByProfileId(List<Long> ids) {
+        // TODO Auto-generated method stub
+        try {
+            repository.deleteListByProfileId(ids);
+        } catch (Exception e) {
+            //TODO: handle exception
+            logger.error(e.getMessage(), e);
+        }
+
+        
     }
 }

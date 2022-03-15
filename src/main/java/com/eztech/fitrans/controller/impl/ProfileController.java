@@ -17,6 +17,7 @@ import com.eztech.fitrans.service.ProfileListService;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.service.TransactionTypeService;
 import com.eztech.fitrans.service.UserService;
+import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
 
 import java.io.ByteArrayInputStream;
@@ -152,6 +153,13 @@ public class ProfileController extends BaseController implements ProfileApi {
     return true;
   }
 
+  @PostMapping("/deleteList")
+  // @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
+  public Boolean deleteList(@RequestParam(value = "ids") List<Long> ids) {
+    service.deleteList(ids);
+    return true;
+  }
+
   @PostMapping("/exportDoc")
   public ResponseEntity<InputStreamResource> exportDoc(@RequestParam Map<String, Object> mapParam,
       @RequestBody ProfileDTO item) throws FileNotFoundException, IOException {
@@ -167,7 +175,7 @@ public class ProfileController extends BaseController implements ProfileApi {
     }
 
     File file = readandwrite.ExportDocFile(item, username, mapParams);
-  
+
     HttpHeaders respHeaders = new HttpHeaders();
     // respHeaders.setContentType(new MediaType("text", "json"));
     respHeaders.setCacheControl("must-revalidate, post-check=0, pre-check=0");
@@ -216,7 +224,8 @@ public class ProfileController extends BaseController implements ProfileApi {
   @GetMapping("/getInfo")
   public List<ProfileHistoryDTO> getInfoByIdAndState(@RequestParam Map<String, Object> params) {
     Long id = Long.valueOf(params.get("id").toString());
-    List<Integer> state = Arrays.stream(params.get("state").toString().split(",")).map(Integer::parseInt).collect(Collectors.toList());
+    List<Integer> state = Arrays.stream(params.get("state").toString().split(",")).map(Integer::parseInt)
+        .collect(Collectors.toList());
     List<ProfileHistoryDTO> profilesHistory = historyService.findByIdAndState(id, state);
     return profilesHistory;
   }

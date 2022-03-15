@@ -18,4 +18,6 @@ public interface ProfileHistoryService {
 
   void deleteByProfileId(Long id);
 
+  void deleteListByProfileId(List<Long> ids);
+
 }
