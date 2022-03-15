@@ -195,13 +195,13 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             // check account admin or not
             if (item.username.toLowerCase().contains("admin")) {
-              
+
                 profile.setState(ProfileStateEnum.RECEIVED.getValue());
                 profileHistory.setState(ProfileStateEnum.RECEIVED.getValue());
 
                 // check department
                 if (item.getCode() == "QTTD") {
-               
+
                     if (profile.timeReceived_CM == null) {
                         profile.setTimeReceived_CM(LocalDateTime.now());
                     }
@@ -222,8 +222,18 @@ public class ProfileServiceImpl implements ProfileService {
                     profile.setEndTime(LocalDateTime.now());
                     // update first row is processing
                     params.put("state", ProfileStateEnum.WAITING.getValue());
-                    params.put("username", item.getUsername());
-                    
+                    switch (item.getCode()) {
+                        // case "QLKH":
+                        // params.put("staffId", user.getId());
+                        // break;
+                        case "QTTD":
+                            params.put("staffIdCM", user.getId());
+                            break;
+                        case "GDKH":
+                            params.put("staffIdCT", user.getId());
+                            break;
+                    }
+
                     List<ProfileDTO> listData = repository.getProfileWithParams(params);
 
                     if (listData.size() == 1) {
@@ -233,44 +243,88 @@ public class ProfileServiceImpl implements ProfileService {
                     }
 
                 } else {
+
                     if (item.getCode().equals("QTTD")) {
                         params.put("staffId_CM", user.getId());
                         List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                        // params.put("state", ProfileStateEnum.ASSIGNED.getValue());
+                        // check if profile is processing
+                        // calculating time for processing time for
+                        LocalDateTime processTime = LocalDateTime.now();
+                        Integer additionalTime = 0;
+                        // checking transaction type and plusing additional time
+                        switch (profile.getTransactionType()) {
+                            case 1:
+                                if (profile.getNumberOfPO() >= 2) {
+                                    additionalTime = additionalTime + 5 * profile.getNumberOfPO();
+                                }
+                                if (profile.getNumberOfBill() >= 2) {
+                                    additionalTime = additionalTime + 1 * profile.getNumberOfBill();
+                                }
+                                break;
+                            case 2:
+                                if (profile.getAdditionalTime() != null) {
+                                    additionalTime = profile.getAdditionalTime();
+                                }
+                                break;
+                            case 3:
+                                break;
+                        }
+
+                        // checking process of profile
                         if (listData.size() == 1) {
+                            ProfileDTO profile_first = listData.get(0);
+
+                            // check time received
+                            boolean isAfter = profileHistory.getTimeReceived().isAfter(profile_first.getEndTime());
+                            if (isAfter) {
+                                processTime = profileHistory.timeReceived
+                                        .plusMinutes(
+                                                transactionType.getStandardTimeCM()
+                                                        + transactionType.getStandardTimeChecker());
+
+                                processTime = processTime.plusMinutes(additionalTime);
+
+                            } else {
+                                processTime = profile_first.endTime
+                                        .plusMinutes(
+                                                transactionType.getStandardTimeCM()
+                                                        + transactionType.getStandardTimeChecker());
+
+                                processTime = processTime.plusMinutes(additionalTime);
+                            }
+
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-                            LocalDateTime processTime = profileHistory.timeReceived
-                                    .plusMinutes(
-                                            transactionType.getStandardTimeCM()
-                                                    + transactionType.getStandardTimeChecker());
-                            Integer additionalTime = 0;
-
-                            // checkingtransaction type and plusing additional time
-                            switch (profile.getType()) {
-                                case 1:
-                                    if (profile.getNumberOfPO() >= 2) {
-                                        additionalTime = additionalTime + 5 * profile.getNumberOfPO();
-                                    }
-                                    if (profile.getNumberOfBill() >= 2) {
-                                        additionalTime = additionalTime + 1 * profile.getNumberOfBill();
-                                    }
-                                    break;
-                                case 2:
-                                    if (profile.getAdditionalTime() != null) {
-                                        additionalTime = profile.getAdditionalTime();
-                                    }
-                                    break;
-                                case 3:
-                                    break;
-                            }
-                            processTime = processTime.plusMinutes(additionalTime);
-
-                            profile.setProcessDate(processTime);
+                            // processTime = processTime.plus(listData.get(0).getEndTime());
 
                         } else if (listData.size() == 0) {
                             profile.setState(ProfileStateEnum.PROCESSING.getValue());
                             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+                            processTime = profileHistory.timeReceived
+                                    .plusMinutes(
+                                            transactionType.getStandardTimeCM()
+                                                    + transactionType.getStandardTimeChecker());
+
+                            processTime = processTime.plusMinutes(additionalTime);
+
                         }
+
+                        if (processTime.getHour() > 17
+                                || (processTime.getHour() == 17 && processTime.getMinute() > 0)) {
+                            LocalDate tomorrow = LocalDate.now().plusDays(1);
+                            int year = tomorrow.getYear();
+                            int month = tomorrow.getMonthValue();
+                            int day = tomorrow.getDayOfMonth();
+                            int minutes = transactionType.getStandardTimeCM()
+                                    + transactionType.getStandardTimeChecker();
+
+                            // set proces time = tomorrow
+                            processTime = LocalDateTime.of(year, month, day, 8, minutes);
+                            // processTime = LocalDateTime.
+                        }
+                        profile.setProcessDate(processTime);
+
                     } else if (item.getCode().equals("GDKH")) {
                         params.put("staffId_CT", user.getId());
                         List<ProfileDTO> listData = repository.getProfileWithParams(params);
@@ -284,14 +338,17 @@ public class ProfileServiceImpl implements ProfileService {
                     }
                 }
             }
-
-            if (DataUtils.isNullOrEmpty(profile.getId())) {
-                ProfileDTO dto = save(profile);
-                profileHistory.setProfileId(dto.getId());
-            } else {
-                profileHistory.setProfileId(profile.getId());
-                profileHistoryService.save(profileHistory);
-            }
+            // // check
+            // if (DataUtils.isNullOrEmpty(profile.getId())) {
+            // ProfileDTO dto = save(profile);
+            // profileHistory.setProfileId(dto.getId());
+            // } else {
+            // profileHistory.setProfileId(profile.getId());
+            // profileHistoryService.save(profileHistory);
+            // }
+            save(profile);
+            profileHistory.setProfileId(profile.getId());
+            profileHistoryService.save(profileHistory);
             return true;
         } catch (Exception e) {
             // TODO: handle exception
@@ -306,7 +363,7 @@ public class ProfileServiceImpl implements ProfileService {
 
             ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
             UserDTO user = userService.findByUsername(item.getUsername());
-          
+
             if (DataUtils.isNullObject(user)) {
                 throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
             }
@@ -315,7 +372,7 @@ public class ProfileServiceImpl implements ProfileService {
                 throw new ResourceNotFoundException("department " + department.getCode() + " not found");
             }
             // save staffId when create profile
-            if(item.getCode().equals("QLKH")) {
+            if (item.getCode().equals("QLKH")) {
                 item.getProfile().setStaffId(user.getId());
             }
             profileHistory.setDepartmentCode(department.getCode());

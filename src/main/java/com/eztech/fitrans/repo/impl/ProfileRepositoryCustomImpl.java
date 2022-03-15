@@ -62,20 +62,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
   public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
       boolean count) {
     StringBuilder sb = new StringBuilder();
-    // String sql_select = "SELECT
-    // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,
-    // p.time_received_ct, p.time_received_cm, p.end_time, "
-    // +
-    // "p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value,
-    // p.return_reason, p.category_profile,
-    // p.created_by,p.created_date,p.last_updated_by,"
-    // +
-    // "p.last_updated_date,p.status,p.state, p.profile_process_state, p.review,
-    // p.notify_by_email ,p.cif,c.name as customer_name, u.full_name as staff_name,
-    // p.review_note, "
-    // +
-    // "p.note, p.additional_time, ucm.full_name as staff_name_cm, uct.full_name as
-    // staff_name_ct, trans.type as transaction_type \n";
+    
     String sql_select = "SELECT p.*, " +
         "u.full_name as staff_name_last, c.name as customer_name," +
         "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type  \n";
@@ -125,7 +112,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
               String sql_qttd = "AND trans.type IN (1,2)";
               if (position.toUpperCase().contains("CHUYENVIEN")) {
                 String sql_filter = " AND p.state NOT IN (0,1)";
-                String sql_username = " AND u.username = :username ";
+                String sql_username = " AND ucm.username = :username ";
                 sb.append(sql_qttd)
                     .append(sql_filter)
                     .append(sql_username);
@@ -141,7 +128,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
               String sql_gdkh = " AND trans.type IN (1,3) ";
               if (position.toUpperCase().contains("CHUYENVIEN")) {
                 String sql_filter = " AND p.state NOT IN (0,1) ";
-                String sql_username = " AND u.username = :username ";
+                String sql_username = " AND uct.username = :username ";
                 sb.append(sql_gdkh)
                     .append(sql_filter)
                     .append(sql_username);
@@ -188,29 +175,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
   public ProfileDTO detailById(Long id, Integer state) {
     Map<String, Object> parameters = new HashMap<>();
 
-    // String sql = "SELECT
-    // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,p.time_received_ct,"
-    // +
-    // "p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct," +
-    // "p.number_of_bill, p.number_of_po, p.value, p.return_reason, " +
-    // "p.category_profile," +
-    // "p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,"
-    // +
-    // "p.profile_process_state, p.review, p.notify_by_email,p.cif,c.name as
-    // customer_name," +
-    // "u.full_name as staff_name, p.review_note, p.note, p.additional_time ,
-    // ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as
-    // transaction_type \n"
-    // +
-    // "FROM profile p left join customer c on p.customer_id = c.id AND c.status =
-    // 'ACTIVE' \n" +
-    // "left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n" +
-    // "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status =
-    // 'ACTIVE' \n" +
-    // "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status =
-    // 'ACTIVE' \n" +
-    // "left join transaction_type trans on trans.id = p.type \n" +
-    // "where p.id = :id ";
     String sql = "SELECT p.*, " +
         "u.full_name as staff_name_last, c.name as customer_name," +
         "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type  \n"
@@ -232,29 +196,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
   @Override
   public List<ProfileDTO> listDashboard() {
     Map<String, Object> parameters = new HashMap<>();
-    // String sql = "SELECT
-    // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,
-    // p.time_received_ct, p.time_received_cm, p.end_time, "
-    // +
-    // "p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value,
-    // p.return_reason, p.category_profile, p.created_by,"
-    // +
-    // "p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,
-    // p.profile_process_state, p.review, p.notify_by_email ,"
-    // +
-    // "p.cif,c.name as customer_name, u.full_name as staff_name, p.review_note,
-    // p.note, p.additional_time, ucm.full_name as staff_name_cm, uct.full_name as
-    // staff_name_ct, trans.type as transaction_type \n"
-    // +
-    // "FROM profile p left join customer c on p.customer_id = c.id AND c.status =
-    // 'ACTIVE' \n" +
-    // "left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n" +
-    // "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status =
-    // 'ACTIVE' \n" +
-    // "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status =
-    // 'ACTIVE' \n" +
-    // "left join transaction_type trans on trans.id = p.type \n" +
-    // " where 1=1 ";
+    
     String sql = "SELECT p.*, " +
         "u.full_name as staff_name_last, c.name as customer_name," +
         "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type  \n"
@@ -275,28 +217,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
   public List<ProfileDTO> getProfileWithParams(Map<String, Object> params) {
     Map<String, Object> parameters = new HashMap<>();
     StringBuilder sb = new StringBuilder();
-    // String sql = "SELECT
-    // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date,
-    // p.time_received_ct, p.time_received_cm, p.end_time, "
-    // +
-    // "p.staff_id_cm, p.staff_id_ct, p.number_of_bill, p.number_of_po, p.value,
-    // p.return_reason, p.category_profile, p.created_by,"
-    // +
-    // "p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state,
-    // p.profile_process_state, p.review, p.notify_by_email ,"
-    // +
-    // "p.cif,c.name as customer_name, u.full_name as staff_name, p.review_note,
-    // p.note, p.additional_time, ucm.full_name as staff_name_cm, uct.full_name as
-    // staff_name_ct, trans.type as transaction_type \n"
-    // +
-    // "FROM profile p left join customer c on p.customer_id = c.id AND c.status =
-    // 'ACTIVE' \n" +
-    // "left join user_entity u on p.staff_id = u.id AND u.status = 'ACTIVE' \n" +
-    // "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status =
-    // 'ACTIVE' \n" +
-    // "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status =
-    // 'ACTIVE' \n" +
-    // "left join transaction_type trans on trans.id = p.type \n";
+    
 
     String sql = "SELECT p.*, " +
         "u.full_name as staff_name_last, c.name as customer_name," +
@@ -324,10 +245,17 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
       sb.append(" AND p.state = :state ");
       parameters.put("state", DataUtils.parseToInt(params.get("state")));
     }
-    if (params.containsKey("username")) {
-      sb.append(" AND u.username = :username ");
-      parameters.put("username", formatLike((String) params.get("username").toString().toLowerCase()));
+
+    if(params.containsKey("profileId")) {
+      sb.append(" AND p.id = :profileId");
+      parameters.put("profileId", DataUtils.parseToLong(params.get("profileId")));
     }
+
+
+    // if (params.containsKey("username")) {
+    //   sb.append(" AND uc.username = :username ");
+    //   parameters.put("username", formatLike((String) params.get("username").toString().toLowerCase()));
+    // }
 
     return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
   }
