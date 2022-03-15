@@ -144,7 +144,7 @@ public class CustomerServiceImpl implements CustomerService {
             return listData;
         } catch (IllegalArgumentException ex) {
             log.error(ex.getMessage(), ex);
-            throw new BusinessException(ErrorCodeEnum.ER0005, Translator.toMessage(MS0001, FILE_IMPORT));
+            throw new BusinessException(ErrorCodeEnum.ER0005, "File import");
         }
     }
 
