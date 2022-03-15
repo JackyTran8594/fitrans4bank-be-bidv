@@ -53,7 +53,7 @@ public class StaffContactController extends BaseController implements StaffConta
 
     @Override
     @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
+    // @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
     public StaffContactDTO create(@RequestBody StaffContactDTO dto) {
         return staffContactService.save(dto);
     }
