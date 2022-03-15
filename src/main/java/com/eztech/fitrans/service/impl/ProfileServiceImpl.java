@@ -195,13 +195,13 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             // check account admin or not
             if (item.username.toLowerCase().contains("admin")) {
-              
+
                 profile.setState(ProfileStateEnum.RECEIVED.getValue());
                 profileHistory.setState(ProfileStateEnum.RECEIVED.getValue());
 
                 // check department
                 if (item.getCode() == "QTTD") {
-               
+
                     if (profile.timeReceived_CM == null) {
                         profile.setTimeReceived_CM(LocalDateTime.now());
                     }
@@ -223,7 +223,7 @@ public class ProfileServiceImpl implements ProfileService {
                     // update first row is processing
                     params.put("state", ProfileStateEnum.WAITING.getValue());
                     params.put("username", item.getUsername());
-                    
+
                     List<ProfileDTO> listData = repository.getProfileWithParams(params);
 
                     if (listData.size() == 1) {
@@ -285,13 +285,16 @@ public class ProfileServiceImpl implements ProfileService {
                 }
             }
 
-            if (DataUtils.isNullOrEmpty(profile.getId())) {
-                ProfileDTO dto = save(profile);
-                profileHistory.setProfileId(dto.getId());
-            } else {
-                profileHistory.setProfileId(profile.getId());
-                profileHistoryService.save(profileHistory);
-            }
+            // if (DataUtils.isNullOrEmpty(profile.getId())) {
+            // ProfileDTO dto = save(profile);
+            // profileHistory.setProfileId(dto.getId());
+            // } else {
+            // profileHistory.setProfileId(profile.getId());
+            // profileHistoryService.save(profileHistory);
+            // }
+            ProfileDTO dto = save(profile);
+            profileHistory.setProfileId(dto.getId());
+            profileHistoryService.save(profileHistory);
             return true;
         } catch (Exception e) {
             // TODO: handle exception
@@ -306,7 +309,7 @@ public class ProfileServiceImpl implements ProfileService {
 
             ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
             UserDTO user = userService.findByUsername(item.getUsername());
-          
+
             if (DataUtils.isNullObject(user)) {
                 throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
             }
@@ -315,7 +318,7 @@ public class ProfileServiceImpl implements ProfileService {
                 throw new ResourceNotFoundException("department " + department.getCode() + " not found");
             }
             // save staffId when create profile
-            if(item.getCode().equals("QLKH")) {
+            if (item.getCode().equals("QLKH")) {
                 item.getProfile().setStaffId(user.getId());
             }
             profileHistory.setDepartmentCode(department.getCode());

@@ -131,7 +131,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
               String sql_qttd = "AND trans.type IN (1,2)";
               if (position.toUpperCase().contains("CHUYENVIEN")) {
                 String sql_filter = " AND p.state NOT IN (0,1)";
-                String sql_username = " AND u.username = :username ";
+                String sql_username = " AND ucm.username = :username ";
                 sb.append(sql_qttd)
                     .append(sql_filter)
                     .append(sql_username);
@@ -147,7 +147,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
               String sql_gdkh = " AND trans.type IN (1,3) ";
               if (position.toUpperCase().contains("CHUYENVIEN")) {
                 String sql_filter = " AND p.state NOT IN (0,1) ";
-                String sql_username = " AND u.username = :username ";
+                String sql_username = " AND uct.username = :username ";
                 sb.append(sql_gdkh)
                     .append(sql_filter)
                     .append(sql_username);
@@ -224,7 +224,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         "FROM profile p left join customer c on p.customer_id = c.id \n" +
         "left join profile_history his on p.id = his.profile_id \n" +
         "left join user_entity u on his.staff_id = u.id AND u.status = 'ACTIVE'\n" +
-        "left join user_entity uc on p.staff_id = uc.id AND uC.status = 'ACTIVE' \n" +
+        "left join user_entity uc on p.staff_id = uc.id AND uc.status = 'ACTIVE' \n" +
         "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
         "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
         "left join transaction_type trans on trans.id = p.type \n" +
