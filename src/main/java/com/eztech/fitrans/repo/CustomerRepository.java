@@ -28,4 +28,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, Custo
      @Transactional
      @Query(value = "DELETE  FROM customer WHERE id IN :ids", nativeQuery = true)
      Integer delete(@Param("ids") List<Long> id);
+
+     @Query(value = "SELECT count(*) FROM profile WHERE customer_id = :id AND status = 'ACTIVE'", nativeQuery = true)
+     Long countProfileByCustomer(@Param("id") Long id);
+
+     @Query(value = "SELECT count(*) FROM staff_contact WHERE customer_id = :id AND status = 'ACTIVE'", nativeQuery = true)
+     Long countStaffContactByCustomer(@Param("id") Long id);
 }

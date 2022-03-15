@@ -78,6 +78,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (dto == null) {
             throw new ResourceNotFoundException("Customer " + id + " not found");
         }
+        validateDelete(id);
         repository.deleteById(id);
     }
 
@@ -85,6 +86,9 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     public void deleteById(List<Long> ids) {
         if(DataUtils.notNullOrEmpty(ids)){
+            for(Long id: ids) {
+                validateDelete(id);
+            }
             repository.delete(ids);
         }
     }
@@ -230,6 +234,18 @@ public class CustomerServiceImpl implements CustomerService {
             }
         }
         return check;
+    }
+
+    private void validateDelete(Long id) {
+        Long count = repository.countProfileByCustomer(id);
+        if (0L < count) {
+            throw new BusinessException(ErrorCodeEnum.ER9999, "Khách hàng đang được sử dụng bởi đầu mối!");
+        }
+
+        count = repository.countProfileByCustomer(id);
+        if (0L < count) {
+            throw new BusinessException(ErrorCodeEnum.ER9999, "Khách hàng đang được sử dụng bởi hồ sơ!");
+        }
     }
 
 }

@@ -5,6 +5,8 @@ import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.model.Profile;
 import com.eztech.fitrans.repo.ProfileRepositoryCustom;
 import com.eztech.fitrans.util.DataUtils;
+import org.springframework.beans.factory.annotation.Value;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +14,10 @@ import java.util.Map;
 
 public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> implements
     ProfileRepositoryCustom {
+
+  @Value("${app.dashboard.checkTime:0}")
+  private Integer checkTime;
+
 
   @Override
   public List search(Map searchDTO, Class aClass) {
@@ -265,9 +271,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         "left join user_entity uc on p.staff_id = uc.id \n" +
         "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
         "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
-        "left join transaction_type trans on trans.id = p.type \n" +
-        "where 1 = 1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)";
+        "left join transaction_type trans on trans.id = p.type \n where 1 = 1";
 
+    if(checkTime != 0){
+        sql += " AND p.created_date >= DATEADD(MINUTE,-" + checkTime + ",GETDATE()) ";
+    }
+    sql += " AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) ";
     return getResultList(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
   }
 
