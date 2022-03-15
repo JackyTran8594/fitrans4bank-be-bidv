@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.eztech.fitrans.dto.response.ErrorCodeEnum;
 import com.eztech.fitrans.dto.response.TransactionTypeDTO;
+import com.eztech.fitrans.exception.BusinessException;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.TransactionType;
 import com.eztech.fitrans.repo.TransactionTypeRepository;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
+
+import javax.transaction.Transactional;
 
 import static com.eztech.fitrans.constants.Constants.ACTIVE;
 
@@ -30,8 +34,8 @@ public class TransactionTypeServiceImpl implements TransactionTypeService {
     private TransactionTypeRepository repository;
 
     @Override
+    @Transactional
     public TransactionTypeDTO save(TransactionTypeDTO item) {
-        // TODO Auto-generated method stub
         TransactionType entity;
         if (!DataUtils.nullOrZero(item.getId())) {
             TransactionTypeDTO dto = findById(item.getId());
@@ -56,18 +60,18 @@ public class TransactionTypeServiceImpl implements TransactionTypeService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
-        // TODO Auto-generated method stub
         TransactionTypeDTO dto = findById(id);
         if (dto == null) {
-            throw new ResourceNotFoundException("TransactionType " + id + "not found");
+            throw new ResourceNotFoundException("TransactionType " + id + " not found");
         }
+        validateDelete(DataUtils.parseToInt(id));
         repository.deleteById(id);
     }
 
     @Override
     public TransactionTypeDTO findById(Long id) {
-        // TODO Auto-generated method stub
         Optional<TransactionType> optional = repository.findById(id);
         if (optional.isPresent()) {
             return mapper.toDtoBean(optional.get());
@@ -77,22 +81,26 @@ public class TransactionTypeServiceImpl implements TransactionTypeService {
 
     @Override
     public List<TransactionTypeDTO> findAll() {
-        // TODO Auto-generated method stub
         List<TransactionType> listData = repository.findAll();
         return mapper.toDtoBean(listData);
     }
 
     @Override
     public List<TransactionTypeDTO> search(Map<String, Object> mapParam) {
-        // TODO Auto-generated method stub
         List<TransactionType> listData = repository.search(mapParam, TransactionType.class);
         return mapper.toDtoBean(listData);
     }
 
     @Override
     public Long count(Map<String, Object> mapParam) {
-        // TODO Auto-generated method stub
         return repository.count(mapParam);
+    }
+
+    private void validateDelete(Integer type) {
+        Long count = repository.countProfileByTransType(type);
+        if (0L < count) {
+            throw new BusinessException(ErrorCodeEnum.ER9999, "Loại giao dịch đang được sử dụng!");
+        }
     }
 
 }
