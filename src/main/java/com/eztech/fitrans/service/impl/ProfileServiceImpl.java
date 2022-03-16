@@ -181,11 +181,19 @@ public class ProfileServiceImpl implements ProfileService {
             throw new ResourceNotFoundException("department " + item.getCode() + " not found");
         }
         ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
+
         TransactionTypeDTO transactionType = transactionTypeService
                 .findById(Long.parseLong(profile.getType().toString()));
         if (DataUtils.isNullObject(transactionType)) {
             throw new ResourceNotFoundException("transaction Type " + profile.getType().toString() + " not found");
         }
+
+        // check profile is create or update - not save profile then tranfer
+        if (DataUtils.isNullObject(item.profile.getCreatedDate())) {
+            profile.setCreatedDate(LocalDateTime.now());
+        }
+        profileHistory.setTimeReceived(LocalDateTime.now());
+
 
         try {
             // check account admin or not
@@ -282,6 +290,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 profile_first = listData.get(0);
                                 endDate = profile_first.getEndTime();
                             }
+
                             boolean isAfter = profileHistory.getTimeReceived()
                                     .isAfter(endDate);
                             if (isAfter) {
@@ -309,13 +318,20 @@ public class ProfileServiceImpl implements ProfileService {
 
                             profile.setState(ProfileStateEnum.PROCESSING.getValue());
                             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-                            processTime = profileHistory.timeReceived
-                                    .plusMinutes(
-                                            transactionType.getStandardTimeCM()
-                                                    + transactionType.getStandardTimeChecker());
 
-                            processTime = processTime.plusMinutes(additionalTime);
+                            // int totalTime = 0;
+                            if (transactionType.getStandardTimeCM() != null) {
+                                processTime = profileHistory.timeReceived
+                                        .plusMinutes(transactionType.getStandardTimeCM());
+                            }
+                            if (transactionType.getStandardTimeChecker() != null) {
+                                processTime = profileHistory.timeReceived
+                                        .plusMinutes(transactionType.getStandardTimeChecker());
+                            }
 
+                            if (additionalTime != 0) {
+                                processTime = processTime.plusMinutes(additionalTime);
+                            }
                         }
 
                         if (processTime.getHour() > 17
@@ -364,7 +380,7 @@ public class ProfileServiceImpl implements ProfileService {
             save(profile);
             profileHistory.setProfileId(item.getProfileId());
             profileHistory.setDepartmentId(department.getId());
-            profileHistory.setTimeReceived(LocalDateTime.now());
+
             profileHistory.setStaffId(user.getId());
             profileHistory.setProfileId(profile.getId());
             profileHistoryService.save(profileHistory);
