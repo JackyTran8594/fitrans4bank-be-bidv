@@ -39,6 +39,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.BodyElementType;
 import org.apache.poi.xwpf.usermodel.Document;
@@ -75,19 +76,23 @@ public class ReadAndWriteDoc {
         try {
             // String url = getClass().getResource("")
 
-            URL resource = getClass().getClassLoader().getResource("template/BIDV_Template.docx");
-            URL image = getClass().getClassLoader().getResource("template/bidv.png");
-            URL rootFolder = getClass().getClassLoader().getResource("template");
+            // InputStream resource = getClass().getClassLoader().getResourceAsStream("template" + File.separator +"BIDV_Template.docx");
+            InputStream resource = getClass().getClassLoader().getResourceAsStream("template/BIDV_Template.docx");
+
+            File file = File.createTempFile("BIDV_Template_", ".docx");
+                FileUtils.copyInputStreamToFile(resource, file);
+            // System.out.println(resource.)
+            // URL image = getClass().getClassLoader().getResource("template/bidv.png");
+            // URL rootFolder = getClass().getClassLoader().getResource("template");
             String folder = "C:\\BIDV_BBBG\\";
             String filename = "BBBG_" + username + "_" + Timestamp.valueOf(LocalDateTime.now()).getTime() + ".docx";
             File outputFile = new File(folder + filename);
             ;
-            if (resource == null) {
+            if (file == null) {
                 throw new IllegalArgumentException("file not found");
             } else {
 
-                File file = new File(resource.toURI());
-
+                
                 try (FileInputStream inpuStream = new FileInputStream(file)) {
                     XWPFDocument docOrigin = new XWPFDocument(inpuStream);
                     XWPFDocument docDes = new XWPFDocument();
@@ -196,6 +201,9 @@ public class ReadAndWriteDoc {
                             if (i == 2) {
                                 if (profile.getCategoryProfile() != null) {
                                     List<String> categories = convertStringToArray(profile.getCategoryProfile());
+                                    XWPFTableRow row2 = table.getRows().get(2);
+                                    XWPFTableCell cell2 = row2.getCell(1);
+                                    cell2.setText(profile.getTypeEnum());
                                     XWPFTableRow oldRow = table.getRows().get(3);
                                     CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
                                     for (String string : categories) {
