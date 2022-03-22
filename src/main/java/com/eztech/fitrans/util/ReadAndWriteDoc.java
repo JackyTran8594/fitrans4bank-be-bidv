@@ -48,10 +48,12 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFStyle;
+import org.apache.poi.xwpf.usermodel.XWPFStyles;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTFonts;
 // import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 // import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageSz;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
@@ -72,6 +74,7 @@ public class ReadAndWriteDoc {
 
         try {
             // String url = getClass().getResource("")
+
             URL resource = getClass().getClassLoader().getResource("template/BIDV_Template.docx");
             URL image = getClass().getClassLoader().getResource("template/bidv.png");
             URL rootFolder = getClass().getClassLoader().getResource("template");
@@ -97,40 +100,97 @@ public class ReadAndWriteDoc {
                         if (elementType == BodyElementType.TABLE) {
 
                             XWPFTable table = (XWPFTable) bodyElement;
-
                             if (i == 1) {
 
                                 XWPFTableRow row1 = table.getRow(0);
                                 XWPFTableCell cell1 = row1.getCell(1);
-                                cell1.setText(profile.getStaffId_CM().toString());
+                                XWPFParagraph para1 = cell1.getParagraphs().get(0);
+                                para1.setAlignment(ParagraphAlignment.CENTER);
+                                XWPFRun run = para1.createRun();
+                                run.setText(profile.getStaffName().toString());
+                                // run.setFontFamily("Times New Roman");
+                                // run.setFontSize(12);
+                                // para1.setText(profile.getStaffName().toString());
+                                // para1.setVerticalAlignment(XWPFVertAlign.CENTER);
+                                // cell1.setText(profile.getStaffName().toString());
+                                // cell1.setVerticalAlignment(XWPFVertAlign.CENTER);
 
+                                // check transactionType : 1,2,3
                                 XWPFTableRow row2 = table.getRow(1);
                                 XWPFTableCell cell2 = row2.getCell(1);
-                                cell2.setText(profile.getStaffId_CM().toString());
+                                // XWPFParagraph para2 = cell2.addParagraph();
+                                // para2.setAlignment(ParagraphAlignment.CENTER);
+                                // XWPFRun run2 = para2.createRun();
 
+                                if (profile.getTransactionType().equals(1) | profile.getTransactionType().equals(2)) {
+                                    cell2.setText(profile.getStaffNameCM().toString());
+                                } else {
+                                    cell2.setText(profile.getStaffNameCT().toString());
+
+                                }
+                                cell2.setVerticalAlignment(XWPFVertAlign.CENTER);
+
+                                // run2.setFontSize(12);
+
+                                // row 3
                                 XWPFTableRow row3 = table.getRow(2);
                                 XWPFTableCell cell3 = row3.getCell(1);
+                                // XWPFParagraph para3 = cell3.addParagraph();
+                                // para3.setAlignment(ParagraphAlignment.CENTER);
+                                // XWPFRun run3 = para3.createRun();
+                                // run3.setText(profile.getCif());
+                                // run3.setFontFamily("Times New Roman");
+                                // run3.setFontSize(12);
                                 cell3.setText(profile.getCif());
+                                cell3.setVerticalAlignment(XWPFVertAlign.CENTER);
 
-                                // XWPFTableRow row4 = table.getRow(3);
-                                // XWPFTableCell cell4 = row4.getCell(1);
-                                // row1.getCell(1).setText(profile.getCompanyName());
+                                // row 3
+                                XWPFTableRow row4 = table.getRow(3);
+                                XWPFTableCell cell4 = row4.getCell(1);
+                                // XWPFParagraph para4 = cell4.addParagraph();
+                                // para4.setAlignment(ParagraphAlignment.CENTER);
+                                // XWPFRun run4 = para4.createRun();
+                                // run4.setText(profile.getCustomerName());
+                                // run4.setFontFamily("Times New Roman");
+                                // run4.setFontSize(12);
+                                cell4.setText(profile.getCustomerName());
+                                cell4.setVerticalAlignment(XWPFVertAlign.CENTER);
 
+                                // row 5
                                 XWPFTableRow row5 = table.getRow(4);
                                 XWPFTableCell cell5 = row5.getCell(1);
+                                // XWPFParagraph para5 = cell5.addParagraph();
+                                // para5.setAlignment(ParagraphAlignment.CENTER);
+                                // XWPFRun run5 = para5.createRun();
+                                // run5.setText(profile.getTypeEnum());
+                                // run5.setFontFamily("Times New Roman");
+                                // run5.setFontSize(12);
                                 cell5.setText(profile.getTypeEnum());
+                                cell5.setVerticalAlignment(XWPFVertAlign.CENTER);
 
-                                // XWPFTableRow row6 = table.getRow(5);
-                                // XWPFTableCell cell6 = row6.getCell(1);
-                                // row1.getCell(1).setText(profile.getNotes());
+                                // row 6
+                                XWPFTableRow row6 = table.getRow(5);
+                                XWPFTableCell cell6 = row6.getCell(1);
+                                // XWPFParagraph para6 = cell6.addParagraph();
+                                // para6.setAlignment(ParagraphAlignment.CENTER);
+                                // XWPFRun run6 = para6.createRun();
+                                // run6.setText(profile.getNote());
+                                // run6.setFontFamily("Times New Roman");
+                                // run6.setFontSize(12);
+                                cell6.setText(profile.getNote());
+                                cell6.setVerticalAlignment(XWPFVertAlign.CENTER);
 
+                                // row 7
                                 XWPFTableRow row7 = table.getRow(6);
                                 XWPFTableCell cell7 = row7.getCell(1);
+                                // XWPFParagraph para7 = cell7.addParagraph();
+                                // para7.setAlignment(ParagraphAlignment.CENTER);
+                                // XWPFRun run7 = para7.createRun();
+                                // run7.setText(profile.getValue().toString());
+                                // run7.setFontFamily("Times New Roman");
+                                // run7.setFontSize(12);
                                 cell7.setText(String.valueOf(profile.getValue()));
-
-                                // XWPFTableRow row8 = table.getRow(7);
-                                // XWPFTableCell cell8 = row8.getCell(1);
-                                // row8.getCell(1).setText(profile.getCategoryProfile());
+                                cell7.setVerticalAlignment(XWPFVertAlign.CENTER);
 
                             }
                             if (i == 2) {
@@ -143,7 +203,8 @@ public class ReadAndWriteDoc {
                                         XWPFTableCell cell = row.getCell(1);
                                         cell.removeParagraph(0);
                                         cell.setText(mapParams.get(string).type);
-                                        // Integer indexCheckBox = Integer.parseInt(mapParams.get(string).profileStatus);
+                                        // Integer indexCheckBox =
+                                        // Integer.parseInt(mapParams.get(string).profileStatus);
                                         Integer indexCheckBox = mapParams.get(string).profileStatus;
                                         XWPFTableCell checkBoxCell = row.getCell(indexCheckBox);
                                         checkBoxCell.setText("x");
@@ -232,6 +293,12 @@ public class ReadAndWriteDoc {
                     }
 
                     // File fileOuput = new File(folder + filename);
+
+                    XWPFStyles styles = docDes.createStyles();
+                    CTFonts fonts = CTFonts.Factory.newInstance();
+                    fonts.setEastAsia("Times New Roman");
+                    fonts.setHAnsi("Times New Roman");
+                    styles.setDefaultFonts(fonts);
                     if (!Files.isDirectory(Paths.get(folder))) {
                         new File(folder).mkdir();
                         outputFile.createNewFile();
@@ -251,7 +318,9 @@ public class ReadAndWriteDoc {
 
             }
 
-        } catch (Throwable ex) {
+        } catch (
+
+        Throwable ex) {
             // TODO: handle exception
             // System.out.println(ex.getMessage());
             log.error(ex.getMessage(), ex);

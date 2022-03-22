@@ -169,10 +169,17 @@ public class ProfileController extends BaseController implements ProfileApi {
     String[] categoryId = item.categoryProfile.split(",");
     for (String str : categoryId) {
       ProfileListDTO profileListDTO = profileListService.findById(Long.parseLong(str));
+      // listData.add(profileListDTO);
       if (profileListDTO != null) {
         mapParams.put(profileListDTO.id.toString(), profileListDTO);
       }
     }
+
+    TransactionTypeDTO typeEnum = transactionTypeService.findById(item.getType().longValue());
+    if(DataUtils.isNullOrEmpty(typeEnum)) {
+        throw new ResourceNotFoundException("transactionType " + typeEnum.getId() + " not found");
+    } 
+    item.setTypeEnum(typeEnum.getName());
 
     File file = readandwrite.ExportDocFile(item, username, mapParams);
 

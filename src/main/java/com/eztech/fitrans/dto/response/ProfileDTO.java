@@ -146,8 +146,10 @@ public class ProfileDTO implements Serializable {
         this.customerName = customerName;
         this.type = type;
         if (type != null) {
-            this.typeEnum = ProfileTypeEnum.of(type).getName();
+            // this.typeEnum = ProfileTypeEnum.of(type).getName();
+            this.typeEnum = "";
         }
+        // this.typeEnum = typeEnum;
         this.priority = priority;
         if (priority != null) {
             this.priorityValue = ProfilePriorityEnum.of(priority);
@@ -195,9 +197,9 @@ public class ProfileDTO implements Serializable {
             this.priorityValue = ProfilePriorityEnum.of(priority);
         }
 
-        if (type != null) {
-            this.typeEnum = ProfileTypeEnum.of(type).getName();
-        }
+        // if (type != null) {
+        //     this.typeEnum = ProfileTypeEnum.of(type).getName();
+        // }
 
         if (state != null) {
             this.stateEnum = ProfileStateEnum.of(state).getName();
