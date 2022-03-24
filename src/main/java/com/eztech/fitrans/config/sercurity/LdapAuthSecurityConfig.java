@@ -6,6 +6,7 @@ import com.eztech.fitrans.config.LdapUserAuthoritiesPopulator;
 import com.eztech.fitrans.config.Profiles;
 import com.eztech.fitrans.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -41,6 +42,15 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 			"/*/**",
 	};
 
+	@Value("${spring.ldap.authen.url}")
+	private String ldapUrl;
+
+	@Value("${spring.ldap.authen.dn-patterns}")
+	private String dnPatterns;
+
+	@Value("${spring.ldap.authen.password}")
+	private String passwordAttribute;
+
 
 	private final LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -52,14 +62,14 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		auth
 				.ldapAuthentication()
-				.userDnPatterns("uid={0},ou=people")
-				.groupSearchBase("ou=groups")
+				.userDnPatterns(dnPatterns)
+//				.groupSearchBase("ou=groups")
 				.contextSource()
-				.url("ldap://localhost:8389/dc=springframework,dc=org")
+				.url(ldapUrl)
 				.and()
 				.passwordCompare()
 				.passwordEncoder(new BCryptPasswordEncoder())
-				.passwordAttribute("userPassword").and()
+				.passwordAttribute(passwordAttribute).and()
 				// Populates the user roles by LDAP user name from database
 				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
 		;
