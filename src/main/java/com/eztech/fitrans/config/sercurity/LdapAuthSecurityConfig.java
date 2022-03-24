@@ -22,6 +22,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletResponse;
@@ -51,11 +53,30 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Value("${spring.ldap.authen.password}")
 	private String passwordAttribute;
 
+	@Value("${spring.ldap.authen.managerDn:#{null}}")
+	private String managerDn;
+
+	@Value("${spring.ldap.authen.managerPassword:#{null}}")
+	private String managerPassword;
 
 	private final LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final UserDetailsService jwtUserDetailsService;
 	private final JwtRequestFilter jwtRequestFilter;
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new PasswordEncoder() {
+			@Override
+			public String encode(CharSequence rawPassword) {
+				return rawPassword.toString();
+			}
+			@Override
+			public boolean matches(CharSequence rawPassword, String encodedPassword) {
+				return encodedPassword.equalsIgnoreCase(rawPassword.toString());
+			}
+		};
+	}
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -66,9 +87,12 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 //				.groupSearchBase("ou=groups")
 				.contextSource()
 				.url(ldapUrl)
+				.managerDn(managerDn)
+				.managerPassword(managerPassword)
 				.and()
 				.passwordCompare()
 				.passwordEncoder(new BCryptPasswordEncoder())
+//				.passwordEncoder(passwordEncoder())
 				.passwordAttribute(passwordAttribute).and()
 				// Populates the user roles by LDAP user name from database
 				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);

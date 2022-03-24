@@ -92,11 +92,11 @@ public class AuthController {
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {
-            log.error(ex.getMessage());
+            log.error(ex.getMessage(), ex);
             return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_INVALID),
                     HttpStatus.BAD_REQUEST);
         } catch (UsernameNotFoundException ex) {
-            log.error(ex.getMessage());
+            log.error(ex.getMessage(),ex);
             return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_INACTIVE),
                     HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {
