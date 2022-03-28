@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,4 +39,18 @@ public class JwtAuthenticationResponse {
             }
         }
     }
+
+    public JwtAuthenticationResponse(String accessToken,String username, String role) {
+        this.accessToken = accessToken;
+        JwtTokenResponse tokenResponse = new JwtTokenResponse();
+        tokenResponse.setAccessToken(accessToken);
+        tokenResponse.setExpiresIn(3600000);
+        this.token = tokenResponse;
+        this.success = true;
+        this.email = username;
+        this.role = Arrays.asList(role);
+        // this.permissions = null;
+        
+    }
+    
 }
