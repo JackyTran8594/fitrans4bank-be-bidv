@@ -49,7 +49,7 @@ public class JwtAuthenticationResponse {
         this.success = true;
         this.email = username;
         this.role = Arrays.asList(role);
-        // this.permissions = null;
+        this.permissions = Arrays.asList(role);
         
     }
     

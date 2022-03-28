@@ -3,7 +3,6 @@ package com.eztech.fitrans.controller.impl;
 import com.eztech.fitrans.dto.request.LoginRequest;
 import com.eztech.fitrans.dto.request.ValidateTokenRequest;
 import com.eztech.fitrans.exception.BusinessException;
-import com.eztech.fitrans.model.Role;
 import com.eztech.fitrans.security.ApiResponse;
 import com.eztech.fitrans.security.JwtAuthenticationResponse;
 import com.eztech.fitrans.security.JwtTokenProvider;
@@ -55,17 +54,10 @@ public class AuthController {
                     HttpStatus.BAD_REQUEST);
         }
         try {
-
-            if (loginRequest.getUsername().equals("admin")) {
-                String jwt = tokenProvider.generateToken(loginRequest.getUsername(),  Role.ROLE_ADMIN);
-                return ResponseEntity
-                        .ok(new JwtAuthenticationResponse(jwt, loginRequest.getUsername(), Role.ROLE_ADMIN));
-            }
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
                             loginRequest.getPassword()));
-
             List<String> permissions = new ArrayList<>();
             String role = null;
             Long userId = null;
@@ -96,7 +88,7 @@ public class AuthController {
                             + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
-            String jwt = tokenProvider.generateToken(authentication, role, permissions, departmentCode, position);
+            String jwt = tokenProvider.generateToken(authentication, role ,permissions, departmentCode, position);
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {
@@ -104,7 +96,7 @@ public class AuthController {
             return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_INVALID),
                     HttpStatus.BAD_REQUEST);
         } catch (UsernameNotFoundException ex) {
-            log.error(ex.getMessage(), ex);
+            log.error(ex.getMessage(),ex);
             return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_INACTIVE),
                     HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {
