@@ -284,12 +284,13 @@ public class ProfileServiceImpl implements ProfileService {
                             if (listDataWaiting.size() == 1) {
                                 // check time received
                                 profile_first = listDataWaiting.get(0);
-                                endDate = profile_first.getProcessDate();
 
                             } else {
                                 profile_first = listData.get(0);
-                                endDate = profile_first.getEndTime();
+                                // endDate = profile_first.getProcessDate();
                             }
+
+                            endDate = profile_first.getProcessDate();
 
                             boolean isAfter = profileHistory.getTimeReceived()
                                     .isAfter(endDate);
@@ -416,6 +417,9 @@ public class ProfileServiceImpl implements ProfileService {
             profileHistory.setStaffId(user.getId());
             profileHistory.setState(item.profile.getState());
             ProfileDTO dto = save(item.profile);
+            if(DataUtils.isNullOrEmpty(item.profile.getProcessDate())) {
+                // item.profile.processDate = item.profile.get
+            }
             profileHistory.setProfileId(dto.getId());
             profileHistoryService.save(profileHistory);
             return dto;
