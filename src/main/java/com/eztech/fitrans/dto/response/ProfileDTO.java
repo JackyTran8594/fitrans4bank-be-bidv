@@ -90,6 +90,8 @@ public class ProfileDTO implements Serializable {
     public Integer standardTimeCT;
     public Integer standardTimeChecker;
     public Integer additionalTime;
+    public String othersProfile;
+    public String currency;
 
     public String username;
 
@@ -133,6 +135,8 @@ public class ProfileDTO implements Serializable {
             String note,
             Integer profileProcessState,
             Integer additionalTime,
+            String othersProfile,
+            String currency,
             String staffNameLast,
             String customerName,
             String staffName,
@@ -186,10 +190,13 @@ public class ProfileDTO implements Serializable {
         this.reviewNote = reviewNote;
         this.note = note;
         this.additionalTime = additionalTime;
+        this.othersProfile = othersProfile;
+        this.currency = currency;
         this.staffNameCM = staffNameCM;
         this.staffNameCT = staffNameCT;
         this.transactionType = transactionType;
         this.staffNameLast = staffNameLast;
+
     }   
 
     public void fillTransient() {

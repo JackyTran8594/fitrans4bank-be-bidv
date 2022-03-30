@@ -56,6 +56,8 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "note", type = String.class),
         @ColumnResult(name = "profile_process_state", type = Integer.class),
         @ColumnResult(name = "additional_time", type = Integer.class),
+        @ColumnResult(name = "others_profile", type = String.class),
+        @ColumnResult(name = "currency", type = String.class),
         @ColumnResult(name = "staff_name_last", type = String.class),
         @ColumnResult(name = "customer_name", type = String.class),
         @ColumnResult(name = "staff_name", type = String.class),
@@ -160,6 +162,9 @@ public class Profile extends Auditable<String> implements Serializable {
 
   @Column(name = "additional_time")
   private Integer additionalTime; // Số lượng ủy nhiệm chi
+
+  @Column(name = "others_profile")
+  private String anotherProfile; // Số lượng ủy nhiệm chi
 
 
   @PostLoad
