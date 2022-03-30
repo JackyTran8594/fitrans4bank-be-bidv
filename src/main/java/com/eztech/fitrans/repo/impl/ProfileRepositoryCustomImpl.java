@@ -111,7 +111,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
       if (!DataUtils.isNullOrEmpty(deparmentCode)) {
         // default null from client
         String username = paramSearch.get("username").toString();
-        if (!DataUtils.isNullOrEmpty(username) && !username.toLowerCase().trim().equals("admin")) {
+        if (!DataUtils.isNullOrEmpty(username) && !username.toLowerCase().trim().contains("admin")) {
           String position = paramSearch.get("position").toString();
           switch (deparmentCode) {
             case "QTTD":
