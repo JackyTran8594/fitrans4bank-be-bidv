@@ -213,14 +213,14 @@ uid: cvgdkh
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 
 
-dn: uid=admin_quang,ou=people,dc=springframework,dc=org
+dn: uid=admin_minh,ou=people,dc=springframework,dc=org
 objectclass: top
 objectclass: person
 objectclass: organizationalPerson
 objectclass: inetOrgPerson
-cn: admin_quang
-sn: admin_quang
-uid: admin_quang
+cn: admin_minh
+sn: admin_minh
+uid: admin_minh
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 
 
