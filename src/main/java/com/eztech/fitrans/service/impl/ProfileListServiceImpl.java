@@ -92,9 +92,9 @@ public class ProfileListServiceImpl implements ProfileListService {
     }
 
     @Override
-    public List<ProfileListDTO> findListById(String[] profileListId, Long id) {
+    public List<ProfileListDTO> findListById(List<Long> profileListId) {
         // TODO Auto-generated method stub
-        List<ProfileList> listData = repository.findListById(profileListId, id);
+        List<ProfileList> listData = repository.findListById(profileListId);
         return mapper.toDtoBean(listData);
     }
 

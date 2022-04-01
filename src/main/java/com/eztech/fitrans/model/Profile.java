@@ -164,7 +164,7 @@ public class Profile extends Auditable<String> implements Serializable {
   private Integer additionalTime; // Số lượng ủy nhiệm chi
 
   @Column(name = "others_profile")
-  private String anotherProfile; // Số lượng ủy nhiệm chi
+  private String othersProfile; // Số lượng ủy nhiệm chi
 
 
   @PostLoad

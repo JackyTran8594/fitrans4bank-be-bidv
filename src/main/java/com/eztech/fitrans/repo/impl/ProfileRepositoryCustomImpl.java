@@ -117,7 +117,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             case "QTTD":
               String sql_qttd = "AND trans.type IN (1,2)";
               if (position.toUpperCase().contains("CHUYENVIEN")) {
-                String sql_filter = " AND p.state NOT IN (0,1)";
+                String sql_filter = " AND p.state NOT IN (0)";
                 String sql_username = " AND ucm.username = :username ";
                 sb.append(sql_qttd)
                     .append(sql_filter)

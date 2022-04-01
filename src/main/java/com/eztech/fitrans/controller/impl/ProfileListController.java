@@ -8,6 +8,7 @@ import com.eztech.fitrans.controller.ProfileListApi;
 import com.eztech.fitrans.dto.response.ProfileListDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.service.ProfileListService;
+import com.eztech.fitrans.util.DataUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -104,15 +105,22 @@ public class ProfileListController extends BaseController implements ProfileList
     @GetMapping("/getListById")
     public List<ProfileListDTO> getListById(@RequestParam Map<String, Object> params) {
         String str = params.get("profileListId").toString();
-        String[] profileListId;
-        Long id = Long.parseLong(params.get("id").toString());
+        String[] strProfiileListId;
+        List<Long> profileListId = new ArrayList<Long>();
+        // Long id = Long.parseLong(params.get("id").toString());
         if (str.contains(",")) {
-            profileListId = str.split(",");
+            strProfiileListId = str.split(",");
         } else {
-            profileListId = new String[] { str };
+            strProfiileListId = new String[] { str };
         }
 
-        return ProfileListService.findListById(profileListId, id);
+        if(!DataUtils.isNullOrEmpty(strProfiileListId)) {
+            for (String s : strProfiileListId) {
+                profileListId.add(Long.parseLong(s));
+            }
+        }
+
+        return ProfileListService.findListById(profileListId);
 
     }
 

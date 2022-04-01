@@ -19,6 +19,6 @@ public interface ProfileListService {
 
     Long count(Map<String, Object> mapParam);
 
-    List<ProfileListDTO> findListById(String[] profileListId, Long id);
-    
+    List<ProfileListDTO> findListById(List<Long> profileListId);
+
 }
