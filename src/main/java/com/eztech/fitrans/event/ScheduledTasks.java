@@ -1,7 +1,6 @@
 package com.eztech.fitrans.event;
 
 import com.eztech.fitrans.constants.Constants;
-import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.util.DataUtils;
@@ -9,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

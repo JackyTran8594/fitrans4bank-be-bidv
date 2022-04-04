@@ -115,7 +115,10 @@ public class ProfileController extends BaseController implements ProfileApi {
     mapParam.put("pageSize", pageSize);
     Pageable pageable = pageRequest(new ArrayList<>(), pageSize, pageNumber);
     List<ProfileDTO> listData = service.search(mapParam);
-    Long total = service.count(mapParam);
+    Long total = 0L;
+    if (!mapParam.containsKey("dashboard")) {
+      total = service.count(mapParam);
+    }
     return new PageImpl<>(listData, pageable, total);
   }
 

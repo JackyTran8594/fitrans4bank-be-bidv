@@ -72,6 +72,7 @@ public class ProfileDTO implements Serializable {
     public String categoryProfile;
     public BigDecimal value; // Giá trị
 
+    public String transactionDetail; //Chi tiết giao dịch
     public String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -142,7 +143,8 @@ public class ProfileDTO implements Serializable {
             String staffName,
             String staffNameCM,
             String staffNameCT,
-            Integer transactionType
+            Integer transactionType,
+                      String transactionDetail
            ) {
         this.id = id;
         this.customerid = customerid;
@@ -196,8 +198,8 @@ public class ProfileDTO implements Serializable {
         this.staffNameCT = staffNameCT;
         this.transactionType = transactionType;
         this.staffNameLast = staffNameLast;
-
-    }   
+        this.transactionDetail = transactionDetail;
+    }
 
     public void fillTransient() {
         if (priority != null) {
