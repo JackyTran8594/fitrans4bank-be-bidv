@@ -89,11 +89,14 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
 
     @Override
     public void deleteByProfileId(Long id) {
-        
-        Integer repo = repository.deleteByProfileId(id);
-        if(repo > 0) {
-            
+        try {
+            Integer repo = repository.deleteByProfileId(id);
+        } catch (Exception e) {
+            //TODO: handle exception
+            logger.error(e.getMessage(), e);
         }
+       
+       
 
     }
 
