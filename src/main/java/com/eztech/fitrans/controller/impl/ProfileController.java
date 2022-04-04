@@ -227,7 +227,7 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/confirmProfile")
-  public Boolean confirmProfile(@RequestBody ConfirmRequest item) {
+  public ProfileDTO confirmProfile(@RequestBody ConfirmRequest item) {
     return service.confirmProfile(item);
   }
 

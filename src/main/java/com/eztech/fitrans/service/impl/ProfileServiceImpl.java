@@ -168,7 +168,7 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public Boolean confirmProfile(ConfirmRequest item) {
+    public ProfileDTO confirmProfile(ConfirmRequest item) {
         // // TODO Auto-generated method stub\
         ProfileDTO profile = item.getProfile();
 
@@ -385,11 +385,11 @@ public class ProfileServiceImpl implements ProfileService {
             profileHistory.setStaffId(user.getId());
             profileHistory.setProfileId(profile.getId());
             profileHistoryService.save(profileHistory);
-            return true;
+            return profile;
         } catch (Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
-            return false;
+            return null;
         }
     }
 

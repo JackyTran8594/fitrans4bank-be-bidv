@@ -25,7 +25,7 @@ public interface ProfileService {
 
   List<ProfileDTO> dashboard();
 
-  Boolean confirmProfile(ConfirmRequest req);
+  ProfileDTO confirmProfile(ConfirmRequest req);
 
   void deleteList(List<Long> ids);
   

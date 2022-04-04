@@ -187,7 +187,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type  \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -209,7 +209,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type  \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail    \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -234,7 +234,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type  \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
