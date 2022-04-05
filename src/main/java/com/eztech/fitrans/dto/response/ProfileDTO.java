@@ -99,6 +99,7 @@ public class ProfileDTO implements Serializable {
     public String staffNameCM;
     public String staffNameCT;
     public String staffNameLast;
+    public String description;
 
 
     // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct,
@@ -138,6 +139,7 @@ public class ProfileDTO implements Serializable {
             Integer additionalTime,
             String othersProfile,
             String currency,
+            String description,
             String staffNameLast,
             String customerName,
             String staffName,
@@ -194,6 +196,7 @@ public class ProfileDTO implements Serializable {
         this.additionalTime = additionalTime;
         this.othersProfile = othersProfile;
         this.currency = currency;
+        this.description = description;
         this.staffNameCM = staffNameCM;
         this.staffNameCT = staffNameCT;
         this.transactionType = transactionType;
