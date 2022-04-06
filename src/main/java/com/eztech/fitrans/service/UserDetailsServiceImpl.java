@@ -8,7 +8,9 @@ import com.eztech.fitrans.repo.RoleRepository;
 import com.eztech.fitrans.repo.UserRepository;
 import com.eztech.fitrans.util.DataUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,12 +103,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		return role;
 	}
 
-	public String getPositionByUsername(String username) {
+	public Map<String, Object> getPositionByUsername(String username) {
 		UserEntity user = repo.findByUsername(username);
 		if(user == null) {
 			throw new UsernameNotFoundException("Username not found with not found: " + username);
 		}
-		return user.getPosition();
+		Map<String, Object> mapper = new HashMap<String, Object>();
+		mapper.put("position", user.getPosition());
+		mapper.put("fullname", user.getFullName());
+		return mapper;
 
 	}
 }

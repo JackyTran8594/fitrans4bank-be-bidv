@@ -16,10 +16,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProfileHistoryRepository extends JpaRepository<ProfileHistory, Long>, ProfileHistoryRepositoryCustom {
 
+    @Transactional
     @Modifying
     @Query(value = "DELETE  FROM profile_history WHERE profile_id = :id", nativeQuery = true)
     Integer deleteByProfileId(@Param("id") Long id);
 
+    @Transactional
     @Modifying
     @Query(value = "DELETE FROM profile_history WHERE profile_id IN :ids", nativeQuery = true)
     Integer deleteListByProfileId(@Param("ids") List<Long> ids);

@@ -244,7 +244,13 @@ public class ReadAndWriteDoc {
                                 if (profile != null) {
 
                                     // String strUtf8 = convertJsonStringToUTF8(profile);
-                                    String strUtf8 = profile.getId().toString();
+
+                                    String strUtf8 = null;
+                                    if(!DataUtils.isNullOrEmpty(profile.getId())) {
+                                        strUtf8 = profile.getId().toString();
+                                    } else {
+                                        strUtf8 = username;
+                                    }
                                     byte[] imageByteArray = generateQRCode(strUtf8, 100, 100);
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray)) {

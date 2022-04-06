@@ -64,7 +64,7 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String departmentCode = null;
             UserDetails userDetails = null;
-            String position = null;
+            Map<String, Object> mapper = null;
             // TODO: Test
             log.info(new BCryptPasswordEncoder().encode("123456a@"));
             log.info("admin: " + new BCryptPasswordEncoder().encode("admin"));
@@ -74,7 +74,7 @@ public class AuthController {
                 if (principal instanceof UserDetails) {
                     userDetails = (UserDetails) principal;
                     role = userDetailsServiceImpl.getRoleByUsername(userDetails.getUsername());
-                    position = userDetailsServiceImpl.getPositionByUsername(userDetails.getUsername());
+                    mapper = userDetailsServiceImpl.getPositionByUsername(userDetails.getUsername());
                     departmentCode = userDetailsServiceImpl.getDepartmentCodeByUsername(userDetails.getUsername());
                     log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
                     if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
@@ -88,7 +88,7 @@ public class AuthController {
                             + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
-            String jwt = tokenProvider.generateToken(authentication, role ,permissions, departmentCode, position);
+            String jwt = tokenProvider.generateToken(authentication, role ,permissions, departmentCode, mapper.get("position").toString(), mapper.get("fullname").toString());
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {
