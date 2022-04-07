@@ -157,7 +157,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         }
 
         if (paramSearch.containsKey("dashboard")) {
-            sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP) AND p.process_date >= CURRENT_TIMESTAMP ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
+            sb.append(" AND ((p.state = 2 AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)) OR p.state NOT IN (2))  ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY");
 //            sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP) ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
 //            sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
         } else {
