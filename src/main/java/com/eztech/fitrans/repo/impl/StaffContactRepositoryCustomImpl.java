@@ -65,11 +65,11 @@ public class StaffContactRepositoryCustomImpl extends BaseCustomRepository<Staff
                 "staffCM.full_name as staffNameCM, staffCustomer.full_name as staffNameCustomer, " +
                 "staffCT.full_name as staffNameCT, c.name as customerName \n";
         String staffCMstr_select = "(SELECT sc.cif, sc.id, sc.customer_id, sc.staff_id_cm, sc.status, sc.created_by, sc.created_date, sc.last_updated_by, sc.last_updated_date, sc.note, us.full_name \n";
-        String staffCMstr_from = "FROM [test].[dbo].[staff_contact] sc left JOIN dbo.user_entity us on sc.staff_id_cm = us.id) as staffCM \n";
+        String staffCMstr_from = "FROM staff_contact sc left JOIN dbo.user_entity us on sc.staff_id_cm = us.id) as staffCM \n";
         String staffCTstr_select = "( SELECT sc.cif, sc.id, sc.staff_id_ct, us.full_name \n";
-        String staffCTstr_from = " FROM [test].[dbo].[staff_contact] sc left JOIN dbo.user_entity us on sc.staff_id_ct = us.id) as staffCT on staffCM.id = staffCT.id \n";
+        String staffCTstr_from = " FROM staff_contact sc left JOIN dbo.user_entity us on sc.staff_id_ct = us.id) as staffCT on staffCM.id = staffCT.id \n";
         String staffCustomer_select = "(SELECT sc.cif, sc.id, sc.staff_id_customer, us.full_name \n";
-        String staffCustomer_from = " FROM [test].[dbo].[staff_contact] sc left join dbo.user_entity us on sc.staff_id_customer = us.id) as staffCustomer on staffCustomer.id = staffCM.id \n";
+        String staffCustomer_from = " FROM staff_contact sc left join dbo.user_entity us on sc.staff_id_customer = us.id) as staffCustomer on staffCustomer.id = staffCM.id \n";
         if (count) {
             sb.append("SELECT COUNT(staffCM.id) \n")
                     .append("FROM \n")
