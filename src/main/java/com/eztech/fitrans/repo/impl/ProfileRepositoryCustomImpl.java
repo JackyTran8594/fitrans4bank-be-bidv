@@ -18,7 +18,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     @Value("${app.dashboard.checkTime:0}")
     private Integer checkTime;
 
-
     @Override
     public List search(Map searchDTO, Class aClass) {
         Map<String, Object> parameters = new HashMap<>();
@@ -35,7 +34,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     @Override
     public Integer updateStatus(Long id, String status, String lastUpdatedBy,
-                                LocalDateTime lastUpdateDate) {
+            LocalDateTime lastUpdateDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         sb.append(
@@ -66,7 +65,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     @Override
     public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
-                             boolean count) {
+            boolean count) {
         StringBuilder sb = new StringBuilder();
 
         String sql_select = "SELECT p.*, " +
@@ -112,34 +111,28 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 String username = paramSearch.containsKey("username") ? paramSearch.get("username").toString() : "";
                 if (!DataUtils.isNullOrEmpty(username) && !username.toLowerCase().trim().contains("admin")) {
                     String position = paramSearch.containsKey("position") ? paramSearch.get("position").toString() : "";
+                    String sql_filter = "";
+                    String sql_username = " ";
                     switch (deparmentCode) {
                         case "QTTD":
-                            String sql_qttd = " AND trans.type IN (1,2) ";
-                            if ("CHUYENVIEN".equalsIgnoreCase(position)) {
-                                String sql_filter = " AND p.state NOT IN (0) ";
-                                String sql_username = " AND ucm.username = :username ";
-                                sb.append(sql_qttd)
-                                        .append(sql_filter)
-                                        .append(sql_username);
-                                parameters.put("username", username);
-                            } else {
-                                String sql_filter = " AND p.state NOT IN (0) ";
-                                sb.append(sql_qttd)
-                                        .append(sql_filter);
-                            }
+                        // QTTD nhìn thấy hết
+                        String sql_qttd = " AND trans.type IN (1,2) ";
+                            sql_filter = " AND p.state NOT IN (0) ";
+                            sb.append(sql_qttd)
+                                    .append(sql_filter);
                             break;
                         case "GDKH":
                             // transaction - type : GDKH có 2 luồng
                             String sql_gdkh = " AND trans.type IN (1,3) ";
                             if ("CHUYENVIEN".equalsIgnoreCase(position)) {
-                                String sql_filter = " AND p.state NOT IN (0,1) ";
-                                String sql_username = " AND uct.username = :username ";
+                                sql_filter = " AND p.state NOT IN (0,1) ";
+                                sql_username = " AND uct.username = :username ";
                                 sb.append(sql_gdkh)
                                         .append(sql_filter)
                                         .append(sql_username);
                                 parameters.put("username", username);
                             } else {
-                                String sql_filter = " AND p.state NOT IN (0) ";
+                                sql_filter = " AND p.state NOT IN (0) ";
                                 sb.append(sql_gdkh)
                                         .append(sql_filter);
                             }
@@ -157,9 +150,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         }
 
         if (paramSearch.containsKey("dashboard")) {
-            sb.append(" AND ((p.state = 7 AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)) OR p.state NOT IN (7))  ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY");
-//            sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP) ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
-//            sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
+            sb.append(
+                    " AND ((p.state = 7 AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)) OR p.state NOT IN (7))  ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY");
+            // sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)
+            // ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
+            // sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date
+            // ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
         } else {
             if (!count) {
                 if (paramSearch.containsKey("sort")) {
@@ -232,7 +228,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         Map<String, Object> parameters = new HashMap<>();
         StringBuilder sb = new StringBuilder();
 
-
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
                 "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail   \n"
@@ -245,7 +240,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
                 "left join transaction_type trans on trans.id = p.type \n";
 
-        sb.append(sql).append("WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)");
+        sb.append(sql).append(
+                "WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)");
         if (params.containsKey("staffId_CT")) {
             sb.append("AND p.staff_id_ct = :staffId_CT ");
             parameters.put("staffId_CT", DataUtils.parseToLong(params.get("staffId_CT")));
@@ -268,8 +264,9 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         sb.append(" ORDER BY p.id desc ");
 
         // if (params.containsKey("username")) {
-        //   sb.append(" AND uc.username = :username ");
-        //   parameters.put("username", formatLike((String) params.get("username").toString().toLowerCase()));
+        // sb.append(" AND uc.username = :username ");
+        // parameters.put("username", formatLike((String)
+        // params.get("username").toString().toLowerCase()));
         // }
 
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);

@@ -358,15 +358,15 @@ public class ProfileServiceImpl implements ProfileService {
                         profile.setProcessDate(processTime);
 
                     } else if (item.getCode().equals("GDKH")) {
-                        params.put("staffId_CT", user.getId());
-                        List<ProfileDTO> listData = repository.getProfileWithParams(params);
-                        if (listData.size() == 1) {
-                            profile.setState(ProfileStateEnum.WAITING.getValue());
-                            profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-                        } else if (listData.size() == 0) {
-                            profile.setState(ProfileStateEnum.PROCESSING.getValue());
-                            profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-                        }
+                        // params.put("staffId_CT", user.getId());
+                        // List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                        // if (listData.size() == 1) {
+                        //     profile.setState(ProfileStateEnum.WAITING.getValue());
+                        //     profileHistory.setState(ProfileStateEnum.WAITING.getValue());
+                        // } else if (listData.size() == 0) {
+                        //     profile.setState(ProfileStateEnum.PROCESSING.getValue());
+                        //     profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+                        // }
                     }
                 }
             }
