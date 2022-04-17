@@ -93,6 +93,7 @@ public class ProfileDTO implements Serializable {
     public Integer additionalTime;
     public String othersProfile;
     public String currency;
+    public Integer additionalTimeMax;
 
     public String username;
 
@@ -146,7 +147,8 @@ public class ProfileDTO implements Serializable {
             String staffNameCM,
             String staffNameCT,
             Integer transactionType,
-                      String transactionDetail
+                      String transactionDetail,
+                      Integer additionalTimeMax
            ) {
         this.id = id;
         this.customerid = customerid;
@@ -202,6 +204,7 @@ public class ProfileDTO implements Serializable {
         this.transactionType = transactionType;
         this.staffNameLast = staffNameLast;
         this.transactionDetail = transactionDetail;
+        this.additionalTimeMax = additionalTimeMax;
     }
 
     public void fillTransient() {

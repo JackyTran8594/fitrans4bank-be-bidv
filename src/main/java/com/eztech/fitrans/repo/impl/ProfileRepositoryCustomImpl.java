@@ -70,7 +70,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql_select = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail  \n";
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max  \n";
 
         if (count) {
             sb.append("SELECT COUNT(p.id) \n")
@@ -110,9 +110,9 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 // default null from client
                 String username = paramSearch.containsKey("username") ? paramSearch.get("username").toString() : "";
                 if (!DataUtils.isNullOrEmpty(username) && !username.toLowerCase().trim().contains("admin")) {
-                    String position = paramSearch.containsKey("position") ? paramSearch.get("position").toString() : "";
+                    // String position = paramSearch.containsKey("position") ? paramSearch.get("position").toString() : "";
                     String sql_filter = "";
-                    String sql_username = " ";
+                    // String sql_username = " ";
                     switch (deparmentCode) {
                         case "QTTD":
                             // QTTD nhìn thấy hết
@@ -123,19 +123,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             break;
                         case "GDKH":
                             // transaction - type : GDKH có 2 luồng
+                            // GDKH nhìn thấy hết, bỏ phân công
                             String sql_gdkh = " AND trans.type IN (1,3) ";
-                            if ("CHUYENVIEN".equalsIgnoreCase(position)) {
-                                sql_filter = " AND p.state NOT IN (0,1) ";
-                                sql_username = " AND uct.username = :username ";
-                                sb.append(sql_gdkh)
-                                        .append(sql_filter)
-                                        .append(sql_username);
-                                parameters.put("username", username);
-                            } else {
-                                sql_filter = " AND p.state NOT IN (0) ";
-                                sb.append(sql_gdkh)
-                                        .append(sql_filter);
-                            }
+                            sql_filter = " AND p.state NOT IN (0) ";
+                            sb.append(sql_gdkh)
+                                    .append(sql_filter);
+
                             break;
                         default:
                             break;
@@ -145,23 +138,35 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         }
 
         if (paramSearch.containsKey("txtSearch")) {
-            sb.append(sql_search_name).append(sql_search_value);
-            parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch").toString().toLowerCase()));
+            if (!DataUtils.isNullOrEmpty(paramSearch.get("txtSearch"))) {
+                sb.append(sql_search_name).append(sql_search_value);
+                parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch").toString().toLowerCase()));
+            }
+
         }
 
         if (paramSearch.containsKey("fromDate")) {
-            sb.append(" AND p.created_date >= convert(date,:fromDate)");
-            parameters.put("fromDate", paramSearch.get("fromDate").toString().toLowerCase());
+            if (!DataUtils.isNullOrEmpty(paramSearch.get("fromDate"))) {
+                sb.append(" AND p.created_date >= convert(date,:fromDate)");
+                parameters.put("fromDate", paramSearch.get("fromDate").toString().toLowerCase());
+            }
+
         }
 
         if (paramSearch.containsKey("toDate")) {
-            sb.append(" AND p.created_date <= convert(date,:toDate)");
-            parameters.put("fromDate", paramSearch.get("toDate").toString().toLowerCase());
+            if (!DataUtils.isNullOrEmpty(paramSearch.get("toDate"))) {
+                sb.append(" AND p.created_date <= convert(date,:toDate)");
+                parameters.put("toDate", paramSearch.get("toDate").toString().toLowerCase());
+            }
+
         }
 
         if (paramSearch.containsKey("state")) {
-            sb.append(" AND p.state = :state");
-            parameters.put("state", DataUtils.parseToInt(paramSearch.get("state").toString()));
+            if (!DataUtils.isNullOrEmpty(paramSearch.get("state"))) {
+                sb.append(" AND p.state = :state");
+                parameters.put("state", DataUtils.parseToInt(paramSearch.get("state").toString()));
+            }
+
         }
 
         if (paramSearch.containsKey("dashboard")) {
@@ -199,7 +204,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail   \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -221,7 +226,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail    \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max    \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -245,7 +250,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail   \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +

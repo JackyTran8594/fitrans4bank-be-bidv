@@ -66,6 +66,7 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "staff_name_ct", type = String.class),
         @ColumnResult(name = "transaction_type", type = Integer.class),
         @ColumnResult(name = "transaction_detail", type = String.class),
+        @ColumnResult(name = "additional_time_max", type = Integer.class),
     })
 
 })

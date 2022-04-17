@@ -358,26 +358,20 @@ public class ProfileServiceImpl implements ProfileService {
                         profile.setProcessDate(processTime);
 
                     } else if (item.getCode().equals("GDKH")) {
-                        // params.put("staffId_CT", user.getId());
-                        // List<ProfileDTO> listData = repository.getProfileWithParams(params);
-                        // if (listData.size() == 1) {
-                        //     profile.setState(ProfileStateEnum.WAITING.getValue());
-                        //     profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-                        // } else if (listData.size() == 0) {
-                        //     profile.setState(ProfileStateEnum.PROCESSING.getValue());
-                        //     profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-                        // }
+                        params.put("staffId_CT", user.getId());
+                        List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                        if (listData.size() == 1) {
+                            profile.setState(ProfileStateEnum.WAITING.getValue());
+                            profileHistory.setState(ProfileStateEnum.WAITING.getValue());
+                        } else if (listData.size() == 0) {
+                            profile.setState(ProfileStateEnum.PROCESSING.getValue());
+                            profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+                        }
                     }
                 }
             }
-            // // check
-            // if (DataUtils.isNullOrEmpty(profile.getId())) {
-            // ProfileDTO dto = save(profile);
-            // profileHistory.setProfileId(dto.getId());
-            // } else {
-            // profileHistory.setProfileId(profile.getId());
-            // profileHistoryService.save(profileHistory);
-            // }
+            // check
+           
             save(profile);
             profileHistory.setProfileId(item.getProfileId());
             profileHistory.setDepartmentId(department.getId());
