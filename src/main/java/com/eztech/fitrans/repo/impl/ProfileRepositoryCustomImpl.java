@@ -115,8 +115,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     String sql_username = " ";
                     switch (deparmentCode) {
                         case "QTTD":
-                        // QTTD nhìn thấy hết
-                        String sql_qttd = " AND trans.type IN (1,2) ";
+                            // QTTD nhìn thấy hết
+                            String sql_qttd = " AND trans.type IN (1,2) ";
                             sql_filter = " AND p.state NOT IN (0) ";
                             sb.append(sql_qttd)
                                     .append(sql_filter);
@@ -147,6 +147,21 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         if (paramSearch.containsKey("txtSearch")) {
             sb.append(sql_search_name).append(sql_search_value);
             parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch").toString().toLowerCase()));
+        }
+
+        if (paramSearch.containsKey("fromDate")) {
+            sb.append(" AND p.created_date >= convert(date,:fromDate)");
+            parameters.put("fromDate", paramSearch.get("fromDate").toString().toLowerCase());
+        }
+
+        if (paramSearch.containsKey("toDate")) {
+            sb.append(" AND p.created_date <= convert(date,:toDate)");
+            parameters.put("fromDate", paramSearch.get("toDate").toString().toLowerCase());
+        }
+
+        if (paramSearch.containsKey("state")) {
+            sb.append(" AND p.state = :state");
+            parameters.put("state", DataUtils.parseToInt(paramSearch.get("state").toString()));
         }
 
         if (paramSearch.containsKey("dashboard")) {
