@@ -74,6 +74,7 @@ public class ReadAndWriteDoc {
 
     private static Logger logger = LoggerFactory.getLogger(ReadAndWriteDoc.class);
     private static final BaseMapper<ProfileDTO, QRCodeDTO> mapper = new BaseMapper<>(ProfileDTO.class, QRCodeDTO.class);
+   
 
     public File ExportDocFile(ProfileDTO profile, String username, Map<String, ProfileListDTO> mapParams) {
 
@@ -129,62 +130,78 @@ public class ReadAndWriteDoc {
                                 run2.setFontSize(12);
 
                                 if (profile.getTransactionType().equals(1) | profile.getTransactionType().equals(2)) {
-                                    run2.setText(profile.getStaffNameCM().toString());
+                                    if(!DataUtils.isNullOrEmpty(profile.getStaffNameCM())) {
+                                        run2.setText(profile.getStaffNameCM().toString());
+                                    }
                                 } else {
-                                    run2.setText(profile.getStaffNameCT().toString());
-
+                                    if(!DataUtils.isNullOrEmpty(profile.getStaffNameCM())) {
+                                        run2.setText(profile.getStaffNameCT().toString());
+                                    }
                                 }
                                 cell2.setVerticalAlignment(XWPFVertAlign.CENTER);
 
 
                                 // row 3
-                                XWPFTableRow row3 = table.getRow(2);
-                                XWPFTableCell cell3 = row3.getCell(1);
-                                XWPFParagraph para3 = cell3.getParagraphs().get(0);
-                                para3.setAlignment(ParagraphAlignment.CENTER);
-                                XWPFRun run3 = para3.createRun();
-                                run3.setText(profile.getCif());
-                                run3.setFontSize(12);
+                                if(!DataUtils.isNullOrEmpty(profile.getCif())) {
+                                    XWPFTableRow row3 = table.getRow(2);
+                                    XWPFTableCell cell3 = row3.getCell(1);
+                                    XWPFParagraph para3 = cell3.getParagraphs().get(0);
+                                    para3.setAlignment(ParagraphAlignment.CENTER);
+                                    XWPFRun run3 = para3.createRun();
+                                    run3.setText(profile.getCif());
+                                    run3.setFontSize(12);
+                                }
+                               
                                 
 
-                                // row 3
-                                XWPFTableRow row4 = table.getRow(3);
-                                XWPFTableCell cell4 = row4.getCell(1);
-                                XWPFParagraph para4 = cell4.getParagraphs().get(0);
-                                para4.setAlignment(ParagraphAlignment.CENTER);
-                                XWPFRun run4 = para4.createRun();
-                                run4.setText(profile.getCustomerName());
-                                run4.setFontSize(12);
+                                // row 4
+                                if(!DataUtils.isNullOrEmpty(profile.getCustomerName())) {
+                                    XWPFTableRow row4 = table.getRow(3);
+                                    XWPFTableCell cell4 = row4.getCell(1);
+                                    XWPFParagraph para4 = cell4.getParagraphs().get(0);
+                                    para4.setAlignment(ParagraphAlignment.CENTER);
+                                    XWPFRun run4 = para4.createRun();
+                                    run4.setText(profile.getCustomerName());
+                                    run4.setFontSize(12);
+                                }
+                               
                            
                                 // row 5
-                                XWPFTableRow row5 = table.getRow(4);
-                                XWPFTableCell cell5 = row5.getCell(1);
-                                XWPFParagraph para5 = cell5.getParagraphs().get(0);
-                                para5.setAlignment(ParagraphAlignment.CENTER);
-                                XWPFRun run5 = para5.createRun();
-                                run5.setText(profile.getTypeEnum());
-                                run5.setFontSize(12);
+                                if(!DataUtils.isNullOrEmpty(profile.getTypeEnum())) {
+                                    XWPFTableRow row5 = table.getRow(4);
+                                    XWPFTableCell cell5 = row5.getCell(1);
+                                    XWPFParagraph para5 = cell5.getParagraphs().get(0);
+                                    para5.setAlignment(ParagraphAlignment.CENTER);
+                                    XWPFRun run5 = para5.createRun();
+                                    run5.setText(profile.getTypeEnum());
+                                    run5.setFontSize(12);
+                                }
                             
 
                                 // row 6
-                                XWPFTableRow row6 = table.getRow(5);
-                                XWPFTableCell cell6 = row6.getCell(1);
-                                XWPFParagraph para6 = cell6.getParagraphs().get(0);
-                                para6.setAlignment(ParagraphAlignment.CENTER);
-                                XWPFRun run6 = para6.createRun();
-                                run6.setText(profile.getNote());
-                                run6.setFontSize(12);
+                                if(!DataUtils.isNullOrEmpty(profile.getNote())) {
+                                    XWPFTableRow row6 = table.getRow(5);
+                                    XWPFTableCell cell6 = row6.getCell(1);
+                                    XWPFParagraph para6 = cell6.getParagraphs().get(0);
+                                    para6.setAlignment(ParagraphAlignment.CENTER);
+                                    XWPFRun run6 = para6.createRun();
+                                    run6.setText(profile.getNote());
+                                    run6.setFontSize(12);
+                                }
+                               
 
                                 // row 7
-                                XWPFTableRow row7 = table.getRow(6);
-                                XWPFTableCell cell7 = row7.getCell(1);
-                                XWPFParagraph para7 = cell7.getParagraphs().get(0);
-                                para7.setAlignment(ParagraphAlignment.CENTER);
-                                XWPFRun run7 = para7.createRun();
-                                Locale vi = new Locale("vi", "VN");
-                                NumberFormat vietnamFormat = NumberFormat.getCurrencyInstance(vi);
-                                run7.setText(vietnamFormat.format(profile.getValue()).replace(vietnamFormat.getCurrency().getSymbol(), "") + " - " + profile.getCurrency().toString());
-                                run7.setFontSize(12);
+                                if(!DataUtils.isNullOrEmpty(profile.getNote())) {
+                                    XWPFTableRow row7 = table.getRow(6);
+                                    XWPFTableCell cell7 = row7.getCell(1);
+                                    XWPFParagraph para7 = cell7.getParagraphs().get(0);
+                                    para7.setAlignment(ParagraphAlignment.CENTER);
+                                    XWPFRun run7 = para7.createRun();
+                                    Locale vi = new Locale("vi", "VN");
+                                    NumberFormat vietnamFormat = NumberFormat.getCurrencyInstance(vi);
+                                    run7.setText(vietnamFormat.format(profile.getValue()).replace(vietnamFormat.getCurrency().getSymbol(), "") + " - " + profile.getCurrency().toString());
+                                    run7.setFontSize(12);
+                                }
 
                             }
                             if (i == 2) {
@@ -207,7 +224,7 @@ public class ReadAndWriteDoc {
                                         cell.setText(mapParams.get(string).type);
                                         // Integer indexCheckBox =
                                         // Integer.parseInt(mapParams.get(string).profileStatus);
-                                        Integer indexCheckBox = mapParams.get(string).profileStatus;
+                                        Integer indexCheckBox = mapParams.get(string).profileStatus + 2;
                                         XWPFTableCell checkBoxCell = row.getCell(indexCheckBox);
                                         checkBoxCell.setText("x");
                                         checkBoxCell.setVerticalAlignment(XWPFVertAlign.CENTER);
@@ -273,12 +290,17 @@ public class ReadAndWriteDoc {
                                 if (profile != null) {
 
                                     // String strUtf8 = convertJsonStringToUTF8(profile);
+                                    XWPFTable tableQRCode = docDes.createTable(1, 2);
+                                    tableQRCode.removeBorders();
+                                    tableQRCode.setWidth("100%");
                                     String strUtf8 = profile.getId().toString() + "-Finish";
                                     byte[] imageByteArray = generateQRCode(strUtf8, 100, 100);
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray)) {
 
-                                        XWPFParagraph paraImage = docDes.createParagraph();
+                                        XWPFTableRow row = tableQRCode.getRows().get(0);
+                                        XWPFTableCell cell = row.getCell(1);
+                                        XWPFParagraph paraImage = cell.getParagraphs().get(0);
                                         paraImage.setAlignment(ParagraphAlignment.RIGHT);
                                         XWPFRun runImage = paraImage.createRun();
                                         runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
@@ -294,7 +316,9 @@ public class ReadAndWriteDoc {
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArrayReturn)) {
 
-                                        XWPFParagraph paraImage = docDes.createParagraph();
+                                        XWPFTableRow row = tableQRCode.getRows().get(0);
+                                        XWPFTableCell cell = row.getCell(0);
+                                        XWPFParagraph paraImage = cell.getParagraphs().get(0);
                                         paraImage.setAlignment(ParagraphAlignment.LEFT);
                                         XWPFRun runImage = paraImage.createRun();
                                         runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
