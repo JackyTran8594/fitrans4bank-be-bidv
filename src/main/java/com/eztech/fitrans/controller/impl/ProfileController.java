@@ -124,11 +124,21 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @Override
   @GetMapping("/getByIdAndState")
-  public ProfileDTO getById(@RequestParam Map<String, Object> mapParam) {
+  public ProfileDTO getByIdAndState(@RequestParam Map<String, Object> mapParam) {
     Long id = Long.parseLong(mapParam.get("id").toString());
     Integer state = Integer.parseInt(mapParam.get("state").toString());
     ProfileDTO dto = service.detailById(id, state);
     if (dto == null) {
+      throw new ResourceNotFoundException("Profile " + id + " not found");
+    }
+    return dto;
+  }
+
+  @Override
+  @GetMapping("/getById")
+  public ProfileDTO getById(@PathVariable(value = "id") Long id) {
+    ProfileDTO dto = service.findById(id);
+    if(dto == null) {
       throw new ResourceNotFoundException("Profile " + id + " not found");
     }
     return dto;
@@ -179,9 +189,9 @@ public class ProfileController extends BaseController implements ProfileApi {
     }
 
     TransactionTypeDTO typeEnum = transactionTypeService.findById(item.getType().longValue());
-    if(DataUtils.isNullOrEmpty(typeEnum)) {
-        throw new ResourceNotFoundException("transactionType " + typeEnum.getId() + " not found");
-    } 
+    if (DataUtils.isNullOrEmpty(typeEnum)) {
+      throw new ResourceNotFoundException("transactionType " + typeEnum.getId() + " not found");
+    }
     item.setTypeEnum(typeEnum.getTransactionDetail() + " - Luồng " + typeEnum.getType());
 
     File file = readandwrite.ExportDocFile(item, username, mapParams);
