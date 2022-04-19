@@ -135,7 +135,7 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @Override
-  @GetMapping("/getById")
+  @GetMapping("/getById/{id}")
   public ProfileDTO getById(@PathVariable(value = "id") Long id) {
     ProfileDTO dto = service.findById(id);
     if(dto == null) {
