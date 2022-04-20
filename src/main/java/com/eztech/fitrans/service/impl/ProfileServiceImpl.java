@@ -258,12 +258,20 @@ public class ProfileServiceImpl implements ProfileService {
                         // checking transaction type and plusing additional time
                         switch (profile.getTransactionType()) {
                             case 1:
-                                if (profile.getNumberOfPO() >= 2) {
-                                    additionalTime = additionalTime + 5 * profile.getNumberOfPO();
+                                if(!DataUtils.isNullOrEmpty(profile.getNumberOfPO()))
+                                {
+                                    if (profile.getNumberOfPO() >= 2) {
+                                        additionalTime = additionalTime + 5 * profile.getNumberOfPO();
+                                    }
                                 }
-                                if (profile.getNumberOfBill() >= 2) {
-                                    additionalTime = additionalTime + 1 * profile.getNumberOfBill();
+
+                                if(!DataUtils.isNullOrEmpty(profile.getNumberOfBill()))
+                                {
+                                    if (profile.getNumberOfBill() >= 2) {
+                                        additionalTime = additionalTime + 1 * profile.getNumberOfBill();
+                                    }
                                 }
+                               
                                 break;
                             case 2:
                                 if (profile.getAdditionalTime() != null) {
@@ -411,9 +419,9 @@ public class ProfileServiceImpl implements ProfileService {
             profileHistory.setStaffId(user.getId());
             profileHistory.setState(item.profile.getState());
             ProfileDTO dto = save(item.profile);
-            if(DataUtils.isNullOrEmpty(item.profile.getProcessDate())) {
-                // item.profile.processDate = item.profile.get
-            }
+            // if(DataUtils.isNullOrEmpty(item.profile.getProcessDate())) {
+            //     // item.profile.processDate = item.profile.get
+            // }
             profileHistory.setProfileId(dto.getId());
             profileHistoryService.save(profileHistory);
             return dto;
