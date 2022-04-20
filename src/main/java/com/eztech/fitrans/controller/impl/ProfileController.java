@@ -127,7 +127,7 @@ public class ProfileController extends BaseController implements ProfileApi {
   public ProfileDTO getByIdAndState(@RequestParam Map<String, Object> mapParam) {
     Long id = Long.parseLong(mapParam.get("id").toString());
     Integer state = Integer.parseInt(mapParam.get("state").toString());
-    ProfileDTO dto = service.detailById(id, state);
+    ProfileDTO dto = service.detailByIdAndState(id, state);
     if (dto == null) {
       throw new ResourceNotFoundException("Profile " + id + " not found");
     }
@@ -179,14 +179,18 @@ public class ProfileController extends BaseController implements ProfileApi {
 
     String username = mapParam.get("username").toString();
     Map<String, ProfileListDTO> mapParams = new HashMap<>();
-    String[] categoryId = item.categoryProfile.split(",");
-    for (String str : categoryId) {
-      ProfileListDTO profileListDTO = profileListService.findById(Long.parseLong(str));
-      // listData.add(profileListDTO);
-      if (profileListDTO != null) {
-        mapParams.put(profileListDTO.id.toString(), profileListDTO);
+    if(!DataUtils.isNullOrEmpty(item.getCategoryProfile()))
+    {
+      String[] categoryId = item.categoryProfile.split(",");
+      for (String str : categoryId) {
+        ProfileListDTO profileListDTO = profileListService.findById(Long.parseLong(str));
+        // listData.add(profileListDTO);
+        if (profileListDTO != null) {
+          mapParams.put(profileListDTO.id.toString(), profileListDTO);
+        }
       }
     }
+   
 
     TransactionTypeDTO typeEnum = transactionTypeService.findById(item.getType().longValue());
     if (DataUtils.isNullOrEmpty(typeEnum)) {

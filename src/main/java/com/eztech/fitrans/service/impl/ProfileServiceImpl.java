@@ -134,8 +134,8 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public ProfileDTO detailById(Long id, Integer state) {
-        ProfileDTO dto = repository.detailById(id, state);
+    public ProfileDTO detailByIdAndState(Long id, Integer state) {
+        ProfileDTO dto = repository.detailByIdAndState(id, state);
         if (dto != null) {
             dto.fillTransient();
         }
@@ -194,7 +194,6 @@ public class ProfileServiceImpl implements ProfileService {
         }
         profileHistory.setTimeReceived(LocalDateTime.now());
 
-
         try {
             // check account admin or not
             if (item.username.toLowerCase().contains("admin")) {
@@ -203,12 +202,12 @@ public class ProfileServiceImpl implements ProfileService {
                 profileHistory.setState(ProfileStateEnum.RECEIVED.getValue());
 
                 // check department
-                if (item.getCode() == "QTTD") {
+                if (item.getCode().equals("QTTD")) {
 
                     if (profile.timeReceived_CM == null) {
                         profile.setTimeReceived_CM(LocalDateTime.now());
                     }
-                } else if (item.getCode() == "GDKH") {
+                } else if (item.getCode().equals("GDKH")) {
                     if (profile.timeReceived_CT == null) {
                         profile.setTimeReceived_CT(LocalDateTime.now());
                     }
@@ -248,6 +247,9 @@ public class ProfileServiceImpl implements ProfileService {
                 } else {
 
                     if (item.getCode().equals("QTTD")) {
+                        // if(DataUtils.isNullObject(item.getProfile().getStaffId_CM())) {
+                        item.getProfile().setStaffId_CM(user.getId());
+                        // }
                         params.put("staffId_CM", user.getId());
                         List<ProfileDTO> listData = repository.getProfileWithParams(params);
                         // params.put("state", ProfileStateEnum.ASSIGNED.getValue());
@@ -256,22 +258,20 @@ public class ProfileServiceImpl implements ProfileService {
                         LocalDateTime processTime = LocalDateTime.now();
                         Integer additionalTime = 0;
                         // checking transaction type and plusing additional time
-                        switch (profile.getTransactionType()) {
+                        switch (transactionType.getType()) {
                             case 1:
-                                if(!DataUtils.isNullOrEmpty(profile.getNumberOfPO()))
-                                {
+                                if (!DataUtils.isNullOrEmpty(profile.getNumberOfPO())) {
                                     if (profile.getNumberOfPO() >= 2) {
                                         additionalTime = additionalTime + 5 * profile.getNumberOfPO();
                                     }
                                 }
 
-                                if(!DataUtils.isNullOrEmpty(profile.getNumberOfBill()))
-                                {
+                                if (!DataUtils.isNullOrEmpty(profile.getNumberOfBill())) {
                                     if (profile.getNumberOfBill() >= 2) {
                                         additionalTime = additionalTime + 1 * profile.getNumberOfBill();
                                     }
                                 }
-                               
+
                                 break;
                             case 2:
                                 if (profile.getAdditionalTime() != null) {
@@ -366,6 +366,7 @@ public class ProfileServiceImpl implements ProfileService {
                         profile.setProcessDate(processTime);
 
                     } else if (item.getCode().equals("GDKH")) {
+                        item.getProfile().setStaffId_CT(user.getId());
                         params.put("staffId_CT", user.getId());
                         List<ProfileDTO> listData = repository.getProfileWithParams(params);
                         if (listData.size() == 1) {
@@ -379,7 +380,7 @@ public class ProfileServiceImpl implements ProfileService {
                 }
             }
             // check
-           
+
             save(profile);
             profileHistory.setProfileId(item.getProfileId());
             profileHistory.setDepartmentId(department.getId());
@@ -420,7 +421,7 @@ public class ProfileServiceImpl implements ProfileService {
             profileHistory.setState(item.profile.getState());
             ProfileDTO dto = save(item.profile);
             // if(DataUtils.isNullOrEmpty(item.profile.getProcessDate())) {
-            //     // item.profile.processDate = item.profile.get
+            // // item.profile.processDate = item.profile.get
             // }
             profileHistory.setProfileId(dto.getId());
             profileHistoryService.save(profileHistory);

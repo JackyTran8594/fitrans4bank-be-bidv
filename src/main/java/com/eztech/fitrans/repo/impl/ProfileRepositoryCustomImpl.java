@@ -199,7 +199,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     }
 
     @Override
-    public ProfileDTO detailById(Long id, Integer state) {
+    public ProfileDTO detailByIdAndState(Long id, Integer state) {
         Map<String, Object> parameters = new HashMap<>();
 
         String sql = "SELECT p.*, " +
@@ -216,6 +216,29 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "where p.id = :id AND p.state = :state AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)";
         parameters.put("id", id);
         parameters.put("state", state);
+        ProfileDTO profileDTO = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
+        return profileDTO;
+    }
+
+
+    @Override
+    public ProfileDTO detailById(Long id) {
+        Map<String, Object> parameters = new HashMap<>();
+
+        String sql = "SELECT p.*, " +
+                "u.full_name as staff_name_last, c.name as customer_name," +
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max   \n"
+                +
+                "FROM profile p left join customer c on p.customer_id = c.id \n" +
+                "left join profile_history his on p.id = his.profile_id \n" +
+                "left join user_entity u on his.staff_id = u.id AND u.status = 'ACTIVE'\n" +
+                "left join user_entity uc on p.staff_id = uc.id AND uc.status = 'ACTIVE' \n" +
+                "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
+                "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
+                "left join transaction_type trans on trans.id = p.type \n" +
+                "where p.id = :id";
+        parameters.put("id", id);
+        // parameters.put("state", state);
         ProfileDTO profileDTO = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
         return profileDTO;
     }

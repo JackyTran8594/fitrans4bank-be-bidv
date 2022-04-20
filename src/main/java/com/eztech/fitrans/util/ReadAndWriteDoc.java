@@ -191,7 +191,7 @@ public class ReadAndWriteDoc {
                                
 
                                 // row 7
-                                if(!DataUtils.isNullOrEmpty(profile.getNote())) {
+                                if(!DataUtils.isNullOrEmpty(profile.getValue())) {
                                     XWPFTableRow row7 = table.getRow(6);
                                     XWPFTableCell cell7 = row7.getCell(1);
                                     XWPFParagraph para7 = cell7.getParagraphs().get(0);

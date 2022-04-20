@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface ProfileRepositoryCustom extends BaseRepositoryCustom {
-    ProfileDTO detailById(Long id, Integer state);
+    ProfileDTO detailByIdAndState(Long id, Integer state);
+
+    ProfileDTO detailById(Long id);
 
     List<ProfileDTO> listDashboard();
 
