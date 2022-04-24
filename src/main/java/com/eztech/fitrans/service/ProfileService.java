@@ -1,6 +1,7 @@
 package com.eztech.fitrans.service;
 
 import com.eztech.fitrans.dto.request.ConfirmRequest;
+import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,9 @@ public interface ProfileService {
 
   void deleteList(List<Long> ids);
 
-  Boolean checkScanAgain(ConfirmRequest item);
+  MessageDTO checkScanAgain(ConfirmRequest item);
+
+  MessageDTO checkIsReturn(ConfirmRequest item);
+
 
 }

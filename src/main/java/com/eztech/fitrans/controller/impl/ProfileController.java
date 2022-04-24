@@ -4,6 +4,7 @@ import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.controller.ProfileApi;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.DepartmentDTO;
+import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.dto.response.ProfileListDTO;
@@ -214,9 +215,15 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/checkScanAgain")
-  public Boolean checkScanAgain(@RequestBody ConfirmRequest item) {
+  public MessageDTO checkScanAgain(@RequestBody ConfirmRequest item) {
       return service.checkScanAgain(item);
   }
+
+  @PostMapping("/checkIsReturn")
+  public MessageDTO checkIsReturn(@RequestBody ConfirmRequest item) {
+      return service.checkIsReturn(item);
+  }
+
 
   @GetMapping("/historyProfile/{id}")
   public List<ProfileHistoryDTO> getHistory(@PathVariable(value = "id") Long id) {

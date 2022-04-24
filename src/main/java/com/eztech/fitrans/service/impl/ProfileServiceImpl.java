@@ -3,6 +3,7 @@ package com.eztech.fitrans.service.impl;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.DepartmentDTO;
+import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.dto.response.TransactionTypeDTO;
@@ -41,6 +42,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -399,7 +401,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ProfileDTO saveHistory(ConfirmRequest item) {
         try {
-
+            ProfileDTO old = item.getProfile();
             ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
             UserDTO user = userService.findByUsername(item.getUsername());
 
@@ -412,17 +414,19 @@ public class ProfileServiceImpl implements ProfileService {
             }
             // save staffId when create profile
             if (item.getCode().equals("QLKH")) {
-                item.getProfile().setStaffId(user.getId());
+                old.setStaffId(user.getId());
+            }
+            if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                old.setProcessDate(null);
+                old.setEndTime(null);
             }
             profileHistory.setDepartmentCode(department.getCode());
             profileHistory.setDepartmentId(department.getId());
             profileHistory.setTimeReceived(LocalDateTime.now());
             profileHistory.setStaffId(user.getId());
-            profileHistory.setState(item.profile.getState());
-            ProfileDTO dto = save(item.profile);
-            // if(DataUtils.isNullOrEmpty(item.profile.getProcessDate())) {
-            // // item.profile.processDate = item.profile.get
-            // }
+            profileHistory.setState(old.getState());
+            ProfileDTO dto = save(old);
+
             profileHistory.setProfileId(dto.getId());
             profileHistoryService.save(profileHistory);
             return dto;
@@ -448,19 +452,19 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public Boolean checkScanAgain(ConfirmRequest item) {
+    public MessageDTO checkScanAgain(ConfirmRequest item) {
         // TODO Auto-generated method stub
+        MessageDTO message = new MessageDTO();
         try {
-            ProfileDTO old = item.getProfile();
             ProfileDTO dto = findById(item.getProfile().getId());
-            Boolean isExit = false;
+            Boolean isExist = false;
             if (!DataUtils.isNullOrEmpty(dto)) {
                 TransactionTypeDTO transactionType = transactionTypeService
-                        .findById(Long.parseLong(item.getProfile().getType().toString()));
+                        .findById(Long.parseLong(dto.getType().toString()));
 
                 if (DataUtils.isNullOrEmpty(transactionType)) {
                     throw new ResourceNotFoundException(
-                            "transaction Type " + item.getProfile().getType().toString() + " not found");
+                            "transaction Type " + dto.getType().toString() + " not found");
                 }
 
                 UserDTO user = userService.findByUsername(item.getUsername());
@@ -468,20 +472,276 @@ public class ProfileServiceImpl implements ProfileService {
                     throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
                 }
 
+                DepartmentDTO deparment = departmentService.findByCode(item.getCode());
+                if (DataUtils.isNullOrEmpty(deparment)) {
+                    throw new ResourceNotFoundException("Deparment " + item.getCode() + " not found");
+                }
 
                 if (transactionType.getType().equals(1)) {
-                    isExit =  (!DataUtils.isNullOrEmpty(old.getStaffId_CM()) && old.getStaffId_CM().equals(user.getId())) ? true : false;
-                    isExit =  (!DataUtils.isNullOrEmpty(old.getStaffId_CT()) && old.getStaffId_CT().equals(user.getId())) ? true : false;
-                } else {
-                    isExit =  (!DataUtils.isNullOrEmpty(old.getStaffId_CM()) && old.getStaffId_CM().equals(user.getId())) ? true : false;
-                    isExit =  (!DataUtils.isNullOrEmpty(old.getStaffId_CT()) && old.getStaffId_CT().equals(user.getId())) ? true : false;
+                    switch (item.getCode()) {
+                        case "QTTD":
+                            // check scan
+                            if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
+                                if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                    message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                    message.setIsExist(true);
+
+                                } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                    message.setMessage("Bạn đã kết thúc giao dịch này");
+                                    message.setIsExist(true);
+
+                                } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                                    message.setIsExist(false);
+                                }
+
+                            } else {
+                                if (!item.getIsFinished()) {
+                                    message.setIsExist(false);
+                                } else {
+                                    message.setMessage("Chưa bàn giao tại quản trị tín dụng");
+                                    message.setIsExist(true);
+                                }
+                            }
+                            break;
+                        case "GDKH":
+                            if (DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
+                                message.setMessage("Chưa bàn giao tại quản trị tín dụng");
+                                message.setIsExist(true);
+                            } else {
+                                if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
+                                    if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                        message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                        message.setIsExist(true);
+
+                                    } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                        message.setMessage("Bạn đã kết thúc giao dịch này");
+                                        message.setIsExist(true);
+
+                                    } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                                        message.setIsExist(false);
+                                    }
+
+                                } else {
+                                    message.setIsExist(false);
+                                }
+                            }
+
+                            break;
+                        default:
+                            message.setMessage("Tài khoản của bạn không phù hợp với luồng giao dịch");
+                            message.setIsExist(true);
+                            break;
+                    }
+
+                }
+                if (transactionType.getType().equals(2)) {
+                    // QTTD không tính thời gian cho phòng, do đó bàn giao thẳng cho chuyên viên
+                    if (item.getCode().equals("QTTD")) {
+                        if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
+                            if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                message.setIsExist(true);
+
+                            } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                message.setMessage("Bạn đã kết thúc giao dịch này");
+
+                                message.setIsExist(true);
+
+                            } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                                message.setIsExist(false);
+                            }
+                        } else {
+                            message.setMessage("Chưa bàn giao tại quản trị tín dụng");
+                            message.setIsExist(true);
+                        }
+                    } else {
+                        message.setMessage("Tài khoản của bạn không phù hợp với luồng giao dịch");
+                        message.setIsExist(true);
+                    }
+
+                }
+                if (transactionType.getType().equals(3)) {
+                    if (item.getCode().equals("GDKH")) {
+                        if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
+                            if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                message.setIsExist(true);
+                            } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                message.setMessage("Bạn đã kết thúc giao dịch này");
+                                message.setIsExist(true);
+                            } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                                message.setIsExist(false);
+                            }
+                        } else {
+                            if (!DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
+                                message.setIsExist(false);
+                            } else {
+                                if (item.getUsername().contains("admin")) {
+                                    message.setIsExist(false);
+                                } else {
+                                    message.setMessage("Chưa bàn giao tại giao dịch khách hàng");
+                                    message.setIsExist(true);
+                                }
+                            }
+                        }
+
+                    } else {
+                        message.setMessage("Tài khoản của bạn không phù hợp với luồng giao dịch");
+                        message.setIsExist(true);
+                    }
+
                 }
 
             }
-            return isExit;
+            return message;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return false;
+            // message.setMessage(e.getMessage());
+            // message.setIsExist(true);
+            return null;
+        }
+    }
+
+    @Override
+    public MessageDTO checkIsReturn(ConfirmRequest item) {
+        MessageDTO message = new MessageDTO();
+        try {
+            ProfileDTO dto = findById(item.getProfile().getId());
+
+            if (!DataUtils.isNullOrEmpty(dto)) {
+                TransactionTypeDTO transactionType = transactionTypeService
+                        .findById(Long.parseLong(dto.getType().toString()));
+
+                if (DataUtils.isNullOrEmpty(transactionType)) {
+                    throw new ResourceNotFoundException(
+                            "transaction Type " + dto.getType().toString() + " not found");
+                }
+
+                UserDTO user = userService.findByUsername(item.getUsername());
+                if (DataUtils.isNullOrEmpty(user)) {
+                    throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
+                }
+
+                DepartmentDTO deparment = departmentService.findByCode(item.getCode());
+                if (DataUtils.isNullOrEmpty(deparment)) {
+                    throw new ResourceNotFoundException("Deparment " + item.getCode() + " not found");
+                }
+                // state of profile: not_yet, tranfer
+                Integer[] intArray = new Integer[] { 0, 1 };
+
+                if (transactionType.getType().equals(1)) {
+
+                    switch (item.getCode()) {
+                        case "QTTD":
+                            if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
+
+                                if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                    message.setMessage("Bạn đã kết thúc giao dịch này, không thể trả hồ sơ");
+                                    message.setIsExist(true);
+                                } else if (Arrays.asList(intArray).contains(dto.getState())) {
+                                    message.setMessage("Hồ sơ chưa được bàn giao, chuyển");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
+                                }
+
+                            } else {
+                                message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                                message.setIsExist(true);
+                            }
+                            break;
+                        case "GDKH":
+                            if (DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
+                                message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                                message.setIsExist(true);
+                            } else {
+                                if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
+                                    if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                        message.setMessage("Bạn đã kết thúc giao dịch này, không thể trả hồ sơ");
+                                        message.setIsExist(true);
+                                    } else if (Arrays.asList(intArray).contains(dto.getState())) {
+                                        message.setMessage("Hồ sơ chưa được bàn giao, chuyển");
+                                        message.setIsExist(true);
+                                    } else {
+                                        message.setIsExist(false);
+                                    }
+                                } else {
+                                    if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
+                                        message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                        message.setIsExist(true);
+
+                                    } else {
+                                        message.setIsExist(false);
+                                    }
+
+                                }
+                            }
+
+                            break;
+                        default:
+                            message.setMessage("Tài khoản của bạn không phù hợp với luồng giao dịch");
+                            message.setIsExist(true);
+                            break;
+                    }
+                }
+
+                if (transactionType.getType().equals(2)) {
+                    // state of profile: not_yet, tranfer
+                    if (item.getCode().equals("QTTD")) {
+                        if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
+                            if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                message.setMessage("Bạn đã kết thúc giao dịch này, không thể trả hồ sơ");
+                                message.setIsExist(true);
+                            } else if (Arrays.asList(intArray).contains(dto.getState())) {
+                                message.setMessage("Hồ sơ chưa được bàn giao, chuyển");
+                                message.setIsExist(true);
+                            } else {
+                                message.setIsExist(false);
+                            }
+                        } else {
+                            message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                            message.setIsExist(true);
+                        }
+                    } else {
+                        message.setMessage("Tài khoản của bạn không phù hợp với luồng giao dịch");
+                        message.setIsExist(true);
+                    }
+
+                }
+                if (transactionType.getType().equals(3)) {
+                    if (item.getCode().equals("GDKH")) {
+                        if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
+                            if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                message.setMessage("Bạn đã kết thúc giao dịch này, không thể trả hồ sơ");
+                                message.setIsExist(true);
+                            } else if (Arrays.asList(intArray).contains(dto.getState())) {
+                                message.setMessage("Hồ sơ chưa được bàn giao, chuyển");
+                                message.setIsExist(true);
+                            } else {
+                                message.setIsExist(false);
+                            }
+                        } else {
+                            if (item.getIsReturned()) {
+                                message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                message.setIsExist(true);
+                            } else {
+                                message.setIsExist(false);
+                            }
+                        }
+                    } else {
+                        message.setMessage("Tài khoản của bạn không phù hợp với luồng giao dịch");
+                        message.setIsExist(true);
+                    }
+
+                }
+            }
+            return message;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            // message.setMessage(e.getMessage());
+            // message.setIsExist(true);
+            return null;
         }
     }
 
