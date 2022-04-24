@@ -199,7 +199,8 @@ public class ReadAndWriteDoc {
                                     XWPFRun run7 = para7.createRun();
                                     Locale vi = new Locale("vi", "VN");
                                     NumberFormat vietnamFormat = NumberFormat.getCurrencyInstance(vi);
-                                    run7.setText(vietnamFormat.format(profile.getValue()).replace(vietnamFormat.getCurrency().getSymbol(), "") + " - " + profile.getCurrency().toString());
+                                    String currency = !DataUtils.isNullOrEmpty(profile.getCurrency()) ? profile.getCurrency().toString()  : "";
+                                    run7.setText(vietnamFormat.format(profile.getValue()).replace(vietnamFormat.getCurrency().getSymbol(), "") + " - " + currency);
                                     run7.setFontSize(12);
                                 }
 

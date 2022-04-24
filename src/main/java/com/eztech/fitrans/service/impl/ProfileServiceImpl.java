@@ -447,4 +447,42 @@ public class ProfileServiceImpl implements ProfileService {
 
     }
 
+    @Override
+    public Boolean checkScanAgain(ConfirmRequest item) {
+        // TODO Auto-generated method stub
+        try {
+            ProfileDTO old = item.getProfile();
+            ProfileDTO dto = findById(item.getProfile().getId());
+            Boolean isExit = false;
+            if (!DataUtils.isNullOrEmpty(dto)) {
+                TransactionTypeDTO transactionType = transactionTypeService
+                        .findById(Long.parseLong(item.getProfile().getType().toString()));
+
+                if (DataUtils.isNullOrEmpty(transactionType)) {
+                    throw new ResourceNotFoundException(
+                            "transaction Type " + item.getProfile().getType().toString() + " not found");
+                }
+
+                UserDTO user = userService.findByUsername(item.getUsername());
+                if (DataUtils.isNullOrEmpty(user)) {
+                    throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
+                }
+
+
+                if (transactionType.getType().equals(1)) {
+                    isExit =  (!DataUtils.isNullOrEmpty(old.getStaffId_CM()) && old.getStaffId_CM().equals(user.getId())) ? true : false;
+                    isExit =  (!DataUtils.isNullOrEmpty(old.getStaffId_CT()) && old.getStaffId_CT().equals(user.getId())) ? true : false;
+                } else {
+                    isExit =  (!DataUtils.isNullOrEmpty(old.getStaffId_CM()) && old.getStaffId_CM().equals(user.getId())) ? true : false;
+                    isExit =  (!DataUtils.isNullOrEmpty(old.getStaffId_CT()) && old.getStaffId_CT().equals(user.getId())) ? true : false;
+                }
+
+            }
+            return isExit;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
 }

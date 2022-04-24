@@ -213,6 +213,11 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   }
 
+  @PostMapping("/checkScanAgain")
+  public Boolean checkScanAgain(@RequestBody ConfirmRequest item) {
+      return service.checkScanAgain(item);
+  }
+
   @GetMapping("/historyProfile/{id}")
   public List<ProfileHistoryDTO> getHistory(@PathVariable(value = "id") Long id) {
     List<ProfileHistoryDTO> listData = historyService.profileHistoryDetail(id);
