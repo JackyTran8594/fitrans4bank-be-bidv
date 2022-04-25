@@ -118,4 +118,18 @@ public class ProfileHistoryServiceImpl implements ProfileHistoryService {
 
         
     }
+
+    // @Override
+    // public List<ProfileHistoryDTO> findByProfileIdAndStaffIdAndState(Long id, Long staffId, Integer state) {
+    //     // TODO Auto-generated method stub
+    //     try {
+    //         List<ProfileHistory> listEntity = repository.findByProfileIdAndStaffIdAndState(id, staffId, state);
+    //         List<ProfileHistoryDTO> list = mapper.toDtoBean(listEntity);
+    //         return list;
+    //     }
+    //     catch (Exception e) {
+
+    //     }
+    //     return null;
+    // }
 }

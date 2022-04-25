@@ -14,9 +14,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long>, ProfileRepositoryCustom {
 
-
     @Modifying
     @Transactional
-     @Query(value = "DELETE  FROM profile WHERE id IN :ids", nativeQuery = true)
-     Integer deleteList(@Param("ids") List<Long> id);
+    @Query(value = "DELETE  FROM profile WHERE id IN :ids", nativeQuery = true)
+    Integer deleteList(@Param("ids") List<Long> id);
 }

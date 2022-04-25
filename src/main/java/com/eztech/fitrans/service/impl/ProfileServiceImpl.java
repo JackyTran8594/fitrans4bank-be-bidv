@@ -99,6 +99,8 @@ public class ProfileServiceImpl implements ProfileService {
                 throw new ResourceNotFoundException("Profile " + profile.getId() + " not found");
             }
             profile.setLastUpdatedDate(LocalDateTime.now());
+            // if(DataUtils.isNullOrEmpty(cs))
+            // profile.setPriorityNumber(0);
             entity = mapper.toPersistenceBean(profile);
         } else {
             entity = mapper.toPersistenceBean(profile);
@@ -425,24 +427,24 @@ public class ProfileServiceImpl implements ProfileService {
             if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
                 old.setProcessDate(null);
                 old.setEndTime(null);
-                if (transactionType.getType().equals(1)) {
-                    switch (item.getCode()) {
-                        case "QTTD":
-                            old.setStaffId_CM(null);
-                            break;
-                        case "GDKH":
-                            old.setStaffId_CT(null);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                if(transactionType.getType().equals(2)) {
-                    old.setStaffId_CM(null);
-                }
-                if(transactionType.getType().equals(3)) {
-                    old.setStaffId_CT(null);
-                }
+                // if (transactionType.getType().equals(1)) {
+                // switch (item.getCode()) {
+                // case "QTTD":
+                // old.setStaffId_CM(null);
+                // break;
+                // case "GDKH":
+                // old.setStaffId_CT(null);
+                // break;
+                // default:
+                // break;
+                // }
+                // }
+                // if(transactionType.getType().equals(2)) {
+                // old.setStaffId_CM(null);
+                // }
+                // if(transactionType.getType().equals(3)) {
+                // old.setStaffId_CT(null);
+                // }
 
             }
             profileHistory.setDepartmentCode(department.getCode());
@@ -482,6 +484,7 @@ public class ProfileServiceImpl implements ProfileService {
         MessageDTO message = new MessageDTO();
         try {
             ProfileDTO dto = findById(item.getProfile().getId());
+            ProfileDTO old = item.getProfile();
             Boolean isExist = false;
             if (!DataUtils.isNullOrEmpty(dto)) {
                 TransactionTypeDTO transactionType = transactionTypeService
@@ -508,8 +511,22 @@ public class ProfileServiceImpl implements ProfileService {
                             // check scan
                             if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                                 if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
-                                    message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                    message.setIsExist(true);
+                                    // List<ProfileHistoryDTO> listHistory =
+                                    // profileHistoryService.findByProfileIdAndStaffIdAndState(dto.getId(),
+                                    // user.getId(), dto.getState());
+                                    if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                        message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                        message.setIsExist(true);
+                                    } else {
+                                        message.setIsExist(false);
+
+                                    }
+                                    // if(listHistory.size() > 0 ) {
+                                    // message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                    // message.setIsExist(true);
+                                    // } else {
+                                    // message.setIsExist(false);
+                                    // }
 
                                 } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                     message.setMessage("Bạn đã kết thúc giao dịch này");
@@ -535,8 +552,22 @@ public class ProfileServiceImpl implements ProfileService {
                             } else {
                                 if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
                                     if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
-                                        message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                        message.setIsExist(true);
+                                        // List<ProfileHistoryDTO> listHistory = profileHistoryService
+                                        //         .findByProfileIdAndStaffIdAndState(dto.getId(), user.getId(),
+                                        //                 dto.getState());
+                                        // if (listHistory.size() > 0) {
+                                        //     message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                        //     message.setIsExist(true);
+                                        // } else {
+                                        //     message.setIsExist(false);
+                                        // }
+                                        if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                            message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setIsExist(false);
+    
+                                        }
 
                                     } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                         message.setMessage("Bạn đã kết thúc giao dịch này");
@@ -564,8 +595,13 @@ public class ProfileServiceImpl implements ProfileService {
                     if (item.getCode().equals("QTTD")) {
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                             if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
-                                message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                message.setIsExist(true);
+                                if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                    message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
+
+                                }
 
                             } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                 message.setMessage("Bạn đã kết thúc giao dịch này");
@@ -589,8 +625,13 @@ public class ProfileServiceImpl implements ProfileService {
                     if (item.getCode().equals("GDKH")) {
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
                             if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
-                                message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                message.setIsExist(true);
+                                if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                    message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
+
+                                }
                             } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                 message.setMessage("Bạn đã kết thúc giao dịch này");
                                 message.setIsExist(true);

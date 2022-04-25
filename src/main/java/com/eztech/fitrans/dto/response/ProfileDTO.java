@@ -101,6 +101,8 @@ public class ProfileDTO implements Serializable {
     public String staffNameCT;
     public String staffNameLast;
     public String description;
+    public Integer priorityNumber;
+    public Integer customerType;
 
 
     // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct,
@@ -141,6 +143,7 @@ public class ProfileDTO implements Serializable {
             String othersProfile,
             String currency,
             String description,
+            Integer priorityNumber,
             String staffNameLast,
             String customerName,
             String staffName,
@@ -148,7 +151,8 @@ public class ProfileDTO implements Serializable {
             String staffNameCT,
             Integer transactionType,
                       String transactionDetail,
-                      Integer additionalTimeMax
+                      Integer additionalTimeMax,
+                      Integer customerType
            ) {
         this.id = id;
         this.customerid = customerid;
@@ -205,12 +209,14 @@ public class ProfileDTO implements Serializable {
         this.staffNameLast = staffNameLast;
         this.transactionDetail = transactionDetail;
         this.additionalTimeMax = additionalTimeMax;
+        this.priorityNumber = priorityNumber;
+        this.customerType = customerType;
     }
 
     public void fillTransient() {
         if (priority != null) {
             this.priorityValue = ProfilePriorityEnum.of(priority);
-        }
+        };
 
         // if (type != null) {
         //     this.typeEnum = ProfileTypeEnum.of(type).getName();
@@ -218,6 +224,6 @@ public class ProfileDTO implements Serializable {
 
         if (state != null) {
             this.stateEnum = ProfileStateEnum.of(state).getName();
-        }
+        };
     }
 }

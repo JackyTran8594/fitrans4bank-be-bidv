@@ -242,6 +242,11 @@ public class ProfileController extends BaseController implements ProfileApi {
     return service.saveHistory(item);
   }
 
+  @PostMapping("/priorityProfile")
+  public ProfileDTO priorityProfile(@RequestBody ConfirmRequest item) {
+    return service.save(item.getProfile());
+  }
+
   @PostMapping("/transferProfile")
   public ProfileDTO transferProfile(@RequestBody ConfirmRequest item) {
     return service.saveHistory(item);

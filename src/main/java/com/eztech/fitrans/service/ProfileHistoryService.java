@@ -20,4 +20,6 @@ public interface ProfileHistoryService {
 
   void deleteListByProfileId(List<Long> ids);
 
+  // List<ProfileHistoryDTO> findByProfileIdAndStaffIdAndState(Long id, Long staffId, Integer state);
+
 }

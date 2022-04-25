@@ -59,6 +59,7 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "others_profile", type = String.class),
         @ColumnResult(name = "currency", type = String.class),
         @ColumnResult(name = "description", type = String.class),
+        @ColumnResult(name = "priority_number", type = Integer.class),
         @ColumnResult(name = "staff_name_last", type = String.class),
         @ColumnResult(name = "customer_name", type = String.class),
         @ColumnResult(name = "staff_name", type = String.class),
@@ -67,6 +68,7 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "transaction_type", type = Integer.class),
         @ColumnResult(name = "transaction_detail", type = String.class),
         @ColumnResult(name = "additional_time_max", type = Integer.class),
+        @ColumnResult(name = "customer_type", type = Integer.class),
     })
 
 })
@@ -135,6 +137,9 @@ public class Profile extends Auditable<String> implements Serializable {
   private Integer priority;
   @Transient
   private ProfilePriorityEnum priorityValue;
+
+  @Column(name = "priority_number")
+  private Integer priorityNumber;
 
   // Trạng thái hồ sơ
   @Basic

@@ -25,5 +25,8 @@ public interface ProfileHistoryRepository extends JpaRepository<ProfileHistory, 
     @Modifying
     @Query(value = "DELETE FROM profile_history WHERE profile_id IN :ids", nativeQuery = true)
     Integer deleteListByProfileId(@Param("ids") List<Long> ids);
+
+    // @Query(value = "SELECT * FROM profile_history p WHERE p.profile_id = :id AND p.staff_id = :staffId AND p.state = :state")
+    // List<ProfileHistory> findByProfileIdAndStaffIdAndState(@Param("id") Long id, @Param("staffId") Long staffId,@Param("state") Integer state);
     
 }
