@@ -511,62 +511,95 @@ public class ProfileServiceImpl implements ProfileService {
                             // check scan
                             if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                                 if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
-                                    // List<ProfileHistoryDTO> listHistory =
-                                    // profileHistoryService.findByProfileIdAndStaffIdAndState(dto.getId(),
-                                    // user.getId(), dto.getState());
-                                    if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
-                                        message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                        message.setIsExist(true);
-                                    } else {
-                                        message.setIsExist(false);
+                                    if (!item.getIsFinished()) {
+                                        if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                            message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setIsExist(false);
 
+                                        }
+                                    } else {
+                                        message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                        message.setIsExist(true);
                                     }
-                                    // if(listHistory.size() > 0 ) {
-                                    // message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                    // message.setIsExist(true);
-                                    // } else {
-                                    // message.setIsExist(false);
-                                    // }
 
                                 } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                     message.setMessage("Bạn đã kết thúc giao dịch này");
                                     message.setIsExist(true);
 
                                 } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                                    message.setIsExist(false);
+                                    if (item.getIsFinished()) {
+                                        message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                                        message.setIsExist(true);
+                                    } else {
+                                        message.setIsExist(false);
+                                    }
+
                                 }
 
                             } else {
                                 if (!item.getIsFinished()) {
                                     message.setIsExist(false);
                                 } else {
-                                    message.setMessage("Chưa bàn giao tại quản trị tín dụng");
+                                    message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                                     message.setIsExist(true);
                                 }
                             }
                             break;
                         case "GDKH":
-                            if (DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
-                                message.setMessage("Chưa bàn giao tại quản trị tín dụng");
-                                message.setIsExist(true);
-                            } else {
-                                if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
+                            if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
+                                // check delivery to GDKH
+                                // state of profile: not_yet, tranfer
+                                Integer[] intArray = new Integer[] { 6 };
+                                if (DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
+                                    if (Arrays.asList(intArray).contains(dto.getState())) {
+                                        message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                                        message.setIsExist(true);
+                                    } else if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                        // nhận bàn giao từ QTTD tới máy chung - admin
+                                        if (item.getUsername().contains("admin")) {
+                                            if (item.getIsFinished()) {
+                                                message.setMessage(
+                                                        "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
+                                                message.setIsExist(true);
+                                            } else {
+                                                message.setIsExist(false);
+                                            }
+                                        } else {
+                                            // cán bộ GDKH quét QR nhầm
+                                            message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                            message.setIsExist(true);
+                                        }
+                                    } else if (dto.getState().equals(ProfileStateEnum.RECEIVED.getValue())) {
+                                        if (item.getUsername().contains("admin")) {
+                                            if (item.getIsFinished()) {
+                                                message.setMessage(
+                                                        "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
+                                                message.setIsExist(true);
+                                            } else {
+                                                message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                                message.setIsExist(true);
+                                            }
+                                        } else {
+                                            // cán bộ GDKH quét QR nhầm
+                                            if (item.getIsFinished()) {
+                                                message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                                message.setIsExist(true);
+                                            } else {
+                                                message.setIsExist(false);
+                                            }
+                                        }
+                                    }
+                                } else {
                                     if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
-                                        // List<ProfileHistoryDTO> listHistory = profileHistoryService
-                                        //         .findByProfileIdAndStaffIdAndState(dto.getId(), user.getId(),
-                                        //                 dto.getState());
-                                        // if (listHistory.size() > 0) {
-                                        //     message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                        //     message.setIsExist(true);
-                                        // } else {
-                                        //     message.setIsExist(false);
-                                        // }
+                                        // check scan
                                         if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
                                             message.setMessage("Bạn đã nhận giao dịch này 1 lần");
                                             message.setIsExist(true);
                                         } else {
                                             message.setIsExist(false);
-    
+
                                         }
 
                                     } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
@@ -574,12 +607,18 @@ public class ProfileServiceImpl implements ProfileService {
                                         message.setIsExist(true);
 
                                     } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                                        message.setIsExist(false);
+                                        if (item.getIsFinished()) {
+                                            message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setIsExist(false);
+                                        }
                                     }
-
-                                } else {
-                                    message.setIsExist(false);
                                 }
+
+                            } else {
+                                message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                                message.setIsExist(true);
                             }
 
                             break;
@@ -609,10 +648,15 @@ public class ProfileServiceImpl implements ProfileService {
                                 message.setIsExist(true);
 
                             } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                                message.setIsExist(false);
+                                if (item.getIsFinished()) {
+                                    message.setMessage("Bàn giao tại quản trị tín dụng");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
+                                }
                             }
                         } else {
-                            message.setMessage("Chưa bàn giao tại quản trị tín dụng");
+                            message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                             message.setIsExist(true);
                         }
                     } else {
@@ -625,18 +669,28 @@ public class ProfileServiceImpl implements ProfileService {
                     if (item.getCode().equals("GDKH")) {
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
                             if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
-                                if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
-                                    message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                    message.setIsExist(true);
-                                } else {
+                                if (item.getIsFinished()) {
                                     message.setIsExist(false);
+                                } else {
+                                    if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                        message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                        message.setIsExist(true);
+                                    } else {
+                                        message.setIsExist(false);
 
+                                    }
                                 }
+
                             } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                 message.setMessage("Bạn đã kết thúc giao dịch này");
                                 message.setIsExist(true);
                             } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                                message.setIsExist(false);
+                                if (item.getIsFinished()) {
+                                    message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
+                                }
                             }
                         } else {
                             if (!DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
@@ -645,7 +699,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 if (item.getUsername().contains("admin")) {
                                     message.setIsExist(false);
                                 } else {
-                                    message.setMessage("Chưa bàn giao tại giao dịch khách hàng");
+                                    message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
                                     message.setIsExist(true);
                                 }
                             }
@@ -694,7 +748,7 @@ public class ProfileServiceImpl implements ProfileService {
                 }
                 // state of profile: not_yet, tranfer
                 Integer[] intArray = new Integer[] { 0, 1 };
-
+                Integer[] intArray2 = new Integer[] { 6 };
                 if (transactionType.getType().equals(1)) {
 
                     switch (item.getCode()) {
@@ -732,14 +786,18 @@ public class ProfileServiceImpl implements ProfileService {
                                         message.setIsExist(false);
                                     }
                                 } else {
-                                    if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
-                                        message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                    if (Arrays.asList(intArray2).contains(dto.getState())) {
+                                        message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                                         message.setIsExist(true);
+                                    } else if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                        if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
+                                            message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                            message.setIsExist(true);
 
-                                    } else {
-                                        message.setIsExist(false);
+                                        } else {
+                                            message.setIsExist(false);
+                                        }
                                     }
-
                                 }
                             }
 
