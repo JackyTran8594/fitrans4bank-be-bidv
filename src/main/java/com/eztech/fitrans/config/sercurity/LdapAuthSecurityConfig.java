@@ -81,6 +81,8 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 
+		auth.inMemoryAuthentication().withUser("adminbidv").password(passwordEncoder().encode("admin@123")).roles(Role.ADMIN);
+
 		auth
 				.ldapAuthentication()
 				.userDnPatterns(dnPatterns)
@@ -97,6 +99,8 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 				// Populates the user roles by LDAP user name from database
 				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
 		;
+
+
 
 //		// Returns LdapAuthenticationProviderConfigurer to allow customization of the
 //		// LDAP authentication

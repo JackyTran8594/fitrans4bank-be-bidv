@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class JwtTokenProvider {
@@ -53,7 +54,8 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String generateToken(Authentication authentication, String role ,List<String> listPermission, String departmentCode, String position, String fullname) {
+    public String generateToken(Authentication authentication, String role, List<String> listPermission,
+            String departmentCode, String position, String fullname) {
 
         LdapUserDetailsImpl userPrincipal = (LdapUserDetailsImpl) authentication.getPrincipal();
 

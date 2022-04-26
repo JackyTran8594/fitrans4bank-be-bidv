@@ -30,6 +30,5 @@ public class LdapUserAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 		} else {
 			return userDetailsService.loadUserByUsername(username).getAuthorities();
 		}
-
 	}
 }

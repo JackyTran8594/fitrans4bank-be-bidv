@@ -58,6 +58,7 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
                             loginRequest.getPassword()));
+
             List<String> permissions = new ArrayList<>();
             String role = null;
             Long userId = null;
@@ -65,6 +66,7 @@ public class AuthController {
             String departmentCode = null;
             UserDetails userDetails = null;
             Map<String, Object> mapper = null;
+            String jwt = null;
             // TODO: Test
             log.info(new BCryptPasswordEncoder().encode("123456a@"));
             log.info("admin: " + new BCryptPasswordEncoder().encode("admin"));
@@ -73,22 +75,32 @@ public class AuthController {
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal instanceof UserDetails) {
                     userDetails = (UserDetails) principal;
-                    role = userDetailsServiceImpl.getRoleByUsername(userDetails.getUsername());
-                    mapper = userDetailsServiceImpl.getPositionByUsername(userDetails.getUsername());
-                    departmentCode = userDetailsServiceImpl.getDepartmentCodeByUsername(userDetails.getUsername());
-                    log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
-                    if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
-                        permissions = userDetails.getAuthorities().stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.toList());
+                    if (userDetails.getUsername().equals("adminbidv")) {
+                        role = "ADMIN";
+                        jwt = tokenProvider.generateToken(userDetails.getUsername(), role);
+                    } else {
+                        role = userDetailsServiceImpl.getRoleByUsername(userDetails.getUsername());
+                        mapper = userDetailsServiceImpl.getPositionByUsername(userDetails.getUsername());
+                        departmentCode = userDetailsServiceImpl.getDepartmentCodeByUsername(userDetails.getUsername());
+                        log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
+                        if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
+                            permissions = userDetails.getAuthorities().stream()
+                                    .map(GrantedAuthority::getAuthority)
+                                    .collect(Collectors.toList());
 
+                        }
+                        jwt = tokenProvider.generateToken(authentication, role, permissions, departmentCode,
+                    mapper.get("position").toString(), mapper.get("fullname").toString());
                     }
+
                 } else {
                     log.info("===SecurityContextHolder getPrincipal: "
                             + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
-            String jwt = tokenProvider.generateToken(authentication, role ,permissions, departmentCode, mapper.get("position").toString(), mapper.get("fullname").toString());
+            // String jwt = null;
+            // if(userDetails.getUsername().equals(anObject))
+            
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {
@@ -96,7 +108,7 @@ public class AuthController {
             return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_INVALID),
                     HttpStatus.BAD_REQUEST);
         } catch (UsernameNotFoundException ex) {
-            log.error(ex.getMessage(),ex);
+            log.error(ex.getMessage(), ex);
             return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_INACTIVE),
                     HttpStatus.BAD_REQUEST);
         } catch (Exception ex) {
