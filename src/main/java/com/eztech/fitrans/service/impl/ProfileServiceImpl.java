@@ -427,24 +427,6 @@ public class ProfileServiceImpl implements ProfileService {
             if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
                 old.setProcessDate(null);
                 old.setEndTime(null);
-                // if (transactionType.getType().equals(1)) {
-                // switch (item.getCode()) {
-                // case "QTTD":
-                // old.setStaffId_CM(null);
-                // break;
-                // case "GDKH":
-                // old.setStaffId_CT(null);
-                // break;
-                // default:
-                // break;
-                // }
-                // }
-                // if(transactionType.getType().equals(2)) {
-                // old.setStaffId_CM(null);
-                // }
-                // if(transactionType.getType().equals(3)) {
-                // old.setStaffId_CT(null);
-                // }
 
             }
             profileHistory.setDepartmentCode(department.getCode());
@@ -716,9 +698,9 @@ public class ProfileServiceImpl implements ProfileService {
             return message;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            // message.setMessage(e.getMessage());
-            // message.setIsExist(true);
-            return null;
+            message.setMessage(e.getMessage());
+            message.setIsExist(true);
+            return message;
         }
     }
 
