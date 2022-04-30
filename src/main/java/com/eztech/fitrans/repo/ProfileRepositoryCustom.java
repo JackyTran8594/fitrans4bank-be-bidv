@@ -13,4 +13,5 @@ public interface ProfileRepositoryCustom extends BaseRepositoryCustom {
     List<ProfileDTO> listDashboard();
 
     List<ProfileDTO> getProfileWithParams(Map<String, Object> params);
+
 }

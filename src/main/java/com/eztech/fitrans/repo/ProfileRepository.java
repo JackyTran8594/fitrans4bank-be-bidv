@@ -18,4 +18,10 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, Profile
     @Transactional
     @Query(value = "DELETE  FROM profile WHERE id IN :ids", nativeQuery = true)
     Integer deleteList(@Param("ids") List<Long> id);
+
+    @Modifying
+    @Query(value = "SELECT p.* from profile as p LEFT JOIN transaction_type as trans ON trans.id = p.type WHERE trans.type = :type AND p.state = :state AND p.staff_id = :staffId ORDER BY p.process_date ASC", nativeQuery = true)
+    List<Profile> findBySateAndTypeAndStaffId(@Param("type") Integer type, @Param("state") Integer state,
+            @Param("staffId") Long staffId);
+
 }

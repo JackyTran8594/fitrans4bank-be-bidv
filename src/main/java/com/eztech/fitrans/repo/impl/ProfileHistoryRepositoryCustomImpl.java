@@ -126,7 +126,7 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
     // TODO Auto-generated method stub
     try {
       Map<String, Object> parameters = new HashMap<>();
-      String sql = "SELECT p.id, p.profile_id, p.staff_id, p.time_received, p.standard_time, p.created_by,p.created_date,p.last_updated_by,p.last_updated_date,p.status, p.state,us.full_name as staff_name, p.department_id \n"
+      String sql = "SELECT p.*,us.full_name as staff_name \n"
           +
           "FROM profile_history p left join user_entity us on us.id = p.staff_id AND us.status = 'ACTIVE'\n"
           +

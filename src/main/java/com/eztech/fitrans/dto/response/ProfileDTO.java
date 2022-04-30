@@ -5,7 +5,6 @@ import com.eztech.fitrans.config.formatdate.LocalDateTimeSerializer;
 import com.eztech.fitrans.constants.ProfilePriorityEnum;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.constants.ProfileTypeEnum;
-import com.eztech.fitrans.constants.ProfileStateProcess;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -39,9 +38,6 @@ public class ProfileDTO implements Serializable {
     public Integer state;
     public String stateEnum;
 
-    public Integer profileProcessState;
-    public String processStateEnum;
-
     public Long staffId; // Cán bộ đang thực hiện
     public String staffName; // Cán bộ đang thực hiện
 
@@ -61,6 +57,14 @@ public class ProfileDTO implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime endTime; // Ngày kết thúc giao dịch
 
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime realTimeReceivedCT; // Ngày thực tế nhận tại QTTD
+ 
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime realTimeReceivedCM; // Ngày thực tế nhận tại GDKH
+
     public Integer numberOfBill; // Số lượng hóa đơn
 
     public Integer numberOfPO; // Số lượng ủy nhiệm chi
@@ -72,7 +76,7 @@ public class ProfileDTO implements Serializable {
     public String categoryProfile;
     public BigDecimal value; // Giá trị
 
-    public String transactionDetail; //Chi tiết giao dịch
+    public String transactionDetail; // Chi tiết giao dịch
     public String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -104,22 +108,15 @@ public class ProfileDTO implements Serializable {
     public Integer priorityNumber;
     public Integer customerType;
 
-
-    // p.id,p.customer_id,p.staff_id,p.type,p.priority,p.process_date, p.time_received_ct,
-    // p.time_received_cm, p.end_time, p.staff_id_cm, p.staff_id_ct, p.number_of_bill, 
-    // p.number_of_po, p.value, p.return_reason, p.category_profile, p.created_by,
-    // p.created_date,p.last_updated_by,p.last_updated_date,p.status,p.state, p.rate, 
-    // p.notify_by_email ,c.cif,c.name as customer_name, s.name as staff_name , p.review_note
-
-    public ProfileDTO(Long id, 
-    Long customerid, 
-    Long staffId, 
-    Integer type,
-            Integer priority, 
+    public ProfileDTO(Long id,
+            Long customerid,
+            Long staffId,
+            Integer type,
+            Integer priority,
             LocalDateTime processDate,
-            String createdBy, 
-            LocalDateTime createdDate, 
-              String lastUpdatedBy, 
+            String createdBy,
+            LocalDateTime createdDate,
+            String lastUpdatedBy,
             LocalDateTime lastUpdatedDate,
             String status,
             Integer state,
@@ -135,25 +132,25 @@ public class ProfileDTO implements Serializable {
             LocalDateTime endTime,
             String returnReason,
             String categoryProfile,
-            String cif, 
+            String cif,
             String reviewNote,
             String note,
-            Integer profileProcessState,
             Integer additionalTime,
             String othersProfile,
             String currency,
             String description,
             Integer priorityNumber,
+            LocalDateTime realTimeReceivedCT,
+            LocalDateTime realTimeReceivedCM,
             String staffNameLast,
             String customerName,
             String staffName,
             String staffNameCM,
             String staffNameCT,
             Integer transactionType,
-                      String transactionDetail,
-                      Integer additionalTimeMax,
-                      Integer customerType
-           ) {
+            String transactionDetail,
+            Integer additionalTimeMax,
+            Integer customerType) {
         this.id = id;
         this.customerid = customerid;
         this.cif = cif;
@@ -173,10 +170,6 @@ public class ProfileDTO implements Serializable {
             this.stateEnum = ProfileStateEnum.of(state).getName();
         }
 
-        this.profileProcessState = profileProcessState;
-        if(profileProcessState != null) {
-            this.processStateEnum = ProfileStateProcess.of(profileProcessState).getName();
-        }
         this.staffId = staffId;
         this.staffName = staffName;
         this.processDate = processDate;
@@ -211,19 +204,23 @@ public class ProfileDTO implements Serializable {
         this.additionalTimeMax = additionalTimeMax;
         this.priorityNumber = priorityNumber;
         this.customerType = customerType;
+        this.realTimeReceivedCT = realTimeReceivedCT;
+        this.realTimeReceivedCM = realTimeReceivedCM;
     }
 
     public void fillTransient() {
         if (priority != null) {
             this.priorityValue = ProfilePriorityEnum.of(priority);
-        };
+        }
+        ;
 
         // if (type != null) {
-        //     this.typeEnum = ProfileTypeEnum.of(type).getName();
+        // this.typeEnum = ProfileTypeEnum.of(type).getName();
         // }
 
         if (state != null) {
             this.stateEnum = ProfileStateEnum.of(state).getName();
-        };
+        }
+        ;
     }
 }

@@ -54,12 +54,13 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "cif", type = String.class),
         @ColumnResult(name = "review_note", type = String.class),
         @ColumnResult(name = "note", type = String.class),
-        @ColumnResult(name = "profile_process_state", type = Integer.class),
         @ColumnResult(name = "additional_time", type = Integer.class),
         @ColumnResult(name = "others_profile", type = String.class),
         @ColumnResult(name = "currency", type = String.class),
         @ColumnResult(name = "description", type = String.class),
         @ColumnResult(name = "priority_number", type = Integer.class),
+        @ColumnResult(name = "real_time_received_ct", type = LocalDateTime.class),
+        @ColumnResult(name = "real_time_received_cm", type = LocalDateTime.class),
         @ColumnResult(name = "staff_name_last", type = String.class),
         @ColumnResult(name = "customer_name", type = String.class),
         @ColumnResult(name = "staff_name", type = String.class),
@@ -101,6 +102,18 @@ public class Profile extends Auditable<String> implements Serializable {
   @JsonSerialize(using = LocalDateTimeSerializer.class)
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   private LocalDateTime endTime; // Ngày kết thúc giao dịch
+
+
+  @Column(name = "real_time_received_ct")
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  private LocalDateTime realTimeReceivedCT; // Ngày thực tế nhận tại QTTD
+
+
+  @Column(name = "real_time_received_cm")
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  private LocalDateTime realTimeReceivedCM; // Ngày thực tế nhận tại GDKH
 
   @Column(name = "number_of_bill")
   private Integer numberOfBill; // Số lượng hóa đơn
@@ -146,11 +159,6 @@ public class Profile extends Auditable<String> implements Serializable {
   private Integer state;
   @Transient
   private ProfileStateEnum stateValue;
-
-  // Trạng thái hồ sơ đăng ký
-  @Column(name="profile_process_state")
-  private Integer profileProcessState;
-
 
   // Đánh giá
   @Column(name = "review")

@@ -179,9 +179,9 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         } else {
             if (!count) {
                 if (paramSearch.containsKey("sort")) {
-                    sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.priority_number DESC  "));
+                    sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.id DESC  "));
                 } else {
-                    sb.append(" ORDER BY p.priority_number desc ");
+                    sb.append(" ORDER BY p.id desc ");
                 }
             }
 

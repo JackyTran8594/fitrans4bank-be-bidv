@@ -22,6 +22,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -783,5 +784,70 @@ public class DataUtils {
         return true;
     }
 
+    public static LocalDateTime processDate(LocalDateTime from, LocalDateTime to, LocalDateTime compare) {
+        long years = ChronoUnit.YEARS.between(from, to);
+        long months = ChronoUnit.MONTHS.between(from, to);
+        long days = ChronoUnit.DAYS.between(from, to);
+        long hours = ChronoUnit.HOURS.between(from, to);
+        long minutes = ChronoUnit.MINUTES.between(from,to);
+        long seconds = ChronoUnit.SECONDS.between(from, to);
+        LocalDateTime processDate = LocalDateTime.now();
+        boolean isAfter = processDate.isAfter(compare);
+        if (!isAfter) {
+            // set processDate = real time received of profile processing/first record
+            processDate = compare;
+        }
 
+        if (years > 0) {
+            processDate.plusYears(years);
+        }
+        if (months > 0) {
+            processDate.plusMonths(months);
+        }
+        if (days > 0) {
+            processDate.plusDays(days);
+        }
+        if (hours > 0) {
+            processDate.plusHours(hours);
+        }
+        if (minutes > 0) {
+            processDate.plusMinutes(minutes);
+        }
+        if (seconds > 0) {
+            processDate.plusSeconds(seconds);
+        }
+
+        return processDate;
+
+    }
+
+    public static LocalDateTime calculatingDate(LocalDateTime from, LocalDateTime to, LocalDateTime timeReceived) {
+        long years = ChronoUnit.YEARS.between(from, to);
+        long months = ChronoUnit.MONTHS.between(from, to);
+        long days = ChronoUnit.DAYS.between(from, to);
+        long hours = ChronoUnit.HOURS.between(from, to);
+        long minutes = ChronoUnit.MINUTES.between(from,to);
+        long seconds = ChronoUnit.SECONDS.between(from, to);
+        // processDate = timeReceived from 2nd record
+        if (years > 0) {
+            timeReceived.plusYears(years);
+        }
+        if (months > 0) {
+            timeReceived.plusMonths(months);
+        }
+        if (days > 0) {
+            timeReceived.plusDays(days);
+        }
+        if (hours > 0) {
+            timeReceived.plusHours(hours);
+        }
+        if (minutes > 0) {
+            timeReceived.plusMinutes(minutes);
+        }
+        if (seconds > 0) {
+            timeReceived.plusSeconds(seconds);
+        }
+        return timeReceived;
+    }
+   
 }

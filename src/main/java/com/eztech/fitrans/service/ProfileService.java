@@ -3,6 +3,9 @@ package com.eztech.fitrans.service;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
+
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -34,5 +37,5 @@ public interface ProfileService {
 
   MessageDTO checkIsReturn(ConfirmRequest item);
 
-
+  ProfileDTO priorityProfile(ConfirmRequest req);
 }
