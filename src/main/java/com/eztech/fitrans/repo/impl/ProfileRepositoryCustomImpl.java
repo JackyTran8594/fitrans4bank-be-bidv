@@ -75,24 +75,24 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         if (count) {
             sb.append("SELECT COUNT(p.id) \n")
                     .append(
-                            "FROM profile p left join customer c on p.customer_id = c.id  \n")
+                            "FROM profile p join customer c on p.customer_id = c.id  \n")
                     .append("left join profile_history his on p.id = his.profile_id \n")
                     .append("left join user_entity u on his.staff_id = u.id \n")
                     .append("left join user_entity uc on p.staff_id = uc.id \n")
                     .append("left join user_entity ucm on p.staff_id_cm = ucm.id  \n")
                     .append("left join user_entity uct on p.staff_id_ct = uct.id  \n")
-                    .append("left join transaction_type trans on trans.id = p.type \n")
+                    .append("join transaction_type trans on trans.id = p.type \n")
                     .append("WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)");
         } else {
             sb.append(sql_select)
                     .append(
                             "FROM profile p left join customer c on p.customer_id = c.id  \n")
-                    .append("left join profile_history his on p.id = his.profile_id  \n")
+                    .append("left join profile_history his on p.id = his.profile_id \n")
                     .append("left join user_entity u on his.staff_id = u.id  \n")
                     .append("left join user_entity uc on p.staff_id = uc.id \n")
                     .append("left join user_entity ucm on p.staff_id_cm = ucm.id  \n")
                     .append("left join user_entity uct on p.staff_id_ct = uct.id  \n")
-                    .append("left join transaction_type trans on trans.id = p.type \n")
+                    .append("join transaction_type trans on trans.id = p.type \n")
                     .append("WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)");
 
         }
@@ -110,7 +110,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 // default null from client
                 String username = paramSearch.containsKey("username") ? paramSearch.get("username").toString() : "";
                 if (!DataUtils.isNullOrEmpty(username) && !username.toLowerCase().trim().contains("admin")) {
-                    // String position = paramSearch.containsKey("position") ? paramSearch.get("position").toString() : "";
+                    // String position = paramSearch.containsKey("position") ?
+                    // paramSearch.get("position").toString() : "";
                     String sql_filter = "";
                     // String sql_username = " ";
                     switch (deparmentCode) {
@@ -220,7 +221,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         return profileDTO;
     }
 
-
     @Override
     public ProfileDTO detailById(Long id) {
         Map<String, Object> parameters = new HashMap<>();
@@ -235,7 +235,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uc on p.staff_id = uc.id AND uc.status = 'ACTIVE' \n" +
                 "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
-                "left join transaction_type trans on trans.id = p.type \n" +
+                "join transaction_type trans on trans.id = p.type \n" +
                 "where p.id = :id";
         parameters.put("id", id);
         // parameters.put("state", state);
@@ -281,7 +281,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uc on p.staff_id = uc.id \n" +
                 "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
-                "left join transaction_type trans on trans.id = p.type \n";
+                "join transaction_type trans on trans.id = p.type \n";
 
         sb.append(sql).append(
                 "WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)");
@@ -304,7 +304,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             parameters.put("profileId", DataUtils.parseToLong(params.get("profileId")));
         }
 
-        sb.append(" ORDER BY p.id desc ");
+        sb.append(" ORDER BY p.process_date DESC");
 
         // if (params.containsKey("username")) {
         // sb.append(" AND uc.username = :username ");

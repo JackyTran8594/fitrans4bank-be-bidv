@@ -139,7 +139,7 @@ public class ProfileController extends BaseController implements ProfileApi {
   @GetMapping("/getById/{id}")
   public ProfileDTO getById(@PathVariable(value = "id") Long id) {
     ProfileDTO dto = service.findById(id);
-    if(dto == null) {
+    if (dto == null) {
       throw new ResourceNotFoundException("Profile " + id + " not found");
     }
     return dto;
@@ -180,8 +180,7 @@ public class ProfileController extends BaseController implements ProfileApi {
 
     String username = mapParam.get("username").toString();
     Map<String, ProfileListDTO> mapParams = new HashMap<>();
-    if(!DataUtils.isNullOrEmpty(item.getCategoryProfile()))
-    {
+    if (!DataUtils.isNullOrEmpty(item.getCategoryProfile())) {
       String[] categoryId = item.categoryProfile.split(",");
       for (String str : categoryId) {
         ProfileListDTO profileListDTO = profileListService.findById(Long.parseLong(str));
@@ -191,7 +190,12 @@ public class ProfileController extends BaseController implements ProfileApi {
         }
       }
     }
-   
+    if (!DataUtils.isNullOrEmpty(item.getOthersProfile())) {
+      String id = Integer.valueOf(mapParams.size() + 1).toString();
+      ProfileListDTO dto = new ProfileListDTO();
+      dto.setType(item.getOthersProfile());
+      mapParams.put(id, dto);
+    }
 
     TransactionTypeDTO typeEnum = transactionTypeService.findById(item.getType().longValue());
     if (DataUtils.isNullOrEmpty(typeEnum)) {
@@ -216,14 +220,13 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @PostMapping("/checkScanAgain")
   public MessageDTO checkScanAgain(@RequestBody ConfirmRequest item) {
-      return service.checkScanAgain(item);
+    return service.checkScanAgain(item);
   }
 
   @PostMapping("/checkIsReturn")
   public MessageDTO checkIsReturn(@RequestBody ConfirmRequest item) {
-      return service.checkIsReturn(item);
+    return service.checkIsReturn(item);
   }
-
 
   @GetMapping("/historyProfile/{id}")
   public List<ProfileHistoryDTO> getHistory(@PathVariable(value = "id") Long id) {

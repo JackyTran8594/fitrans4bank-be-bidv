@@ -20,8 +20,13 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, Profile
     Integer deleteList(@Param("ids") List<Long> id);
 
     @Modifying
-    @Query(value = "SELECT p.* from profile as p LEFT JOIN transaction_type as trans ON trans.id = p.type WHERE trans.type = :type AND p.state = :state AND p.staff_id = :staffId ORDER BY p.process_date ASC", nativeQuery = true)
-    List<Profile> findBySateAndTypeAndStaffId(@Param("type") Integer type, @Param("state") Integer state,
+    @Query(value = "SELECT p.* from profile as p LEFT JOIN transaction_type as trans ON trans.id = p.type WHERE trans.type in (1,2) AND p.state = :state AND p.staff_id_cm = :staffId ORDER BY p.real_time_received_cm ASC", nativeQuery = true)
+    List<Profile> findBySateAndStaffId(@Param("state") Integer state,
             @Param("staffId") Long staffId);
+
+    @Modifying
+    @Query(value = "SELECT p.* from profile as p LEFT JOIN transaction_type as trans ON trans.id = p.type WHERE trans.type in (1,2) AND p.id <> :profileId AND p.state = :state AND p.staff_id_cm = :staffId ORDER BY p.real_time_received_cm ASC", nativeQuery = true)
+    List<Profile> findBySateAndStaffIdAndIgnore(@Param("state") Integer state,
+            @Param("staffId") Long staffId, @Param("profileId") Long profileId);
 
 }

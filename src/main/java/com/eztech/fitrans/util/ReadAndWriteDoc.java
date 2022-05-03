@@ -57,11 +57,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTFonts;
-// import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
-// import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageSz;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTRow;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyle;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTStyles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -74,18 +70,19 @@ public class ReadAndWriteDoc {
 
     private static Logger logger = LoggerFactory.getLogger(ReadAndWriteDoc.class);
     private static final BaseMapper<ProfileDTO, QRCodeDTO> mapper = new BaseMapper<>(ProfileDTO.class, QRCodeDTO.class);
-   
 
     public File ExportDocFile(ProfileDTO profile, String username, Map<String, ProfileListDTO> mapParams) {
 
         try {
             // String url = getClass().getResource("")
 
-            // InputStream resource = getClass().getClassLoader().getResourceAsStream("template" + File.separator +"BIDV_Template.docx");
+            // InputStream resource =
+            // getClass().getClassLoader().getResourceAsStream("template" + File.separator
+            // +"BIDV_Template.docx");
             InputStream resource = getClass().getClassLoader().getResourceAsStream("template/BIDV_Template.docx");
 
             File file = File.createTempFile("BIDV_Template_", ".docx");
-                FileUtils.copyInputStreamToFile(resource, file);
+            FileUtils.copyInputStreamToFile(resource, file);
             // System.out.println(resource.)
             // URL image = getClass().getClassLoader().getResource("template/bidv.png");
             // URL rootFolder = getClass().getClassLoader().getResource("template");
@@ -97,7 +94,6 @@ public class ReadAndWriteDoc {
                 throw new IllegalArgumentException("file not found");
             } else {
 
-                
                 try (FileInputStream inpuStream = new FileInputStream(file)) {
                     XWPFDocument docOrigin = new XWPFDocument(inpuStream);
                     XWPFDocument docDes = new XWPFDocument();
@@ -119,7 +115,6 @@ public class ReadAndWriteDoc {
                                 XWPFRun run = para1.createRun();
                                 run.setText(profile.getStaffName().toString());
                                 run.setFontSize(12);
-                              
 
                                 // check transactionType : 1,2,3
                                 XWPFTableRow row2 = table.getRow(1);
@@ -130,19 +125,18 @@ public class ReadAndWriteDoc {
                                 run2.setFontSize(12);
 
                                 if (profile.getTransactionType().equals(1) | profile.getTransactionType().equals(2)) {
-                                    if(!DataUtils.isNullOrEmpty(profile.getStaffNameCM())) {
+                                    if (!DataUtils.isNullOrEmpty(profile.getStaffNameCM())) {
                                         run2.setText(profile.getStaffNameCM().toString());
                                     }
                                 } else {
-                                    if(!DataUtils.isNullOrEmpty(profile.getStaffNameCM())) {
+                                    if (!DataUtils.isNullOrEmpty(profile.getStaffNameCM())) {
                                         run2.setText(profile.getStaffNameCT().toString());
                                     }
                                 }
                                 cell2.setVerticalAlignment(XWPFVertAlign.CENTER);
 
-
                                 // row 3
-                                if(!DataUtils.isNullOrEmpty(profile.getCif())) {
+                                if (!DataUtils.isNullOrEmpty(profile.getCif())) {
                                     XWPFTableRow row3 = table.getRow(2);
                                     XWPFTableCell cell3 = row3.getCell(1);
                                     XWPFParagraph para3 = cell3.getParagraphs().get(0);
@@ -151,11 +145,9 @@ public class ReadAndWriteDoc {
                                     run3.setText(profile.getCif());
                                     run3.setFontSize(12);
                                 }
-                               
-                                
 
                                 // row 4
-                                if(!DataUtils.isNullOrEmpty(profile.getCustomerName())) {
+                                if (!DataUtils.isNullOrEmpty(profile.getCustomerName())) {
                                     XWPFTableRow row4 = table.getRow(3);
                                     XWPFTableCell cell4 = row4.getCell(1);
                                     XWPFParagraph para4 = cell4.getParagraphs().get(0);
@@ -164,10 +156,9 @@ public class ReadAndWriteDoc {
                                     run4.setText(profile.getCustomerName());
                                     run4.setFontSize(12);
                                 }
-                               
-                           
+
                                 // row 5
-                                if(!DataUtils.isNullOrEmpty(profile.getTypeEnum())) {
+                                if (!DataUtils.isNullOrEmpty(profile.getTypeEnum())) {
                                     XWPFTableRow row5 = table.getRow(4);
                                     XWPFTableCell cell5 = row5.getCell(1);
                                     XWPFParagraph para5 = cell5.getParagraphs().get(0);
@@ -176,10 +167,9 @@ public class ReadAndWriteDoc {
                                     run5.setText(profile.getTypeEnum());
                                     run5.setFontSize(12);
                                 }
-                            
 
                                 // row 6
-                                if(!DataUtils.isNullOrEmpty(profile.getNote())) {
+                                if (!DataUtils.isNullOrEmpty(profile.getNote())) {
                                     XWPFTableRow row6 = table.getRow(5);
                                     XWPFTableCell cell6 = row6.getCell(1);
                                     XWPFParagraph para6 = cell6.getParagraphs().get(0);
@@ -188,10 +178,9 @@ public class ReadAndWriteDoc {
                                     run6.setText(profile.getNote());
                                     run6.setFontSize(12);
                                 }
-                               
 
                                 // row 7
-                                if(!DataUtils.isNullOrEmpty(profile.getValue())) {
+                                if (!DataUtils.isNullOrEmpty(profile.getValue())) {
                                     XWPFTableRow row7 = table.getRow(6);
                                     XWPFTableCell cell7 = row7.getCell(1);
                                     XWPFParagraph para7 = cell7.getParagraphs().get(0);
@@ -199,15 +188,22 @@ public class ReadAndWriteDoc {
                                     XWPFRun run7 = para7.createRun();
                                     Locale vi = new Locale("vi", "VN");
                                     NumberFormat vietnamFormat = NumberFormat.getCurrencyInstance(vi);
-                                    String currency = !DataUtils.isNullOrEmpty(profile.getCurrency()) ? profile.getCurrency().toString()  : "";
-                                    run7.setText(vietnamFormat.format(profile.getValue()).replace(vietnamFormat.getCurrency().getSymbol(), "") + " - " + currency);
+                                    String currency = !DataUtils.isNullOrEmpty(profile.getCurrency())
+                                            ? profile.getCurrency().toString()
+                                            : "";
+                                    run7.setText(vietnamFormat.format(profile.getValue())
+                                            .replace(vietnamFormat.getCurrency().getSymbol(), "") + " - " + currency);
                                     run7.setFontSize(12);
                                 }
 
                             }
                             if (i == 2) {
                                 if (profile.getCategoryProfile() != null) {
-                                    List<String> categories = convertStringToArray(profile.getCategoryProfile());
+                                    ArrayList<String> categories = convertStringToArray(profile.getCategoryProfile());
+
+                                    if (!DataUtils.isNullOrEmpty(profile.getOthersProfile())) {
+                                        categories.add(Integer.valueOf(categories.size() + 1).toString());
+                                    }
                                     XWPFTableRow row2 = table.getRows().get(2);
                                     XWPFTableCell cell2 = row2.getCell(1);
                                     XWPFParagraph para = cell2.getParagraphs().get(0);
@@ -218,18 +214,44 @@ public class ReadAndWriteDoc {
                                     // cell2.setText(profile.getTypeEnum());
                                     XWPFTableRow oldRow = table.getRows().get(3);
                                     CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
-                                    for (String string : categories) {
-                                        XWPFTableRow row = new XWPFTableRow(ctrow, table);
-                                        XWPFTableCell cell = row.getCell(1);
-                                        cell.removeParagraph(0);
-                                        cell.setText(mapParams.get(string).type);
-                                        // Integer indexCheckBox =
-                                        // Integer.parseInt(mapParams.get(string).profileStatus);
-                                        Integer indexCheckBox = mapParams.get(string).profileStatus + 2;
-                                        XWPFTableCell checkBoxCell = row.getCell(indexCheckBox);
-                                        checkBoxCell.setText("x");
-                                        checkBoxCell.setVerticalAlignment(XWPFVertAlign.CENTER);
-                                        table.addRow(row);
+
+                                    for (int index = 0; index < categories.size(); index++) {
+                                        if (index == 0) {
+                                            XWPFTableRow row1 = table.getRows().get(3);
+                                            XWPFTableCell sttCell = row1.getCell(0);
+                                            XWPFTableCell cell = row1.getCell(1);
+                                            XWPFParagraph para1 = sttCell.getParagraphs().get(0);
+                                            XWPFParagraph para2 = cell.getParagraphs().get(0);
+                                            para1.setAlignment(ParagraphAlignment.CENTER);
+                                            XWPFRun run1 = para1.createRun();
+                                            run1.setText(Integer.valueOf(index + 1).toString());
+                                            run1.setFontSize(12);
+                                            // for other categories
+                                            String cat = mapParams.get(categories.get(index)).type;
+                                            String str = (!DataUtils.isNullOrEmpty(cat)) ? cat : categories.get(index);
+                                            XWPFRun run2 = para2.createRun();
+                                            run2.setText(str);
+                                            run2.setFontSize(12);
+                                        } else {
+                                            XWPFTableRow row = new XWPFTableRow(ctrow, table);
+                                            XWPFTableCell sttCell = row.getCell(0);
+                                            XWPFTableCell cell = row.getCell(1);
+                                            sttCell.removeParagraph(0);
+                                            cell.removeParagraph(0);
+                                            XWPFParagraph para1 = sttCell.addParagraph();
+                                            XWPFParagraph para2 = cell.addParagraph();
+                                            para1.setAlignment(ParagraphAlignment.CENTER);
+                                            XWPFRun run1 = para1.createRun();
+                                            run1.setText(Integer.valueOf(index + 1).toString());
+                                            run1.setFontSize(12);
+                                            // for other categories
+                                            String cat = mapParams.get(categories.get(index)).type;
+                                            String str = (!DataUtils.isNullOrEmpty(cat)) ? cat : categories.get(index);
+                                            XWPFRun run2 = para2.createRun();
+                                            run2.setText(str);
+                                            run2.setFontSize(12);
+                                            table.addRow(row);
+                                        }
                                     }
                                 }
                             }
@@ -256,7 +278,7 @@ public class ReadAndWriteDoc {
                                     // String strUtf8 = convertJsonStringToUTF8(profile);
 
                                     String strUtf8 = null;
-                                    if(!DataUtils.isNullOrEmpty(profile.getId())) {
+                                    if (!DataUtils.isNullOrEmpty(profile.getId())) {
                                         strUtf8 = profile.getId().toString() + "-Start";
                                     } else {
                                         strUtf8 = username + "Start";
@@ -283,6 +305,8 @@ public class ReadAndWriteDoc {
                                     run.setFontFamily("Times New Roman");
                                     run.setFontSize(12);
 
+                                    XWPFParagraph paragraph2 = docDes.createParagraph();
+                                    XWPFRun run2 = paragraph2.createRun();
                                 }
                             }
 
@@ -315,7 +339,8 @@ public class ReadAndWriteDoc {
                                     String strReturn = profile.getId().toString() + "-Return";
                                     byte[] imageByteArrayReturn = generateQRCode(strReturn, 100, 100);
 
-                                    try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArrayReturn)) {
+                                    try (InputStream inputByteArrayStream = new ByteArrayInputStream(
+                                            imageByteArrayReturn)) {
 
                                         XWPFTableRow row = tableQRCode.getRows().get(0);
                                         XWPFTableCell cell = row.getCell(0);
@@ -336,15 +361,13 @@ public class ReadAndWriteDoc {
 
                     }
 
-                 
                     XWPFStyles styles = docDes.createStyles();
-                
+
                     CTFonts fonts = CTFonts.Factory.newInstance();
                     fonts.setEastAsia("Times New Roman");
                     fonts.setHAnsi("Times New Roman");
                     styles.setDefaultFonts(fonts);
-                    
-                    
+
                     if (!Files.isDirectory(Paths.get(folder))) {
                         new File(folder).mkdir();
                         outputFile.createNewFile();
@@ -388,9 +411,9 @@ public class ReadAndWriteDoc {
         }
     }
 
-    public List<String> convertStringToArray(String str) {
+    public ArrayList<String> convertStringToArray(String str) {
         String[] array = str.split(",");
-        List<String> array2 = Arrays.asList(array);
+        ArrayList<String> array2 = new ArrayList<String>(Arrays.asList(array));
         return array2;
     }
 

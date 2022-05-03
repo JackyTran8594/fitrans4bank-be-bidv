@@ -165,8 +165,7 @@ public class DataUtils {
         if (isNull(input) || input <= 0L) {
             return null;
         }
-        LocalDateTime date =
-                LocalDateTime.ofInstant(Instant.ofEpochMilli(input), ZoneId.systemDefault());
+        LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(input), ZoneId.systemDefault());
         return date.toLocalDate();
     }
 
@@ -234,7 +233,8 @@ public class DataUtils {
 
     public static <T> T jsonToObject(String jsonData, Class<T> classOutput) {
         try {
-            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                    false);
             return mapper.readValue(jsonData, classOutput);
         } catch (Exception ex) {
             return jsonToObjectFronGson(jsonData, classOutput);
@@ -266,7 +266,6 @@ public class DataUtils {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         return value.format(formatter); // "1986-04-08 12:30"
     }
-
 
     public static String formatIsdn(String msisdn) {
         if (msisdn.startsWith("0")) {
@@ -305,8 +304,7 @@ public class DataUtils {
     @SuppressWarnings("java:S1612")
     public static <T> List<List<T>> nPartition(List<T> objs, final int N) {
         return new ArrayList<>(IntStream.range(0, objs.size()).boxed().collect(
-                Collectors.groupingBy(e -> e % N, Collectors.mapping(e -> objs.get(e), Collectors.toList())
-                )).values());
+                Collectors.groupingBy(e -> e % N, Collectors.mapping(e -> objs.get(e), Collectors.toList()))).values());
     }
 
     public static <T> List<List<T>> distribute(List<T> elements, int nrOfGroups) {
@@ -428,15 +426,18 @@ public class DataUtils {
     }
 
     public static void throwIf(boolean test, String message) throws Exception {
-        if (test) throw new Exception(message);
+        if (test)
+            throw new Exception(message);
     }
 
     public static void throwBusIf(boolean test, String message) throws Exception {
-        if (test) throw new Exception(message);
+        if (test)
+            throw new Exception(message);
     }
 
     public static void throwInputIf(boolean test, String message) throws Exception {
-        if (test) throw new Exception(message);
+        if (test)
+            throw new Exception(message);
     }
 
     public static boolean matchByPattern(String value, String regex) {
@@ -507,7 +508,7 @@ public class DataUtils {
         return null;
     }
 
-    //template\import\File_mau_import_template.xlsx
+    // template\import\File_mau_import_template.xlsx
     public static InputStream readInputStreamResource(String path) throws IOException {
         ClassPathResource classPathResource = new ClassPathResource(path);
         return classPathResource.getInputStream();
@@ -517,7 +518,8 @@ public class DataUtils {
         ClassPathResource classPathResource = new ClassPathResource(path);
         return classPathResource.getInputStream().readAllBytes();
 
-//        return DataUtils.class.getClassLoader().getResourceAsStream(path).readAllBytes();
+        // return
+        // DataUtils.class.getClassLoader().getResourceAsStream(path).readAllBytes();
     }
 
     public static <T> T base64ToObject(String encodedString, Class<T> classOutput)
@@ -591,7 +593,8 @@ public class DataUtils {
      * @return boolean
      */
     public static boolean safeEqual(Long obj1, Long obj2) {
-        if (obj1 == obj2) return true;
+        if (obj1 == obj2)
+            return true;
         return ((obj1 != null) && (obj2 != null) && (obj1.compareTo(obj2) == 0));
     }
 
@@ -603,7 +606,8 @@ public class DataUtils {
      * @return boolean
      */
     public static boolean safeEqual(BigInteger obj1, BigInteger obj2) {
-        if (obj1 == obj2) return true;
+        if (obj1 == obj2)
+            return true;
         return (obj1 != null) && (obj2 != null) && obj1.equals(obj2);
     }
 
@@ -616,7 +620,8 @@ public class DataUtils {
      * @description
      */
     public static boolean safeEqual(Short obj1, Short obj2) {
-        if (obj1 == obj2) return true;
+        if (obj1 == obj2)
+            return true;
         return ((obj1 != null) && (obj2 != null) && (obj1.compareTo(obj2) == 0));
     }
 
@@ -628,16 +633,17 @@ public class DataUtils {
      * @return boolean
      */
     public static boolean safeEqual(String obj1, String obj2) {
-        if (obj1 == null && obj2 == null) return true;
-        else if (obj1 == obj2) return true;
+        if (obj1 == null && obj2 == null)
+            return true;
+        else if (obj1 == obj2)
+            return true;
         return ((obj1 != null) && (obj2 != null) && obj1.equals(obj2));
     }
 
-
     public static boolean isNullOrEmptyObj(Object obj) {
-        if(obj == null)
+        if (obj == null)
             return true;
-        CharSequence cs = ((String)obj);
+        CharSequence cs = ((String) obj);
         return isNullOrEmpty(cs);
     }
 
@@ -784,37 +790,39 @@ public class DataUtils {
         return true;
     }
 
-    public static LocalDateTime processDate(LocalDateTime from, LocalDateTime to, LocalDateTime compare) {
+    public static LocalDateTime processDate(LocalDateTime from, LocalDateTime to, LocalDateTime compare,
+            LocalDateTime timeReceived) {
         long years = ChronoUnit.YEARS.between(from, to);
         long months = ChronoUnit.MONTHS.between(from, to);
         long days = ChronoUnit.DAYS.between(from, to);
         long hours = ChronoUnit.HOURS.between(from, to);
-        long minutes = ChronoUnit.MINUTES.between(from,to);
+        long minutes = ChronoUnit.MINUTES.between(from, to);
         long seconds = ChronoUnit.SECONDS.between(from, to);
-        LocalDateTime processDate = LocalDateTime.now();
-        boolean isAfter = processDate.isAfter(compare);
+        // LocalDateTime realReceived = LocalDateTime.now();
+        LocalDateTime processDate = null;
+        boolean isAfter = timeReceived.isAfter(compare);
         if (!isAfter) {
             // set processDate = real time received of profile processing/first record
-            processDate = compare;
+            timeReceived = compare;
         }
 
         if (years > 0) {
-            processDate.plusYears(years);
+            processDate = timeReceived.plusYears(years);
         }
         if (months > 0) {
-            processDate.plusMonths(months);
+            processDate = timeReceived.plusMonths(months);
         }
         if (days > 0) {
-            processDate.plusDays(days);
+            processDate = timeReceived.plusDays(days);
         }
         if (hours > 0) {
-            processDate.plusHours(hours);
+            processDate = timeReceived.plusHours(hours);
         }
         if (minutes > 0) {
-            processDate.plusMinutes(minutes);
+            processDate = timeReceived.plusMinutes(minutes);
         }
         if (seconds > 0) {
-            processDate.plusSeconds(seconds);
+            processDate = timeReceived.plusSeconds(seconds);
         }
 
         return processDate;
@@ -826,28 +834,54 @@ public class DataUtils {
         long months = ChronoUnit.MONTHS.between(from, to);
         long days = ChronoUnit.DAYS.between(from, to);
         long hours = ChronoUnit.HOURS.between(from, to);
-        long minutes = ChronoUnit.MINUTES.between(from,to);
+        long minutes = ChronoUnit.MINUTES.between(from, to);
         long seconds = ChronoUnit.SECONDS.between(from, to);
+        LocalDateTime processTime = null;
         // processDate = timeReceived from 2nd record
         if (years > 0) {
-            timeReceived.plusYears(years);
+            processTime = timeReceived.plusYears(years);
         }
         if (months > 0) {
-            timeReceived.plusMonths(months);
+            processTime = timeReceived.plusMonths(months);
         }
         if (days > 0) {
-            timeReceived.plusDays(days);
+            processTime = timeReceived.plusDays(days);
         }
         if (hours > 0) {
-            timeReceived.plusHours(hours);
+            processTime = timeReceived.plusHours(hours);
         }
         if (minutes > 0) {
-            timeReceived.plusMinutes(minutes);
+            processTime = timeReceived.plusMinutes(minutes);
         }
         if (seconds > 0) {
-            timeReceived.plusSeconds(seconds);
+            processTime = timeReceived.plusSeconds(seconds);
         }
-        return timeReceived;
+        return processTime;
     }
-   
+
+    public static LocalDateTime checkTime(LocalDateTime processTime, int marked, int standardTime, int timeChecker,
+            int additionalTime) {
+        if (processTime.getHour() > marked
+                || (processTime.getHour() == marked && processTime.getMinute() > 0)) {
+            LocalDate tomorrow = LocalDate.now().plusDays(1);
+            int year = tomorrow.getYear();
+            int month = tomorrow.getMonthValue();
+            int day = tomorrow.getDayOfMonth();
+            int minutes = standardTime
+                    + timeChecker + additionalTime;
+            int hour = 0;
+            if (minutes > 60) {
+                hour = 8 + minutes / 60;
+                minutes = minutes % 60;
+            } else {
+                hour = 8;
+            }
+
+            // set proces time = tomorrow
+            processTime = LocalDateTime.of(year, month, day, hour, minutes);
+
+        }
+        return processTime;
+    }
+
 }
