@@ -304,7 +304,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             parameters.put("profileId", DataUtils.parseToLong(params.get("profileId")));
         }
 
-        sb.append(" ORDER BY p.process_date DESC");
+        sb.append(" ORDER BY p.process_date ASC");
 
         // if (params.containsKey("username")) {
         // sb.append(" AND uc.username = :username ");

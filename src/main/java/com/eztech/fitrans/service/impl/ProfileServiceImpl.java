@@ -253,9 +253,10 @@ public class ProfileServiceImpl implements ProfileService {
                             break;
                     }
 
+                    // get data is waiting with order by process_date
                     List<ProfileDTO> listData = repository.getProfileWithParams(params);
 
-                    if (listData.size() == 1) {
+                    if (listData.size() >= 1) {
                         ProfileDTO dto = listData.get(0);
                         dto.setState(ProfileStateEnum.PROCESSING.getValue());
                         save(dto);
@@ -384,6 +385,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 processTime = DataUtils.checkTime(processTime, 17, transactionType.getStandardTimeCM(),
                                         transactionType.getStandardTimeChecker(), additionalTime);
                             }
+                            profile.setTimeReceived_CM(profileHistory.getTimeReceived());
                         }
 
                         profile.setProcessDate(processTime);
@@ -392,6 +394,8 @@ public class ProfileServiceImpl implements ProfileService {
                     } else if (item.getCode().equals("GDKH")) {
                         item.getProfile().setStaffId_CT(user.getId());
                         params.put("staffId_CT", user.getId());
+                        // params.put("state", ProfileStateEnum.PROCESSING.getValue());
+                        // get profiles is waiting
                         List<ProfileDTO> listData = repository.getProfileWithParams(params);
                         if (listData.size() == 1) {
                             profile.setState(ProfileStateEnum.WAITING.getValue());
@@ -919,7 +923,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                 if (process.size() > 0) {
                     // first record
-                    if (!DataUtils.isNullOrEmpty(item.getCode().equals("QTTD"))) {
+                    if (item.getCode().trim().toUpperCase().equals("QTTD")) {
                         LocalDateTime from = dto.getTimeReceived_CM();
                         LocalDateTime to = dto.getProcessDate();
 
@@ -929,42 +933,44 @@ public class ProfileServiceImpl implements ProfileService {
                         dto.setTimeReceived_CM(process.get(0).getProcessDate());
                         dto.setProcessDate(processDate);
                         save(dto);
-                    }
 
-                    // get list after saving dto
-                    List<Profile> listData = repository.findBySateAndStaffIdAndIgnore(
-                            ProfileStateEnum.WAITING.getValue(), dto.getStaffId_CM(), dto.getId());
+                        // get list after saving dto
+                        List<Profile> listData = repository.findBySateAndStaffIdAndIgnore(
+                                ProfileStateEnum.WAITING.getValue(), dto.getStaffId_CM(), dto.getId());
 
-                    // update processDate for all list
-                    // int i = 0;
-                    if (listData.size() > 0) {
+                        // update processDate for all list
+                        // int i = 0;
+                        if (listData.size() > 0) {
 
-                        for (int i = 0; i < listData.size(); i++) {
-                            // first record update by dto (priority)
-                            if (i == 0) {
-                                Profile first = listData.get(i);
-                                LocalDateTime from = first.getTimeReceived_CM();
-                                LocalDateTime to = first.getProcessDate();
-                                LocalDateTime timeReceivedOfSecond = dto.getProcessDate();
-                                LocalDateTime date = DataUtils.calculatingDate(from, to, timeReceivedOfSecond);
-                                first.setTimeReceived_CM(dto.getProcessDate());
-                                first.setProcessDate(date);
-                                first.setLastUpdatedDate(LocalDateTime.now());
-                                repository.save(first);
+                            for (int i = 0; i < listData.size(); i++) {
+                                // first record update by dto (priority)
+                                if (i == 0) {
+                                    Profile first = listData.get(i);
+                                    LocalDateTime fromFirst = first.getTimeReceived_CM();
+                                    LocalDateTime toFirst = first.getProcessDate();
+                                    LocalDateTime timeReceivedOfSecond = dto.getProcessDate();
+                                    LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                                            timeReceivedOfSecond);
+                                    first.setTimeReceived_CM(dto.getProcessDate());
+                                    first.setProcessDate(date);
+                                    first.setLastUpdatedDate(LocalDateTime.now());
+                                    repository.save(first);
 
-                            } else {
-                                Profile first = listData.get(i - 1);
-                                Profile second = listData.get(i);
-                                // processDate: hours, minutes
-                                LocalDateTime from = second.getTimeReceived_CM();
-                                LocalDateTime to = second.getProcessDate();
-                                LocalDateTime timeReceivedOfSecond = first.getProcessDate();
-                                LocalDateTime date = DataUtils.calculatingDate(from, to, timeReceivedOfSecond);
-                                // end
-                                second.setTimeReceived_CM(timeReceivedOfSecond);
-                                second.setProcessDate(date);
-                                second.setLastUpdatedDate(LocalDateTime.now());
-                                repository.save(second);
+                                } else {
+                                    Profile first = listData.get(i - 1);
+                                    Profile second = listData.get(i);
+                                    // processDate: hours, minutes
+                                    LocalDateTime fromFirst = second.getTimeReceived_CM();
+                                    LocalDateTime toFirst = second.getProcessDate();
+                                    LocalDateTime timeReceivedOfSecond = first.getProcessDate();
+                                    LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                                            timeReceivedOfSecond);
+                                    // end
+                                    second.setTimeReceived_CM(timeReceivedOfSecond);
+                                    second.setProcessDate(date);
+                                    second.setLastUpdatedDate(LocalDateTime.now());
+                                    repository.save(second);
+                                }
                             }
                         }
                     }
