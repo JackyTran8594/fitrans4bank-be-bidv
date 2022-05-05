@@ -241,12 +241,14 @@ public class ProfileServiceImpl implements ProfileService {
                     profile.setEndTime(LocalDateTime.now());
                     // update first row is processing
                     params.put("state", ProfileStateEnum.WAITING.getValue());
+
                     switch (item.getCode()) {
                         // case "QLKH":
                         // params.put("staffId", user.getId());
                         // break;
                         case "QTTD":
                             params.put("staffIdCM", user.getId());
+
                             break;
                         case "GDKH":
                             params.put("staffIdCT", user.getId());
@@ -259,6 +261,13 @@ public class ProfileServiceImpl implements ProfileService {
                     if (listData.size() >= 1) {
                         ProfileDTO dto = listData.get(0);
                         dto.setState(ProfileStateEnum.PROCESSING.getValue());
+                        ProfileHistoryDTO his = new ProfileHistoryDTO();
+                        his.setStaffId(user.getId());
+                        his.setTimeReceived(profile.getEndTime());
+                        his.setProfileId(dto.getId());
+                        his.setState(ProfileStateEnum.PROCESSING.getValue());
+                        profileHistoryService.save(his);
+
                         save(dto);
                     }
 
@@ -392,9 +401,10 @@ public class ProfileServiceImpl implements ProfileService {
                         profile.setRealTimeReceivedCM(profileHistory.getTimeReceived());
 
                     } else if (item.getCode().equals("GDKH")) {
+                        // received profile at GDKH
                         item.getProfile().setStaffId_CT(user.getId());
                         params.put("staffId_CT", user.getId());
-                        // params.put("state", ProfileStateEnum.PROCESSING.getValue());
+                        params.put("state", ProfileStateEnum.PROCESSING.getValue());
                         // get profiles is waiting
                         List<ProfileDTO> listData = repository.getProfileWithParams(params);
                         if (listData.size() == 1) {
@@ -449,17 +459,52 @@ public class ProfileServiceImpl implements ProfileService {
                 old.setStaffId(user.getId());
             }
 
-            // không reset lại thời gian cho QTTD nữa
+            // không reset lại thời gian cho QTTD nữa, reset cho GDKH và update hồ sơ chờ
+            // thành đang xử lý
             if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                if (item.getCode().equals("GDKH")) {
-                    old.setTimeReceived_CT(null);
+                Map<String, Object> params = new HashMap<>();
+
+                params.put("state", ProfileStateEnum.WAITING.getValue());
+                switch (item.getCode().trim().toUpperCase()) {
+                    case "GDKH":
+                        params.put("staffId_CT", user.getId());
+                        old.setTimeReceived_CT(null);
+                        break;
+                    case "QTTD":
+                        params.put("staffId_CM", user.getId());
+                        break;
+
+                    default:
+                        break;
                 }
+                List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params);
+                if (listDataWaiting.size() >= 1) {
+                    ProfileDTO dto = listDataWaiting.get(0);
+                    dto.setState(ProfileStateEnum.PROCESSING.getValue());
+                    ProfileHistoryDTO his = new ProfileHistoryDTO();
+                    his.setStaffId(user.getId());
+                    his.setTimeReceived(LocalDateTime.now());
+                    his.setProfileId(dto.getId());
+                    his.setDepartmentId(department.getId());
+                    his.setDepartmentCode(department.getCode());
+                    his.setState(ProfileStateEnum.PROCESSING.getValue());
+                    profileHistoryService.save(his);
+
+                    save(dto);
+                }
+
             }
             profileHistory.setDepartmentCode(department.getCode());
             profileHistory.setDepartmentId(department.getId());
             profileHistory.setTimeReceived(LocalDateTime.now());
             profileHistory.setStaffId(user.getId());
             profileHistory.setState(old.getState());
+            // tính thời gian còn lại để cộng vào lần bàn giao sau cho hồ sơ cần bổ sung
+            LocalDateTime from = profileHistory.getTimeReceived();
+            LocalDateTime to = old.getProcessDate();
+            Duration duration = Duration.between(from, to);
+            // old.setAdditionalTime(Duration.ofMinutes(duration));
+
             ProfileDTO dto = save(old);
 
             profileHistory.setProfileId(dto.getId());
