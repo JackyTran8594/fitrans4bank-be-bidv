@@ -884,4 +884,35 @@ public class DataUtils {
         return processTime;
     }
 
+    public static Long durationToMinute(LocalDateTime from, LocalDateTime to) {
+        long minutesInDay = 24 * 60;
+        long years = ChronoUnit.YEARS.between(from, to);
+        long months = ChronoUnit.MONTHS.between(from, to);
+        long days = ChronoUnit.DAYS.between(from, to);
+        long hours = ChronoUnit.HOURS.between(from, to);
+        long minutes = ChronoUnit.MINUTES.between(from, to);
+        long seconds = ChronoUnit.SECONDS.between(from, to);
+        long minutesProcess = 0;
+        if (years > 0) {
+            Calendar cal = Calendar.getInstance();
+            int numberOfDay = cal.getActualMaximum(Calendar.DAY_OF_YEAR);
+            minutesProcess = minutesProcess + years * (minutesInDay * numberOfDay);
+        }
+        if (months > 0) {
+            Duration duration = Duration.between(from, to);
+            minutesProcess = minutesProcess + duration.toDays() * minutesInDay;
+        }
+        if (days > 0) {
+            minutesProcess = minutesProcess + days * minutesInDay;
+        }
+        if (hours > 0) {
+            minutesProcess = minutesProcess + hours * 60;
+        }
+        if (minutes > 0) {
+            minutesProcess = minutesProcess + minutes;
+        }
+        
+        return Long.valueOf(minutesProcess);
+    }
+
 }

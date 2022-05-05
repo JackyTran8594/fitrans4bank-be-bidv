@@ -206,19 +206,6 @@ public class ProfileServiceImpl implements ProfileService {
         profileHistory.setTimeReceived(LocalDateTime.now());
 
         try {
-            // check department
-            // if (item.getCode().equals("QTTD")) {
-
-            // if (DataUtils.isNullOrEmpty(profile.getTimeReceived_CM())) {
-            // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-            // }
-            // }
-            // else if (item.getCode().equals("GDKH")) {
-            // if (DataUtils.isNullOrEmpty(profile.getTimeReceived_CM())) {
-            // profile.setTimeReceived_CT(profileHistory.getTimeReceived());
-            // }
-            // }
-
             // check account admin or not
             if (item.username.toLowerCase().contains("admin")) {
                 if (item.getCode().equals("GDKH")) {
@@ -243,9 +230,7 @@ public class ProfileServiceImpl implements ProfileService {
                     params.put("state", ProfileStateEnum.WAITING.getValue());
 
                     switch (item.getCode()) {
-                        // case "QLKH":
-                        // params.put("staffId", user.getId());
-                        // break;
+                       
                         case "QTTD":
                             params.put("staffIdCM", user.getId());
 
@@ -274,12 +259,17 @@ public class ProfileServiceImpl implements ProfileService {
                 } else {
 
                     if (item.getCode().equals("QTTD")) {
-                        // if(DataUtils.isNullObject(item.getProfile().getStaffId_CM())) {
                         item.getProfile().setStaffId_CM(user.getId());
-                        // }
                         params.put("staffId_CM", user.getId());
                         List<ProfileDTO> listData = repository.getProfileWithParams(params);
-                        // params.put("state", ProfileStateEnum.ASSIGNED.getValue());
+                        // check profile is additional and delivery again
+                        Integer timeForAdditional = 0;
+                        if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                            if(!DataUtils.isNullOrEmpty(profile.getAdditionalTime())) {
+                                timeForAdditional = profile.getAdditionalTime();
+                            }
+                        }
+
                         // check if profile is processing
                         // calculating time for processing time for
                         LocalDateTime processTime = LocalDateTime.now();
@@ -301,9 +291,9 @@ public class ProfileServiceImpl implements ProfileService {
 
                                 break;
                             case 2:
-                                if (!DataUtils.isNullOrEmpty(profile.getAdditionalTime())) {
-                                    additionalTime = profile.getAdditionalTime();
-                                }
+                                // if (!DataUtils.isNullOrEmpty(profile.getAdditionalTime())) {
+                                // additionalTime = profile.getAdditionalTime();
+                                // }
                                 break;
                             case 3:
                                 break;
@@ -322,13 +312,9 @@ public class ProfileServiceImpl implements ProfileService {
 
                             } else {
                                 profile_first = listData.get(0);
-                                // endDate = profile_first.getProcessDate();
                             }
 
-                            // date = (!DataUtils.isNullOrEmpty(profile_first.getProcessDate()))
-                            // ? profile_first.getProcessDate()
-                            // : profile_first.getTimeReceived_CM();
-
+                          
                             // default not null
                             date = profile_first.getProcessDate();
                             boolean isAfter = profileHistory.getTimeReceived()
@@ -395,6 +381,11 @@ public class ProfileServiceImpl implements ProfileService {
                                         transactionType.getStandardTimeChecker(), additionalTime);
                             }
                             profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+                        }
+
+                        // minus time for profile which is deliveried again
+                        if(timeForAdditional > 0) {
+                            processTime = processTime.minusMinutes(timeForAdditional);
                         }
 
                         profile.setProcessDate(processTime);
@@ -472,6 +463,15 @@ public class ProfileServiceImpl implements ProfileService {
                         break;
                     case "QTTD":
                         params.put("staffId_CM", user.getId());
+                        // tính thời gian còn lại để cộng vào lần bàn giao sau cho hồ sơ cần bổ sung
+                        // bắt đầu từ thời điểm chuyển đổi trạng thái thành cần bổ sung - additional
+                        LocalDateTime from = profileHistory.getTimeReceived();
+                        LocalDateTime to = old.getProcessDate();
+                        if (to.isAfter(from)) {
+                            Long additionalTime = DataUtils.durationToMinute(from, to);
+                            old.setAdditionalTime(Integer.valueOf(additionalTime.intValue()));
+                        }
+
                         break;
 
                     default:
@@ -499,11 +499,6 @@ public class ProfileServiceImpl implements ProfileService {
             profileHistory.setTimeReceived(LocalDateTime.now());
             profileHistory.setStaffId(user.getId());
             profileHistory.setState(old.getState());
-            // tính thời gian còn lại để cộng vào lần bàn giao sau cho hồ sơ cần bổ sung
-            LocalDateTime from = profileHistory.getTimeReceived();
-            LocalDateTime to = old.getProcessDate();
-            Duration duration = Duration.between(from, to);
-            // old.setAdditionalTime(Duration.ofMinutes(duration));
 
             ProfileDTO dto = save(old);
 
