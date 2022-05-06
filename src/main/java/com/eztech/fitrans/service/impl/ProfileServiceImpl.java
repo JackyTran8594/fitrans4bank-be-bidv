@@ -465,8 +465,8 @@ public class ProfileServiceImpl implements ProfileService {
                         params.put("staffId_CM", user.getId());
                         // tính thời gian còn lại để cộng vào lần bàn giao sau cho hồ sơ cần bổ sung
                         // bắt đầu từ thời điểm chuyển đổi trạng thái thành cần bổ sung - additional
-                        LocalDateTime from = profileHistory.getTimeReceived();
-                        LocalDateTime to = old.getProcessDate();
+                        LocalDateTime from = old.getTimeReceived_CM();
+                        LocalDateTime to = LocalDateTime.now();
                         if (to.isAfter(from)) {
                             Long additionalTime = DataUtils.durationToMinute(from, to);
                             old.setAdditionalTime(Integer.valueOf(additionalTime.intValue()));
