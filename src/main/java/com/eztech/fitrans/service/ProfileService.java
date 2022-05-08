@@ -37,5 +37,5 @@ public interface ProfileService {
 
   MessageDTO checkIsReturn(ConfirmRequest item);
 
-  ProfileDTO priorityProfile(ConfirmRequest req);
+  MessageDTO priorityProfile(ConfirmRequest req);
 }

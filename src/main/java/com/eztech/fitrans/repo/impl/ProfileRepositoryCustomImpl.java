@@ -285,18 +285,40 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         sb.append(sql).append(
                 "WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)");
+        if (params.containsKey("staffId")) {
+            sb.append("AND p.staff_id = :staffId ");
+            parameters.put("staffId", DataUtils.parseToLong(params.get("staffId")));
+        }
+
         if (params.containsKey("staffId_CT")) {
-            sb.append("AND p.staff_id_ct = :staffId_CT ");
-            parameters.put("staffId_CT", DataUtils.parseToLong(params.get("staffId_CT")));
+            if(params.get("staffId_CT").toString().trim().toUpperCase().equals("NULL")) {
+                sb.append(" AND p.staff_id_ct IS NULL");
+            } else {
+                sb.append(" AND p.staff_id_ct = :staffId_CT");
+                parameters.put("staffId_CT", DataUtils.parseToLong(params.get("staffId_CT")));
+
+            }
+            // sb.append("AND p.staff_id_ct = :staffId_CT ");
+            // parameters.put("staffId_CT", DataUtils.parseToLong(params.get("staffId_CT")));
         }
 
         if (params.containsKey("staffId_CM")) {
-            sb.append(" AND p.staff_id_cm = :staffId_CM ");
-            parameters.put("staffId_CM", DataUtils.parseToLong(params.get("staffId_CM")));
+          
+            if(params.get("staffId_CM").toString().trim().toUpperCase().equals("NULL")) {
+                sb.append(" AND p.staff_id_cm IS NULL");
+            } else {
+                sb.append(" AND p.staff_id_cm = :staffId_CM");
+                parameters.put("staffId_CM", DataUtils.parseToLong(params.get("staffId_CM")));
+
+            }
         }
         if (params.containsKey("state")) {
             sb.append(" AND p.state = :state ");
             parameters.put("state", DataUtils.parseToInt(params.get("state")));
+        }
+        if (params.containsKey("type")) {
+            sb.append(" AND trans.type = :type ");
+            parameters.put("type", DataUtils.parseToInt(params.get("type")));
         }
 
         if (params.containsKey("profileId")) {

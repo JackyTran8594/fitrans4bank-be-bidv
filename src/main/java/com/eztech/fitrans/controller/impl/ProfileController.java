@@ -246,7 +246,7 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   @PostMapping("/priorityProfile")
-  public ProfileDTO priorityProfile(@RequestBody ConfirmRequest item) {
+  public MessageDTO priorityProfile(@RequestBody ConfirmRequest item) {
     return service.priorityProfile(item);
   }
 

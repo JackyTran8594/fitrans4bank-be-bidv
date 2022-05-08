@@ -74,18 +74,11 @@ public class ReadAndWriteDoc {
     public File ExportDocFile(ProfileDTO profile, String username, Map<String, ProfileListDTO> mapParams) {
 
         try {
-            // String url = getClass().getResource("")
 
-            // InputStream resource =
-            // getClass().getClassLoader().getResourceAsStream("template" + File.separator
-            // +"BIDV_Template.docx");
             InputStream resource = getClass().getClassLoader().getResourceAsStream("template/BIDV_Template.docx");
 
             File file = File.createTempFile("BIDV_Template_", ".docx");
             FileUtils.copyInputStreamToFile(resource, file);
-            // System.out.println(resource.)
-            // URL image = getClass().getClassLoader().getResource("template/bidv.png");
-            // URL rootFolder = getClass().getClassLoader().getResource("template");
             String folder = "C:\\BIDV_BBBG\\";
             String filename = "BBBG_" + username + "_" + Timestamp.valueOf(LocalDateTime.now()).getTime() + ".docx";
             File outputFile = new File(folder + filename);
@@ -198,12 +191,21 @@ public class ReadAndWriteDoc {
 
                             }
                             if (i == 2) {
-                                if (profile.getCategoryProfile() != null) {
-                                    ArrayList<String> categories = convertStringToArray(profile.getCategoryProfile());
+                                ArrayList<String> categories = new ArrayList<>();
+                                // ArrayList<String> categories = convertStringToArray(profile.getCategoryProfile());
+                                if(!DataUtils.isNullOrEmpty(profile.getCategoryProfile())) {
+                                    categories = convertStringToArray(profile.getCategoryProfile());
+                                }
+                                if (!DataUtils.isNullOrEmpty(profile.getOthersProfile())) {
+                                    categories.add(Integer.valueOf(categories.size() + 1).toString());
+                                }
+                                if (categories.size() > 0 ) {
+                                    // ArrayList<String> categories =
+                                    // convertStringToArray(profile.getCategoryProfile());
 
-                                    if (!DataUtils.isNullOrEmpty(profile.getOthersProfile())) {
-                                        categories.add(Integer.valueOf(categories.size() + 1).toString());
-                                    }
+                                    // if (!DataUtils.isNullOrEmpty(profile.getOthersProfile())) {
+                                    // categories.add(Integer.valueOf(categories.size() + 1).toString());
+                                    // }
                                     XWPFTableRow row2 = table.getRows().get(2);
                                     XWPFTableCell cell2 = row2.getCell(1);
                                     XWPFParagraph para = cell2.getParagraphs().get(0);

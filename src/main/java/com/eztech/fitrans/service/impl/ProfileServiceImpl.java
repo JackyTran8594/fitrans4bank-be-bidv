@@ -206,15 +206,84 @@ public class ProfileServiceImpl implements ProfileService {
         profileHistory.setTimeReceived(LocalDateTime.now());
 
         try {
-            // check account admin or not
+            // check account admin or not - GDKH
             if (item.username.toLowerCase().contains("admin")) {
                 if (item.getCode().equals("GDKH")) {
                     profile.setState(ProfileStateEnum.RECEIVED.getValue());
                     profileHistory.setState(ProfileStateEnum.RECEIVED.getValue());
-                    // if (DataUtils.isNullOrEmpty(profile.getTimeReceived_CM())) {
                     profile.setTimeReceived_CT(profileHistory.getTimeReceived());
                     profile.setRealTimeReceivedCT(profileHistory.getTimeReceived());
+
+                    // get data is waiting with order by process_date - QTTD
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("state", ProfileStateEnum.WAITING.getValue());
+                    params.put("staffIdCM", profile.getStaffId_CM());
+                    params.put("staffIdCT", "NULL");
+                    List<ProfileDTO> listData = repository.getProfileWithParams(params);
+
+                    this.updateProfileList(listData, profile, user, profileHistory, department.getId(), item.getCode());
+                    // profile is waiting become to processing
+                    // if (listData.size() > 0) {
+
+                    // for (int i = 0; i < listData.size(); i++) {
+                    // // first record update by profile
+                    // if (i == 0) {
+                    // // first waiting profile
+                    // ProfileDTO first = listData.get(i);
+                    // LocalDateTime fromFirst = first.getTimeReceived_CM();
+                    // LocalDateTime toFirst = first.getProcessDate();
+                    // LocalDateTime timeReceivedOfSecond = LocalDateTime.now();
+                    // boolean isAfter =
+                    // profileHistory.getTimeReceived().isAfter(profile.getProcessDate());
+                    // if(isAfter) {
+                    // timeReceivedOfSecond = profile.getProcessDate();
+                    // } else {
+                    // timeReceivedOfSecond = profileHistory.getTimeReceived();
                     // }
+                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                    // timeReceivedOfSecond);
+                    // first.setTimeReceived_CM(timeReceivedOfSecond);
+                    // first.setProcessDate(date);
+                    // first.setLastUpdatedDate(LocalDateTime.now());
+
+                    // // update state for first waiting profile
+                    // first.setState(ProfileStateEnum.PROCESSING.getValue());
+                    // // save history
+                    // ProfileHistoryDTO his = new ProfileHistoryDTO();
+                    // his.setStaffId(user.getId());
+                    // his.setTimeReceived(profile.getEndTime());
+                    // his.setProfileId(first.getId());
+                    // his.setState(ProfileStateEnum.PROCESSING.getValue());
+                    // profileHistoryService.save(his);
+                    // save(first);
+
+                    // } else {
+                    // ProfileDTO first = listData.get(i - 1);
+                    // ProfileDTO second = listData.get(i);
+                    // // processDate: hours, minutes
+                    // LocalDateTime fromFirst = second.getTimeReceived_CM();
+                    // LocalDateTime toFirst = second.getProcessDate();
+                    // LocalDateTime timeReceivedOfSecond = first.getProcessDate();
+                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                    // timeReceivedOfSecond);
+                    // // end
+                    // second.setTimeReceived_CM(timeReceivedOfSecond);
+                    // second.setProcessDate(date);
+                    // second.setLastUpdatedDate(LocalDateTime.now());
+                    // save(second);
+                    // }
+                    // }
+                    // // ProfileDTO dto = listData.get(0);
+                    // // dto.setState(ProfileStateEnum.PROCESSING.getValue());
+                    // // ProfileHistoryDTO his = new ProfileHistoryDTO();
+                    // // his.setStaffId(user.getId());
+                    // // his.setTimeReceived(profile.getEndTime());
+                    // // his.setProfileId(dto.getId());
+                    // // his.setState(ProfileStateEnum.PROCESSING.getValue());
+                    // // profileHistoryService.save(his);
+                    // // save(dto);
+                    // }
+
                 }
 
             } else {
@@ -228,44 +297,106 @@ public class ProfileServiceImpl implements ProfileService {
                     profile.setEndTime(LocalDateTime.now());
                     // update first row is processing
                     params.put("state", ProfileStateEnum.WAITING.getValue());
+                    params.put("type", transactionType.getType());
 
+                    Map<String, Object> paramsWaiting = new HashMap<>();
+                    paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
+                    List<ProfileDTO> listProfileWaiting = new ArrayList<>();
                     switch (item.getCode()) {
-                       
+                        // transaction type : 1,2
+                        // type 1: QTTD is not finished transaction
+                        // type 2 :QTTD is finished transaction
                         case "QTTD":
-                            params.put("staffIdCM", user.getId());
-
+                            paramsWaiting.put("staffId_CM", user.getId());
+                            paramsWaiting.put("staffId_CT", "NULL");
+                            listProfileWaiting = repository.getProfileWithParams(paramsWaiting);
                             break;
                         case "GDKH":
-                            params.put("staffIdCT", user.getId());
+                            if (transactionType.getType().equals(1)) {
+                                paramsWaiting.put("staffId_CT", user.getId());
+                            }
+                            if (transactionType.getType().equals(1)) {
+                                paramsWaiting.put("staffId_CM", "NULL");
+                                paramsWaiting.put("staffId_CT", user.getId());
+                            }
+                            listProfileWaiting = repository.getProfileWithParams(paramsWaiting);
                             break;
                     }
 
+                    this.updateProfileList(listProfileWaiting, profile, user, profileHistory, department.getId(),
+                            item.getCode());
+                    // update processDate for all list
+                    // if (listProfileWaiting.size() > 0) {
+
+                    // for (int i = 0; i < listProfileWaiting.size(); i++) {
+                    // // first record update by profile
+                    // if (i == 0) {
+                    // // first waiting profile
+                    // ProfileDTO first = listProfileWaiting.get(i);
+                    // LocalDateTime fromFirst = first.getTimeReceived_CM();
+                    // LocalDateTime toFirst = first.getProcessDate();
+                    // LocalDateTime timeReceivedOfSecond = profile.getProcessDate();
+                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                    // timeReceivedOfSecond);
+                    // first.setTimeReceived_CM(profile.getProcessDate());
+                    // first.setProcessDate(date);
+                    // first.setLastUpdatedDate(LocalDateTime.now());
+
+                    // // update state for first waiting profile
+                    // first.setState(ProfileStateEnum.PROCESSING.getValue());
+                    // ProfileHistoryDTO his = new ProfileHistoryDTO();
+                    // his.setStaffId(user.getId());
+                    // his.setTimeReceived(profile.getEndTime());
+                    // his.setProfileId(first.getId());
+                    // his.setState(ProfileStateEnum.PROCESSING.getValue());
+                    // profileHistoryService.save(his);
+                    // save(first);
+
+                    // } else {
+                    // ProfileDTO first = listProfileWaiting.get(i - 1);
+                    // ProfileDTO second = listProfileWaiting.get(i);
+                    // // processDate: hours, minutes
+                    // LocalDateTime fromFirst = second.getTimeReceived_CM();
+                    // LocalDateTime toFirst = second.getProcessDate();
+                    // LocalDateTime timeReceivedOfSecond = first.getProcessDate();
+                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                    // timeReceivedOfSecond);
+                    // // end
+                    // second.setTimeReceived_CM(timeReceivedOfSecond);
+                    // second.setProcessDate(date);
+                    // second.setLastUpdatedDate(LocalDateTime.now());
+                    // save(second);
+                    // }
+                    // }
+                    // }
+
                     // get data is waiting with order by process_date
-                    List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                    // List<ProfileDTO> listData = repository.getProfileWithParams(params);
 
-                    if (listData.size() >= 1) {
-                        ProfileDTO dto = listData.get(0);
-                        dto.setState(ProfileStateEnum.PROCESSING.getValue());
-                        ProfileHistoryDTO his = new ProfileHistoryDTO();
-                        his.setStaffId(user.getId());
-                        his.setTimeReceived(profile.getEndTime());
-                        his.setProfileId(dto.getId());
-                        his.setState(ProfileStateEnum.PROCESSING.getValue());
-                        profileHistoryService.save(his);
+                    // if (listData.size() >= 1) {
+                    // ProfileDTO dto = listData.get(0);
+                    // dto.setState(ProfileStateEnum.PROCESSING.getValue());
+                    // ProfileHistoryDTO his = new ProfileHistoryDTO();
+                    // his.setStaffId(user.getId());
+                    // his.setTimeReceived(profile.getEndTime());
+                    // his.setProfileId(dto.getId());
+                    // his.setState(ProfileStateEnum.PROCESSING.getValue());
+                    // profileHistoryService.save(his);
 
-                        save(dto);
-                    }
+                    // save(dto);
+                    // }
 
                 } else {
 
                     if (item.getCode().equals("QTTD")) {
+                        LocalDateTime timeReceived_CM = LocalDateTime.now();
                         item.getProfile().setStaffId_CM(user.getId());
                         params.put("staffId_CM", user.getId());
-                        List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                        params.put("type", transactionType.getType());
                         // check profile is additional and delivery again
                         Integer timeForAdditional = 0;
                         if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                            if(!DataUtils.isNullOrEmpty(profile.getAdditionalTime())) {
+                            if (!DataUtils.isNullOrEmpty(profile.getAdditionalTime())) {
                                 timeForAdditional = profile.getAdditionalTime();
                             }
                         }
@@ -289,15 +420,18 @@ public class ProfileServiceImpl implements ProfileService {
                                     }
                                 }
 
+                                params.put("staffId_CT", "NULL");
+
                                 break;
                             case 2:
-                                // if (!DataUtils.isNullOrEmpty(profile.getAdditionalTime())) {
-                                // additionalTime = profile.getAdditionalTime();
-                                // }
+
+                                params.put("staffId_CT", "NULL");
                                 break;
-                            case 3:
+                            default:
                                 break;
                         }
+
+                        List<ProfileDTO> listData = repository.getProfileWithParams(params);
 
                         // checking process of profile
                         if (listData.size() == 1) {
@@ -314,30 +448,40 @@ public class ProfileServiceImpl implements ProfileService {
                                 profile_first = listData.get(0);
                             }
 
-                          
                             // default not null
                             date = profile_first.getProcessDate();
                             boolean isAfter = profileHistory.getTimeReceived()
                                     .isAfter(date);
-                            if (isAfter) {
-                                profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                                processTime = profileHistory.timeReceived
-                                        .plusMinutes(
-                                                transactionType.getStandardTimeCM()
-                                                        + transactionType.getStandardTimeChecker());
 
-                                processTime = processTime.plusMinutes(additionalTime);
+                            profile.setTimeReceived_CM(profile_first.getProcessDate());
 
-                            } else {
-                                profile.setTimeReceived_CM(profile_first.getProcessDate());
+                            processTime = profile_first.getProcessDate()
+                                    .plusMinutes(
+                                            transactionType.getStandardTimeCM()
+                                                    + transactionType.getStandardTimeChecker());
 
-                                processTime = profile_first.getProcessDate()
-                                        .plusMinutes(
-                                                transactionType.getStandardTimeCM()
-                                                        + transactionType.getStandardTimeChecker());
+                            processTime = processTime.plusMinutes(additionalTime);
 
-                                processTime = processTime.plusMinutes(additionalTime);
-                            }
+                            // check profile time received
+                            // if (isAfter) {
+                            // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+                            // processTime = profileHistory.getTimeReceived()
+                            // .plusMinutes(
+                            // transactionType.getStandardTimeCM()
+                            // + transactionType.getStandardTimeChecker());
+
+                            // processTime = processTime.plusMinutes(additionalTime);
+
+                            // } else {
+                            // profile.setTimeReceived_CM(profile_first.getProcessDate());
+
+                            // processTime = profile_first.getProcessDate()
+                            // .plusMinutes(
+                            // transactionType.getStandardTimeCM()
+                            // + transactionType.getStandardTimeChecker());
+
+                            // processTime = processTime.plusMinutes(additionalTime);
+                            // }
 
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
@@ -352,9 +496,19 @@ public class ProfileServiceImpl implements ProfileService {
 
                             // checking time received of record to moving profile in tomorrow
 
-                            if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth) && hourOfProfile < 17) {
-                                processTime = DataUtils.checkTime(processTime, 17, transactionType.getStandardTimeCM(),
-                                        transactionType.getStandardTimeChecker(), additionalTime);
+                            if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
+                                if (hourOfProfile > 17) {
+                                    processTime = DataUtils.checkTime(processTime, 17,
+                                            transactionType.getStandardTimeCM(),
+                                            transactionType.getStandardTimeChecker(), additionalTime);
+                                    LocalDate tomorrow = LocalDate.now().plusDays(1);
+                                    int year = tomorrow.getYear();
+                                    int m = tomorrow.getMonthValue();
+                                    int day = tomorrow.getDayOfMonth();
+                                    LocalDateTime timeReceived = LocalDateTime.of(year,m,day,8,0,0);
+                                    profile.setTimeReceived_CM(timeReceived);
+                                }
+
                             }
 
                         } else if (listData.size() == 0) {
@@ -384,7 +538,7 @@ public class ProfileServiceImpl implements ProfileService {
                         }
 
                         // minus time for profile which is deliveried again
-                        if(timeForAdditional > 0) {
+                        if (timeForAdditional > 0) {
                             processTime = processTime.minusMinutes(timeForAdditional);
                         }
 
@@ -942,7 +1096,9 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public ProfileDTO priorityProfile(ConfirmRequest item) {
+    public MessageDTO priorityProfile(ConfirmRequest item) {
+        MessageDTO message = new MessageDTO();
+
         try {
             ProfileDTO dto = findById(item.getProfile().getId());
             if (!DataUtils.isNullOrEmpty(dto)) {
@@ -1013,16 +1169,90 @@ public class ProfileServiceImpl implements ProfileService {
                                 }
                             }
                         }
+                        message.setMessage("");
+                        message.setIsExist(false);
                     }
 
                 }
             }
-            return dto;
+            return message;
         } catch (Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
-            return null;
+            message.setMessage(e.getMessage());
+            message.setIsExist(true);
+            return message;
 
+        }
+
+    }
+
+    private void updateProfileList(List<ProfileDTO> listData, ProfileDTO profile, UserDTO user,
+            ProfileHistoryDTO profileHistory, Long departmentId, String code) {
+        try {
+            if (listData.size() >= 1) {
+
+                for (int i = 0; i < listData.size(); i++) {
+                    // first record update by profile
+                    if (i == 0) {
+                        // first waiting profile
+                        ProfileDTO first = listData.get(i);
+                        LocalDateTime fromFirst = first.getTimeReceived_CM();
+                        LocalDateTime toFirst = first.getProcessDate();
+                        // LocalDateTime timeReceivedOfSecond = LocalDateTime.now();
+                        LocalDateTime timeReceivedOfSecond = profile.getProcessDate();
+                        boolean isAfter = profileHistory.getTimeReceived().isAfter(profile.getProcessDate());
+                        // if(isAfter) {
+                        // timeReceivedOfSecond = profile.getProcessDate();
+                        // } else {
+                        // timeReceivedOfSecond = profileHistory.getTimeReceived();
+                        // }
+                        LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                                timeReceivedOfSecond);
+                        first.setTimeReceived_CM(profile.getProcessDate());
+                        first.setProcessDate(date);
+                        first.setLastUpdatedDate(LocalDateTime.now());
+
+                        // update state for first waiting profile
+                        first.setState(ProfileStateEnum.PROCESSING.getValue());
+                        // save history
+                        ProfileHistoryDTO his = new ProfileHistoryDTO();
+                        // if(transactionType.equals(1)) {
+                        if (code.trim().toUpperCase().equals("QTTD")) {
+                            his.setStaffId(first.getStaffId_CM());
+                        }
+                        if (code.trim().toUpperCase().equals("GDKH")) {
+                            his.setStaffId(first.getStaffId_CT());
+                        }
+                        // }
+
+                        his.setTimeReceived(LocalDateTime.now());
+                        his.setDepartmentId(departmentId);
+                        his.setProfileId(first.getId());
+                        his.setState(first.getState());
+                        profileHistoryService.save(his);
+                        save(first);
+
+                    } else {
+                        ProfileDTO first = listData.get(i - 1);
+                        ProfileDTO second = listData.get(i);
+                        // processDate: hours, minutes
+                        LocalDateTime fromFirst = second.getTimeReceived_CM();
+                        LocalDateTime toFirst = second.getProcessDate();
+                        LocalDateTime timeReceivedOfSecond = first.getProcessDate();
+                        LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                                timeReceivedOfSecond);
+                        // end
+                        second.setTimeReceived_CM(timeReceivedOfSecond);
+                        second.setProcessDate(date);
+                        second.setLastUpdatedDate(LocalDateTime.now());
+                        save(second);
+                    }
+                }
+
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
         }
 
     }
