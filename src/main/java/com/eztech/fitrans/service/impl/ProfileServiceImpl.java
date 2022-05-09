@@ -221,7 +221,8 @@ public class ProfileServiceImpl implements ProfileService {
                     params.put("staffIdCT", "NULL");
                     List<ProfileDTO> listData = repository.getProfileWithParams(params);
 
-                    this.updateProfileList(listData, profile, user, profileHistory, department.getId(), item.getCode(), transactionType.getType());
+                    this.updateProfileList(listData, profile, user, profileHistory, department.getId(), item.getCode(),
+                            transactionType.getType());
                     // profile is waiting become to processing
                     // if (listData.size() > 0) {
 
@@ -304,8 +305,8 @@ public class ProfileServiceImpl implements ProfileService {
                     List<ProfileDTO> listProfileWaiting = new ArrayList<>();
                     switch (item.getCode()) {
                         // transaction type : 1,2
-                        // type 1: QTTD is not finished transaction
-                        // type 2 :QTTD is finished transaction
+                        // type 1: QTTD is not finished transaction, it hasn't staffId_CT
+                        // type 2 :QTTD is finished transaction,  it hasn't staffId_CT
                         case "QTTD":
                             paramsWaiting.put("staffId_CM", user.getId());
                             paramsWaiting.put("staffId_CT", "NULL");
@@ -315,7 +316,7 @@ public class ProfileServiceImpl implements ProfileService {
                             if (transactionType.getType().equals(1)) {
                                 paramsWaiting.put("staffId_CT", user.getId());
                             }
-                            if (transactionType.getType().equals(1)) {
+                            if (transactionType.getType().equals(3)) {
                                 paramsWaiting.put("staffId_CM", "NULL");
                                 paramsWaiting.put("staffId_CT", user.getId());
                             }
@@ -802,8 +803,13 @@ public class ProfileServiceImpl implements ProfileService {
                                         // check scan
                                         if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
                                                 || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                            message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                            message.setIsExist(true);
+                                            if (item.getUsername().contains("admin")) {
+                                                message.setIsExist(false);
+                                            } else {
+                                                message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                                message.setIsExist(true);
+                                            }
+
                                         } else {
                                             message.setIsExist(false);
 
@@ -1229,8 +1235,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 if (code.trim().toUpperCase().equals("GDKH")) {
                                     if (user.getUsername().trim().toLowerCase().contains("admin")) {
                                         his.setStaffId(first.getStaffId_CM());
-                                    }
-                                    else {
+                                    } else {
                                         his.setStaffId(first.getStaffId_CT());
                                     }
                                 }
