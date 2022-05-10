@@ -226,67 +226,6 @@ public class ProfileServiceImpl implements ProfileService {
 
                     this.updateProfileList(listData, profile, user, profileHistory, department.getId(), item.getCode(),
                             transactionType.getType());
-                    // profile is waiting become to processing
-                    // if (listData.size() > 0) {
-
-                    // for (int i = 0; i < listData.size(); i++) {
-                    // // first record update by profile
-                    // if (i == 0) {
-                    // // first waiting profile
-                    // ProfileDTO first = listData.get(i);
-                    // LocalDateTime fromFirst = first.getTimeReceived_CM();
-                    // LocalDateTime toFirst = first.getProcessDate();
-                    // LocalDateTime timeReceivedOfSecond = LocalDateTime.now();
-                    // boolean isAfter =
-                    // profileHistory.getTimeReceived().isAfter(profile.getProcessDate());
-                    // if(isAfter) {
-                    // timeReceivedOfSecond = profile.getProcessDate();
-                    // } else {
-                    // timeReceivedOfSecond = profileHistory.getTimeReceived();
-                    // }
-                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
-                    // timeReceivedOfSecond);
-                    // first.setTimeReceived_CM(timeReceivedOfSecond);
-                    // first.setProcessDate(date);
-                    // first.setLastUpdatedDate(LocalDateTime.now());
-
-                    // // update state for first waiting profile
-                    // first.setState(ProfileStateEnum.PROCESSING.getValue());
-                    // // save history
-                    // ProfileHistoryDTO his = new ProfileHistoryDTO();
-                    // his.setStaffId(user.getId());
-                    // his.setTimeReceived(profile.getEndTime());
-                    // his.setProfileId(first.getId());
-                    // his.setState(ProfileStateEnum.PROCESSING.getValue());
-                    // profileHistoryService.save(his);
-                    // save(first);
-
-                    // } else {
-                    // ProfileDTO first = listData.get(i - 1);
-                    // ProfileDTO second = listData.get(i);
-                    // // processDate: hours, minutes
-                    // LocalDateTime fromFirst = second.getTimeReceived_CM();
-                    // LocalDateTime toFirst = second.getProcessDate();
-                    // LocalDateTime timeReceivedOfSecond = first.getProcessDate();
-                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
-                    // timeReceivedOfSecond);
-                    // // end
-                    // second.setTimeReceived_CM(timeReceivedOfSecond);
-                    // second.setProcessDate(date);
-                    // second.setLastUpdatedDate(LocalDateTime.now());
-                    // save(second);
-                    // }
-                    // }
-                    // // ProfileDTO dto = listData.get(0);
-                    // // dto.setState(ProfileStateEnum.PROCESSING.getValue());
-                    // // ProfileHistoryDTO his = new ProfileHistoryDTO();
-                    // // his.setStaffId(user.getId());
-                    // // his.setTimeReceived(profile.getEndTime());
-                    // // his.setProfileId(dto.getId());
-                    // // his.setState(ProfileStateEnum.PROCESSING.getValue());
-                    // // profileHistoryService.save(his);
-                    // // save(dto);
-                    // }
 
                 }
 
@@ -329,67 +268,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                     this.updateProfileList(listProfileWaiting, profile, user, profileHistory, department.getId(),
                             item.getCode(), transactionType.getType());
-                    // update processDate for all list
-                    // if (listProfileWaiting.size() > 0) {
-
-                    // for (int i = 0; i < listProfileWaiting.size(); i++) {
-                    // // first record update by profile
-                    // if (i == 0) {
-                    // // first waiting profile
-                    // ProfileDTO first = listProfileWaiting.get(i);
-                    // LocalDateTime fromFirst = first.getTimeReceived_CM();
-                    // LocalDateTime toFirst = first.getProcessDate();
-                    // LocalDateTime timeReceivedOfSecond = profile.getProcessDate();
-                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
-                    // timeReceivedOfSecond);
-                    // first.setTimeReceived_CM(profile.getProcessDate());
-                    // first.setProcessDate(date);
-                    // first.setLastUpdatedDate(LocalDateTime.now());
-
-                    // // update state for first waiting profile
-                    // first.setState(ProfileStateEnum.PROCESSING.getValue());
-                    // ProfileHistoryDTO his = new ProfileHistoryDTO();
-                    // his.setStaffId(user.getId());
-                    // his.setTimeReceived(profile.getEndTime());
-                    // his.setProfileId(first.getId());
-                    // his.setState(ProfileStateEnum.PROCESSING.getValue());
-                    // profileHistoryService.save(his);
-                    // save(first);
-
-                    // } else {
-                    // ProfileDTO first = listProfileWaiting.get(i - 1);
-                    // ProfileDTO second = listProfileWaiting.get(i);
-                    // // processDate: hours, minutes
-                    // LocalDateTime fromFirst = second.getTimeReceived_CM();
-                    // LocalDateTime toFirst = second.getProcessDate();
-                    // LocalDateTime timeReceivedOfSecond = first.getProcessDate();
-                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
-                    // timeReceivedOfSecond);
-                    // // end
-                    // second.setTimeReceived_CM(timeReceivedOfSecond);
-                    // second.setProcessDate(date);
-                    // second.setLastUpdatedDate(LocalDateTime.now());
-                    // save(second);
-                    // }
-                    // }
-                    // }
-
-                    // get data is waiting with order by process_date
-                    // List<ProfileDTO> listData = repository.getProfileWithParams(params);
-
-                    // if (listData.size() >= 1) {
-                    // ProfileDTO dto = listData.get(0);
-                    // dto.setState(ProfileStateEnum.PROCESSING.getValue());
-                    // ProfileHistoryDTO his = new ProfileHistoryDTO();
-                    // his.setStaffId(user.getId());
-                    // his.setTimeReceived(profile.getEndTime());
-                    // his.setProfileId(dto.getId());
-                    // his.setState(ProfileStateEnum.PROCESSING.getValue());
-                    // profileHistoryService.save(his);
-
-                    // save(dto);
-                    // }
-
+                   
                 } else {
 
                     if (item.getCode().equals("QTTD")) {
@@ -466,26 +345,6 @@ public class ProfileServiceImpl implements ProfileService {
 
                             processTime = processTime.plusMinutes(additionalTime);
 
-                            // check profile time received
-                            // if (isAfter) {
-                            // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                            // processTime = profileHistory.getTimeReceived()
-                            // .plusMinutes(
-                            // transactionType.getStandardTimeCM()
-                            // + transactionType.getStandardTimeChecker());
-
-                            // processTime = processTime.plusMinutes(additionalTime);
-
-                            // } else {
-                            // profile.setTimeReceived_CM(profile_first.getProcessDate());
-
-                            // processTime = profile_first.getProcessDate()
-                            // .plusMinutes(
-                            // transactionType.getStandardTimeCM()
-                            // + transactionType.getStandardTimeChecker());
-
-                            // processTime = processTime.plusMinutes(additionalTime);
-                            // }
 
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
@@ -612,6 +471,7 @@ public class ProfileServiceImpl implements ProfileService {
             // không reset lại thời gian cho QTTD nữa, reset cho GDKH và update hồ sơ chờ
             // thành đang xử lý
             if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                isAsc = true;
                 Map<String, Object> params = new HashMap<>();
 
                 params.put("state", ProfileStateEnum.WAITING.getValue());
