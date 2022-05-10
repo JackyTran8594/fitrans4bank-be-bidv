@@ -267,7 +267,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     }
 
     @Override
-    public List<ProfileDTO> getProfileWithParams(Map<String, Object> params) {
+    public List<ProfileDTO> getProfileWithParams(Map<String, Object> params, Boolean isAsc) {
         Map<String, Object> parameters = new HashMap<>();
         StringBuilder sb = new StringBuilder();
 
@@ -291,7 +291,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         }
 
         if (params.containsKey("staffId_CT")) {
-            if(params.get("staffId_CT").toString().trim().toUpperCase().equals("NULL")) {
+            if (params.get("staffId_CT").toString().trim().toUpperCase().equals("NULL")) {
                 sb.append(" AND p.staff_id_ct IS NULL");
             } else {
                 sb.append(" AND p.staff_id_ct = :staffId_CT");
@@ -299,12 +299,13 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             }
             // sb.append("AND p.staff_id_ct = :staffId_CT ");
-            // parameters.put("staffId_CT", DataUtils.parseToLong(params.get("staffId_CT")));
+            // parameters.put("staffId_CT",
+            // DataUtils.parseToLong(params.get("staffId_CT")));
         }
 
         if (params.containsKey("staffId_CM")) {
-          
-            if(params.get("staffId_CM").toString().trim().toUpperCase().equals("NULL")) {
+
+            if (params.get("staffId_CM").toString().trim().toUpperCase().equals("NULL")) {
                 sb.append(" AND p.staff_id_cm IS NULL");
             } else {
                 sb.append(" AND p.staff_id_cm = :staffId_CM");
@@ -312,29 +313,38 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             }
         }
+        if (params.containsKey("code")) {
+            if (!DataUtils.isNullOrEmpty(params.get("code").toString())) {
+                if (params.get("code").toString().trim().toUpperCase().equals("QTTD")) {
+                    sb.append(" AND p.type IN (1,2) ");
+                }
+                if (params.get("code").toString().trim().toUpperCase().equals("GDKH")) {
+                    sb.append(" AND p.type IN (1,3) ");
+                }
+            }
+        }
         if (params.containsKey("state")) {
             sb.append(" AND p.state = :state ");
             parameters.put("state", DataUtils.parseToInt(params.get("state")));
         }
-        if (params.containsKey("type")) {
-            sb.append(" AND trans.type = :type ");
-            parameters.put("type", DataUtils.parseToInt(params.get("type")));
-        }
+        // if (params.containsKey("type")) {
+        // sb.append(" AND trans.type = :type ");
+        // parameters.put("type", DataUtils.parseToInt(params.get("type")));
+        // }
 
         if (params.containsKey("profileId")) {
             sb.append(" AND p.id = :profileId");
             parameters.put("profileId", DataUtils.parseToLong(params.get("profileId")));
         }
 
-        sb.append(" ORDER BY p.process_date DESC");
-
-        // if (params.containsKey("username")) {
-        // sb.append(" AND uc.username = :username ");
-        // parameters.put("username", formatLike((String)
-        // params.get("username").toString().toLowerCase()));
-        // }
+        if (isAsc) {
+            sb.append(" ORDER BY p.process_date ASC");
+        } else {
+            sb.append(" ORDER BY p.process_date DESC");
+        }
 
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
+
     }
 
 }

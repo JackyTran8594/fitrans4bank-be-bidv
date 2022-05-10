@@ -1,4 +1,5 @@
 package com.eztech.fitrans.repo;
 
-public interface StaffRepositoryCustom extends BaseRepositoryCustom{
+public interface StaffRepositoryCustom extends BaseRepositoryCustom {
+    
 }

@@ -207,19 +207,22 @@ public class ProfileServiceImpl implements ProfileService {
 
         try {
             // check account admin or not - GDKH
+            Boolean isAsc = false;
+
             if (item.username.toLowerCase().contains("admin")) {
                 if (item.getCode().equals("GDKH")) {
                     profile.setState(ProfileStateEnum.RECEIVED.getValue());
                     profileHistory.setState(ProfileStateEnum.RECEIVED.getValue());
                     profile.setTimeReceived_CT(profileHistory.getTimeReceived());
                     profile.setRealTimeReceivedCT(profileHistory.getTimeReceived());
+                    isAsc = true;
 
                     // get data is waiting with order by process_date - QTTD
                     Map<String, Object> params = new HashMap<>();
                     params.put("state", ProfileStateEnum.WAITING.getValue());
                     params.put("staffIdCM", profile.getStaffId_CM());
                     params.put("staffIdCT", "NULL");
-                    List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                    List<ProfileDTO> listData = repository.getProfileWithParams(params, isAsc);
 
                     this.updateProfileList(listData, profile, user, profileHistory, department.getId(), item.getCode(),
                             transactionType.getType());
@@ -298,7 +301,7 @@ public class ProfileServiceImpl implements ProfileService {
                     profile.setEndTime(LocalDateTime.now());
                     // update first row is processing
                     params.put("state", ProfileStateEnum.WAITING.getValue());
-                    params.put("type", transactionType.getType());
+                    params.put("code", item.getUsername());
 
                     Map<String, Object> paramsWaiting = new HashMap<>();
                     paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
@@ -310,7 +313,7 @@ public class ProfileServiceImpl implements ProfileService {
                         case "QTTD":
                             paramsWaiting.put("staffId_CM", user.getId());
                             paramsWaiting.put("staffId_CT", "NULL");
-                            listProfileWaiting = repository.getProfileWithParams(paramsWaiting);
+                            listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
                             break;
                         case "GDKH":
                             if (transactionType.getType().equals(1)) {
@@ -320,7 +323,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 paramsWaiting.put("staffId_CM", "NULL");
                                 paramsWaiting.put("staffId_CT", user.getId());
                             }
-                            listProfileWaiting = repository.getProfileWithParams(paramsWaiting);
+                            listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
                             break;
                     }
 
@@ -432,14 +435,14 @@ public class ProfileServiceImpl implements ProfileService {
                                 break;
                         }
 
-                        List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                        List<ProfileDTO> listData = repository.getProfileWithParams(params, isAsc);
 
                         // checking process of profile
                         if (listData.size() == 1) {
                             ProfileDTO profile_first = new ProfileDTO();
 
                             params.put("state", ProfileStateEnum.WAITING.getValue());
-                            List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params);
+                            List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params, isAsc);
                             LocalDateTime date = LocalDateTime.now();
                             if (listDataWaiting.size() >= 1) {
                                 // check time received
@@ -552,7 +555,7 @@ public class ProfileServiceImpl implements ProfileService {
                         params.put("staffId_CT", user.getId());
                         params.put("state", ProfileStateEnum.PROCESSING.getValue());
                         // get profiles is processing
-                        List<ProfileDTO> listData = repository.getProfileWithParams(params);
+                        List<ProfileDTO> listData = repository.getProfileWithParams(params, isAsc);
                         if (listData.size() == 1) {
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
@@ -583,6 +586,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ProfileDTO saveHistory(ConfirmRequest item) {
         try {
+            Boolean isAsc = false;
             ProfileDTO old = item.getProfile();
             ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
             UserDTO user = userService.findByUsername(item.getUsername());
@@ -632,7 +636,7 @@ public class ProfileServiceImpl implements ProfileService {
                     default:
                         break;
                 }
-                List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params);
+                List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params, isAsc);
                 if (listDataWaiting.size() >= 1) {
                     ProfileDTO dto = listDataWaiting.get(0);
                     dto.setState(ProfileStateEnum.PROCESSING.getValue());
