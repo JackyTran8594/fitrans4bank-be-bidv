@@ -393,7 +393,7 @@ public class ProfileServiceImpl implements ProfileService {
                         LocalDateTime timeReceived_CM = LocalDateTime.now();
                         item.getProfile().setStaffId_CM(user.getId());
                         params.put("staffId_CM", user.getId());
-                        params.put("type", transactionType.getType());
+                        // params.put("type", transactionType.getType());
                         // check profile is additional and delivery again
                         Integer timeForAdditional = 0;
                         if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
@@ -845,6 +845,7 @@ public class ProfileServiceImpl implements ProfileService {
                 if (transactionType.getType().equals(2)) {
                     // QTTD không tính thời gian cho phòng, do đó bàn giao thẳng cho chuyên viên
                     if (item.getCode().equals("QTTD")) {
+                        // kiểm tra  đã bàn giao tại QTTD chưa
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                             if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
                                     || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
@@ -871,8 +872,9 @@ public class ProfileServiceImpl implements ProfileService {
                                 }
                             }
                         } else {
-                            message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
-                            message.setIsExist(true);
+                            // return false => cho phép bàn giao
+                            // message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                            message.setIsExist(false);
                         }
                     } else {
                         message.setMessage("Tài khoản của bạn không phù hợp với luồng giao dịch");
@@ -910,9 +912,11 @@ public class ProfileServiceImpl implements ProfileService {
                                 }
                             }
                         } else {
+                            // kiểm tra cán bộ GDKH đã quét chưa
                             if (!DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
                                 message.setIsExist(false);
                             } else {
+                                // kiểm tra đã quét tại phòng GDKH chưa
                                 if (item.getUsername().contains("admin")) {
                                     message.setIsExist(false);
                                 } else {
