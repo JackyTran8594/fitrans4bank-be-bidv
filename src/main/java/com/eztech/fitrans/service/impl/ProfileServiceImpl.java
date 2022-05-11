@@ -220,27 +220,33 @@ public class ProfileServiceImpl implements ProfileService {
                     List<ProfileDTO> listData = new ArrayList<>();
                     // checking profile that is deliveried
                     if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                        params.put("staffIdCT", profile.getStaffId_CT());
-                       listData = repository.getProfileWithParams(params, isAsc);
-                       if(listData.size() > 0) {
-                        int lastIndex = listData.size() - 1;
                         profile.setTimeReceived_CT(LocalDateTime.now());
-                       }
+                        // params.put("staffIdCT", profile.getStaffId_CT());
+                        // listData = repository.getProfileWithParams(params, isAsc);
+                        // if(listData.size() > 0) {
+                        // // int lastIndex = listData.size() - 1;
+                        // profile.setTimeReceived_CT(LocalDateTime.now());
+                        // }
                     } else {
+                        // type 1,2 - QTTD
                         params.put("staffIdCT", "NULL");
                         listData = repository.getProfileWithParams(params, isAsc);
-                        this.updateProfileList(listData, profile, user, profileHistory, department.getId(), item.getCode(),
-                        transactionType.getType());
-                    }
+                        if (listData.size() > 0) {
+                            this.updateProfileList(listData, profile, user, profileHistory, department.getId(),
+                                    item.getCode(),
+                                    transactionType.getType());
+                        } else {
+                            // listData waitting
+                            profile.setTimeReceived_CT(LocalDateTime.now());
+                        }
 
-                   
+                    }
 
                     // set state again
                     profile.setState(ProfileStateEnum.RECEIVED.getValue());
                     profileHistory.setState(ProfileStateEnum.RECEIVED.getValue());
                     profile.setTimeReceived_CT(profileHistory.getTimeReceived());
                     profile.setRealTimeReceivedCT(profileHistory.getTimeReceived());
-                   
 
                 }
 
@@ -348,17 +354,29 @@ public class ProfileServiceImpl implements ProfileService {
 
                             // default not null
                             date = profile_first.getProcessDate();
-                            boolean isAfter = profileHistory.getTimeReceived()
-                                    .isAfter(date);
+                            // boolean isAfter = profileHistory.getTimeReceived()
+                            // .isAfter(date);
 
                             profile.setTimeReceived_CM(profile_first.getProcessDate());
+                            processTime = profile_first.getProcessDate();
+                            if (!DataUtils.isNullOrEmpty(transactionType.getStandardTimeCM())) {
+                                processTime = processTime.plusMinutes(transactionType.getStandardTimeCM());
+                            }
 
-                            processTime = profile_first.getProcessDate()
-                                    .plusMinutes(
-                                            transactionType.getStandardTimeCM()
-                                                    + transactionType.getStandardTimeChecker());
+                            if (!DataUtils.isNullOrEmpty(transactionType.getStandardTimeChecker())) {
+                                processTime = processTime.plusMinutes(transactionType.getStandardTimeChecker());
+                            }
 
-                            processTime = processTime.plusMinutes(additionalTime);
+                            if (!DataUtils.isNullOrEmpty(additionalTime)) {
+                                processTime = processTime.plusMinutes(additionalTime);
+                            }
+
+                            // processTime = profile_first.getProcessDate()
+                            // .plusMinutes(
+                            // transactionType.getStandardTimeCM()
+                            // + transactionType.getStandardTimeChecker());
+
+                            // processTime = processTime.plusMinutes(additionalTime);
 
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
@@ -1106,11 +1124,12 @@ public class ProfileServiceImpl implements ProfileService {
                         LocalDateTime timeReceivedOfSecond = LocalDateTime.now();
                         // LocalDateTime timeReceivedOfSecond = profile.getProcessDate();
                         boolean isAfter = profileHistory.getTimeReceived().isAfter(profile.getProcessDate());
-                        if (isAfter) {
-                            timeReceivedOfSecond = profile.getProcessDate();
-                        } else {
-                            timeReceivedOfSecond = profileHistory.getTimeReceived();
-                        }
+                        timeReceivedOfSecond = profile.getProcessDate();
+                        // if (isAfter) {
+                        // timeReceivedOfSecond = profile.getProcessDate();
+                        // } else {
+                        // timeReceivedOfSecond = profileHistory.getTimeReceived();
+                        // }
                         LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
                                 timeReceivedOfSecond);
                         first.setTimeReceived_CM(timeReceivedOfSecond);
