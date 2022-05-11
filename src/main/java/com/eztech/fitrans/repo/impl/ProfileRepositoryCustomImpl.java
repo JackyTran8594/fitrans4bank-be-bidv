@@ -316,10 +316,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         if (params.containsKey("code")) {
             if (!DataUtils.isNullOrEmpty(params.get("code").toString())) {
                 if (params.get("code").toString().trim().toUpperCase().equals("QTTD")) {
-                    sb.append(" AND p.type IN (1,2) ");
+                    sb.append(" AND trans.type IN (1,2) ");
                 }
                 if (params.get("code").toString().trim().toUpperCase().equals("GDKH")) {
-                    sb.append(" AND p.type IN (1,3) ");
+                    sb.append(" AND trans.type IN (1,3) ");
                 }
             }
         }
