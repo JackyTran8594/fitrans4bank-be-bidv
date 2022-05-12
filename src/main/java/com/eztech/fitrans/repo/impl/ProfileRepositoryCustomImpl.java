@@ -113,22 +113,31 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     // String position = paramSearch.containsKey("position") ?
                     // paramSearch.get("position").toString() : "";
                     String sql_filter = "";
-                    // String sql_username = " ";
+                    String sql_username = " ";
                     switch (deparmentCode) {
                         case "QTTD":
                             // QTTD nhìn thấy hết
                             String sql_qttd = " AND trans.type IN (1,2) ";
                             sql_filter = " AND p.state NOT IN (0) ";
+                            sql_username = " AND ucm.username = :username ";
                             sb.append(sql_qttd)
-                                    .append(sql_filter);
+                                    .append(sql_filter).append(sql_username);
+
+                            parameters.put("username",
+                                    paramSearch.get("username").toString().toLowerCase());
+
                             break;
                         case "GDKH":
                             // transaction - type : GDKH có 2 luồng
                             // GDKH nhìn thấy hết, bỏ phân công
                             String sql_gdkh = " AND trans.type IN (1,3) ";
                             sql_filter = " AND p.state NOT IN (0) ";
+                            sql_username = " AND uct.username = :username ";
                             sb.append(sql_gdkh)
-                                    .append(sql_filter);
+                                    .append(sql_filter).append(sql_username);
+
+                            parameters.put("username",
+                                    paramSearch.get("username").toString().toLowerCase());
 
                             break;
                         default:

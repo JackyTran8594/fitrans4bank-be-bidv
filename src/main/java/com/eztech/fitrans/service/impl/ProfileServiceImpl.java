@@ -258,7 +258,7 @@ public class ProfileServiceImpl implements ProfileService {
                 if (item.getIsFinished()) {
                     profile.setState(ProfileStateEnum.FINISHED.getValue());
                     profileHistory.setState(ProfileStateEnum.FINISHED.getValue());
-                    profile.setEndTime(LocalDateTime.now());
+                    profile.setEndTime(profileHistory.getTimeReceived());
                     // update first row is processing
                     params.put("state", ProfileStateEnum.WAITING.getValue());
                     params.put("code", item.getUsername());
@@ -273,6 +273,18 @@ public class ProfileServiceImpl implements ProfileService {
                         case "QTTD":
                             paramsWaiting.put("staffId_CM", user.getId());
                             paramsWaiting.put("staffId_CT", "NULL");
+                            // tính thời gian còn lại để cộng vào lần bàn giao sau cho hồ sơ cần bổ sung
+                            // bắt đầu từ thời điểm chuyển đổi trạng thái thành cần bổ sung - additional
+                            LocalDateTime from = profile.getTimeReceived_CM();
+                            LocalDateTime to = profile.getEndTime();
+                            LocalDateTime processTime = profile.getProcessDate();
+                            if (to.isAfter(from) && processTime.isAfter(to)) {
+                                // set endtime = processDate
+                                profile.setProcessDate(to);
+                            } else {
+
+                            }
+
                             listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
                             break;
                         case "GDKH":
@@ -354,11 +366,19 @@ public class ProfileServiceImpl implements ProfileService {
 
                             // default not null
                             date = profile_first.getProcessDate();
-                            // boolean isAfter = profileHistory.getTimeReceived()
-                            // .isAfter(date);
+                            boolean isAfter = profileHistory.getTimeReceived()
+                                    .isAfter(date);
 
-                            profile.setTimeReceived_CM(profile_first.getProcessDate());
+                            // if(isAfter) {
+                            // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+                            // processTime = profileHistory.getTimeReceived();
+                            // } else {
+                            // profile.setTimeReceived_CM(profile_first.getProcessDate());
+                            // processTime = profile_first.getProcessDate();
+                            // }
+
                             processTime = profile_first.getProcessDate();
+
                             if (!DataUtils.isNullOrEmpty(transactionType.getStandardTimeCM())) {
                                 processTime = processTime.plusMinutes(transactionType.getStandardTimeCM());
                             }
@@ -444,18 +464,21 @@ public class ProfileServiceImpl implements ProfileService {
                     } else if (item.getCode().equals("GDKH")) {
                         // received profile at GDKH
                         item.getProfile().setStaffId_CT(user.getId());
-                        params.put("staffId_CT", user.getId());
-                        params.put("state", ProfileStateEnum.PROCESSING.getValue());
-                        // get profiles is processing
-                        List<ProfileDTO> listData = repository.getProfileWithParams(params, isAsc);
+                        profile.setState(ProfileStateEnum.PROCESSING.getValue());
+                        profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
 
-                        if (listData.size() == 1) {
-                            profile.setState(ProfileStateEnum.WAITING.getValue());
-                            profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-                        } else if (listData.size() == 0) {
-                            profile.setState(ProfileStateEnum.PROCESSING.getValue());
-                            profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-                        }
+                        // params.put("staffId_CT", user.getId());
+                        // params.put("state", ProfileStateEnum.PROCESSING.getValue());
+                        // // get profiles is processing
+                        // List<ProfileDTO> listData = repository.getProfileWithParams(params, isAsc);
+
+                        // if (listData.size() == 1) {
+                        // profile.setState(ProfileStateEnum.WAITING.getValue());
+                        // profileHistory.setState(ProfileStateEnum.WAITING.getValue());
+                        // } else if (listData.size() == 0) {
+                        // profile.setState(ProfileStateEnum.PROCESSING.getValue());
+                        // profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+                        // }
                     }
                 }
             }
@@ -512,9 +535,9 @@ public class ProfileServiceImpl implements ProfileService {
 
                 params.put("state", ProfileStateEnum.WAITING.getValue());
                 params.put("code", item.getCode());
+                List<ProfileDTO> listDataWaiting = new ArrayList<>();
                 switch (item.getCode().trim().toUpperCase()) {
                     case "GDKH":
-                        params.put("staffId_CT", user.getId());
                         old.setTimeReceived_CT(null);
                         break;
                     case "QTTD":
@@ -524,37 +547,23 @@ public class ProfileServiceImpl implements ProfileService {
                         // bắt đầu từ thời điểm chuyển đổi trạng thái thành cần bổ sung - additional
                         LocalDateTime from = old.getTimeReceived_CM();
                         LocalDateTime to = LocalDateTime.now();
-                        if (to.isAfter(from)) {
-                            Long additionalTime = DataUtils.durationToMinute(from, to);
+                        LocalDateTime processTime = old.getProcessDate();
+                        if (!to.isAfter(from) && !processTime.isAfter(to)) {
+                            Long additionalTime = DataUtils.durationToMinute(from, processTime);
                             old.setAdditionalTime(Integer.valueOf(additionalTime.intValue()));
+                            old.setProcessDate(to);
+                        } else {
+
                         }
+                        listDataWaiting = repository.getProfileWithParams(params, isAsc);
+                        this.updateProfileList(listDataWaiting, old, user, profileHistory, department.getId(),
+                                item.getCode(), transactionType.getType());
 
                         break;
 
                     default:
                         break;
                 }
-                List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params, isAsc);
-                this.updateProfileList(listDataWaiting, old, user, profileHistory, department.getId(),
-                        item.getCode(), transactionType.getType());
-
-                // this.updateProfileList(listProfileWaiting, profile, user, profileHistory,
-                // department.getId(),
-                // item.getCode(), transactionType.getType());
-                // if (listDataWaiting.size() >= 1) {
-                // ProfileDTO dto = listDataWaiting.get(0);
-                // dto.setState(ProfileStateEnum.PROCESSING.getValue());
-                // ProfileHistoryDTO his = new ProfileHistoryDTO();
-                // his.setStaffId(user.getId());
-                // his.setTimeReceived(LocalDateTime.now());
-                // his.setProfileId(dto.getId());
-                // his.setDepartmentId(department.getId());
-                // his.setDepartmentCode(department.getCode());
-                // his.setState(ProfileStateEnum.PROCESSING.getValue());
-                // profileHistoryService.save(his);
-
-                // save(dto);
-                // }
 
             }
             profileHistory.setDepartmentCode(department.getCode());
@@ -1122,8 +1131,10 @@ public class ProfileServiceImpl implements ProfileService {
                         LocalDateTime fromFirst = first.getTimeReceived_CM();
                         LocalDateTime toFirst = first.getProcessDate();
                         LocalDateTime timeReceivedOfSecond = LocalDateTime.now();
-                        // LocalDateTime timeReceivedOfSecond = profile.getProcessDate();
-                        boolean isAfter = profileHistory.getTimeReceived().isAfter(profile.getProcessDate());
+
+                        // (timeReceived - profileHistory) = (endtime - profile)
+                        // boolean isAfter =
+                        // profileHistory.getTimeReceived().isAfter(profile.getProcessDate());
                         timeReceivedOfSecond = profile.getProcessDate();
                         // if (isAfter) {
                         // timeReceivedOfSecond = profile.getProcessDate();
