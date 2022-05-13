@@ -273,8 +273,8 @@ public class ProfileServiceImpl implements ProfileService {
                         case "QTTD":
                             paramsWaiting.put("staffId_CM", user.getId());
                             paramsWaiting.put("staffId_CT", "NULL");
-                            // tính thời gian còn lại để cộng vào lần bàn giao sau cho hồ sơ cần bổ sung
-                            // bắt đầu từ thời điểm chuyển đổi trạng thái thành cần bổ sung - additional
+                            
+                            // checking end time is before and after for time receive
                             LocalDateTime from = profile.getTimeReceived_CM();
                             LocalDateTime to = profile.getEndTime();
                             LocalDateTime processTime = profile.getProcessDate();
@@ -376,6 +376,7 @@ public class ProfileServiceImpl implements ProfileService {
                             // profile.setTimeReceived_CM(profile_first.getProcessDate());
                             // processTime = profile_first.getProcessDate();
                             // }
+                            profile.setTimeReceived_CM(profile_first.getProcessDate());
 
                             processTime = profile_first.getProcessDate();
 
