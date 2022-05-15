@@ -229,6 +229,7 @@ public class ProfileServiceImpl implements ProfileService {
                         // }
                     } else {
                         // type 1,2 - QTTD
+                        // update listDataWaiting
                         params.put("staffIdCT", "NULL");
                         listData = repository.getProfileWithParams(params, isAsc);
                         if (listData.size() > 0) {
@@ -447,11 +448,38 @@ public class ProfileServiceImpl implements ProfileService {
                                 processTime = processTime.plusMinutes(additionalTime);
                             }
 
-                            if (processTime.getHour() > 17) {
-                                processTime = DataUtils.checkTime(processTime, 17, transactionType.getStandardTimeCM(),
-                                        transactionType.getStandardTimeChecker(), additionalTime);
-                            }
-                            profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+                              // day, hour, time of process time
+                              int monthOfProfile = processTime.getMonthValue();
+                              int dayOfProfile = processTime.getDayOfMonth();
+                              int hourOfProfile = processTime.getHour();
+                              int minutesOfProfile = processTime.getMinute();
+                              int month = LocalDateTime.now().getMonthValue();
+                              int dayOfMonth = LocalDateTime.now().getDayOfMonth();
+  
+                              // checking time received of record to moving profile in tomorrow
+  
+                              if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
+                                  if (hourOfProfile >= 17 && minutesOfProfile > 0) {
+                                      processTime = DataUtils.checkTime(processTime, 17,
+                                              transactionType.getStandardTimeCM(),
+                                              transactionType.getStandardTimeChecker(), additionalTime);
+                                      LocalDate tomorrow = LocalDate.now().plusDays(1);
+                                      int year = tomorrow.getYear();
+                                      int m = tomorrow.getMonthValue();
+                                      int day = tomorrow.getDayOfMonth();
+                                      LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
+                                      profile.setTimeReceived_CM(timeReceived);
+                                  }
+  
+                              } else {
+                                profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+                              }
+
+                            // if (processTime.getHour() > 17) {
+                            //     processTime = DataUtils.checkTime(processTime, 17, transactionType.getStandardTimeCM(),
+                            //             transactionType.getStandardTimeChecker(), additionalTime);
+                            // }
+                            
                         }
 
                         // minus time for profile which is deliveried again
@@ -549,7 +577,7 @@ public class ProfileServiceImpl implements ProfileService {
                         LocalDateTime from = old.getTimeReceived_CM();
                         LocalDateTime to = LocalDateTime.now();
                         LocalDateTime processTime = old.getProcessDate();
-                        if (!to.isAfter(from) && !processTime.isAfter(to)) {
+                        if (to.isAfter(from) && processTime.isAfter(to)) {
                             Long additionalTime = DataUtils.durationToMinute(from, processTime);
                             old.setAdditionalTime(Integer.valueOf(additionalTime.intValue()));
                             old.setProcessDate(to);

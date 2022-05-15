@@ -119,12 +119,18 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             // QTTD nhìn thấy hết
                             String sql_qttd = " AND trans.type IN (1,2) ";
                             sql_filter = " AND p.state NOT IN (0) ";
-                            sql_username = " AND ucm.username = :username ";
+                            // sql_username = " AND ucm.username = :username ";
                             sb.append(sql_qttd)
-                                    .append(sql_filter).append(sql_username);
+                                    .append(sql_filter);
+                                    // .append(sql_username);
+                            if (paramSearch.containsKey("username")) {
+                                if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
+                                    sb.append(" AND  ucm.username :username");
+                                    parameters.put("username",
+                                            formatLike((String) paramSearch.get("username").toString().toLowerCase()));
+                                }
 
-                            parameters.put("username",
-                                    paramSearch.get("username").toString().toLowerCase());
+                            }
 
                             break;
                         case "GDKH":
@@ -132,13 +138,18 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             // GDKH nhìn thấy hết, bỏ phân công
                             String sql_gdkh = " AND trans.type IN (1,3) ";
                             sql_filter = " AND p.state NOT IN (0) ";
-                            sql_username = " AND uct.username = :username ";
+                            // sql_username = " AND uct.username = :username ";
                             sb.append(sql_gdkh)
-                                    .append(sql_filter).append(sql_username);
+                                    .append(sql_filter);
+                                    // .append(sql_username);
+                            if (paramSearch.containsKey("username")) {
+                                if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
+                                    sb.append(" AND  uct.username :username");
+                                    parameters.put("username",
+                                            formatLike((String) paramSearch.get("username").toString().toLowerCase()));
+                                }
 
-                            parameters.put("username",
-                                    paramSearch.get("username").toString().toLowerCase());
-
+                            }
                             break;
                         default:
                             break;
@@ -154,6 +165,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
 
         }
+
 
         if (paramSearch.containsKey("fromDate")) {
             if (!DataUtils.isNullOrEmpty(paramSearch.get("fromDate"))) {
