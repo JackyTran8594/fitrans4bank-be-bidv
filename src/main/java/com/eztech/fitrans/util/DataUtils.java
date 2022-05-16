@@ -837,7 +837,9 @@ public class DataUtils {
         long minutes = ChronoUnit.MINUTES.between(from, to);
         long seconds = ChronoUnit.SECONDS.between(from, to);
         LocalDateTime processTime = null;
+        LocalDate tomorrow = LocalDate.now();
         // processDate = timeReceived from 2nd record
+       
         if (years > 0) {
             processTime = timeReceived.plusYears(years);
         }
@@ -845,10 +847,19 @@ public class DataUtils {
             processTime = timeReceived.plusMonths(months);
         }
         if (days > 0) {
-            processTime = timeReceived.plusDays(days);
+            // if(hours > 17 && minutes > 0) {
+            //     processTime = timeReceived.plusDays(days + 1);
+            // } else {
+                processTime = timeReceived.plusDays(days);
+            // }
         }
         if (hours > 0) {
-            processTime = timeReceived.plusHours(hours);
+            // if(hours > 17 && minutes > 0) {
+            //     processTime = timeReceived.withHour(4);
+            // } else {
+                processTime = timeReceived.plusHours(hours);
+            // }
+           
         }
         if (minutes > 0) {
             processTime = timeReceived.plusMinutes(minutes);
@@ -856,6 +867,8 @@ public class DataUtils {
         if (seconds > 0) {
             processTime = timeReceived.plusSeconds(seconds);
         }
+
+       
         return processTime;
     }
 
@@ -914,5 +927,7 @@ public class DataUtils {
         
         return Long.valueOf(minutesProcess);
     }
+
+    // public static 
 
 }

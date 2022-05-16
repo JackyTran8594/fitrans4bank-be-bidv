@@ -110,24 +110,22 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 // default null from client
                 String username = paramSearch.containsKey("username") ? paramSearch.get("username").toString() : "";
                 if (!DataUtils.isNullOrEmpty(username) && !username.toLowerCase().trim().contains("admin")) {
-                    // String position = paramSearch.containsKey("position") ?
-                    // paramSearch.get("position").toString() : "";
+
                     String sql_filter = "";
-                    String sql_username = " ";
                     switch (deparmentCode) {
                         case "QTTD":
                             // QTTD nhìn thấy hết
                             String sql_qttd = " AND trans.type IN (1,2) ";
                             sql_filter = " AND p.state NOT IN (0) ";
-                            // sql_username = " AND ucm.username = :username ";
                             sb.append(sql_qttd)
                                     .append(sql_filter);
-                                    // .append(sql_username);
-                            if (paramSearch.containsKey("username")) {
-                                if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
-                                    sb.append(" AND  ucm.username :username");
-                                    parameters.put("username",
-                                            formatLike((String) paramSearch.get("username").toString().toLowerCase()));
+
+                            if (paramSearch.containsKey("usernameByCode")) {
+                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                    sb.append(" AND  ucm.username like :usernameByCode");
+                                    parameters.put("usernameByCode",
+                                            formatLike((String) paramSearch.get("usernameByCode").toString()
+                                                    .toLowerCase()));
                                 }
 
                             }
@@ -138,15 +136,15 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             // GDKH nhìn thấy hết, bỏ phân công
                             String sql_gdkh = " AND trans.type IN (1,3) ";
                             sql_filter = " AND p.state NOT IN (0) ";
-                            // sql_username = " AND uct.username = :username ";
                             sb.append(sql_gdkh)
                                     .append(sql_filter);
-                                    // .append(sql_username);
-                            if (paramSearch.containsKey("username")) {
-                                if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
-                                    sb.append(" AND  uct.username :username");
-                                    parameters.put("username",
-                                            formatLike((String) paramSearch.get("username").toString().toLowerCase()));
+                            // .append(sql_username);
+                            if (paramSearch.containsKey("usernameByCode")) {
+                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                    sb.append(" AND  uct.username like :usernameByCode");
+                                    parameters.put("usernameByCode",
+                                            formatLike((String) paramSearch.get("usernameByCode").toString()
+                                                    .toLowerCase()));
                                 }
 
                             }
@@ -165,7 +163,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
 
         }
-
 
         if (paramSearch.containsKey("fromDate")) {
             if (!DataUtils.isNullOrEmpty(paramSearch.get("fromDate"))) {
@@ -348,10 +345,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             sb.append(" AND p.state = :state ");
             parameters.put("state", DataUtils.parseToInt(params.get("state")));
         }
-        // if (params.containsKey("type")) {
-        // sb.append(" AND trans.type = :type ");
-        // parameters.put("type", DataUtils.parseToInt(params.get("type")));
-        // }
 
         if (params.containsKey("profileId")) {
             sb.append(" AND p.id = :profileId");

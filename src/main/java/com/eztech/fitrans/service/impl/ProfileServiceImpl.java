@@ -42,6 +42,7 @@ import java.io.*;
 // import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Date;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -220,14 +221,14 @@ public class ProfileServiceImpl implements ProfileService {
                     List<ProfileDTO> listData = new ArrayList<>();
                     // checking profile that is deliveried
                     if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                        profile.setTimeReceived_CT(LocalDateTime.now());
+                        // profile.setTimeReceived_CT(profileHistory.getTimeReceived());
                         // params.put("staffIdCT", profile.getStaffId_CT());
                         // listData = repository.getProfileWithParams(params, isAsc);
                         // if(listData.size() > 0) {
                         // // int lastIndex = listData.size() - 1;
                         // profile.setTimeReceived_CT(LocalDateTime.now());
                         // }
-                    } else {
+                    } else if(profile.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
                         // type 1,2 - QTTD
                         // update listDataWaiting
                         params.put("staffIdCT", "NULL");
@@ -235,10 +236,10 @@ public class ProfileServiceImpl implements ProfileService {
                         if (listData.size() > 0) {
                             this.updateProfileList(listData, profile, user, profileHistory, department.getId(),
                                     item.getCode(),
-                                    transactionType.getType());
+                                    transactionType);
                         } else {
                             // listData waitting
-                            profile.setTimeReceived_CT(LocalDateTime.now());
+                            // profile.setTimeReceived_CT(profileHistory.getTimeReceived());
                         }
 
                     }
@@ -274,7 +275,7 @@ public class ProfileServiceImpl implements ProfileService {
                         case "QTTD":
                             paramsWaiting.put("staffId_CM", user.getId());
                             paramsWaiting.put("staffId_CT", "NULL");
-                            
+
                             // checking end time is before and after for time receive
                             LocalDateTime from = profile.getTimeReceived_CM();
                             LocalDateTime to = profile.getEndTime();
@@ -301,7 +302,7 @@ public class ProfileServiceImpl implements ProfileService {
                     }
 
                     this.updateProfileList(listProfileWaiting, profile, user, profileHistory, department.getId(),
-                            item.getCode(), transactionType.getType());
+                            item.getCode(), transactionType);
 
                 } else {
 
@@ -448,38 +449,42 @@ public class ProfileServiceImpl implements ProfileService {
                                 processTime = processTime.plusMinutes(additionalTime);
                             }
 
-                              // day, hour, time of process time
-                              int monthOfProfile = processTime.getMonthValue();
-                              int dayOfProfile = processTime.getDayOfMonth();
-                              int hourOfProfile = processTime.getHour();
-                              int minutesOfProfile = processTime.getMinute();
-                              int month = LocalDateTime.now().getMonthValue();
-                              int dayOfMonth = LocalDateTime.now().getDayOfMonth();
-  
-                              // checking time received of record to moving profile in tomorrow
-  
-                              if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
-                                  if (hourOfProfile >= 17 && minutesOfProfile > 0) {
-                                      processTime = DataUtils.checkTime(processTime, 17,
-                                              transactionType.getStandardTimeCM(),
-                                              transactionType.getStandardTimeChecker(), additionalTime);
-                                      LocalDate tomorrow = LocalDate.now().plusDays(1);
-                                      int year = tomorrow.getYear();
-                                      int m = tomorrow.getMonthValue();
-                                      int day = tomorrow.getDayOfMonth();
-                                      LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
-                                      profile.setTimeReceived_CM(timeReceived);
-                                  }
-  
-                              } else {
+                            // day, hour, time of process time
+                            int monthOfProfile = processTime.getMonthValue();
+                            int dayOfProfile = processTime.getDayOfMonth();
+                            int hourOfProfile = processTime.getHour();
+                            int minutesOfProfile = processTime.getMinute();
+                            int month = LocalDateTime.now().getMonthValue();
+                            int dayOfMonth = LocalDateTime.now().getDayOfMonth();
+
+                            // checking time received of record to moving profile in tomorrow
+
+                            if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
+                                if (hourOfProfile >= 17 && minutesOfProfile > 0) {
+                                    processTime = DataUtils.checkTime(processTime, 17,
+                                            transactionType.getStandardTimeCM(),
+                                            transactionType.getStandardTimeChecker(), additionalTime);
+                                    LocalDate tomorrow = LocalDate.now().plusDays(1);
+                                    int year = tomorrow.getYear();
+                                    int m = tomorrow.getMonthValue();
+                                    int day = tomorrow.getDayOfMonth();
+                                    LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
+                                    profile.setTimeReceived_CM(timeReceived);
+                                } else {
+                                    profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+
+                                }
+
+                            } else {
                                 profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                              }
+                            }
 
                             // if (processTime.getHour() > 17) {
-                            //     processTime = DataUtils.checkTime(processTime, 17, transactionType.getStandardTimeCM(),
-                            //             transactionType.getStandardTimeChecker(), additionalTime);
+                            // processTime = DataUtils.checkTime(processTime, 17,
+                            // transactionType.getStandardTimeCM(),
+                            // transactionType.getStandardTimeChecker(), additionalTime);
                             // }
-                            
+
                         }
 
                         // minus time for profile which is deliveried again
@@ -495,7 +500,7 @@ public class ProfileServiceImpl implements ProfileService {
                         item.getProfile().setStaffId_CT(user.getId());
                         profile.setState(ProfileStateEnum.PROCESSING.getValue());
                         profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-
+                      
                         // params.put("staffId_CT", user.getId());
                         // params.put("state", ProfileStateEnum.PROCESSING.getValue());
                         // // get profiles is processing
@@ -586,7 +591,7 @@ public class ProfileServiceImpl implements ProfileService {
                         }
                         listDataWaiting = repository.getProfileWithParams(params, isAsc);
                         this.updateProfileList(listDataWaiting, old, user, profileHistory, department.getId(),
-                                item.getCode(), transactionType.getType());
+                                item.getCode(), transactionType);
 
                         break;
 
@@ -1148,7 +1153,7 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     private void updateProfileList(List<ProfileDTO> listData, ProfileDTO profile, UserDTO user,
-            ProfileHistoryDTO profileHistory, Long departmentId, String code, Integer transactionType) {
+            ProfileHistoryDTO profileHistory, Long departmentId, String code, TransactionTypeDTO transactionType) {
         try {
             if (listData.size() >= 1) {
 
@@ -1170,8 +1175,15 @@ public class ProfileServiceImpl implements ProfileService {
                         // } else {
                         // timeReceivedOfSecond = profileHistory.getTimeReceived();
                         // }
+
                         LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
                                 timeReceivedOfSecond);
+                        if (date.getHour() > 17 && date.getMinute() > 0) {
+                            Long duration = DataUtils.durationToMinute(fromFirst, toFirst);
+                            date = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth() + 1, 8,
+                                    duration.intValue());
+                        }
+
                         first.setTimeReceived_CM(timeReceivedOfSecond);
                         first.setProcessDate(date);
                         first.setLastUpdatedDate(LocalDateTime.now());
@@ -1181,7 +1193,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                         // save history
                         ProfileHistoryDTO his = new ProfileHistoryDTO();
-                        switch (transactionType) {
+                        switch (transactionType.getType()) {
                             case 1:
                                 // at QTTD
                                 if (code.trim().toUpperCase().equals("QTTD")) {
@@ -1233,6 +1245,11 @@ public class ProfileServiceImpl implements ProfileService {
                         LocalDateTime timeReceivedOfSecond = first.getProcessDate();
                         LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
                                 timeReceivedOfSecond);
+                        if (date.getHour() > 17 && date.getMinute() > 0) {
+                            Long duration = DataUtils.durationToMinute(fromFirst, toFirst);
+                            date = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth() + 1, 8,
+                                    duration.intValue());
+                        }
                         // end
                         second.setTimeReceived_CM(timeReceivedOfSecond);
                         second.setProcessDate(date);
