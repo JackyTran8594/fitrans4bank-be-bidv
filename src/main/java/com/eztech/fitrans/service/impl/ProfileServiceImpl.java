@@ -228,7 +228,7 @@ public class ProfileServiceImpl implements ProfileService {
                         // // int lastIndex = listData.size() - 1;
                         // profile.setTimeReceived_CT(LocalDateTime.now());
                         // }
-                    } else if(profile.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                    } else if (profile.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
                         // type 1,2 - QTTD
                         // update listDataWaiting
                         params.put("staffIdCT", "NULL");
@@ -277,32 +277,32 @@ public class ProfileServiceImpl implements ProfileService {
                             paramsWaiting.put("staffId_CT", "NULL");
 
                             // checking end time is before and after for time receive
-                            LocalDateTime from = profile.getTimeReceived_CM();
-                            LocalDateTime to = profile.getEndTime();
-                            LocalDateTime processTime = profile.getProcessDate();
-                            if (to.isAfter(from) && processTime.isAfter(to)) {
-                                // set endtime = processDate
-                                profile.setProcessDate(to);
-                            } else {
+                            // LocalDateTime from = profile.getTimeReceived_CM();
+                            // LocalDateTime to = profile.getEndTime();
+                            // LocalDateTime processTime = profile.getProcessDate();
+                            // if (to.isAfter(from) && processTime.isAfter(to)) {
+                            // // set endtime = processDate
+                            // profile.setProcessDate(to);
+                            // } else {
 
-                            }
+                            // }
 
                             listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
+                            this.updateProfileList(listProfileWaiting, profile, user, profileHistory, department.getId(),
+                            item.getCode(), transactionType);
                             break;
                         case "GDKH":
-                            if (transactionType.getType().equals(1)) {
-                                paramsWaiting.put("staffId_CT", user.getId());
-                            }
-                            if (transactionType.getType().equals(3)) {
-                                paramsWaiting.put("staffId_CM", "NULL");
-                                paramsWaiting.put("staffId_CT", user.getId());
-                            }
-                            listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
+                            // GDKH ko có chờ xử lý
+                            // if (transactionType.getType().equals(1)) {
+                            //     paramsWaiting.put("staffId_CT", user.getId());
+                            // }
+                            // if (transactionType.getType().equals(3)) {
+                            //     paramsWaiting.put("staffId_CM", "NULL");
+                            //     paramsWaiting.put("staffId_CT", user.getId());
+                            // }
+                            // listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
                             break;
                     }
-
-                    this.updateProfileList(listProfileWaiting, profile, user, profileHistory, department.getId(),
-                            item.getCode(), transactionType);
 
                 } else {
 
@@ -368,8 +368,8 @@ public class ProfileServiceImpl implements ProfileService {
 
                             // default not null
                             date = profile_first.getProcessDate();
-                            boolean isAfter = profileHistory.getTimeReceived()
-                                    .isAfter(date);
+                            // boolean isAfter = profileHistory.getTimeReceived()
+                            // .isAfter(date);
 
                             // if(isAfter) {
                             // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
@@ -392,6 +392,11 @@ public class ProfileServiceImpl implements ProfileService {
 
                             if (!DataUtils.isNullOrEmpty(additionalTime)) {
                                 processTime = processTime.plusMinutes(additionalTime);
+                            }
+
+                            // minus time for profile which is deliveried again
+                            if (timeForAdditional > 0) {
+                                processTime = processTime.minusMinutes(timeForAdditional);
                             }
 
                             // processTime = profile_first.getProcessDate()
@@ -436,17 +441,34 @@ public class ProfileServiceImpl implements ProfileService {
                             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
 
                             // int totalTime = 0;
-                            if (transactionType.getStandardTimeCM() != null) {
-                                processTime = profileHistory.timeReceived
-                                        .plusMinutes(transactionType.getStandardTimeCM());
-                            }
-                            if (transactionType.getStandardTimeChecker() != null) {
-                                processTime = profileHistory.timeReceived
-                                        .plusMinutes(transactionType.getStandardTimeChecker());
+                            // if (transactionType.getStandardTimeCM() != null) {
+                            // processTime = profileHistory.timeReceived
+                            // .plusMinutes(transactionType.getStandardTimeCM());
+                            // }
+                            // if (transactionType.getStandardTimeChecker() != null) {
+                            // processTime = profileHistory.timeReceived
+                            // .plusMinutes(transactionType.getStandardTimeChecker());
+                            // }
+
+                            // if (additionalTime != 0) {
+                            // processTime = processTime.plusMinutes(additionalTime);
+                            // }
+
+                            if (!DataUtils.isNullOrEmpty(transactionType.getStandardTimeCM())) {
+                                processTime = processTime.plusMinutes(transactionType.getStandardTimeCM());
                             }
 
-                            if (additionalTime != 0) {
+                            if (!DataUtils.isNullOrEmpty(transactionType.getStandardTimeChecker())) {
+                                processTime = processTime.plusMinutes(transactionType.getStandardTimeChecker());
+                            }
+
+                            if (!DataUtils.isNullOrEmpty(additionalTime)) {
                                 processTime = processTime.plusMinutes(additionalTime);
+                            }
+
+                            // minus time for profile which is deliveried again
+                            if (timeForAdditional > 0) {
+                                processTime = processTime.minusMinutes(timeForAdditional);
                             }
 
                             // day, hour, time of process time
@@ -487,11 +509,6 @@ public class ProfileServiceImpl implements ProfileService {
 
                         }
 
-                        // minus time for profile which is deliveried again
-                        if (timeForAdditional > 0) {
-                            processTime = processTime.minusMinutes(timeForAdditional);
-                        }
-
                         profile.setProcessDate(processTime);
                         profile.setRealTimeReceivedCM(profileHistory.getTimeReceived());
 
@@ -500,7 +517,7 @@ public class ProfileServiceImpl implements ProfileService {
                         item.getProfile().setStaffId_CT(user.getId());
                         profile.setState(ProfileStateEnum.PROCESSING.getValue());
                         profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-                      
+
                         // params.put("staffId_CT", user.getId());
                         // params.put("state", ProfileStateEnum.PROCESSING.getValue());
                         // // get profiles is processing
@@ -583,9 +600,9 @@ public class ProfileServiceImpl implements ProfileService {
                         LocalDateTime to = LocalDateTime.now();
                         LocalDateTime processTime = old.getProcessDate();
                         if (to.isAfter(from) && processTime.isAfter(to)) {
-                            Long additionalTime = DataUtils.durationToMinute(from, processTime);
+                            Long additionalTime = DataUtils.durationToMinute(from, to);
                             old.setAdditionalTime(Integer.valueOf(additionalTime.intValue()));
-                            old.setProcessDate(to);
+                            // old.setProcessDate(to);
                         } else {
 
                         }
@@ -668,7 +685,7 @@ public class ProfileServiceImpl implements ProfileService {
                                         || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
                                     if (!item.getIsFinished()) {
                                         if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                                || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                                                || old.getState().equals(ProfileStateEnum.WAITING.getValue())) {
                                             message.setMessage("Bạn đã nhận giao dịch này 1 lần");
                                             message.setIsExist(true);
                                         } else {
@@ -752,19 +769,31 @@ public class ProfileServiceImpl implements ProfileService {
                                     if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
                                             || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
                                         // check scan
-                                        if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                                || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                                        if (item.getIsFinished()) {
+                                            message.setIsExist(false);
+
+                                        } else {
+                                            // check bàn giao tại GDKH
                                             if (item.getUsername().contains("admin")) {
                                                 message.setIsExist(false);
                                             } else {
                                                 message.setMessage("Bạn đã nhận giao dịch này 1 lần");
                                                 message.setIsExist(true);
                                             }
-
-                                        } else {
-                                            message.setIsExist(false);
-
                                         }
+                                        // if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
+                                        // || old.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                                        // if (item.getUsername().contains("admin")) {
+                                        // message.setIsExist(false);
+                                        // } else {
+                                        // message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                        // message.setIsExist(true);
+                                        // }
+
+                                        // } else {
+                                        // message.setIsExist(false);
+
+                                        // }
 
                                     } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                         message.setMessage("Bạn đã kết thúc giao dịch này");
@@ -1164,17 +1193,22 @@ public class ProfileServiceImpl implements ProfileService {
                         ProfileDTO first = listData.get(i);
                         LocalDateTime fromFirst = first.getTimeReceived_CM();
                         LocalDateTime toFirst = first.getProcessDate();
-                        LocalDateTime timeReceivedOfSecond = LocalDateTime.now();
-
-                        // (timeReceived - profileHistory) = (endtime - profile)
-                        // boolean isAfter =
-                        // profileHistory.getTimeReceived().isAfter(profile.getProcessDate());
-                        timeReceivedOfSecond = profile.getProcessDate();
-                        // if (isAfter) {
-                        // timeReceivedOfSecond = profile.getProcessDate();
+                        LocalDateTime timeReceivedOfSecond = profileHistory.getTimeReceived();
+                        // kiểm tra profile đã kết thúc chưa
+                        // thời gian kết thúc của hồ sơ có sau thời gian xử lý không
+                        // không có thì set = thời gian nhận của profileHistory
+                        // if (!DataUtils.isNullOrEmpty(profile.getEndTime())) {
+                        // boolean isAfterEndtime =
+                        // profile.getEndTime().isAfter(profile.getProcessDate());
+                        // if (!isAfterEndtime) {
+                        // timeReceivedOfSecond = profile.getEndTime();
                         // } else {
                         // timeReceivedOfSecond = profileHistory.getTimeReceived();
                         // }
+                        // } else {
+                        // timeReceivedOfSecond = profileHistory.getTimeReceived();
+                        // }
+                        // timeReceivedOfSecond = profileHistory.getTimeReceived();
 
                         LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
                                 timeReceivedOfSecond);
