@@ -119,7 +119,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<RoleDTO> search(Map<String, Object> mapParam) {
-        return repository.search(mapParam, UserDTO.class);
+        return repository.search(mapParam, Role.class);
     }
 
     @Override

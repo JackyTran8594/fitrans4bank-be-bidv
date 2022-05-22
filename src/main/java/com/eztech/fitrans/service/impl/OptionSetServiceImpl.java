@@ -1,7 +1,6 @@
 package com.eztech.fitrans.service.impl;
 
 import com.eztech.fitrans.constants.Constants;
-import com.eztech.fitrans.dto.response.CustomerDTO;
 import com.eztech.fitrans.dto.response.ErrorCodeEnum;
 import com.eztech.fitrans.dto.response.OptionSetDTO;
 import com.eztech.fitrans.dto.response.OptionSetMasterData;
@@ -11,7 +10,6 @@ import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.locale.Translator;
 import com.eztech.fitrans.model.OptionSet;
 import com.eztech.fitrans.model.OptionSetValue;
-import com.eztech.fitrans.model.Staff;
 import com.eztech.fitrans.repo.OptionSetRepository;
 import com.eztech.fitrans.repo.OptionSetValueRepository;
 import com.eztech.fitrans.service.OptionSetService;
@@ -193,7 +191,7 @@ public class OptionSetServiceImpl implements OptionSetService {
 
     @Override
     public List<OptionSetDTO> search(Map<String, Object> mapParam) {
-        List<OptionSet> listData = repository.search(mapParam, Staff.class);
+        List<OptionSet> listData = repository.search(mapParam, OptionSet.class);
         return mapper.toDtoBean(listData);
 
     }
