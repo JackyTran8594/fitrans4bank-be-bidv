@@ -839,7 +839,7 @@ public class DataUtils {
         LocalDateTime processTime = null;
         LocalDate tomorrow = LocalDate.now();
         // processDate = timeReceived from 2nd record
-       
+
         if (years > 0) {
             processTime = timeReceived.plusYears(years);
         }
@@ -848,18 +848,18 @@ public class DataUtils {
         }
         if (days > 0) {
             // if(hours > 17 && minutes > 0) {
-            //     processTime = timeReceived.plusDays(days + 1);
+            // processTime = timeReceived.plusDays(days + 1);
             // } else {
-                processTime = timeReceived.plusDays(days);
+            processTime = timeReceived.plusDays(days);
             // }
         }
         if (hours > 0) {
             // if(hours > 17 && minutes > 0) {
-            //     processTime = timeReceived.withHour(4);
+            // processTime = timeReceived.withHour(4);
             // } else {
-                processTime = timeReceived.plusHours(hours);
+            processTime = timeReceived.plusHours(hours);
             // }
-           
+
         }
         if (minutes > 0) {
             processTime = timeReceived.plusMinutes(minutes);
@@ -868,26 +868,45 @@ public class DataUtils {
             processTime = timeReceived.plusSeconds(seconds);
         }
 
-       
         return processTime;
     }
 
-    public static LocalDateTime checkTime(LocalDateTime processTime, int marked, int standardTime, int timeChecker,
+    public static LocalDateTime checkTime(LocalDateTime processTime, int marked, int markedMinutes, int standardTime,
+            int timeChecker,
             int additionalTime) {
         if (processTime.getHour() > marked
-                || (processTime.getHour() == marked && processTime.getMinute() > 0)) {
-            LocalDate tomorrow = LocalDate.now().plusDays(1);
-            int year = tomorrow.getYear();
-            int month = tomorrow.getMonthValue();
-            int day = tomorrow.getDayOfMonth();
+                || (processTime.getHour() == marked && processTime.getMinute() > markedMinutes)) {
+
+            int year = 0;
+            int month = 0;
+            int day = 0;
             int minutes = standardTime
-                    + timeChecker + additionalTime;
+            + timeChecker + additionalTime;
             int hour = 0;
-            if (minutes > 60) {
-                hour = 8 + minutes / 60;
-                minutes = minutes % 60;
-            } else {
-                hour = 8;
+            if (marked == 17) {
+                LocalDate tomorrow = LocalDate.now().plusDays(1);
+                year = tomorrow.getYear();
+                month = tomorrow.getMonthValue();
+                day = tomorrow.getDayOfMonth();
+                if (minutes > 60) {
+                    hour = 8 + minutes / 60;
+                    minutes = minutes % 60;
+                } else {
+                    hour = 8;
+                }
+            }
+
+            if (marked == 11) {
+                year = LocalDate.now().getYear();
+                month = LocalDate.now().getMonthValue();
+                day = LocalDate.now().getDayOfMonth();
+                minutes = minutes + 30;
+                if (minutes > 60) {
+                    hour = 1 + minutes / 60;
+                    minutes = minutes % 60 + 30;
+                } else {
+                    hour = 1;
+                }
             }
 
             // set proces time = tomorrow
@@ -924,10 +943,10 @@ public class DataUtils {
         if (minutes > 0) {
             minutesProcess = minutesProcess + minutes;
         }
-        
+
         return Long.valueOf(minutesProcess);
     }
 
-    // public static 
+    // public static
 
 }

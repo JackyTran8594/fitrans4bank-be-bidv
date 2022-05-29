@@ -288,17 +288,18 @@ public class ProfileServiceImpl implements ProfileService {
                             // }
 
                             listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
-                            this.updateProfileList(listProfileWaiting, profile, user, profileHistory, department.getId(),
-                            item.getCode(), transactionType);
+                            this.updateProfileList(listProfileWaiting, profile, user, profileHistory,
+                                    department.getId(),
+                                    item.getCode(), transactionType);
                             break;
                         case "GDKH":
                             // GDKH ko có chờ xử lý
                             // if (transactionType.getType().equals(1)) {
-                            //     paramsWaiting.put("staffId_CT", user.getId());
+                            // paramsWaiting.put("staffId_CT", user.getId());
                             // }
                             // if (transactionType.getType().equals(3)) {
-                            //     paramsWaiting.put("staffId_CM", "NULL");
-                            //     paramsWaiting.put("staffId_CT", user.getId());
+                            // paramsWaiting.put("staffId_CM", "NULL");
+                            // paramsWaiting.put("staffId_CT", user.getId());
                             // }
                             // listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
                             break;
@@ -351,7 +352,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                         List<ProfileDTO> listData = repository.getProfileWithParams(params, isAsc);
 
-                        // checking process of profile
+                        // checking process of profile : processing
                         if (listData.size() == 1) {
                             ProfileDTO profile_first = new ProfileDTO();
 
@@ -422,7 +423,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                             if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
                                 if (hourOfProfile >= 17 && minutesOfProfile > 0) {
-                                    processTime = DataUtils.checkTime(processTime, 17,
+                                    processTime = DataUtils.checkTime(processTime, 17, 0,
                                             transactionType.getStandardTimeCM(),
                                             transactionType.getStandardTimeChecker(), additionalTime);
                                     LocalDate tomorrow = LocalDate.now().plusDays(1);
@@ -430,6 +431,18 @@ public class ProfileServiceImpl implements ProfileService {
                                     int m = tomorrow.getMonthValue();
                                     int day = tomorrow.getDayOfMonth();
                                     LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
+                                    profile.setTimeReceived_CM(timeReceived);
+                                }
+
+                                if (hourOfProfile >= 11 && minutesOfProfile > 30) {
+                                    processTime = DataUtils.checkTime(processTime, 11, 30,
+                                            transactionType.getStandardTimeCM(),
+                                            transactionType.getStandardTimeChecker(), additionalTime);
+                                    LocalDate today = LocalDate.now();
+                                    int year = today.getYear();
+                                    int m = today.getMonthValue();
+                                    int day = today.getDayOfMonth();
+                                    LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 13, 30, 0);
                                     profile.setTimeReceived_CM(timeReceived);
                                 }
 
@@ -482,24 +495,37 @@ public class ProfileServiceImpl implements ProfileService {
                             // checking time received of record to moving profile in tomorrow
 
                             if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
+                                // kiểm tra xem có sau 17h không
+                                // nếu có tính sang ngày hôm sau
                                 if (hourOfProfile >= 17 && minutesOfProfile > 0) {
-                                    processTime = DataUtils.checkTime(processTime, 17,
+                                    processTime = DataUtils.checkTime(processTime, 17, 0,
                                             transactionType.getStandardTimeCM(),
                                             transactionType.getStandardTimeChecker(), additionalTime);
-                                    LocalDate tomorrow = LocalDate.now().plusDays(1);
-                                    int year = tomorrow.getYear();
-                                    int m = tomorrow.getMonthValue();
-                                    int day = tomorrow.getDayOfMonth();
-                                    LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
-                                    profile.setTimeReceived_CM(timeReceived);
-                                } else {
-                                    profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+                                    // LocalDate tomorrow = LocalDate.now().plusDays(1);
+                                    // int year = tomorrow.getYear();
+                                    // int m = tomorrow.getMonthValue();
+                                    // int day = tomorrow.getDayOfMonth();
+                                    // LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
+                                    // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+                                }
+                                 // kiểm tra xem có sau 11h30 không
+                                // nếu có tính sang 13h30 cùng ngày
+                                if (hourOfProfile >= 11 && minutesOfProfile > 30) {
+                                    processTime = DataUtils.checkTime(processTime, 11, 30,
+                                            transactionType.getStandardTimeCM(),
+                                            transactionType.getStandardTimeChecker(), additionalTime);
+                                    // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
 
                                 }
 
-                            } else {
-                                profile.setTimeReceived_CM(profileHistory.getTimeReceived());
                             }
+                            // else {
+                            // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+                            // }
+
+                            // không có hồ sơ nào đang xử lý => do đó khi quét hồ sơ => trạng thái chuyển thành đang xử lý
+                            // và thời gian nhận ghi nhận tại thời điểm nhận hồ sơ
+                            profile.setTimeReceived_CM(profileHistory.getTimeReceived());
 
                          
                         }
@@ -508,10 +534,13 @@ public class ProfileServiceImpl implements ProfileService {
                         profile.setRealTimeReceivedCM(profileHistory.getTimeReceived());
 
                     } else if (item.getCode().equals("GDKH")) {
-                        // received profile at GDKH
+                        // nhận hồ sơ tại GDKH
+                        // GDKH không tính thời gian chờ xử lý
+                        // nhiều hồ sơ có thể xử lý cùng 1 lúc => do đó ko tính thời gian chờ cho chuyên viên
                         item.getProfile().setStaffId_CT(user.getId());
                         profile.setState(ProfileStateEnum.PROCESSING.getValue());
                         profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+                        
                     }
                 }
             }
