@@ -200,26 +200,26 @@ public class ProfileServiceImpl implements ProfileService {
             throw new ResourceNotFoundException("transaction Type " + profile.getType().toString() + " not found");
         }
 
-        // check profile is create or update - not save profile then tranfer
+        // kiểm tra hồ sơ được tạo mới hay update - không lưu hồ sơ mà chuyển luôn
         if (DataUtils.isNullObject(item.profile.getCreatedDate())) {
             profile.setCreatedDate(LocalDateTime.now());
         }
         profileHistory.setTimeReceived(LocalDateTime.now());
 
         try {
-            // check account admin or not - GDKH
+            // kiểm tra account admin - GDKH
             Boolean isAsc = false;
 
             if (item.username.toLowerCase().contains("admin")) {
                 if (item.getCode().equals("GDKH")) {
 
-                    // get data is waiting with order by process_date - QTTD
+                    // lấy các hồ sơ đang có trạng thái chờ xử lý (order by process_date) - QTTD
                     Map<String, Object> params = new HashMap<>();
                     params.put("state", ProfileStateEnum.WAITING.getValue());
                     params.put("staffIdCM", profile.getStaffId_CM());
                     isAsc = true;
                     List<ProfileDTO> listData = new ArrayList<>();
-                    // checking profile that is deliveried
+                    // kiểm tra hồ sơ được bàn giao chưa
                     if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
                         // profile.setTimeReceived_CT(profileHistory.getTimeReceived());
                         // params.put("staffIdCT", profile.getStaffId_CT());
@@ -230,7 +230,7 @@ public class ProfileServiceImpl implements ProfileService {
                         // }
                     } else if (profile.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
                         // type 1,2 - QTTD
-                        // update listDataWaiting
+                        // cập nhật listWaiting
                         params.put("staffIdCT", "NULL");
                         listData = repository.getProfileWithParams(params, isAsc);
                         if (listData.size() > 0) {
@@ -270,8 +270,8 @@ public class ProfileServiceImpl implements ProfileService {
                     List<ProfileDTO> listProfileWaiting = new ArrayList<>();
                     switch (item.getCode()) {
                         // transaction type : 1,2
-                        // type 1: QTTD is not finished transaction, it hasn't staffId_CT
-                        // type 2 :QTTD is finished transaction, it hasn't staffId_CT
+                        // type 1: QTTD không kết thúc giao dịch, do đó không có staffId_CT 
+                        // type 2 :QTTD kết thúc giao dịch, do đó không có staffId_CT
                         case "QTTD":
                             paramsWaiting.put("staffId_CM", user.getId());
                             paramsWaiting.put("staffId_CT", "NULL");
@@ -501,12 +501,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 profile.setTimeReceived_CM(profileHistory.getTimeReceived());
                             }
 
-                            // if (processTime.getHour() > 17) {
-                            // processTime = DataUtils.checkTime(processTime, 17,
-                            // transactionType.getStandardTimeCM(),
-                            // transactionType.getStandardTimeChecker(), additionalTime);
-                            // }
-
+                         
                         }
 
                         profile.setProcessDate(processTime);
@@ -517,19 +512,6 @@ public class ProfileServiceImpl implements ProfileService {
                         item.getProfile().setStaffId_CT(user.getId());
                         profile.setState(ProfileStateEnum.PROCESSING.getValue());
                         profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-
-                        // params.put("staffId_CT", user.getId());
-                        // params.put("state", ProfileStateEnum.PROCESSING.getValue());
-                        // // get profiles is processing
-                        // List<ProfileDTO> listData = repository.getProfileWithParams(params, isAsc);
-
-                        // if (listData.size() == 1) {
-                        // profile.setState(ProfileStateEnum.WAITING.getValue());
-                        // profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-                        // } else if (listData.size() == 0) {
-                        // profile.setState(ProfileStateEnum.PROCESSING.getValue());
-                        // profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-                        // }
                     }
                 }
             }
@@ -781,19 +763,7 @@ public class ProfileServiceImpl implements ProfileService {
                                                 message.setIsExist(true);
                                             }
                                         }
-                                        // if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                        // || old.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                        // if (item.getUsername().contains("admin")) {
-                                        // message.setIsExist(false);
-                                        // } else {
-                                        // message.setMessage("Bạn đã nhận giao dịch này 1 lần");
-                                        // message.setIsExist(true);
-                                        // }
-
-                                        // } else {
-                                        // message.setIsExist(false);
-
-                                        // }
+                                  
 
                                     } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                         message.setMessage("Bạn đã kết thúc giao dịch này");
@@ -1187,9 +1157,9 @@ public class ProfileServiceImpl implements ProfileService {
             if (listData.size() >= 1) {
 
                 for (int i = 0; i < listData.size(); i++) {
-                    // first record update by profile
+                    // hồ sơ chờ đầu tiên update bởi profile
                     if (i == 0) {
-                        // first waiting profile
+                        // hồ sơ chờ đầu tiên
                         ProfileDTO first = listData.get(i);
                         LocalDateTime fromFirst = first.getTimeReceived_CM();
                         LocalDateTime toFirst = first.getProcessDate();
