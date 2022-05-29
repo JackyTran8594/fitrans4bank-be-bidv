@@ -15,6 +15,8 @@ public interface ProfileService {
 
   ProfileDTO saveHistory(ConfirmRequest confirmRequest);
 
+  ProfileDTO transferInternal(ConfirmRequest confirmRequest);
+
   void deleteById(Long id);
 
   ProfileDTO findById(Long id);
@@ -35,7 +37,11 @@ public interface ProfileService {
 
   MessageDTO checkScanAgain(ConfirmRequest item);
 
+  MessageDTO checkTransfer(ConfirmRequest item);
+
   MessageDTO checkIsReturn(ConfirmRequest item);
 
   MessageDTO priorityProfile(ConfirmRequest req);
+
+
 }

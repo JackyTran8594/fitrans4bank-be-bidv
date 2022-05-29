@@ -270,7 +270,7 @@ public class ProfileServiceImpl implements ProfileService {
                     List<ProfileDTO> listProfileWaiting = new ArrayList<>();
                     switch (item.getCode()) {
                         // transaction type : 1,2
-                        // type 1: QTTD không kết thúc giao dịch, do đó không có staffId_CT 
+                        // type 1: QTTD không kết thúc giao dịch, do đó không có staffId_CT
                         // type 2 :QTTD kết thúc giao dịch, do đó không có staffId_CT
                         case "QTTD":
                             paramsWaiting.put("staffId_CM", user.getId());
@@ -508,7 +508,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     // LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
                                     // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
                                 }
-                                 // kiểm tra xem có sau 11h30 không
+                                // kiểm tra xem có sau 11h30 không
                                 // nếu có tính sang 13h30 cùng ngày
                                 if (hourOfProfile >= 11 && minutesOfProfile > 30) {
                                     processTime = DataUtils.checkTime(processTime, 11, 30,
@@ -523,11 +523,11 @@ public class ProfileServiceImpl implements ProfileService {
                             // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
                             // }
 
-                            // không có hồ sơ nào đang xử lý => do đó khi quét hồ sơ => trạng thái chuyển thành đang xử lý
+                            // không có hồ sơ nào đang xử lý => do đó khi quét hồ sơ => trạng thái chuyển
+                            // thành đang xử lý
                             // và thời gian nhận ghi nhận tại thời điểm nhận hồ sơ
                             profile.setTimeReceived_CM(profileHistory.getTimeReceived());
 
-                         
                         }
 
                         profile.setProcessDate(processTime);
@@ -536,11 +536,12 @@ public class ProfileServiceImpl implements ProfileService {
                     } else if (item.getCode().equals("GDKH")) {
                         // nhận hồ sơ tại GDKH
                         // GDKH không tính thời gian chờ xử lý
-                        // nhiều hồ sơ có thể xử lý cùng 1 lúc => do đó ko tính thời gian chờ cho chuyên viên
+                        // nhiều hồ sơ có thể xử lý cùng 1 lúc => do đó ko tính thời gian chờ cho chuyên
+                        // viên
                         item.getProfile().setStaffId_CT(user.getId());
                         profile.setState(ProfileStateEnum.PROCESSING.getValue());
                         profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
-                        
+
                     }
                 }
             }
@@ -567,6 +568,7 @@ public class ProfileServiceImpl implements ProfileService {
             Boolean isAsc = false;
             ProfileDTO old = item.getProfile();
             ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
+
             profileHistory.setTimeReceived(LocalDateTime.now());
             UserDTO user = userService.findByUsername(item.getUsername());
 
@@ -583,7 +585,7 @@ public class ProfileServiceImpl implements ProfileService {
             if (DataUtils.isNullObject(transactionType)) {
                 throw new ResourceNotFoundException("transaction Type " + old.getType().toString() + " not found");
             }
-            // save staffId when create profile
+            // lưu staffId-QLKH khi tạo mới hồ sơ
             if (item.getCode().equals("QLKH")) {
                 old.setStaffId(user.getId());
             }
@@ -628,6 +630,7 @@ public class ProfileServiceImpl implements ProfileService {
                 }
 
             }
+
             profileHistory.setDepartmentCode(department.getCode());
             profileHistory.setDepartmentId(department.getId());
             // profileHistory.setTimeReceived(LocalDateTime.now());
@@ -638,6 +641,230 @@ public class ProfileServiceImpl implements ProfileService {
 
             profileHistory.setProfileId(dto.getId());
             profileHistoryService.save(profileHistory);
+            return dto;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+
+    }
+
+    @Override
+    public MessageDTO checkTransfer(ConfirmRequest item) {
+        // TODO Auto-generated method stub
+        MessageDTO message = new MessageDTO();
+        try {
+            ProfileDTO old = item.getProfile();
+
+            TransactionTypeDTO transactionType = transactionTypeService
+                    .findById(Long.parseLong(old.getType().toString()));
+            if (DataUtils.isNullObject(transactionType)) {
+                throw new ResourceNotFoundException("transaction Type " + old.getType().toString() + " not found");
+            }
+
+            switch (transactionType.getType()) {
+                case 1:
+                    if (item.getCode().trim().toLowerCase().equals("QTTD")) {
+                        if (DataUtils.isNullOrEmpty(old.getStaffId_CM())) {
+                            message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                            message.setIsExist(true);
+                        } else {
+                            message.setIsExist(false);
+                        }
+                    }
+
+                    if (item.getCode().trim().toLowerCase().equals("GDKH")) {
+                        if (DataUtils.isNullOrEmpty(old.getStaffId_CT())) {
+                            message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
+                            message.setIsExist(true);
+                        } else {
+                            message.setIsExist(false);
+                        }
+                    }
+
+                    break;
+                case 2:
+                    if (item.getCode().trim().toLowerCase().equals("QTTD")) {
+                        if (DataUtils.isNullOrEmpty(old.getStaffId_CM())) {
+                            message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                            message.setIsExist(true);
+                        } else {
+                            message.setIsExist(false);
+                        }
+                    }
+                    break;
+                case 3:
+                    if (item.getCode().trim().toLowerCase().equals("GDKH")) {
+                        if (DataUtils.isNullOrEmpty(old.getStaffId_CT())) {
+                            message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
+                            message.setIsExist(true);
+                        } else {
+                            message.setIsExist(false);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return message;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            message.setMessage(e.getMessage());
+            message.setIsExist(true);
+            return message;
+        }
+    }
+
+    @Override
+    public ProfileDTO transferInternal(ConfirmRequest item) {
+        try {
+            ProfileDTO old = item.getProfile();
+            // lưu log hồ sơ tiếp nhận
+            ProfileHistoryDTO profileHistory = new ProfileHistoryDTO();
+            // lưu log chuyển hồ sơ
+            ProfileHistoryDTO pHistoryInternal = new ProfileHistoryDTO();
+            profileHistory.setTimeReceived(LocalDateTime.now());
+            UserDTO user = userService.findByUsername(item.getUsername());
+            Map<String, Object> params = new HashMap<>();
+            Map<String, Object> paramsProcessing = new HashMap<>();
+            params.put("state", ProfileStateEnum.WAITING.getValue());
+            paramsProcessing.put("state", ProfileStateEnum.PROCESSING.getValue());
+            boolean isAsc = true;
+            List<ProfileDTO> listDataWaiting = new ArrayList<>();
+            List<ProfileDTO> listDataProcessing = new ArrayList<>();
+
+            if (DataUtils.isNullObject(user)) {
+                throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
+            }
+            DepartmentDTO department = departmentService.findByCode(item.getCode());
+            if (DataUtils.isNullObject(department)) {
+                throw new ResourceNotFoundException("department " + department.getCode() + " not found");
+            }
+
+            TransactionTypeDTO transactionType = transactionTypeService
+                    .findById(Long.parseLong(old.getType().toString()));
+            if (DataUtils.isNullObject(transactionType)) {
+                throw new ResourceNotFoundException("transaction Type " + old.getType().toString() + " not found");
+            }
+            // kiểm tra chuyển hồ sơ nội bộ
+            // lịch sử hồ sơ chuyển nội bộ
+            pHistoryInternal.setDepartmentCode(department.getCode());
+            pHistoryInternal.setDepartmentId(department.getId());
+            pHistoryInternal.setTimeReceived(LocalDateTime.now());
+            pHistoryInternal.setState(ProfileStateEnum.INTERNALTRANSFERED.getValue());
+
+            // luồng giao dịch
+            Integer[] intArray = new Integer[] { 1, 2 };
+
+            if (Arrays.asList(intArray).contains(transactionType.getType())) {
+                if (item.getCode().trim().toLowerCase().equals("QTTD")) {
+                    // đã check null staffId_CM ở hàm checkTransfer
+                    pHistoryInternal.setStaffId(old.getStaffId_CM());
+                    // hồ sơ luồng 1,2 : staffId_CT = null;
+                    // hồ sơ chờ xử lý
+                    params.put("staffIdCM", user.getId());
+                    params.put("staffIdCT", "NULL");
+                    listDataWaiting = repository.getProfileWithParams(params, isAsc);
+
+                    // hồ sơ đang xử lý của người quét chuyển hồ sơ
+                    paramsProcessing.put("staffIdCM", user.getId());
+                    paramsProcessing.put("staffIdCT", "NULL");
+                    listDataProcessing = repository.getProfileWithParams(paramsProcessing, isAsc);
+
+                    if (listDataProcessing.size() == 0) {
+                        // do không có hồ sơ chờ nên set hồ sơ tiếp theo thành đang xử lý
+                        old.setState(ProfileStateEnum.PROCESSING.getValue());
+                        // set log trạng thái hồ sơ
+                        profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
+
+                        // set user bằng user người dùng thực hiện quét
+                        old.setStaffId_CM(user.getId());
+
+                        LocalDateTime processTime = DataUtils.calculatingDate(old.getTimeReceived_CM(),
+                                old.getProcessDate(), pHistoryInternal.getTimeReceived());
+                        // set lại thời gian nhận cho hồ sơ
+                        old.setTimeReceived_CM(pHistoryInternal.getTimeReceived());
+                        old.setProcessDate(processTime);
+                    } else {
+                        if (listDataWaiting.size() == 0) {
+                            // do có 1 hồ sơ đang xử lý và không có hồ sơ chờ nên set hồ sơ tiếp theo thành
+                            // chờ xử lý
+                            old.setState(ProfileStateEnum.WAITING.getValue());
+
+                            // set user bằng user người dùng thực hiện quét
+                            old.setStaffId_CM(user.getId());
+
+                            LocalDateTime processTime = DataUtils.calculatingDate(old.getTimeReceived_CM(),
+                                    old.getProcessDate(), pHistoryInternal.getTimeReceived());
+                            // set lại thời gian nhận cho hồ sơ bằng thời gian xử lý của hồ sơ đang xử lý
+                            old.setTimeReceived_CM(listDataProcessing.get(0).getProcessDate());
+                            old.setProcessDate(processTime);
+                        } else {
+                            // do có hồ sơ chờ nên set hồ sơ tiếp theo thành chờ xử lý
+                            old.setState(ProfileStateEnum.WAITING.getValue());
+                            // set user bằng user người dùng thực hiện quét chuyển hồ sơ
+                            old.setStaffId_CM(user.getId());
+
+                            LocalDateTime processTime = DataUtils.calculatingDate(old.getTimeReceived_CM(),
+                                    old.getProcessDate(), pHistoryInternal.getTimeReceived());
+                            // set lại thời gian nhận cho hồ sơ bằng thời gian xử lý của hồ sơ chờ cuối cùng
+                            // trong list
+                            ProfileDTO last = listDataWaiting.get(listDataWaiting.size() - 1);
+                            old.setTimeReceived_CM(last.getProcessDate());
+                            old.setProcessDate(processTime);
+                        }
+                        // set log trạng thái hồ sơ
+                        profileHistory.setState(ProfileStateEnum.WAITING.getValue());
+                    }
+
+                }
+
+                // if (item.getCode().trim().toLowerCase().equals("QTTD")) {
+                // // đã check null staffId_CM ở hàm checkTransfer
+                // pHistoryInternal.setStaffId(old.getStaffId_CM());
+                // }
+
+                if (item.getCode().trim().toLowerCase().equals("GDKH")) {
+                    if (!item.getUsername().contains("admin")) {
+                        // đã check null staffId_CT ở hàm checkTransfer
+                        pHistoryInternal.setStaffId(old.getStaffId_CT());
+
+                        // set user bằng user người dùng thực hiện quét chuyển hồ sơ
+                        old.setStaffId_CT(user.getId());
+                        old.setState(ProfileStateEnum.PROCESSING.getValue());
+                    }
+
+                }
+
+            } else {
+                if (item.getCode().trim().toLowerCase().equals("GDKH")) {
+                    if (!item.getUsername().contains("admin")) {
+                        // đã check null staffId_CT ở hàm checkTransfer
+                        pHistoryInternal.setStaffId(old.getStaffId_CT());
+
+                        // set user bằng user người dùng thực hiện quét chuyển hồ sơ
+                        old.setStaffId_CT(user.getId());
+                        old.setState(ProfileStateEnum.PROCESSING.getValue());
+                    }
+                }
+            }
+
+            profileHistory.setDepartmentCode(department.getCode());
+            profileHistory.setDepartmentId(department.getId());
+            profileHistory.setTimeReceived(LocalDateTime.now());
+            profileHistory.setStaffId(user.getId());
+
+            ProfileDTO dto = save(old);
+            // lưu log nhận hồ sơ
+            profileHistory.setProfileId(dto.getId());
+            profileHistoryService.save(profileHistory);
+            // lưu log chuyển hồ sơ
+            pHistoryInternal.setProfileId(dto.getId());
+            profileHistoryService.save(pHistoryInternal);
+
             return dto;
         } catch (Exception e) {
             // TODO: handle exception
@@ -792,7 +1019,6 @@ public class ProfileServiceImpl implements ProfileService {
                                                 message.setIsExist(true);
                                             }
                                         }
-                                  
 
                                     } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                         message.setMessage("Bạn đã kết thúc giao dịch này");
@@ -1192,26 +1418,37 @@ public class ProfileServiceImpl implements ProfileService {
                         ProfileDTO first = listData.get(i);
                         LocalDateTime fromFirst = first.getTimeReceived_CM();
                         LocalDateTime toFirst = first.getProcessDate();
-                        LocalDateTime timeReceivedOfSecond = profileHistory.getTimeReceived();
+                        LocalDateTime timeReceivedOfSecond = null;
                         // kiểm tra profile đã kết thúc chưa
                         // thời gian kết thúc của hồ sơ có sau thời gian xử lý không
                         // không có thì set = thời gian nhận của profileHistory
-                        // if (!DataUtils.isNullOrEmpty(profile.getEndTime())) {
-                        // boolean isAfterEndtime =
-                        // profile.getEndTime().isAfter(profile.getProcessDate());
-                        // if (!isAfterEndtime) {
-                        // timeReceivedOfSecond = profile.getEndTime();
-                        // } else {
-                        // timeReceivedOfSecond = profileHistory.getTimeReceived();
-                        // }
-                        // } else {
-                        // timeReceivedOfSecond = profileHistory.getTimeReceived();
-                        // }
-                        // timeReceivedOfSecond = profileHistory.getTimeReceived();
+
+                        if (!DataUtils.isNullOrEmpty(profile.getEndTime())) {
+                            int hour = profile.getEndTime().getHour();
+                            int minutes = profile.getEndTime().getMinute();
+                            int year = LocalDateTime.now().getYear();
+                            int month = LocalDateTime.now().getMonthValue();
+                            int day = LocalDateTime.now().getDayOfMonth();
+                            if (hour >= 17 && minutes > 0) {
+                                // hồ sơ kết thúc ngoài giờ hành chính từ 17h trở đi
+                                // hồ sơ chờ tiếp sau sẽ update thời gian nhận tính từ 8h sáng hôm sau
+                                timeReceivedOfSecond = LocalDateTime.of(year, month, day + 1, 8, 0);
+                            } else if (hour >= 11 && minutes > 30) {
+                                // hồ sơ kết thúc ngoài giờ hành chính từ 11h30 trở đi
+                                // hồ sơ chờ tiếp sau sẽ update thời gian nhận tính từ 13h30 cùng ngày
+                                timeReceivedOfSecond = LocalDateTime.of(year, month, day, 13, 30);
+                            } else {
+                                // hồ sơ kết thúc trong giờ hành chính
+                                timeReceivedOfSecond = profileHistory.getTimeReceived();
+                            }
+                        } else {
+                            // hồ sơ chưa kết thúc
+                            timeReceivedOfSecond = profileHistory.getTimeReceived();
+                        }
 
                         LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
                                 timeReceivedOfSecond);
-                        if (date.getHour() > 17 && date.getMinute() > 0) {
+                        if (date.getHour() >= 17 && date.getMinute() > 0) {
                             Long duration = DataUtils.durationToMinute(fromFirst, toFirst);
                             date = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth() + 1, 8,
                                     duration.intValue());

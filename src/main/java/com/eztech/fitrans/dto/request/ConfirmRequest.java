@@ -20,6 +20,7 @@ public class   ConfirmRequest implements Serializable {
     public String code;
     public Boolean isFinished;
     public Boolean isReturned;
+    public Boolean isTranfered;
     public ProfileDTO profile;
 }
 

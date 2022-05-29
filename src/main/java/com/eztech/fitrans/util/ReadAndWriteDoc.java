@@ -278,6 +278,10 @@ public class ReadAndWriteDoc {
                                 if (profile != null) {
 
                                     // String strUtf8 = convertJsonStringToUTF8(profile);
+                                    // set table for image
+                                    XWPFTable tableQRCode = docDes.createTable(1, 2);
+                                    tableQRCode.removeBorders();
+                                    tableQRCode.setWidth("100%");
 
                                     String strUtf8 = null;
                                     if (!DataUtils.isNullOrEmpty(profile.getId())) {
@@ -285,11 +289,14 @@ public class ReadAndWriteDoc {
                                     } else {
                                         strUtf8 = username + "Start";
                                     }
+
                                     byte[] imageByteArray = generateQRCode(strUtf8, 100, 100);
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray)) {
 
-                                        XWPFParagraph paraImage = docDes.createParagraph();
+                                        XWPFTableRow row = tableQRCode.getRows().get(0);
+                                        XWPFTableCell cell = row.getCell(1);
+                                        XWPFParagraph paraImage = cell.getParagraphs().get(0);
                                         paraImage.setAlignment(ParagraphAlignment.LEFT);
                                         XWPFRun runImage = paraImage.createRun();
                                         runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
@@ -299,6 +306,27 @@ public class ReadAndWriteDoc {
                                         // TODO: handle exception
                                         logger.error(e.getMessage(), e);
                                     }
+
+                                    String strTranfer = profile.getId().toString() + "-Tranfer";
+                                    byte[] imageByteArrayReturn = generateQRCode(strTranfer, 100, 100);
+
+                                    try (InputStream inputByteArrayStream = new ByteArrayInputStream(
+                                            imageByteArrayReturn)) {
+
+                                        XWPFTableRow row = tableQRCode.getRows().get(0);
+                                        XWPFTableCell cell = row.getCell(1);
+                                        XWPFParagraph paraImage = cell.getParagraphs().get(0);
+                                        paraImage.setAlignment(ParagraphAlignment.RIGHT);
+                                        XWPFRun runImage = paraImage.createRun();
+                                        runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
+                                                "qrTranfered", Units.toEMU(70), Units.toEMU(70));
+                                        inputByteArrayStream.close();
+                                    } catch (Exception e) {
+                                        // TODO: handle exception
+                                        logger.error(e.getMessage(), e);
+                                    }
+
+                                    // title
                                     XWPFParagraph paragraph = docDes.createParagraph();
                                     paragraph.setAlignment(ParagraphAlignment.CENTER);
                                     XWPFRun run = paragraph.createRun();
@@ -338,24 +366,24 @@ public class ReadAndWriteDoc {
                                         logger.error(e.getMessage(), e);
                                     }
 
-                                    String strReturn = profile.getId().toString() + "-Return";
-                                    byte[] imageByteArrayReturn = generateQRCode(strReturn, 100, 100);
+                                    // String strReturn = profile.getId().toString() + "-Return";
+                                    // byte[] imageByteArrayReturn = generateQRCode(strReturn, 100, 100);
 
-                                    try (InputStream inputByteArrayStream = new ByteArrayInputStream(
-                                            imageByteArrayReturn)) {
+                                    // try (InputStream inputByteArrayStream = new ByteArrayInputStream(
+                                    //         imageByteArrayReturn)) {
 
-                                        XWPFTableRow row = tableQRCode.getRows().get(0);
-                                        XWPFTableCell cell = row.getCell(0);
-                                        XWPFParagraph paraImage = cell.getParagraphs().get(0);
-                                        paraImage.setAlignment(ParagraphAlignment.LEFT);
-                                        XWPFRun runImage = paraImage.createRun();
-                                        runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
-                                                "qrReturned", Units.toEMU(70), Units.toEMU(70));
-                                        inputByteArrayStream.close();
-                                    } catch (Exception e) {
-                                        // TODO: handle exception
-                                        logger.error(e.getMessage(), e);
-                                    }
+                                    //     XWPFTableRow row = tableQRCode.getRows().get(0);
+                                    //     XWPFTableCell cell = row.getCell(0);
+                                    //     XWPFParagraph paraImage = cell.getParagraphs().get(0);
+                                    //     paraImage.setAlignment(ParagraphAlignment.LEFT);
+                                    //     XWPFRun runImage = paraImage.createRun();
+                                    //     runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
+                                    //             "qrReturned", Units.toEMU(70), Units.toEMU(70));
+                                    //     inputByteArrayStream.close();
+                                    // } catch (Exception e) {
+                                    //     // TODO: handle exception
+                                    //     logger.error(e.getMessage(), e);
+                                    // }
                                 }
                             }
                             i++;
