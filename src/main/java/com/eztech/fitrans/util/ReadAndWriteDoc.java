@@ -192,14 +192,15 @@ public class ReadAndWriteDoc {
                             }
                             if (i == 2) {
                                 ArrayList<String> categories = new ArrayList<>();
-                                // ArrayList<String> categories = convertStringToArray(profile.getCategoryProfile());
-                                if(!DataUtils.isNullOrEmpty(profile.getCategoryProfile())) {
+                                // ArrayList<String> categories =
+                                // convertStringToArray(profile.getCategoryProfile());
+                                if (!DataUtils.isNullOrEmpty(profile.getCategoryProfile())) {
                                     categories = convertStringToArray(profile.getCategoryProfile());
                                 }
                                 if (!DataUtils.isNullOrEmpty(profile.getOthersProfile())) {
                                     categories.add(Integer.valueOf(categories.size() + 1).toString());
                                 }
-                                if (categories.size() > 0 ) {
+                                if (categories.size() > 0) {
                                     // ArrayList<String> categories =
                                     // convertStringToArray(profile.getCategoryProfile());
 
@@ -279,9 +280,11 @@ public class ReadAndWriteDoc {
 
                                     // String strUtf8 = convertJsonStringToUTF8(profile);
                                     // set table for image
-                                    XWPFTable tableQRCode = docDes.createTable(1, 2);
-                                    tableQRCode.removeBorders();
-                                    tableQRCode.setWidth("100%");
+                                    // XWPFTable tableQRCode = docDes.createTable(1, 2);
+
+                                    // // XWPFTable tableQRCode = docDes.getTableArray(1);
+                                    // tableQRCode.removeBorders();
+                                    // tableQRCode.setWidth("100%");
 
                                     String strUtf8 = null;
                                     if (!DataUtils.isNullOrEmpty(profile.getId())) {
@@ -294,9 +297,10 @@ public class ReadAndWriteDoc {
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray)) {
 
-                                        XWPFTableRow row = tableQRCode.getRows().get(0);
-                                        XWPFTableCell cell = row.getCell(1);
-                                        XWPFParagraph paraImage = cell.getParagraphs().get(0);
+                                        // XWPFTableRow row = tableQRCode.getRows().get(0);
+                                        // XWPFTableCell cell = row.getCell(0);
+                                        // XWPFParagraph paraImage = cell.getParagraphs().get(0);
+                                        XWPFParagraph paraImage = docDes.createParagraph();
                                         paraImage.setAlignment(ParagraphAlignment.LEFT);
                                         XWPFRun runImage = paraImage.createRun();
                                         runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
@@ -307,24 +311,25 @@ public class ReadAndWriteDoc {
                                         logger.error(e.getMessage(), e);
                                     }
 
-                                    String strTranfer = profile.getId().toString() + "-Tranfer";
-                                    byte[] imageByteArrayReturn = generateQRCode(strTranfer, 100, 100);
+                                    // String strTranfer = profile.getId().toString() + "-Tranfer";
+                                    // byte[] imageByteArrayTransfer = generateQRCode(strTranfer, 100, 100);
 
-                                    try (InputStream inputByteArrayStream = new ByteArrayInputStream(
-                                            imageByteArrayReturn)) {
+                                    // try (InputStream inputByteArrayStream = new ByteArrayInputStream(
+                                    //         imageByteArrayTransfer)) {
 
-                                        XWPFTableRow row = tableQRCode.getRows().get(0);
-                                        XWPFTableCell cell = row.getCell(1);
-                                        XWPFParagraph paraImage = cell.getParagraphs().get(0);
-                                        paraImage.setAlignment(ParagraphAlignment.RIGHT);
-                                        XWPFRun runImage = paraImage.createRun();
-                                        runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
-                                                "qrTranfered", Units.toEMU(70), Units.toEMU(70));
-                                        inputByteArrayStream.close();
-                                    } catch (Exception e) {
-                                        // TODO: handle exception
-                                        logger.error(e.getMessage(), e);
-                                    }
+                                    //     // XWPFTableRow row = tableQRCode.getRows().get(0);
+                                    //     // XWPFTableCell cell = row.getCell(1);
+                                    //     // XWPFParagraph paraImage = cell.getParagraphs().get(0);
+                                    //     XWPFParagraph paraImage = docDes.createParagraph();
+                                    //     paraImage.setAlignment(ParagraphAlignment.RIGHT);
+                                    //     XWPFRun runImage = paraImage.createRun();
+                                    //     runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
+                                    //             "qrTranfered", Units.toEMU(70), Units.toEMU(70));
+                                    //     inputByteArrayStream.close();
+                                    // } catch (Exception e) {
+                                    //     // TODO: handle exception
+                                    //     logger.error(e.getMessage(), e);
+                                    // }
 
                                     // title
                                     XWPFParagraph paragraph = docDes.createParagraph();
@@ -341,7 +346,9 @@ public class ReadAndWriteDoc {
                             }
 
                             if (i == 3) {
-
+                                // add paragraph
+                                XWPFParagraph paragraph2 = docDes.createParagraph();
+                                XWPFRun run2 = paragraph2.createRun();
                                 if (profile != null) {
 
                                     // String strUtf8 = convertJsonStringToUTF8(profile);
@@ -366,24 +373,24 @@ public class ReadAndWriteDoc {
                                         logger.error(e.getMessage(), e);
                                     }
 
-                                    // String strReturn = profile.getId().toString() + "-Return";
-                                    // byte[] imageByteArrayReturn = generateQRCode(strReturn, 100, 100);
+                                    String strTransfer = profile.getId().toString() + "-Transfer";
+                                    byte[] imageByteArrayReturn = generateQRCode(strTransfer, 100, 100);
 
-                                    // try (InputStream inputByteArrayStream = new ByteArrayInputStream(
-                                    //         imageByteArrayReturn)) {
+                                    try (InputStream inputByteArrayStream = new ByteArrayInputStream(
+                                            imageByteArrayReturn)) {
 
-                                    //     XWPFTableRow row = tableQRCode.getRows().get(0);
-                                    //     XWPFTableCell cell = row.getCell(0);
-                                    //     XWPFParagraph paraImage = cell.getParagraphs().get(0);
-                                    //     paraImage.setAlignment(ParagraphAlignment.LEFT);
-                                    //     XWPFRun runImage = paraImage.createRun();
-                                    //     runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
-                                    //             "qrReturned", Units.toEMU(70), Units.toEMU(70));
-                                    //     inputByteArrayStream.close();
-                                    // } catch (Exception e) {
-                                    //     // TODO: handle exception
-                                    //     logger.error(e.getMessage(), e);
-                                    // }
+                                        XWPFTableRow row = tableQRCode.getRows().get(0);
+                                        XWPFTableCell cell = row.getCell(0);
+                                        XWPFParagraph paraImage = cell.getParagraphs().get(0);
+                                        paraImage.setAlignment(ParagraphAlignment.LEFT);
+                                        XWPFRun runImage = paraImage.createRun();
+                                        runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
+                                                "qrReturned", Units.toEMU(70), Units.toEMU(70));
+                                        inputByteArrayStream.close();
+                                    } catch (Exception e) {
+                                        // TODO: handle exception
+                                        logger.error(e.getMessage(), e);
+                                    }
                                 }
                             }
                             i++;

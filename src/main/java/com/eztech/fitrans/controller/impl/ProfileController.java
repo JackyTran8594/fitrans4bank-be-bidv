@@ -265,6 +265,16 @@ public class ProfileController extends BaseController implements ProfileApi {
     return service.confirmProfile(item);
   }
 
+  @PostMapping("/checkIsTransfer")
+  public MessageDTO checkIsTransfer(@RequestBody ConfirmRequest item) {
+    return service.checkTransfer(item);
+  }
+
+  @PostMapping("/transferInternal")
+  public ProfileDTO transferInternal(@RequestBody ConfirmRequest item) {
+    return service.transferInternal(item);
+  }
+
   @GetMapping("/getInfo")
   public List<ProfileHistoryDTO> getInfoByIdAndState(@RequestParam Map<String, Object> params) {
     Long id = Long.valueOf(params.get("id").toString());
