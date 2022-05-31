@@ -195,9 +195,14 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             // 0 ROWS FETCH NEXT 20 ROWS ONLY");
 
             // bỏ p.state NOT IN (7)
+            // sb.append(
+            //         " AND ((p.state IN (4,5,7) AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)))  ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
+            // parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
+
             sb.append(
-                    " AND ((p.state IN (4,5,7) AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)))  ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
-            parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
+                " AND p.state IN (4,5,7) ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
+        parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
+
             // sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)
             // ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
             // sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date
