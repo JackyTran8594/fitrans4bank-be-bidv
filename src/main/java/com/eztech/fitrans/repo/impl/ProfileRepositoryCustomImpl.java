@@ -189,8 +189,15 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         }
 
         if (paramSearch.containsKey("dashboard")) {
+            // sb.append(
+            // " AND ((p.state = 7 AND p.process_date >= DATEADD(minute, -5,
+            // CURRENT_TIMESTAMP)) OR p.state NOT IN (7)) ORDER BY p.process_date ASC OFFSET
+            // 0 ROWS FETCH NEXT 20 ROWS ONLY");
+
+            // bỏ p.state NOT IN (7)
             sb.append(
-                    " AND ((p.state = 7 AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)) OR p.state NOT IN (7))  ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 20 ROWS ONLY");
+                    " AND ((p.state IN (4,5,7) AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)))  ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
+            parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
             // sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)
             // ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
             // sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date
@@ -275,7 +282,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uc on p.staff_id = uc.id \n" +
                 "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
-                "left join transaction_type trans on trans.id = p.type \n where 1 = 1";
+                "left join transaction_type trans on trans.id = p.type \n WHERE 1 = 1 "
+                + "AND p.state IN (4,5)";
 
         if (checkTime != 0) {
             sql += " AND p.created_date >= DATEADD(MINUTE,-" + checkTime + ",GETDATE()) ";

@@ -902,10 +902,10 @@ public class DataUtils {
                 day = LocalDate.now().getDayOfMonth();
                 minutes = minutes + 30;
                 if (minutes > 60) {
-                    hour = 1 + minutes / 60;
-                    minutes = minutes % 60 + 30;
+                    hour = 13 + minutes / 60;
+                    minutes = minutes % 60;
                 } else {
-                    hour = 1;
+                    hour = 13;
                 }
             }
 
