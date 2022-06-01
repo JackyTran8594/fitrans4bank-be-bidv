@@ -104,9 +104,9 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
 
     if (!count) {
       if (paramSearch.containsKey("sort")) {
-        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.id DESC  "));
+        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.time_received ASC"));
       } else {
-        sb.append(" ORDER BY p.id desc ");
+        sb.append(" ORDER BY p.time_received ASC ");
       }
     }
 
@@ -152,7 +152,9 @@ public class ProfileHistoryRepositoryCustomImpl extends BaseCustomRepository<Pro
           +
           "FROM profile_history p left join user_entity us on us.id = p.staff_id AND us.status = 'ACTIVE'\n"
           +
-          "WHERE p.profile_id = :id ";
+          "WHERE p.profile_id = :id \n"
+          + "ORDER BY p.time_received ASC"
+          ;
       parameters.put("id", id);
       List<ProfileHistoryDTO> profilesHistory = getResultList(sql, Constants.ResultSetMapping.PROFILE_HISTORY_DTO, parameters);
       return profilesHistory;

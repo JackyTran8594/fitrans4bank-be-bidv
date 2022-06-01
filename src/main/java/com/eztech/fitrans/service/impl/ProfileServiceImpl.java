@@ -669,44 +669,74 @@ public class ProfileServiceImpl implements ProfileService {
                 throw new ResourceNotFoundException("transaction Type " + old.getType().toString() + " not found");
             }
 
+            UserDTO user = userService.findByUsername(item.getUsername());
+
+            if (DataUtils.isNullObject(user)) {
+                throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
+            }
+
             switch (transactionType.getType()) {
                 case 1:
-                    if (item.getCode().trim().toLowerCase().equals("QTTD")) {
+                    if (item.getCode().trim().toUpperCase().equals("QTTD")) {
                         if (DataUtils.isNullOrEmpty(old.getStaffId_CM())) {
                             message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                             message.setIsExist(true);
                         } else {
-                            message.setIsExist(false);
+                            if(old.getStaffId_CM().equals(user.getId())) {
+                                message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                                message.setIsExist(true);
+                            } else {
+                                message.setIsExist(false);
+                            }
                         }
                     }
 
-                    if (item.getCode().trim().toLowerCase().equals("GDKH")) {
+                    if (item.getCode().trim().toUpperCase().equals("GDKH")) {
                         if (DataUtils.isNullOrEmpty(old.getStaffId_CT())) {
                             message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
                             message.setIsExist(true);
                         } else {
-                            message.setIsExist(false);
+                            if(old.getStaffId_CT().equals(user.getId())) {
+                                message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                                message.setIsExist(true);
+                            }
+                            else {
+                                message.setIsExist(false);
+
+                            }
                         }
                     }
 
                     break;
                 case 2:
-                    if (item.getCode().trim().toLowerCase().equals("QTTD")) {
+                    if (item.getCode().equals("QTTD")) {
                         if (DataUtils.isNullOrEmpty(old.getStaffId_CM())) {
                             message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                             message.setIsExist(true);
                         } else {
-                            message.setIsExist(false);
+                            if(old.getStaffId_CM().equals(user.getId())) {
+                                message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                                message.setIsExist(true);
+                            } else {
+                                message.setIsExist(false);
+                            }
                         }
                     }
                     break;
                 case 3:
-                    if (item.getCode().trim().toLowerCase().equals("GDKH")) {
+                    if (item.getCode().equals("GDKH")) {
                         if (DataUtils.isNullOrEmpty(old.getStaffId_CT())) {
                             message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
                             message.setIsExist(true);
                         } else {
-                            message.setIsExist(false);
+                            if(old.getStaffId_CT().equals(user.getId())) {
+                                message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                                message.setIsExist(true);
+                            }
+                            else {
+                                message.setIsExist(false);
+
+                            }
                         }
                     }
                     break;
@@ -738,7 +768,7 @@ public class ProfileServiceImpl implements ProfileService {
             Map<String, Object> paramsProcessing = new HashMap<>();
             params.put("state", ProfileStateEnum.WAITING.getValue());
             paramsProcessing.put("state", ProfileStateEnum.PROCESSING.getValue());
-            boolean isAsc = true;
+            boolean isAsc = false;
             List<ProfileDTO> listDataWaiting = new ArrayList<>();
             List<ProfileDTO> listDataProcessing = new ArrayList<>();
 
@@ -755,8 +785,8 @@ public class ProfileServiceImpl implements ProfileService {
             if (DataUtils.isNullObject(transactionType)) {
                 throw new ResourceNotFoundException("transaction Type " + old.getType().toString() + " not found");
             }
-            // kiểm tra chuyển hồ sơ nội bộ
-            // lịch sử hồ sơ chuyển nội bộ
+            
+            // lịch sử hồ sơ chuyển nội bộ của user trước
             pHistoryInternal.setDepartmentCode(department.getCode());
             pHistoryInternal.setDepartmentId(department.getId());
             pHistoryInternal.setTimeReceived(LocalDateTime.now());
@@ -766,18 +796,18 @@ public class ProfileServiceImpl implements ProfileService {
             Integer[] intArray = new Integer[] { 1, 2 };
 
             if (Arrays.asList(intArray).contains(transactionType.getType())) {
-                if (item.getCode().trim().toLowerCase().equals("QTTD")) {
+                if (item.getCode().trim().toUpperCase().equals("QTTD")) {
                     // đã check null staffId_CM ở hàm checkTransfer
                     pHistoryInternal.setStaffId(old.getStaffId_CM());
                     // hồ sơ luồng 1,2 : staffId_CT = null;
                     // hồ sơ chờ xử lý
-                    params.put("staffIdCM", user.getId());
-                    params.put("staffIdCT", "NULL");
+                    params.put("staffId_CM", user.getId());
+                    params.put("staffId_CT", "NULL");
                     listDataWaiting = repository.getProfileWithParams(params, isAsc);
 
                     // hồ sơ đang xử lý của người quét chuyển hồ sơ
-                    paramsProcessing.put("staffIdCM", user.getId());
-                    paramsProcessing.put("staffIdCT", "NULL");
+                    paramsProcessing.put("staffId_CM", user.getId());
+                    paramsProcessing.put("staffId_CT", "NULL");
                     listDataProcessing = repository.getProfileWithParams(paramsProcessing, isAsc);
 
                     if (listDataProcessing.size() == 0) {
@@ -828,7 +858,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                 }
 
-                if (item.getCode().trim().toLowerCase().equals("GDKH")) {
+                if (item.getCode().trim().toUpperCase().equals("GDKH")) {
                     if (!item.getUsername().contains("admin")) {
                         // đã check null staffId_CT ở hàm checkTransfer
                         pHistoryInternal.setStaffId(old.getStaffId_CT());
@@ -841,7 +871,7 @@ public class ProfileServiceImpl implements ProfileService {
                 }
 
             } else {
-                if (item.getCode().trim().toLowerCase().equals("GDKH")) {
+                if (item.getCode().trim().toUpperCase().equals("GDKH")) {
                     if (!item.getUsername().contains("admin")) {
                         // đã check null staffId_CT ở hàm checkTransfer
                         pHistoryInternal.setStaffId(old.getStaffId_CT());
@@ -1339,7 +1369,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                 if (process.size() > 0) {
                     // first record
-                    if (item.getCode().trim().toUpperCase().equals("QTTD")) {
+                    if (item.getCode().equals("QTTD")) {
                         LocalDateTime from = dto.getTimeReceived_CM();
                         LocalDateTime to = dto.getProcessDate();
 
@@ -1532,13 +1562,13 @@ public class ProfileServiceImpl implements ProfileService {
                         switch (transactionType.getType()) {
                             case 1:
                                 // at QTTD
-                                if (code.trim().toUpperCase().equals("QTTD")) {
+                                if (code.equals("QTTD")) {
 
                                     his.setStaffId(first.getStaffId_CM());
                                 }
                                 // at GDKH
-                                if (code.trim().toUpperCase().equals("GDKH")) {
-                                    if (user.getUsername().trim().toLowerCase().contains("admin")) {
+                                if (code.equals("GDKH")) {
+                                    if (user.getUsername().contains("admin")) {
                                         his.setStaffId(first.getStaffId_CM());
                                     } else {
                                         his.setStaffId(first.getStaffId_CT());
