@@ -871,6 +871,51 @@ public class DataUtils {
         return processTime;
     }
 
+    public static LocalDateTime calculatingTimeProcess(LocalDateTime processTime, LocalDateTime timeReceived,
+            int marked, int markedMinutes,
+            int additionalTime) {
+        int yearOfProfile = timeReceived.getYear();
+        int monthOfProfile = timeReceived.getMonthValue();
+        int dayOfProfile = timeReceived.getDayOfMonth();
+        LocalDateTime markedTime = LocalDateTime.of(yearOfProfile, monthOfProfile, dayOfProfile, marked, markedMinutes);
+        if (processTime.getHour() > marked
+                || (processTime.getHour() == marked && processTime.getMinute() > markedMinutes)) {
+            Long duration = durationToMinute(markedTime, processTime);
+            int year = 0;
+            int month = 0;
+            int day = 0;
+            int hour = 0;
+            int minutes = duration.intValue() + additionalTime;
+            if (marked == 17) {
+                LocalDate tomorrow = LocalDate.now().plusDays(1);
+                year = tomorrow.getYear();
+                month = tomorrow.getMonthValue();
+                day = tomorrow.getDayOfMonth();
+                if (minutes > 60) {
+                    hour = 8 + minutes / 60;
+                    minutes = minutes % 60;
+                } else {
+                    hour = 8;
+                }
+            }
+            if (marked == 11) {
+                year = LocalDate.now().getYear();
+                month = LocalDate.now().getMonthValue();
+                day = LocalDate.now().getDayOfMonth();
+                minutes = minutes + 30;
+                if (minutes > 60) {
+                    hour = 13 + minutes / 60;
+                    minutes = minutes % 60;
+                } else {
+                    hour = 13;
+                }
+            }
+            processTime = LocalDateTime.of(year, month, day, hour, minutes);
+        }
+
+        return processTime;
+    }
+
     public static LocalDateTime checkTime(LocalDateTime processTime, int marked, int markedMinutes, int standardTime,
             int timeChecker,
             int additionalTime) {
@@ -881,7 +926,7 @@ public class DataUtils {
             int month = 0;
             int day = 0;
             int minutes = standardTime
-            + timeChecker + additionalTime;
+                    + timeChecker + additionalTime;
             int hour = 0;
             if (marked == 17) {
                 LocalDate tomorrow = LocalDate.now().plusDays(1);

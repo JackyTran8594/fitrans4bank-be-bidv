@@ -372,13 +372,6 @@ public class ProfileServiceImpl implements ProfileService {
                             // boolean isAfter = profileHistory.getTimeReceived()
                             // .isAfter(date);
 
-                            // if(isAfter) {
-                            // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                            // processTime = profileHistory.getTimeReceived();
-                            // } else {
-                            // profile.setTimeReceived_CM(profile_first.getProcessDate());
-                            // processTime = profile_first.getProcessDate();
-                            // }
                             profile.setTimeReceived_CM(profile_first.getProcessDate());
 
                             processTime = profile_first.getProcessDate();
@@ -400,16 +393,8 @@ public class ProfileServiceImpl implements ProfileService {
                                 processTime = processTime.minusMinutes(timeForAdditional);
                             }
 
-                            // processTime = profile_first.getProcessDate()
-                            // .plusMinutes(
-                            // transactionType.getStandardTimeCM()
-                            // + transactionType.getStandardTimeChecker());
-
-                            // processTime = processTime.plusMinutes(additionalTime);
-
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-                            // processTime = processTime.plus(listData.get(0).getEndTime());
 
                             // day, hour, time of process time
                             int monthOfProfile = processTime.getMonthValue();
@@ -423,43 +408,48 @@ public class ProfileServiceImpl implements ProfileService {
 
                             if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
                                 if (hourOfProfile >= 17 && minutesOfProfile > 0) {
-                                    processTime = DataUtils.checkTime(processTime, 17, 0,
-                                            transactionType.getStandardTimeCM(),
-                                            transactionType.getStandardTimeChecker(), additionalTime);
-                                    LocalDate tomorrow = LocalDate.now().plusDays(1);
-                                    int year = tomorrow.getYear();
-                                    int m = tomorrow.getMonthValue();
-                                    int day = tomorrow.getDayOfMonth();
-                                    LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
-                                    profile.setTimeReceived_CM(timeReceived);
+
+                                    if (profileHistory.getTimeReceived().getHour() >= 17
+                                            && profileHistory.getTimeReceived().getMinute() >= 0) {
+                                        processTime = DataUtils.checkTime(processTime, 17, 0,
+                                                transactionType.getStandardTimeCM(),
+                                                transactionType.getStandardTimeChecker(), additionalTime);
+                                        LocalDate tomorrow = LocalDate.now().plusDays(1);
+                                        int year = tomorrow.getYear();
+                                        int m = tomorrow.getMonthValue();
+                                        int day = tomorrow.getDayOfMonth();
+                                        LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
+                                        profile.setTimeReceived_CM(timeReceived);
+                                    } else {
+                                        processTime = DataUtils.calculatingTimeProcess(processTime,
+                                                profileHistory.getTimeReceived(), 17, 0, additionalTime);
+                                        profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+                                    }
+
                                 }
 
                                 if ((hourOfProfile >= 11 && minutesOfProfile > 30)
                                         && (hourOfProfile <= 13 && minutesOfProfile > 30)) {
+                                    int hourHis = profileHistory.getTimeReceived().getHour();
+                                    int minutesHis = profileHistory.getTimeReceived().getMinute();
+                                    if ((hourHis >= 11 && minutesHis >= 30) && (hourHis <= 11 && minutesHis <= 30)) {
+                                        processTime = DataUtils.checkTime(processTime, 11, 30,
+                                                transactionType.getStandardTimeCM(),
+                                                transactionType.getStandardTimeChecker(), additionalTime);
+                                        LocalDate today = LocalDate.now();
+                                        int year = today.getYear();
+                                        int m = today.getMonthValue();
+                                        int day = today.getDayOfMonth();
+                                        LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 13, 30, 0);
+                                        profile.setTimeReceived_CM(timeReceived);
+                                    } else {
+                                        processTime = DataUtils.calculatingTimeProcess(processTime,
+                                                profileHistory.getTimeReceived(), 13, 30, additionalTime);
+                                        profile.setTimeReceived_CM(profileHistory.getTimeReceived());
 
-                                    // if (minutesOfProfile > 30) {
-                                    processTime = DataUtils.checkTime(processTime, 11, 30,
-                                            transactionType.getStandardTimeCM(),
-                                            transactionType.getStandardTimeChecker(), additionalTime);
-                                    LocalDate today = LocalDate.now();
-                                    int year = today.getYear();
-                                    int m = today.getMonthValue();
-                                    int day = today.getDayOfMonth();
-                                    LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 13, 30, 0);
-                                    profile.setTimeReceived_CM(timeReceived);
-                                    // }
+                                    }
+
                                 }
-                                // else if (hourOfProfile > 11) {
-                                // processTime = DataUtils.checkTime(processTime, 11, 30,
-                                // transactionType.getStandardTimeCM(),
-                                // transactionType.getStandardTimeChecker(), additionalTime);
-                                // LocalDate today = LocalDate.now();
-                                // int year = today.getYear();
-                                // int m = today.getMonthValue();
-                                // int day = today.getDayOfMonth();
-                                // LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 13, 30, 0);
-                                // profile.setTimeReceived_CM(timeReceived);
-                                // }
 
                             }
 
@@ -492,42 +482,57 @@ public class ProfileServiceImpl implements ProfileService {
                             int minutesOfProfile = processTime.getMinute();
                             int month = LocalDateTime.now().getMonthValue();
                             int dayOfMonth = LocalDateTime.now().getDayOfMonth();
-
+                            int yearOfProfile = LocalDateTime.now().getYear();
                             // checking time received of record to moving profile in tomorrow
 
                             if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
+
                                 // kiểm tra xem có sau 17h không
                                 // nếu có tính sang ngày hôm sau
                                 if (hourOfProfile >= 17 && minutesOfProfile > 0) {
-                                    processTime = DataUtils.checkTime(processTime, 17, 0,
-                                            transactionType.getStandardTimeCM(),
-                                            transactionType.getStandardTimeChecker(), additionalTime);
-                                    // LocalDate tomorrow = LocalDate.now().plusDays(1);
-                                    // int year = tomorrow.getYear();
-                                    // int m = tomorrow.getMonthValue();
-                                    // int day = tomorrow.getDayOfMonth();
-                                    // LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
-                                    // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
+
+                                    if (profileHistory.getTimeReceived().getHour() >= 17
+                                            && profileHistory.getTimeReceived().getMinute() >= 0) {
+                                        processTime = DataUtils.checkTime(processTime, 17, 0,
+                                                transactionType.getStandardTimeCM(),
+                                                transactionType.getStandardTimeChecker(), additionalTime);
+                                        LocalDate tomorrow = LocalDate.now().plusDays(1);
+                                        int year = tomorrow.getYear();
+                                        int m = tomorrow.getMonthValue();
+                                        int day = tomorrow.getDayOfMonth();
+                                        LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
+                                        profile.setTimeReceived_CM(timeReceived);
+                                    } else {
+                                        processTime = DataUtils.calculatingTimeProcess(processTime,
+                                                profileHistory.getTimeReceived(), 17, 0, additionalTime);
+                                    }
+
                                 }
                                 // kiểm tra xem có sau 11h30 không
                                 // nếu có tính sang 13h30 cùng ngày
                                 if ((hourOfProfile >= 11 && minutesOfProfile > 30)
                                         && (hourOfProfile <= 13 && minutesOfProfile < 30)) {
-                                    processTime = DataUtils.checkTime(processTime, 11, 30,
-                                            transactionType.getStandardTimeCM(),
-                                            transactionType.getStandardTimeChecker(), additionalTime);
-                                    // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                                }
-                                // else if (hourOfProfile > 11) {
-                                // processTime = DataUtils.checkTime(processTime, 11, 30,
-                                // transactionType.getStandardTimeCM(),
-                                // transactionType.getStandardTimeChecker(), additionalTime);
-                                // }
 
+                                    int hourHis = profileHistory.getTimeReceived().getHour();
+                                    int minutesHis = profileHistory.getTimeReceived().getMinute();
+                                    if ((hourHis >= 11 && minutesHis >= 30) && (hourHis <= 11 && minutesHis <= 30)) {
+                                        processTime = DataUtils.checkTime(processTime, 11, 30,
+                                                transactionType.getStandardTimeCM(),
+                                                transactionType.getStandardTimeChecker(), additionalTime);
+                                        LocalDate today = LocalDate.now();
+                                        int year = today.getYear();
+                                        int m = today.getMonthValue();
+                                        int day = today.getDayOfMonth();
+                                        LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 13, 30, 0);
+                                        profile.setTimeReceived_CM(timeReceived);
+                                    } else {
+                                        processTime = DataUtils.calculatingTimeProcess(processTime,
+                                                profileHistory.getTimeReceived(), 13, 30, additionalTime);
+
+                                    }
+
+                                }
                             }
-                            // else {
-                            // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                            // }
 
                             // không có hồ sơ nào đang xử lý => do đó khi quét hồ sơ => trạng thái chuyển
                             // thành đang xử lý
@@ -682,7 +687,7 @@ public class ProfileServiceImpl implements ProfileService {
                             message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                             message.setIsExist(true);
                         } else {
-                            if(old.getStaffId_CM().equals(user.getId())) {
+                            if (old.getStaffId_CM().equals(user.getId())) {
                                 message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
                                 message.setIsExist(true);
                             } else {
@@ -696,11 +701,10 @@ public class ProfileServiceImpl implements ProfileService {
                             message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
                             message.setIsExist(true);
                         } else {
-                            if(old.getStaffId_CT().equals(user.getId())) {
+                            if (old.getStaffId_CT().equals(user.getId())) {
                                 message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
                                 message.setIsExist(true);
-                            }
-                            else {
+                            } else {
                                 message.setIsExist(false);
 
                             }
@@ -714,7 +718,7 @@ public class ProfileServiceImpl implements ProfileService {
                             message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                             message.setIsExist(true);
                         } else {
-                            if(old.getStaffId_CM().equals(user.getId())) {
+                            if (old.getStaffId_CM().equals(user.getId())) {
                                 message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
                                 message.setIsExist(true);
                             } else {
@@ -729,11 +733,10 @@ public class ProfileServiceImpl implements ProfileService {
                             message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
                             message.setIsExist(true);
                         } else {
-                            if(old.getStaffId_CT().equals(user.getId())) {
+                            if (old.getStaffId_CT().equals(user.getId())) {
                                 message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
                                 message.setIsExist(true);
-                            }
-                            else {
+                            } else {
                                 message.setIsExist(false);
 
                             }
@@ -785,7 +788,7 @@ public class ProfileServiceImpl implements ProfileService {
             if (DataUtils.isNullObject(transactionType)) {
                 throw new ResourceNotFoundException("transaction Type " + old.getType().toString() + " not found");
             }
-            
+
             // lịch sử hồ sơ chuyển nội bộ của user trước
             pHistoryInternal.setDepartmentCode(department.getCode());
             pHistoryInternal.setDepartmentId(department.getId());
@@ -1407,7 +1410,7 @@ public class ProfileServiceImpl implements ProfileService {
                                         int additionalTime = (!DataUtils.isNullOrEmpty(dto.getAdditionalTime()))
                                                 ? dto.getAdditionalTime()
                                                 : 0;
-                                        // kiểm tra xem có sau 17h không
+                                        // kiểm tra xem thời gian xử lý có sau 17h không
                                         // nếu có tính sang ngày hôm sau
                                         if (hourOfProfile >= 17 && minutesOfProfile > 0) {
 
