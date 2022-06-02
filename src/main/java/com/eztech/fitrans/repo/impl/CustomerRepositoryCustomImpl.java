@@ -1,5 +1,6 @@
 package com.eztech.fitrans.repo.impl;
 
+import com.eztech.fitrans.constants.Constants;
 import com.eztech.fitrans.model.Customer;
 import com.eztech.fitrans.repo.CustomerRepositoryCustom;
 import com.eztech.fitrans.util.DataUtils;
@@ -16,7 +17,8 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
     public List search(Map searchDTO, Class aClass) {
         Map<String, Object> parameters = new HashMap<>();
         String sql = buildQuery(searchDTO, parameters, false);
-        return getResultList(sql, Customer.class, parameters);
+        // return getResultList(sql, Customer.class, parameters);
+        return getResultList(sql, Constants.ResultSetMapping.CUSTOMER_DTO, parameters);
     }
 
     @Override
@@ -28,7 +30,7 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
 
     @Override
     public Integer updateStatus(Long id, String status, String lastUpdatedBy,
-                                LocalDateTime lastUpdateDate) {
+            LocalDateTime lastUpdateDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         sb.append(
@@ -59,17 +61,26 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
 
     @Override
     public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
-                             boolean count) {
+            boolean count) {
         StringBuilder sb = new StringBuilder();
         if (count) {
-            sb.append("SELECT COUNT(id) \n")
-                    .append("FROM customer os\n")
+            sb.append("SELECT COUNT(os.id) \n")
+                    .append(
+                            "FROM customer os \n")
+                    .append(
+                            "LEFT JOIN user_entity u on u.id = os.staff_id \n")
+                    .append(
+                            "LEFT JOIN user_entity ucm on ucm.id = os.staff_id_cm \n")
                     .append("WHERE 1=1 ");
         } else {
             sb.append(
-                    "SELECT os.* \n")
+                    "SELECT os.*, u.full_name as staffName, ucm.full_name as staffNameCM  \n")
                     .append(
                             "FROM customer os \n")
+                    .append(
+                            "LEFT JOIN user_entity u on u.id = os.staff_id \n")
+                    .append(
+                            "LEFT JOIN user_entity ucm on ucm.id = os.staff_id_cm \n")
                     .append("WHERE 1=1 ");
         }
 
@@ -79,7 +90,8 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
         }
 
         if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
-            sb.append(" AND (UPPER(cif) LIKE :txtSearch OR UPPER(name) LIKE :txtSearch OR UPPER(tel) LIKE :txtSearch OR UPPER(address) LIKE :txtSearch OR UPPER(type) LIKE :txtSearch OR UPPER(status) LIKE :txtSearch) ");
+            sb.append(
+                    " AND (UPPER(cif) LIKE :txtSearch OR UPPER(name) LIKE :txtSearch OR UPPER(tel) LIKE :txtSearch OR UPPER(address) LIKE :txtSearch OR UPPER(type) LIKE :txtSearch OR UPPER(status) LIKE :txtSearch) ");
             parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
         }
 
@@ -120,7 +132,8 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
                 .equalsIgnoreCase(String.valueOf(paramSearch.get("pageSize")))) {
             sb.append(" OFFSET :offset ROWS ");
             sb.append(" FETCH NEXT :limit ROWS ONLY ");
-            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")), DataUtils.parseToInt(paramSearch.get("pageSize"))));
+            parameters.put("offset", offetPaging(DataUtils.parseToInt(paramSearch.get("pageNumber")),
+                    DataUtils.parseToInt(paramSearch.get("pageSize"))));
             parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
         }
         return sb.toString();

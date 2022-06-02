@@ -27,6 +27,7 @@ public class Constants {
         public static final String PROFILE_DTO = "profileEntityDTO";
         public static final String PROFILE_HISTORY_DTO = "profileHistoryDTO";
         public static final String STAFF_CONTACT_DTO = "staffContactDTO";
+        public static final String CUSTOMER_DTO = "customerDTO";
         public static final String MENU_ROLE_DTO = "menuRoleDTO";
 
     }

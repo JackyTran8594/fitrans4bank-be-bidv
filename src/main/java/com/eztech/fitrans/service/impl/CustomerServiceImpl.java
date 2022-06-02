@@ -62,13 +62,16 @@ public class CustomerServiceImpl implements CustomerService {
             dto.setAddress(item.getAddress());
             dto.setTel(item.getTel());
             dto.setStatus(item.getStatus());
+            dto.setStaffId(item.getStaffId());
+            dto.setStaffId_CM(item.getStaffId_CM());
             entity = mapper.toPersistenceBean(dto);
         } else {
             entity = mapper.toPersistenceBean(item);
             entity.setStatus(ACTIVE);
         }
+        entity = repository.save(entity);
 
-        return mapper.toDtoBean(repository.save(entity));
+        return mapper.toDtoBean(entity);
     }
 
     @Override

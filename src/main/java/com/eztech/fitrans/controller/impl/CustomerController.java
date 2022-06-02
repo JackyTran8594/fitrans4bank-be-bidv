@@ -70,7 +70,7 @@ public class CustomerController extends BaseController implements CustomerApi {
 
   @Override
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  // @PreAuthorize("hasRole('ROLE_ADMIN')")
   public CustomerDTO update(@PathVariable(value = "id") Long id, @RequestBody CustomerDTO item) {
     item.setId(id);
     return service.save(item);
