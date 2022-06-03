@@ -91,27 +91,27 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
 
         if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
             sb.append(
-                    " AND (UPPER(cif) LIKE :txtSearch OR UPPER(name) LIKE :txtSearch OR UPPER(tel) LIKE :txtSearch OR UPPER(address) LIKE :txtSearch OR UPPER(type) LIKE :txtSearch OR UPPER(status) LIKE :txtSearch) ");
+                    " AND (UPPER(os.cif) LIKE :txtSearch OR UPPER(os.name) LIKE :txtSearch OR UPPER(os.tel) LIKE :txtSearch OR UPPER(os.address) LIKE :txtSearch OR UPPER(os.type) LIKE :txtSearch OR UPPER(os.status) LIKE :txtSearch) ");
             parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
         }
 
         if (paramNotNullOrEmpty(paramSearch, "cif")) {
-            sb.append(" AND UPPER(cif) LIKE :cif ");
+            sb.append(" AND UPPER(os.cif) LIKE :cif ");
             parameters.put("cif", formatLike((String) paramSearch.get("cif")).toUpperCase());
         }
 
         if (paramNotNullOrEmpty(paramSearch, "name")) {
-            sb.append(" AND UPPER(name) LIKE :name ");
+            sb.append(" AND UPPER(os.name) LIKE :name ");
             parameters.put("name", formatLike((String) paramSearch.get("name")).toUpperCase());
         }
 
         if (paramNotNullOrEmpty(paramSearch, "address")) {
-            sb.append(" AND UPPER(address) LIKE :address ");
+            sb.append(" AND UPPER(os.address) LIKE :address ");
             parameters.put("address", formatLike((String) paramSearch.get("address")).toUpperCase());
         }
 
         if (paramNotNullOrEmpty(paramSearch, "type")) {
-            sb.append(" AND type = :type ");
+            sb.append(" AND os.type = :type ");
             parameters.put("type", paramSearch.get("type"));
         }
 
