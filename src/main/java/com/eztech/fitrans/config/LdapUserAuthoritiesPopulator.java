@@ -27,7 +27,7 @@ public class LdapUserAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 			String username) {
 		if (username.equals("admin")) {
 			return Arrays.asList(new SimpleGrantedAuthority(Role.ROLE_ADMIN));
-		} else {
+		} else {	
 			return userDetailsService.loadUserByUsername(username).getAuthorities();
 		}
 	}

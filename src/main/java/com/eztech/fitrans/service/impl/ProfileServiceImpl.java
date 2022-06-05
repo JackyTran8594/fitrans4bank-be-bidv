@@ -915,11 +915,14 @@ public class ProfileServiceImpl implements ProfileService {
                             // set user bằng user người dùng thực hiện quét chuyển hồ sơ
                             old.setStaffId_CM(user.getId());
 
+                            ProfileDTO last = listDataWaiting.get(listDataWaiting.size() - 1);
+
+                            // thời gian xử lý : tính từ thời gian của hồ sơ chờ phía trước
                             LocalDateTime processTime = DataUtils.calculatingDate(old.getTimeReceived_CM(),
-                                    old.getProcessDate(), pHistoryInternal.getTimeReceived());
+                                    old.getProcessDate(), last.getProcessDate());
+
                             // set lại thời gian nhận cho hồ sơ bằng thời gian xử lý của hồ sơ chờ cuối cùng
                             // trong list
-                            ProfileDTO last = listDataWaiting.get(listDataWaiting.size() - 1);
                             old.setTimeReceived_CM(last.getProcessDate());
                             old.setProcessDate(processTime);
                         }

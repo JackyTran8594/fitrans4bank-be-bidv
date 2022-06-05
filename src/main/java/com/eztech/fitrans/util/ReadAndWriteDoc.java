@@ -373,7 +373,7 @@ public class ReadAndWriteDoc {
                                         logger.error(e.getMessage(), e);
                                     }
 
-                                    String strTransfer = profile.getId().toString() + "-Transfer";
+                                    String strTransfer = profile.getId().toString() + "-Move";
                                     byte[] imageByteArrayReturn = generateQRCode(strTransfer, 100, 100);
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(
