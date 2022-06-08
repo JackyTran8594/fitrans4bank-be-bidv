@@ -206,7 +206,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<resources>
+		<!-- <resources>
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
@@ -214,7 +214,7 @@
 					<exclude>**/application.properties</exclude>
 				</excludes>
 			</resource>
-		</resources>
+		</resources> -->
 	</build>
 
 </project>
