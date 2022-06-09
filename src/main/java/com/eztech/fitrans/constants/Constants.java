@@ -66,4 +66,11 @@ public class Constants {
         public static String VI_TRI = "VI_TRI";
         public static String LOAI_GIAO_DICH = "LOAI_GIAO_DICH";
     }
+
+    public static final class Department {
+        public static String QTTD = "QTTD";
+        public static String QLKH = "QLKH";
+        public static String GDKH = "GDKH";
+    }
+
 }

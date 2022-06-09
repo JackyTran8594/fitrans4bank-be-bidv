@@ -1,6 +1,9 @@
 package com.eztech.fitrans.repo.impl;
 
 import com.eztech.fitrans.constants.Constants;
+import com.eztech.fitrans.constants.PositionTypeEnum;
+import com.eztech.fitrans.constants.UserTypeEnum;
+import com.eztech.fitrans.constants.Constants.Department;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.model.Profile;
 import com.eztech.fitrans.repo.ProfileRepositoryCustom;
@@ -109,25 +112,40 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             if (!DataUtils.isNullOrEmpty(deparmentCode)) {
                 // default null from client
                 String username = paramSearch.containsKey("username") ? paramSearch.get("username").toString() : "";
-                if (!DataUtils.isNullOrEmpty(username) && !username.toLowerCase().trim().contains("admin")) {
 
+                if (!DataUtils.isNullOrEmpty(username)
+                        && !username.toLowerCase().trim().contains(UserTypeEnum.ADMIN.getName())) {
+                    String position = paramSearch.containsKey("position") ? paramSearch.get("position").toString() : "";
                     String sql_filter = "";
+
                     switch (deparmentCode) {
                         case "QTTD":
-                            // QTTD nhìn thấy hết
                             String sql_qttd = " AND trans.type IN (1,2) ";
                             sql_filter = " AND p.state NOT IN (0) ";
                             sb.append(sql_qttd)
                                     .append(sql_filter);
+                            if (PositionTypeEnum.CHUYENVIEN.getName().equals(position)) {
+                                // QTTD view theo username đối với chuyên viên
 
-                            if (paramSearch.containsKey("usernameByCode")) {
-                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    sb.append(" AND  ucm.username like :usernameByCode");
-                                    parameters.put("usernameByCode",
-                                            formatLike((String) paramSearch.get("usernameByCode").toString()
-                                                    .toLowerCase()));
+                                if (paramSearch.containsKey("username")) {
+                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
+                                        sb.append(" AND  ucm.username = :username");
+                                        parameters.put("username",
+                                                paramSearch.get("username").toString()
+                                                        .toLowerCase());
+                                    }
+
                                 }
+                            } else {
+                                if (paramSearch.containsKey("usernameByCode")) {
+                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                        sb.append(" AND ucm.username like :usernameByCode");
+                                        parameters.put("usernameByCode",
+                                                formatLike((String) paramSearch.get("usernameByCode").toString()
+                                                        .toLowerCase()));
+                                    }
 
+                                }
                             }
 
                             break;
@@ -196,12 +214,15 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             // bỏ p.state NOT IN (7)
             // sb.append(
-            //         " AND ((p.state IN (4,5,7) AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)))  ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
-            // parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
+            // " AND ((p.state IN (4,5,7) AND p.process_date >= DATEADD(minute, -5,
+            // CURRENT_TIMESTAMP))) ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH
+            // NEXT 20 ROWS ONLY");
+            // parameters.put("offset",
+            // DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
 
             sb.append(
-                " AND p.state IN (4,5,7) ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
-        parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
+                    " AND p.state IN (4,5,7) ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
+            parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
 
             // sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)
             // ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
@@ -210,9 +231,9 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         } else {
             if (!count) {
                 if (paramSearch.containsKey("sort")) {
-                    sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.id DESC  "));
+                    sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.time_received_cm ASC"));
                 } else {
-                    sb.append(" ORDER BY p.id desc ");
+                    sb.append(" ORDER BY p.time_received_cm ASC ");
                 }
             }
 
@@ -245,8 +266,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
                 "left join transaction_type trans on trans.id = p.type \n" +
                 "where p.id = :id AND p.state = :state AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)"
-                // + " ORDER BY his.time_received ASC"
-                ;
+        // + " ORDER BY his.time_received ASC"
+        ;
         parameters.put("id", id);
         parameters.put("state", state);
         ProfileDTO profileDTO = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
