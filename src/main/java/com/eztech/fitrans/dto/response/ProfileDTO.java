@@ -60,7 +60,7 @@ public class ProfileDTO implements Serializable {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime realTimeReceivedCT; // Ngày thực tế nhận tại QTTD
- 
+
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime realTimeReceivedCM; // Ngày thực tế nhận tại GDKH
@@ -89,6 +89,7 @@ public class ProfileDTO implements Serializable {
     public Integer review;
     public String reviewNote;
     public String note;
+    public String pendingNote;
     public Boolean notifyByEmail;
 
     public Integer standardTimeCM;
@@ -142,6 +143,7 @@ public class ProfileDTO implements Serializable {
             Integer priorityNumber,
             LocalDateTime realTimeReceivedCT,
             LocalDateTime realTimeReceivedCM,
+            String pendingNote,
             String staffNameLast,
             String customerName,
             String staffName,
@@ -206,6 +208,7 @@ public class ProfileDTO implements Serializable {
         this.customerType = customerType;
         this.realTimeReceivedCT = realTimeReceivedCT;
         this.realTimeReceivedCM = realTimeReceivedCM;
+        this.pendingNote = pendingNote;
     }
 
     public void fillTransient() {

@@ -61,6 +61,7 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "priority_number", type = Integer.class),
         @ColumnResult(name = "real_time_received_cm", type = LocalDateTime.class),
         @ColumnResult(name = "real_time_received_ct", type = LocalDateTime.class),
+        @ColumnResult(name = "pending_note", type = String.class),
         @ColumnResult(name = "staff_name_last", type = String.class),
         @ColumnResult(name = "customer_name", type = String.class),
         @ColumnResult(name = "staff_name", type = String.class),
@@ -164,13 +165,14 @@ public class Profile extends Auditable<String> implements Serializable {
   @Column(name = "review")
   private Integer review;
 
-  // Đánh giá
   @Column(name = "review_note")
   private String reviewNote;
 
-  // Đánh giá
   @Column(name = "note")
   private String note;
+
+  @Column(name = "pending_note")
+  private String pendingNote;
 
   // Gửi email
   @Column(name = "notify_by_email", columnDefinition = "BIT")

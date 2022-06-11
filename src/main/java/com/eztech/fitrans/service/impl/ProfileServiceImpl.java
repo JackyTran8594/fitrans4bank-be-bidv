@@ -710,6 +710,45 @@ public class ProfileServiceImpl implements ProfileService {
 
             }
 
+             if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue()) || old.getState().equals(ProfileStateEnum.PENDING.getValue())) {
+
+                isAsc = true;
+                Map<String, Object> params = new HashMap<>();
+
+                params.put("state", ProfileStateEnum.WAITING.getValue());
+                params.put("code", item.getCode());
+                List<ProfileDTO> listDataWaiting = new ArrayList<>();
+                switch (item.getCode().trim().toUpperCase()) {
+                    case "GDKH":
+                        old.setTimeReceived_CT(null);
+                        break;
+                    case "QTTD":
+                        params.put("staffId_CM", user.getId());
+                        params.put("staffId_CT", "NULL");
+                        // tính thời gian còn lại để cộng vào lần bàn giao sau cho hồ sơ cần bổ sung
+                        // bắt đầu từ thời điểm chuyển đổi trạng thái thành cần bổ sung - additional
+                        LocalDateTime from = old.getTimeReceived_CM();
+                        LocalDateTime to = LocalDateTime.now();
+                        LocalDateTime processTime = old.getProcessDate();
+                        if (to.isAfter(from) && processTime.isAfter(to)) {
+                            Long additionalTime = DataUtils.durationToMinute(from, to);
+                            old.setAdditionalTime(Integer.valueOf(additionalTime.intValue()));
+                            // old.setProcessDate(to);
+                        } else {
+
+                        }
+                        listDataWaiting = repository.getProfileWithParams(params, isAsc);
+                        this.updateProfileList(listDataWaiting, old, user, profileHistory, department.getId(),
+                                item.getCode(), transactionType);
+
+                        break;
+
+                    default:
+                        break;
+                }
+
+            }
+
             profileHistory.setDepartmentCode(department.getCode());
             profileHistory.setDepartmentId(department.getId());
             // profileHistory.setTimeReceived(LocalDateTime.now());
@@ -1029,7 +1068,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     if (!item.getIsFinished()) {
                                         if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
                                                 || old.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                            message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                            message.setMessage("Giao dịch này đã được nhận 1 lần");
                                             message.setIsExist(true);
                                         } else {
                                             message.setIsExist(false);
@@ -1095,7 +1134,7 @@ public class ProfileServiceImpl implements ProfileService {
                                                         "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
                                                 message.setIsExist(true);
                                             } else {
-                                                message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                                message.setMessage("Giao dịch này đã được nhận 1 lần");
                                                 message.setIsExist(true);
                                             }
                                         } else {
@@ -1120,7 +1159,7 @@ public class ProfileServiceImpl implements ProfileService {
                                             if (item.getUsername().contains("admin")) {
                                                 message.setIsExist(false);
                                             } else {
-                                                message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                                message.setMessage("Giao dịch này đã được nhận 1 lần");
                                                 message.setIsExist(true);
                                             }
                                         }
@@ -1164,7 +1203,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 } else {
                                     if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
                                             || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                        message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                        message.setMessage("Giao dịch này đã được nhận 1 lần");
                                         message.setIsExist(true);
                                     } else {
                                         message.setIsExist(false);
@@ -1206,7 +1245,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 } else {
                                     if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
                                             || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                        message.setMessage("Bạn đã nhận giao dịch này 1 lần");
+                                        message.setMessage("Giao dịch này đã được nhận 1 lần");
                                         message.setIsExist(true);
                                     } else {
                                         message.setIsExist(false);

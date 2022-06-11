@@ -260,6 +260,7 @@ public class ProfileController extends BaseController implements ProfileApi {
     return service.saveHistory(item);
   }
 
+ 
   @PostMapping("/confirmProfile")
   public ProfileDTO confirmProfile(@RequestBody ConfirmRequest item) {
     return service.confirmProfile(item);
@@ -274,6 +275,12 @@ public class ProfileController extends BaseController implements ProfileApi {
   public ProfileDTO transferInternal(@RequestBody ConfirmRequest item) {
     return service.transferInternal(item);
   }
+
+  @PostMapping("/pendingProfile")
+  public ProfileDTO pendingProfile(@RequestBody ConfirmRequest item) {
+    return service.saveHistory(item);
+  }
+
 
   @GetMapping("/getInfo")
   public List<ProfileHistoryDTO> getInfoByIdAndState(@RequestParam Map<String, Object> params) {

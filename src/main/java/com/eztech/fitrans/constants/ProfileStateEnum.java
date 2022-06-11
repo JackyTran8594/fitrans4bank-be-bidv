@@ -12,6 +12,7 @@ public enum ProfileStateEnum {
     ADDITIONAL(6, "Cần bổ sung"),
     FINISHED(7,"Đã hoàn thành"),
     INTERNALTRANSFERED(8,"Đã chuyển nội bộ"),
+    PENDING(9,"Chưa giải quyết"),
     UNKNOWN(-1,"UNKNOWN");
 
     private int value;
