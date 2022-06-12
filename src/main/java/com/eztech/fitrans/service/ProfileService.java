@@ -31,6 +31,8 @@ public interface ProfileService {
 
   List<ProfileDTO> dashboard();
 
+  List<ProfileDTO> getProfileDashboard(int topNumber);
+
   ProfileDTO confirmProfile(ConfirmRequest req);
 
   void deleteList(List<Long> ids);

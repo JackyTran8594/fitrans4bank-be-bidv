@@ -75,6 +75,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "u.full_name as staff_name_last, c.name as customer_name," +
                 "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type  \n";
 
+
         if (count) {
             sb.append("SELECT COUNT(p.id) \n")
                     .append(
@@ -221,13 +222,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             // DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
 
             sb.append(
-                    " AND p.state IN (4,5,7) ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
+                    " AND p.state IN (4,5) ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
             parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
 
-            // sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)
-            // ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
-            // sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date
-            // ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
+            // sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP) ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
+            // sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
         } else {
             if (!count) {
                 if (paramSearch.containsKey("sort")) {
@@ -395,6 +394,30 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
 
+    }
+
+    @Override
+    public List<ProfileDTO> getProfileDashboard(int topNumber) {
+        // TODO Auto-generated method stub
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("topNumber", topNumber);
+        StringBuilder sb = new StringBuilder();
+        String sql = "SELECT TOP :topNumber p.*, " +
+                "u.full_name as staff_name_last, c.name as customer_name," +
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type   \n"
+                +
+                "FROM profile p left join customer c on p.customer_id = c.id \n" +
+                "left join profile_history his on p.id = his.profile_id \n" +
+                "left join user_entity u on his.staff_id = u.id \n" +
+                "left join user_entity uc on p.staff_id = uc.id \n" +
+                "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
+                "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
+                "join transaction_type trans on trans.id = p.type \n";
+
+        sb.append(sql).append(
+                "WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n")
+                .append("ORDER BY p.process_date ASC");
+        return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
     }
 
 }

@@ -83,6 +83,8 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		auth.inMemoryAuthentication().withUser("adminbidv").password(passwordEncoder().encode("admin@123")).roles(Role.ADMIN);
 
+		// auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
+
 		auth
 				.ldapAuthentication()
 				.userDnPatterns(dnPatterns)

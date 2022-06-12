@@ -174,6 +174,12 @@ public class ProfileController extends BaseController implements ProfileApi {
     return true;
   }
 
+  @PostMapping("/getProfileDashboard")
+  public List<ProfileDTO> getProfileDashboard(@RequestBody Integer topNumber) {
+    List<ProfileDTO> listData = service.getProfileDashboard(topNumber.intValue());
+    return listData;
+  }
+
   @PostMapping("/exportDoc")
   public ResponseEntity<InputStreamResource> exportDoc(@RequestParam Map<String, Object> mapParam,
       @RequestBody ProfileDTO item) throws FileNotFoundException, IOException {
@@ -260,7 +266,6 @@ public class ProfileController extends BaseController implements ProfileApi {
     return service.saveHistory(item);
   }
 
- 
   @PostMapping("/confirmProfile")
   public ProfileDTO confirmProfile(@RequestBody ConfirmRequest item) {
     return service.confirmProfile(item);
@@ -280,7 +285,6 @@ public class ProfileController extends BaseController implements ProfileApi {
   public ProfileDTO pendingProfile(@RequestBody ConfirmRequest item) {
     return service.saveHistory(item);
   }
-
 
   @GetMapping("/getInfo")
   public List<ProfileHistoryDTO> getInfoByIdAndState(@RequestParam Map<String, Object> params) {
