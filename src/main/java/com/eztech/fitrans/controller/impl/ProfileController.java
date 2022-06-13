@@ -174,9 +174,9 @@ public class ProfileController extends BaseController implements ProfileApi {
     return true;
   }
 
-  @PostMapping("/getProfileDashboard")
-  public List<ProfileDTO> getProfileDashboard(@RequestBody Integer topNumber) {
-    List<ProfileDTO> listData = service.getProfileDashboard(topNumber.intValue());
+  @GetMapping("/getProfileDashboard")
+  public List<ProfileDTO> getProfileDashboard(@RequestParam Map<String, Object> params) {
+    List<ProfileDTO> listData = service.getProfileDashboard(params);
     return listData;
   }
 

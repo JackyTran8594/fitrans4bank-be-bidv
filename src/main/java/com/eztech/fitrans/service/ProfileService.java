@@ -31,7 +31,7 @@ public interface ProfileService {
 
   List<ProfileDTO> dashboard();
 
-  List<ProfileDTO> getProfileDashboard(int topNumber);
+  List<ProfileDTO> getProfileDashboard(Map<String, Object> paramSearch);
 
   ProfileDTO confirmProfile(ConfirmRequest req);
 

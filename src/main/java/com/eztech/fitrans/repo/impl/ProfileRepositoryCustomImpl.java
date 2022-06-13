@@ -75,7 +75,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "u.full_name as staff_name_last, c.name as customer_name," +
                 "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type  \n";
 
-
         if (count) {
             sb.append("SELECT COUNT(p.id) \n")
                     .append(
@@ -225,8 +224,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     " AND p.state IN (4,5) ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
             parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
 
-            // sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP) ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
-            // sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
+            // sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)
+            // ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
+            // sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date
+            // ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
         } else {
             if (!count) {
                 if (paramSearch.containsKey("sort")) {
@@ -397,12 +398,13 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     }
 
     @Override
-    public List<ProfileDTO> getProfileDashboard(int topNumber) {
+    public List<ProfileDTO> getProfileDashboard(Map<String, Object> paramSearch) {
         // TODO Auto-generated method stub
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("topNumber", topNumber);
         StringBuilder sb = new StringBuilder();
-        String sql = "SELECT TOP :topNumber p.*, " +
+        String selectTop = "SELECT TOP :topNumber ";
+        String select = "SELECT ";
+        String sql = " p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
                 "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type   \n"
                 +
@@ -413,6 +415,26 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity ucm on p.staff_id_cm = ucm.id AND ucm.status = 'ACTIVE' \n" +
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
                 "join transaction_type trans on trans.id = p.type \n";
+
+        if (paramSearch.containsKey("isOffset")) {
+            if (paramSearch.get("isOffset").equals("true")) {
+                // offset
+                if (paramSearch.containsKey("offset")) {
+                    parameters.put("offset", DataUtils.parseToInt(paramSearch.get("offset")));
+                    sb.append(select).append(sql);
+
+                }
+            } else {
+                // top row
+                if (paramSearch.containsKey("topNumber")) {
+                    parameters.put("topNumber", DataUtils.parseToInt(paramSearch.get("topNumber")));
+                    sb.append(selectTop).append(sql);
+                }
+            }
+        }
+
+        // Map<String, Object> parameters = new HashMap<>();
+        // parameters.put("topNumber", topNumber);
 
         sb.append(sql).append(
                 "WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n")

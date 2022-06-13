@@ -15,6 +15,6 @@ public interface ProfileRepositoryCustom extends BaseRepositoryCustom {
     List<ProfileDTO> getProfileWithParams(Map<String, Object> params, Boolean isAsc);
 
     // using to get top profile for repeat row
-    List<ProfileDTO> getProfileDashboard(int topNumber);
+    List<ProfileDTO> getProfileDashboard(Map<String, Object> paramSearch);
 
 }

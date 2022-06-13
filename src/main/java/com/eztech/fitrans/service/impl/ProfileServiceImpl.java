@@ -1835,10 +1835,10 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public List<ProfileDTO> getProfileDashboard(int topNumber) {
+    public List<ProfileDTO> getProfileDashboard(Map<String, Object> paramSearch) {
         // TODO Auto-generated method stub
         try {
-            List<ProfileDTO> listData = repository.getProfileDashboard(topNumber);
+            List<ProfileDTO> listData = repository.getProfileDashboard(paramSearch);
             return listData;
         } catch(Exception e) {
             logger.error(e.getMessage(), e);
