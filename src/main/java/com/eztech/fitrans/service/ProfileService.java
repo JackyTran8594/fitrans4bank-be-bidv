@@ -45,5 +45,6 @@ public interface ProfileService {
 
   MessageDTO priorityProfile(ConfirmRequest req);
 
+  long countProfile(List<Integer> listState);
 
 }

@@ -29,5 +29,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, Profile
         List<Profile> findBySateAndStaffIdAndIgnore(@Param("state") Integer state,
                         @Param("staffId") Long staffId, @Param("profileId") Long profileId);
 
+        @Query(value = "SELECT COUNT(*) FROM profile WHERE state IN :listState", nativeQuery = true)
+        long count(@Param("listState") List<Integer> listState);
 
 }

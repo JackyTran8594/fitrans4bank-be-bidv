@@ -276,6 +276,14 @@ public class ProfileController extends BaseController implements ProfileApi {
     return service.checkTransfer(item);
   }
 
+  @GetMapping("/countProfile")
+  public Long countProfile() {
+    List<Integer> listState = new ArrayList<>();
+    listState.add(4);
+    listState.add(5);
+    return service.countProfile(listState);
+  }
+
   @PostMapping("/transferInternal")
   public ProfileDTO transferInternal(@RequestBody ConfirmRequest item) {
     return service.transferInternal(item);

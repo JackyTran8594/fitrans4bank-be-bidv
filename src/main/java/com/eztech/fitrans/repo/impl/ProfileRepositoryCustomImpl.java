@@ -402,7 +402,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         // TODO Auto-generated method stub
         Map<String, Object> parameters = new HashMap<>();
         StringBuilder sb = new StringBuilder();
-        String selectTop = "SELECT TOP :topNumber ";
+        String selectTop = "SELECT TOP(:topNumber) ";
         String select = "SELECT ";
         String sql = " p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
@@ -416,29 +416,45 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
                 "join transaction_type trans on trans.id = p.type \n";
 
+        String where =  "WHERE 1=1 AND p.state IN (4,5) AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n";
+        String order = "ORDER BY p.process_date ASC";
+
         if (paramSearch.containsKey("isOffset")) {
-            if (paramSearch.get("isOffset").equals("true")) {
+            if (paramSearch.get("isOffset").toString().equals("true")) {
                 // offset
                 if (paramSearch.containsKey("offset")) {
+
                     parameters.put("offset", DataUtils.parseToInt(paramSearch.get("offset")));
-                    sb.append(select).append(sql);
+                    sb.append(select)
+                    .append(sql)
+                    .append(where)
+                    .append(order)
+                    .append(" OFFSET :offset ROWS ")
+                    .append(" FETCH NEXT 20 ROWS ONLY ");
 
                 }
             } else {
                 // top row
                 if (paramSearch.containsKey("topNumber")) {
                     parameters.put("topNumber", DataUtils.parseToInt(paramSearch.get("topNumber")));
-                    sb.append(selectTop).append(sql);
+                    sb.append(selectTop).append(sql)
+                    .append(where)
+                    .append(order);
                 }
             }
         }
 
+        // sb.append(sql).append(
+        //     "WHERE 1=1 AND p.state IN (4,5) AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n")
+        //     .append("ORDER BY p.process_date ASC");
+
         // Map<String, Object> parameters = new HashMap<>();
         // parameters.put("topNumber", topNumber);
 
-        sb.append(sql).append(
-                "WHERE 1=1 AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n")
-                .append("ORDER BY p.process_date ASC");
+     
+        // sb.append(" OFFSET :offset ROWS ");
+        // sb.append(" FETCH NEXT :limit ROWS ONLY ");
+
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
     }
 

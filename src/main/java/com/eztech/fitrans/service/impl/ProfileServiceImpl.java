@@ -710,7 +710,8 @@ public class ProfileServiceImpl implements ProfileService {
 
             }
 
-             if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue()) || old.getState().equals(ProfileStateEnum.PENDING.getValue())) {
+            if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())
+                    || old.getState().equals(ProfileStateEnum.PENDING.getValue())) {
 
                 isAsc = true;
                 Map<String, Object> params = new HashMap<>();
@@ -1840,11 +1841,24 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             List<ProfileDTO> listData = repository.getProfileDashboard(paramSearch);
             return listData;
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return null;
         }
-       
+
+    }
+
+    @Override
+    public long countProfile(List<Integer> listState) {
+        // TODO Auto-generated method stub
+        try {
+            return repository.count(listState);
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return 0;
+
+        }
     }
 
 }
