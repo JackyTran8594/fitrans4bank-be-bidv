@@ -71,16 +71,20 @@ public class CustomerRepositoryCustomImpl extends BaseCustomRepository<Customer>
                             "LEFT JOIN user_entity u on u.id = os.staff_id \n")
                     .append(
                             "LEFT JOIN user_entity ucm on ucm.id = os.staff_id_cm \n")
+                    .append(
+                            "LEFT JOIN user_entity uct on uct.id = os.staff_id_ct \n")
                     .append("WHERE 1=1 ");
         } else {
             sb.append(
-                    "SELECT os.*, u.full_name as staffName, ucm.full_name as staffNameCM  \n")
+                    "SELECT os.*, u.full_name as staffName, ucm.full_name as staffNameCM, uct.full_name as staffNameCT  \n")
                     .append(
                             "FROM customer os \n")
                     .append(
                             "LEFT JOIN user_entity u on u.id = os.staff_id \n")
                     .append(
                             "LEFT JOIN user_entity ucm on ucm.id = os.staff_id_cm \n")
+                    .append(
+                            "LEFT JOIN user_entity uct on uct.id = os.staff_id_ct \n")
                     .append("WHERE 1=1 ");
         }
 

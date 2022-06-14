@@ -59,6 +59,12 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Value("${spring.ldap.authen.managerPassword:#{null}}")
 	private String managerPassword;
 
+	@Value("${app.admin.user}")
+	private String adminUser;
+
+	@Value("${app.admin.password}")
+	private String adminPassword;
+
 	private final LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final UserDetailsService jwtUserDetailsService;
@@ -81,7 +87,7 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 
-		auth.inMemoryAuthentication().withUser("adminbidv").password(passwordEncoder().encode("admin@123")).roles(Role.ADMIN);
+		auth.inMemoryAuthentication().withUser(adminUser).password(passwordEncoder().encode(adminPassword)).roles(Role.ADMIN);
 
 		// auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
 

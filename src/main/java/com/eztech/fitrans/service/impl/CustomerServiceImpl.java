@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,15 +57,16 @@ public class CustomerServiceImpl implements CustomerService {
             if (dto == null) {
                 throw new ResourceNotFoundException("Customer " + item.getId() + " not found");
             }
-            dto.setCif(item.getCif());
-            dto.setType(item.getType());
-            dto.setName(item.getName());
-            dto.setAddress(item.getAddress());
-            dto.setTel(item.getTel());
-            dto.setStatus(item.getStatus());
-            dto.setStaffId(item.getStaffId());
-            dto.setStaffId_CM(item.getStaffId_CM());
-            entity = mapper.toPersistenceBean(dto);
+            // dto.setCif(item.getCif());
+            // dto.setType(item.getType());
+            // dto.setName(item.getName());
+            // dto.setAddress(item.getAddress());
+            // dto.setTel(item.getTel());
+            // dto.setStatus(item.getStatus());
+            // dto.setStaffId(item.getStaffId());
+            // dto.setStaffId_CM(item.getStaffId_CM());
+            item.setLastUpdatedDate(LocalDateTime.now());
+            entity = mapper.toPersistenceBean(item);
         } else {
             entity = mapper.toPersistenceBean(item);
             entity.setStatus(ACTIVE);

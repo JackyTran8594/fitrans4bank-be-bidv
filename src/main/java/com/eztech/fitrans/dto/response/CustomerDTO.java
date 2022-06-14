@@ -26,9 +26,11 @@ public class CustomerDTO extends BaseImportDTO implements Serializable {
     public String tel;
     public Long staffId;
     public Long staffId_CM;
+    public Long staffId_CT;
     public String username;
     public String staffName;
     public String staffNameCM;
+    public String staffNameCT;
     // Loai khach hang (VIP, THONG THUONG)
     public Integer type;
     public String typeName;
@@ -58,8 +60,10 @@ public class CustomerDTO extends BaseImportDTO implements Serializable {
             String status,
             Long staffId,
             Long staffId_CM,
+            Long staffId_CT,
             String staffName,
-            String staffNameCM) {
+            String staffNameCM,
+            String staffNameCT) {
         this.id = id;
         this.cif = cif;
         this.name = name;
@@ -72,8 +76,10 @@ public class CustomerDTO extends BaseImportDTO implements Serializable {
         this.status = status;
         this.staffId = staffId;
         this.staffId_CM = staffId_CM;
+        this.staffId_CT = staffId_CT;
         this.staffName = staffName;
         this.staffNameCM = staffNameCM;
+        this.staffNameCT = staffNameCT;
         this.type = Integer.parseInt(type);
         if (type != null) {
             this.typeName = CustomerTypeEnum.of(Integer.parseInt(type)).getName();

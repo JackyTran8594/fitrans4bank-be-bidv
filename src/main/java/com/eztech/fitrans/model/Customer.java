@@ -32,8 +32,10 @@ import java.time.LocalDateTime;
             @ColumnResult(name = "status", type = String.class),
             @ColumnResult(name = "staff_id", type = Long.class),
             @ColumnResult(name = "staff_id_cm", type = Long.class),
+            @ColumnResult(name = "staff_id_ct", type = Long.class),
             @ColumnResult(name = "staffName", type = String.class),
             @ColumnResult(name = "staffNameCM", type = String.class),
+            @ColumnResult(name = "staffNameCT", type = String.class),
     })
 })
 public class Customer extends Auditable<String> implements Serializable {
@@ -46,6 +48,7 @@ public class Customer extends Auditable<String> implements Serializable {
     private String tel;
     private Long staffId;
     private Long staffId_CM;
+    private Long staffId_CT;
 
     ////Loai khach hang (VIP, THONG THUONG)
     @Basic
