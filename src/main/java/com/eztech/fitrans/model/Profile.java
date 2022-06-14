@@ -31,7 +31,7 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "customer_id", type = Long.class),
         @ColumnResult(name = "staff_id", type = Long.class),
         @ColumnResult(name = "type", type = Integer.class),
-        @ColumnResult(name = "priority", type = Integer.class),
+        // @ColumnResult(name = "priority", type = Integer.class),
         @ColumnResult(name = "process_date", type = LocalDateTime.class),
         @ColumnResult(name = "created_by", type = String.class),
         @ColumnResult(name = "created_date", type = LocalDateTime.class),
@@ -58,7 +58,7 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "others_profile", type = String.class),
         @ColumnResult(name = "currency", type = String.class),
         @ColumnResult(name = "description", type = String.class),
-        @ColumnResult(name = "priority_number", type = Integer.class),
+        // @ColumnResult(name = "priority_number", type = Integer.class),
         @ColumnResult(name = "real_time_received_cm", type = LocalDateTime.class),
         @ColumnResult(name = "real_time_received_ct", type = LocalDateTime.class),
         @ColumnResult(name = "pending_note", type = String.class),
@@ -147,13 +147,13 @@ public class Profile extends Auditable<String> implements Serializable {
   private ProfileTypeEnum profileTypeEnum;
 
   // Mức độ
-  @Basic
-  private Integer priority;
-  @Transient
-  private ProfilePriorityEnum priorityValue;
+  // @Basic
+  // private Integer priority;
+  // @Transient
+  // private ProfilePriorityEnum priorityValue;
 
-  @Column(name = "priority_number")
-  private Integer priorityNumber;
+  // @Column(name = "priority_number")
+  // private Integer priorityNumber;
 
   // Trạng thái hồ sơ
   @Basic
@@ -193,9 +193,9 @@ public class Profile extends Auditable<String> implements Serializable {
 
   @PostLoad
   void fillTransient() {
-    if (priority != null) {
-      this.priorityValue = ProfilePriorityEnum.of(priority);
-    }
+    // if (priority != null) {
+    //   this.priorityValue = ProfilePriorityEnum.of(priority);
+    // }
 
     if (type != null) {
       this.profileTypeEnum = ProfileTypeEnum.of(type);
@@ -207,9 +207,9 @@ public class Profile extends Auditable<String> implements Serializable {
 
   @PrePersist
   void fillPersistent() {
-    if (priorityValue != null) {
-      this.priority = priorityValue.getPriority();
-    }
+    // if (priorityValue != null) {
+    //   this.priority = priorityValue.getPriority();
+    // }
 
     if (profileTypeEnum != null) {
       this.type = profileTypeEnum.getType();

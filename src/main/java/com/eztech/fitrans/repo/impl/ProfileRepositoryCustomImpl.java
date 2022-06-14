@@ -198,13 +198,31 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         }
 
-        if (paramSearch.containsKey("state")) {
-            if (!DataUtils.isNullOrEmpty(paramSearch.get("state"))) {
-                sb.append(" AND p.state = :state");
-                parameters.put("state", DataUtils.parseToInt(paramSearch.get("state").toString()));
-            }
+        if (paramSearch.containsKey("defaultState")) {
+            if (paramSearch.get("defaultState").equals("true")) {
+                sb.append(" AND p.state IN (4,5) ");
+            } else {
+                if (paramSearch.containsKey("state")) {
+                    if (!DataUtils.isNullOrEmpty(paramSearch.get("state").toString())) {
+                        Integer state = DataUtils.parseToInt(paramSearch.get("state"));
+                        if (state > 0) {
+                            sb.append(" AND p.state = :state ");
+                            parameters.put("state", state);
+                        }
+                    }
 
+                }
+            }
         }
+
+        // if (paramSearch.containsKey("state")) {
+        // if (!DataUtils.isNullOrEmpty(paramSearch.get("state"))) {
+        // sb.append(" AND p.state = :state");
+        // parameters.put("state",
+        // DataUtils.parseToInt(paramSearch.get("state").toString()));
+        // }
+
+        // }
 
         if (paramSearch.containsKey("dashboard")) {
             // sb.append(
@@ -377,6 +395,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 }
             }
         }
+
         if (params.containsKey("state")) {
             sb.append(" AND p.state = :state ");
             parameters.put("state", DataUtils.parseToInt(params.get("state")));
@@ -416,7 +435,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
                 "join transaction_type trans on trans.id = p.type \n";
 
-        String where =  "WHERE 1=1 AND p.state IN (4,5) AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n";
+        String where = "WHERE 1=1 AND p.state IN (4,5) AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n";
         String order = "ORDER BY p.process_date ASC";
 
         if (paramSearch.containsKey("isOffset")) {
@@ -426,11 +445,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
                     parameters.put("offset", DataUtils.parseToInt(paramSearch.get("offset")));
                     sb.append(select)
-                    .append(sql)
-                    .append(where)
-                    .append(order)
-                    .append(" OFFSET :offset ROWS ")
-                    .append(" FETCH NEXT 20 ROWS ONLY ");
+                            .append(sql)
+                            .append(where)
+                            .append(order)
+                            .append(" OFFSET :offset ROWS ")
+                            .append(" FETCH NEXT 20 ROWS ONLY ");
 
                 }
             } else {
@@ -438,20 +457,21 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 if (paramSearch.containsKey("topNumber")) {
                     parameters.put("topNumber", DataUtils.parseToInt(paramSearch.get("topNumber")));
                     sb.append(selectTop).append(sql)
-                    .append(where)
-                    .append(order);
+                            .append(where)
+                            .append(order);
                 }
             }
         }
 
         // sb.append(sql).append(
-        //     "WHERE 1=1 AND p.state IN (4,5) AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n")
-        //     .append("ORDER BY p.process_date ASC");
+        // "WHERE 1=1 AND p.state IN (4,5) AND his.time_received = (select
+        // MAX(his.time_received) from profile_history his where his.profile_id = p.id)
+        // \n")
+        // .append("ORDER BY p.process_date ASC");
 
         // Map<String, Object> parameters = new HashMap<>();
         // parameters.put("topNumber", topNumber);
 
-     
         // sb.append(" OFFSET :offset ROWS ");
         // sb.append(" FETCH NEXT :limit ROWS ONLY ");
 

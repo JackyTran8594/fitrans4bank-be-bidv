@@ -29,8 +29,8 @@ public class ProfileDTO implements Serializable {
     public String cif;
     public Integer type; // Loai giao dich
     public String typeEnum; // Mức độ
-    public Integer priority; // Mức độ
-    public ProfilePriorityEnum priorityValue; // Mức độ
+    // public Integer priority; // Mức độ
+    // public ProfilePriorityEnum priorityValue; // Mức độ
     public Integer transactionType;
     // private String companyName;
 
@@ -106,14 +106,14 @@ public class ProfileDTO implements Serializable {
     public String staffNameCT;
     public String staffNameLast;
     public String description;
-    public Integer priorityNumber;
+    // public Integer priorityNumber;
     public Integer customerType;
 
     public ProfileDTO(Long id,
             Long customerid,
             Long staffId,
             Integer type,
-            Integer priority,
+            // Integer priority,
             LocalDateTime processDate,
             String createdBy,
             LocalDateTime createdDate,
@@ -140,7 +140,7 @@ public class ProfileDTO implements Serializable {
             String othersProfile,
             String currency,
             String description,
-            Integer priorityNumber,
+            // Integer priorityNumber,
             LocalDateTime realTimeReceivedCT,
             LocalDateTime realTimeReceivedCM,
             String pendingNote,
@@ -163,10 +163,10 @@ public class ProfileDTO implements Serializable {
             this.typeEnum = "";
         }
         // this.typeEnum = typeEnum;
-        this.priority = priority;
-        if (priority != null) {
-            this.priorityValue = ProfilePriorityEnum.of(priority);
-        }
+        // this.priority = priority;
+        // if (priority != null) {
+        //     this.priorityValue = ProfilePriorityEnum.of(priority);
+        // }
         this.state = state;
         if (state != null) {
             this.stateEnum = ProfileStateEnum.of(state).getName();
@@ -204,7 +204,7 @@ public class ProfileDTO implements Serializable {
         this.staffNameLast = staffNameLast;
         this.transactionDetail = transactionDetail;
         this.additionalTimeMax = additionalTimeMax;
-        this.priorityNumber = priorityNumber;
+        // this.priorityNumber = priorityNumber;
         this.customerType = customerType;
         this.realTimeReceivedCT = realTimeReceivedCT;
         this.realTimeReceivedCM = realTimeReceivedCM;
@@ -212,10 +212,10 @@ public class ProfileDTO implements Serializable {
     }
 
     public void fillTransient() {
-        if (priority != null) {
-            this.priorityValue = ProfilePriorityEnum.of(priority);
-        }
-        ;
+        // if (priority != null) {
+        //     this.priorityValue = ProfilePriorityEnum.of(priority);
+        // }
+        // ;
 
         // if (type != null) {
         // this.typeEnum = ProfileTypeEnum.of(type).getName();
