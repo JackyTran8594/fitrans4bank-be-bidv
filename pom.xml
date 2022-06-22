@@ -206,15 +206,24 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<!-- <resources>
+		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.csv</include>
+					<include>i18n/*.properties</include>
+					<include>**/*.docx</include>
+					<include>**/*.xlsx</include>
+					<include>**/*.ldif</include>
+					<include>**/*.png</include>
+				  </includes>
 				<excludes>
 					<exclude>**/application.properties</exclude>
 				</excludes>
 			</resource>
-		</resources> -->
+		</resources>
 	</build>
 
 </project>
