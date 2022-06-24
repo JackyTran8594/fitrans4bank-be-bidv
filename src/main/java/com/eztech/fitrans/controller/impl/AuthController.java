@@ -54,22 +54,23 @@ public class AuthController {
                     HttpStatus.BAD_REQUEST);
         }
         try {
+            UserDetails userDetails = null;
+            String jwt = null;
+            String departmentCode = null;
+            Map<String, Object> mapper = null;
+            List<String> permissions = new ArrayList<>();
+            String role = null;
+            Long userId = null;
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
                             loginRequest.getPassword()));
 
-            List<String> permissions = new ArrayList<>();
-            String role = null;
-            Long userId = null;
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String departmentCode = null;
-            UserDetails userDetails = null;
-            Map<String, Object> mapper = null;
-            String jwt = null;
+
             // TODO: Test
-            log.info(new BCryptPasswordEncoder().encode("123456a@"));
-            log.info("admin: " + new BCryptPasswordEncoder().encode("admin"));
+            // log.info(new BCryptPasswordEncoder().encode("123456a@"));
+            // log.info("admin: " + new BCryptPasswordEncoder().encode("admin"));
 
             if (SecurityContextHolder.getContext().getAuthentication() != null) {
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -81,7 +82,8 @@ public class AuthController {
                     } else {
                         role = userDetailsServiceImpl.getRoleByUsername(userDetails.getUsername());
                         mapper = userDetailsServiceImpl.getPositionByUsername(userDetails.getUsername());
-                        departmentCode = userDetailsServiceImpl.getDepartmentCodeByUsername(userDetails.getUsername());
+                        departmentCode = userDetailsServiceImpl
+                                .getDepartmentCodeByUsername(userDetails.getUsername());
                         log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
                         if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
                             permissions = userDetails.getAuthorities().stream()
@@ -90,7 +92,7 @@ public class AuthController {
 
                         }
                         jwt = tokenProvider.generateToken(authentication, role, permissions, departmentCode,
-                    mapper.get("position").toString(), mapper.get("fullname").toString());
+                                mapper.get("position").toString(), mapper.get("fullname").toString());
                     }
 
                 } else {
@@ -98,9 +100,6 @@ public class AuthController {
                             + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
-            // String jwt = null;
-            // if(userDetails.getUsername().equals(anObject))
-            
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {

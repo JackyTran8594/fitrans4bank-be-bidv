@@ -5,6 +5,8 @@ public class LoginRequest {
 
     private String password;
 
+    private Boolean isLdap;
+
     public String getUsername() {
         return username;
     }
@@ -19,5 +21,13 @@ public class LoginRequest {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setIsLdap(Boolean isLdap) {
+        this.isLdap = isLdap;
+    }
+
+    public Boolean getIsLdap() {
+        return this.isLdap;
     }
 }

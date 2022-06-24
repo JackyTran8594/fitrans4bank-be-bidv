@@ -37,10 +37,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Autowired
 	private DepartmentRepository departmentRepo;
 
+	public Boolean isLdap;
+
+	public void setIsLdap(Boolean isLdap) {
+		this.isLdap = isLdap;
+	}
+
+	public Boolean getIsLdap() {
+		return true;
+	}
+
 	@Override
 	@Cacheable(key = "#username", cacheManager = "localCacheManager")
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = repo.findByUsername(username);
+		// if(isLdap) {
 		if (user != null) {
 			if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
 				throw new UsernameNotFoundException("User not found with username: " + username);
@@ -57,18 +68,27 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			}
 			return new User(user.getUsername(), user.getPassword(), buildSimpleGrantedAuthorities(roles, role));
 		} else {
-			log.warn("User not found with username {} ---> Create in db", username);
-			user = new UserEntity();
-			user.setEmail(username + "@bidv.com.vn");
-			user.setFullName(username);
-			user.setUsername(username);
-			user.setStatus("ACTIVE");
-			user.setPassword("");
-			repo.save(user);
-			return new User(user.getUsername(), user.getPassword(),
-					buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
+			if (isLdap) {
+				log.warn("User not found with username {} ---> Create in db", username);
+				user = new UserEntity();
+				user.setEmail(username + "@bidv.com.vn");
+				user.setFullName(username);
+				user.setUsername(username);
+				user.setStatus("ACTIVE");
+				user.setPassword("");
+				repo.save(user);
+				return new User(user.getUsername(), user.getPassword(),
+						buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
+			}
+
 		}
+		return null;
 	}
+	// else {
+	// if (user != null) {
+
+	// }
+	// }
 
 	private static List<SimpleGrantedAuthority> buildSimpleGrantedAuthorities(final List<Role> roles,
 			List<String> roleList) {
@@ -105,7 +125,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	public Map<String, Object> getPositionByUsername(String username) {
 		UserEntity user = repo.findByUsername(username);
-		if(user == null) {
+		if (user == null) {
 			throw new UsernameNotFoundException("Username not found with not found: " + username);
 		}
 		Map<String, Object> mapper = new HashMap<String, Object>();

@@ -59,6 +59,9 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Value("${spring.ldap.authen.managerPassword:#{null}}")
 	private String managerPassword;
 
+	@Value("${spring.ldap.authen.filter:#{null}}")
+    private String filter;
+
 	@Value("${app.admin.user}")
 	private String adminUser;
 
@@ -89,11 +92,12 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		auth.inMemoryAuthentication().withUser(adminUser).password(passwordEncoder().encode(adminPassword)).roles(Role.ADMIN);
 
-		// auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
+		auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
 
 		auth
 				.ldapAuthentication()
 				.userDnPatterns(dnPatterns)
+				.userSearchFilter(filter)
 //				.groupSearchBase("ou=groups")
 				.contextSource()
 				.url(ldapUrl)
@@ -106,7 +110,8 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 				.passwordAttribute(passwordAttribute).and()
 				// Populates the user roles by LDAP user name from database
 				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
-		;
+		
+				
 
 
 
