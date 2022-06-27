@@ -44,7 +44,7 @@ sn: Alex
 uid: ben
 userPassword: $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: benbidv
-
+distinguishedName: benbidv
 
 dn: uid=admin,ou=people,dc=springframework,dc=org
 objectclass: top
@@ -56,6 +56,7 @@ sn: admin
 uid: admin
 userPassword: $2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS
 mailNickName: adminhtbidv
+distinguishedName: adminhtbidv
 
 
 dn: uid=test,ou=people,dc=springframework,dc=org
@@ -68,6 +69,7 @@ sn: test
 uid: test
 userPassword: $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: testbidv
+distinguishedName: testbidv
 
 
 dn: uid=bachtuvu,ou=people,dc=springframework,dc=org
@@ -80,6 +82,8 @@ sn: bachtuvu
 uid: bachtuvu
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: bachtuvubidv
+distinguishedName: bachtuvubidv
+
 
 
 dn: uid=JackyTran,ou=people,dc=springframework,dc=org
@@ -92,6 +96,8 @@ sn: JackyTran
 uid: JackyTran
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: JackyTranbidv
+distinguishedName: JackyTranbidv
+
 
 
 dn: uid=duongvt,ou=people,dc=springframework,dc=org
@@ -104,6 +110,8 @@ sn: duongvt
 uid: duongvt
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: duongvtbidv
+distinguishedName: duongvtbidv
+
 
 
 dn: uid=hoangkieu,ou=people,dc=springframework,dc=org
@@ -116,6 +124,8 @@ sn: hoangkieu
 uid: hoangkieu
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: hoangkieubidv
+distinguishedName: hoangkieubidv
+
 
 
 dn: uid=longnguyen,ou=people,dc=springframework,dc=org
@@ -127,7 +137,8 @@ cn: longnguyen
 sn: longnguyen
 uid: longnguyen
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
-mailNickName: personbidv
+mailNickName: longnguyenbidv
+distinguishedName: longnguyenbidv
 
 
 
@@ -141,6 +152,8 @@ sn: thuyetlt
 uid: thuyetlt
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: thuyetltbidv
+distinguishedName: thuyetltbidv
+
 
 
 dn: uid=trantuanvu,ou=people,dc=springframework,dc=org
@@ -153,6 +166,8 @@ sn: trantuanvu
 uid: trantuanvu
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: trantuanvubidv
+distinguishedName: trantuanvubidv
+
 
 
 
@@ -166,6 +181,8 @@ sn: ha123
 uid: ha123
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: ha123bidv
+distinguishedName: ha123bidv
+
 
 
 dn: uid=test01,ou=people,dc=springframework,dc=org
@@ -178,6 +195,8 @@ sn: test01
 uid: test01
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: test01bidv
+distinguishedName: test01bidv
+
 
 
 dn: uid=cvqlkh,ou=people,dc=springframework,dc=org
@@ -190,6 +209,8 @@ sn: cvqlkh
 uid: cvqlkh
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: cvqlkhbidv
+distinguishedName: cvqlkhbidv
+
 
 
 dn: uid=ldqttd,ou=people,dc=springframework,dc=org
@@ -202,6 +223,8 @@ sn: ldqttd
 uid: ldqttd
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: ldqttdbidv
+distinguishedName: ldqttdbidv
+
 
 
 dn: uid=cvqttd,ou=people,dc=springframework,dc=org
@@ -214,6 +237,8 @@ sn: cvqttd
 uid: cvqttd
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: cvqttdbidv
+distinguishedName: cvqttdbidv
+
 
 
 dn: uid=ldgdkh,ou=people,dc=springframework,dc=org
@@ -226,6 +251,8 @@ sn: ldgdkh
 uid: ldgdkh
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: ldgdkhbidv
+distinguishedName: ldgdkhbidv
+
 
 
 
@@ -239,6 +266,8 @@ sn: cvgdkh
 uid: cvgdkh
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: cvgdkhbidv
+distinguishedName: cvgdkhbidv
+
 
 
 
@@ -252,6 +281,7 @@ sn: admin_minh
 uid: admin_minh
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: admin_minhbidv
+distinguishedName: admin_minhbidv
 
 
 
@@ -265,6 +295,7 @@ sn: admin_qtht
 uid: admin_qtht
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: admin_qthtbidv
+distinguishedName: admin_qthtbidv
 
 
 
@@ -278,6 +309,7 @@ sn: admin_qtht2
 uid: admin_qtht2
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: admin_qtht2bidv
+distinguishedName: admin_qtht2bidv
 
 
 
@@ -291,4 +323,5 @@ sn: admin_qtht3
 uid: admin_qtht3
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: admin_qtht3bidv
+distinguishedName: admin_qtht3bidv
 

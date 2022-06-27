@@ -3,8 +3,11 @@ package com.eztech.fitrans.config.sercurity;
 import com.eztech.fitrans.config.JwtAuthenticationEntryPoint;
 import com.eztech.fitrans.filter.JwtRequestFilter;
 import com.eztech.fitrans.config.LdapUserAuthoritiesPopulator;
+import com.eztech.fitrans.config.LdapUserAuthoritiesProvider;
 import com.eztech.fitrans.config.Profiles;
 import com.eztech.fitrans.model.Role;
+
+import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +25,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -60,7 +62,7 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	private String managerPassword;
 
 	@Value("${spring.ldap.authen.filter:#{null}}")
-    private String filter;
+	private String filter;
 
 	@Value("${app.admin.user}")
 	private String adminUser;
@@ -72,6 +74,7 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	private final UserDetailsService jwtUserDetailsService;
 	private final JwtRequestFilter jwtRequestFilter;
+	private Environment env;
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -80,6 +83,7 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 			public String encode(CharSequence rawPassword) {
 				return rawPassword.toString();
 			}
+
 			@Override
 			public boolean matches(CharSequence rawPassword, String encodedPassword) {
 				return encodedPassword.equalsIgnoreCase(rawPassword.toString());
@@ -90,15 +94,21 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 
-		auth.inMemoryAuthentication().withUser(adminUser).password(passwordEncoder().encode(adminPassword)).roles(Role.ADMIN);
+		auth.inMemoryAuthentication().withUser(adminUser).password(passwordEncoder().encode(adminPassword))
+				.roles(Role.ADMIN);
 
-		auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
+		// auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
+
+		// auth.authenticationProvider(
+		// new LdapUserAuthoritiesProvider(env, ldapUrl, dnPatterns, managerDn,
+		// managerPassword, filter.trim()))
+		// .eraseCredentials(false);
 
 		auth
 				.ldapAuthentication()
 				.userDnPatterns(dnPatterns)
 				.userSearchFilter(filter)
-//				.groupSearchBase("ou=groups")
+				// .groupSearchBase("ou=groups")
 				.contextSource()
 				.url(ldapUrl)
 				.managerDn(managerDn)
@@ -106,36 +116,33 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 				.passwordCompare()
 				.passwordEncoder(new BCryptPasswordEncoder())
-//				.passwordEncoder(passwordEncoder())
+				// .passwordEncoder(passwordEncoder())
 				.passwordAttribute(passwordAttribute).and()
 				// Populates the user roles by LDAP user name from database
 				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
-		
-				
 
-
-
-//		// Returns LdapAuthenticationProviderConfigurer to allow customization of the
-//		// LDAP authentication
-//		auth.ldapAuthentication()
-//				// Pass the LDAP patterns for finding the username.
-//				// The key "{0}" will be substituted with the username
-//				.userDnPatterns("uid={0},ou=users")
-//				// Pass search base as argument for group membership searches.
-//				.groupSearchBase("ou=groups")
-//				// Configures base LDAP path context source
-//				.contextSource().url("ldap://localhost:10389/dc=javachinna,dc=com")
-//				// DN of the user who will bind to the LDAP server to perform the search
-//				.managerDn("uid=admin,ou=system")
-//				// Password of the user who will bind to the LDAP server to perform the search
-//				.managerPassword("secret").and()
-//				// Configures LDAP compare operation of the user password to authenticate
-//				.passwordCompare().passwordEncoder(new LdapShaPasswordEncoder())
-//				// Specifies the attribute in the directory which contains the user password.
-//				// Defaults to "userPassword".
-//				.passwordAttribute("userPassword").and()
-//				// Populates the user roles by LDAP user name from database
-//				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
+		// // Returns LdapAuthenticationProviderConfigurer to allow customization of the
+		// // LDAP authentication
+		// auth.ldapAuthentication()
+		// // Pass the LDAP patterns for finding the username.
+		// // The key "{0}" will be substituted with the username
+		// .userDnPatterns("uid={0},ou=users")
+		// // Pass search base as argument for group membership searches.
+		// .groupSearchBase("ou=groups")
+		// // Configures base LDAP path context source
+		// .contextSource().url("ldap://localhost:10389/dc=javachinna,dc=com")
+		// // DN of the user who will bind to the LDAP server to perform the search
+		// .managerDn("uid=admin,ou=system")
+		// // Password of the user who will bind to the LDAP server to perform the
+		// search
+		// .managerPassword("secret").and()
+		// // Configures LDAP compare operation of the user password to authenticate
+		// .passwordCompare().passwordEncoder(new LdapShaPasswordEncoder())
+		// // Specifies the attribute in the directory which contains the user password.
+		// // Defaults to "userPassword".
+		// .passwordAttribute("userPassword").and()
+		// // Populates the user roles by LDAP user name from database
+		// .ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
 	}
 
 	@Override
@@ -156,10 +163,8 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 						(request, response, ex) -> {
 							response.sendError(
 									HttpServletResponse.SC_UNAUTHORIZED,
-									ex.getMessage()
-							);
-						}
-				)
+									ex.getMessage());
+						})
 				.and();
 
 		// Set permissions on endpoints
@@ -183,30 +188,31 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 				.anyRequest().authenticated();
 
 		// Add JWT token filter
-		http.addFilterBefore(jwtRequestFilter,UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 	}
 
-	//Backup
-//	@Override
-//	protected void configure(HttpSecurity httpSecurity) throws Exception {
-//		// Disable CSRF
-//		httpSecurity.csrf().disable()
-//				// Only admin can perform HTTP delete operation
-//				.authorizeRequests().antMatchers(HttpMethod.DELETE).hasRole(Role.ADMIN)
-//				// any authenticated user can perform all other operations
-//				.antMatchers("/products/**").hasAnyRole(Role.ADMIN, Role.USER)
-//				// Permit all other request without authentication
-//				.and().authorizeRequests().anyRequest().permitAll()
-//				// Reject every unauthenticated request and send error code 401.
-//				.and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
-//				// We don't need sessions to be created.
-//				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//
-//		// Add a filter to validate the tokens with every request
-//		httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-//	}
+	// Backup
+	// @Override
+	// protected void configure(HttpSecurity httpSecurity) throws Exception {
+	// // Disable CSRF
+	// httpSecurity.csrf().disable()
+	// // Only admin can perform HTTP delete operation
+	// .authorizeRequests().antMatchers(HttpMethod.DELETE).hasRole(Role.ADMIN)
+	// // any authenticated user can perform all other operations
+	// .antMatchers("/products/**").hasAnyRole(Role.ADMIN, Role.USER)
+	// // Permit all other request without authentication
+	// .and().authorizeRequests().anyRequest().permitAll()
+	// // Reject every unauthenticated request and send error code 401.
+	// .and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
+	// // We don't need sessions to be created.
+	// .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+	//
+	// // Add a filter to validate the tokens with every request
+	// httpSecurity.addFilterBefore(jwtRequestFilter,
+	// UsernamePasswordAuthenticationFilter.class);
+	// }
 
-	//Add JWT
+	// Add JWT
 	@Autowired
 	private JwtAuthenticationEntryPoint unauthorizedHandler;
 

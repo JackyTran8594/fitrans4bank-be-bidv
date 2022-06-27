@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -37,15 +39,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Autowired
 	private DepartmentRepository departmentRepo;
 
-	public Boolean isLdap;
+	// public Boolean isLdap;
 
-	public void setIsLdap(Boolean isLdap) {
-		this.isLdap = isLdap;
-	}
+	// public void setIsLdap(Boolean isLdap) {
+	// 	this.isLdap = isLdap;
+	// }
 
-	public Boolean getIsLdap() {
-		return true;
-	}
+	// public Boolean getIsLdap() {
+	// 	return true;
+	// }
+
+	// public UserDetailsServiceImpl(Boolean isLdap) {
+	// 	this.isLdap = isLdap;
+	// }
 
 	@Override
 	@Cacheable(key = "#username", cacheManager = "localCacheManager")
@@ -68,21 +74,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			}
 			return new User(user.getUsername(), user.getPassword(), buildSimpleGrantedAuthorities(roles, role));
 		} else {
-			if (isLdap) {
-				log.warn("User not found with username {} ---> Create in db", username);
-				user = new UserEntity();
-				user.setEmail(username + "@bidv.com.vn");
-				user.setFullName(username);
-				user.setUsername(username);
-				user.setStatus("ACTIVE");
-				user.setPassword("");
-				repo.save(user);
-				return new User(user.getUsername(), user.getPassword(),
-						buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
-			}
+			// if (isLdap) {
+			log.warn("User not found with username {} ---> Create in db", username);
+			user = new UserEntity();
+			user.setEmail(username + "@bidv.com.vn");
+			user.setFullName(username);
+			user.setUsername(username);
+			user.setStatus("ACTIVE");
+			user.setPassword("");
+			repo.save(user);
+			return new User(user.getUsername(), user.getPassword(),
+					buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
+			// }
 
 		}
-		return null;
+		// return null;
 	}
 	// else {
 	// if (user != null) {

@@ -61,6 +61,7 @@ public class AuthController {
             List<String> permissions = new ArrayList<>();
             String role = null;
             Long userId = null;
+            // if (loginRequest.getIsLdap()) {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
@@ -100,6 +101,9 @@ public class AuthController {
                             + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
                 }
             }
+            // } else {
+
+            // }
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
         } catch (BadCredentialsException ex) {
