@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +31,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import javax.servlet.http.HttpServletResponse;
 
-@Profile(Profiles.LDAP_AUTH)
+@Profile({ Profiles.LDAP_AUTH, Profiles.JWT_AUTH, Profiles.IN_MEMORY_AUTHENTICATION })
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -65,7 +66,7 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	private String filter;
 
 	@Value("${app.admin.user}")
-	private String adminUser;
+	private String superAdmin;
 
 	@Value("${app.admin.password}")
 	private String adminPassword;
@@ -88,16 +89,27 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 			public boolean matches(CharSequence rawPassword, String encodedPassword) {
 				return encodedPassword.equalsIgnoreCase(rawPassword.toString());
 			}
+
 		};
+	}
+
+	@Bean
+	public PasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
 
-		auth.inMemoryAuthentication().withUser(adminUser).password(passwordEncoder().encode(adminPassword))
+		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+		auth.inMemoryAuthentication().withUser(superAdmin).password(encoder.encode(adminPassword))
 				.roles(Role.ADMIN);
 
-		// auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
+		// auth.inMemoryAuthentication().withUser(superAdmin).password(passwordEncoder().encode(adminPassword))
+		// 		.roles(Role.ADMIN);
+
+		auth.userDetailsService(jwtUserDetailsService).passwordEncoder(bCryptPasswordEncoder());
 
 		// auth.authenticationProvider(
 		// new LdapUserAuthoritiesProvider(env, ldapUrl, dnPatterns, managerDn,
@@ -105,21 +117,21 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 		// .eraseCredentials(false);
 
 		auth
-				.ldapAuthentication()
-				.userDnPatterns(dnPatterns)
-				.userSearchFilter(filter)
-				// .groupSearchBase("ou=groups")
-				.contextSource()
-				.url(ldapUrl)
-				.managerDn(managerDn)
-				.managerPassword(managerPassword)
-				.and()
-				.passwordCompare()
-				.passwordEncoder(new BCryptPasswordEncoder())
-				// .passwordEncoder(passwordEncoder())
-				.passwordAttribute(passwordAttribute).and()
-				// Populates the user roles by LDAP user name from database
-				.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
+		.ldapAuthentication()
+		.userDnPatterns(dnPatterns)
+		.userSearchFilter(filter)
+		// .groupSearchBase("ou=groups")
+		.contextSource()
+		.url(ldapUrl)
+		.managerDn(managerDn)
+		.managerPassword(managerPassword)
+		.and()
+		.passwordCompare()
+		.passwordEncoder(new BCryptPasswordEncoder())
+		// .passwordEncoder(passwordEncoder())
+		.passwordAttribute(passwordAttribute).and()
+		// Populates the user roles by LDAP user name from database
+		.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
 
 		// // Returns LdapAuthenticationProviderConfigurer to allow customization of the
 		// // LDAP authentication

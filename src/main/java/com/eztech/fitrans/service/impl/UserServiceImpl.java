@@ -66,10 +66,11 @@ public class UserServiceImpl implements UserService {
                 if (0 >= updatedRole) {
                     repository.createUserRole(dto.getId(), entity.getRoleId());
                 }
-            } else {
-                // repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
-                repository.createUserRole(dto.getId(), entity.getRoleId());
-            }
+            } 
+            // else {
+            //     // repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
+            //     repository.createUserRole(dto.getId(), entity.getRoleId());
+            // }
 
         } else {
            

@@ -1,5 +1,6 @@
 package com.eztech.fitrans.filter;
 
+import com.eztech.fitrans.config.Profiles;
 import com.eztech.fitrans.dto.request.LoginRequest;
 import com.eztech.fitrans.dto.response.ErrorMessageDTO;
 import com.eztech.fitrans.model.ActionLog;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,7 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-//@Profile(Profiles.JWT_AUTH)
+@Profile({ Profiles.JWT_AUTH, Profiles.LDAP_AUTH })
 @RequiredArgsConstructor
 @Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -52,14 +54,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private Boolean checkRole;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws ServletException, IOException {
         final String requestTokenHeader = request.getHeader("Authorization");
         long startTime = System.currentTimeMillis();
 
         String requestUri = request.getRequestURI();
         String method = request.getMethod();
         if (requestUri.startsWith("/ws")) {
-            ContentCachingResponseWrapper responseCacheWrapperObject = new ContentCachingResponseWrapper((HttpServletResponse) response);
+            ContentCachingResponseWrapper responseCacheWrapperObject = new ContentCachingResponseWrapper(
+                    (HttpServletResponse) response);
             chain.doFilter(request, responseCacheWrapperObject);
             responseCacheWrapperObject.copyBodyToResponse();
             return;
@@ -87,22 +91,27 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             if (principal instanceof UserDetails) {
-                logger.info("===SecurityContextHolder getPrincipal UserDetails: " + ((UserDetails) principal).getUsername());
+                logger.info("===SecurityContextHolder getPrincipal UserDetails: "
+                        + ((UserDetails) principal).getUsername());
             } else {
-                logger.info("===SecurityContextHolder getPrincipal: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+                logger.info("===SecurityContextHolder getPrincipal: "
+                        + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
             }
 
         }
         // Once we get the token validate it.
         if (username != null
                 && (SecurityContextHolder.getContext().getAuthentication() == null
-                || "anonymousUser".equalsIgnoreCase((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()))) {
+                        || "anonymousUser".equalsIgnoreCase(
+                                (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal()))) {
             UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
             // if token is valid configure Spring Security to manually set
             // authentication
             if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                usernamePasswordAuthenticationToken
+                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 // After setting the Authentication in the context, we specify
                 // that the current user is authenticated. So it passes the
                 // Spring Security Configurations successfully.
@@ -119,22 +128,26 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     RoleList roleList;
                     for (String role : listRole) {
                         roleList = roleService.findByCode(role);
-                        if (roleList != null && requestUri.startsWith(roleList.getUrl()) && method.equalsIgnoreCase(roleList.getMethod())) {
+                        if (roleList != null && requestUri.startsWith(roleList.getUrl())
+                                && method.equalsIgnoreCase(roleList.getMethod())) {
                             havePermission = true;
                             break;
                         }
                     }
                 }
                 if (!havePermission) {
-                    //TODO:
-                    log.warn("-----------------------no havePermission {} - {} - {}------------", username, method, requestUri);
-                    ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "no havePermission.");
+                    // TODO:
+                    log.warn("-----------------------no havePermission {} - {} - {}------------", username, method,
+                            requestUri);
+                    ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                            "no havePermission.");
                 }
             }
         }
 
-        //Lưu action log
-        ContentCachingResponseWrapper responseCacheWrapperObject = new ContentCachingResponseWrapper((HttpServletResponse) response);
+        // Lưu action log
+        ContentCachingResponseWrapper responseCacheWrapperObject = new ContentCachingResponseWrapper(
+                (HttpServletResponse) response);
         chain.doFilter(request, responseCacheWrapperObject);
         responseCacheWrapperObject.copyBodyToResponse();
 
@@ -174,7 +187,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     .description("")
                     .httpStatus(httpStatus)
                     .responseContent((responseStr != null && responseStr.length() <= 4000) ? responseStr : "")
-                    .responseCode(errorMessageDTO != null && errorMessageDTO.getCode() != null ? errorMessageDTO.getCode().name() : "00")
+                    .responseCode(errorMessageDTO != null && errorMessageDTO.getCode() != null
+                            ? errorMessageDTO.getCode().name()
+                            : "00")
                     .processTime(LocalDateTime.now())
                     .duration(System.currentTimeMillis() - startTime)
                     .build();

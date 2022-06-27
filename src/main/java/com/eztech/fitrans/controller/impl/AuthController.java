@@ -12,6 +12,8 @@ import com.eztech.fitrans.util.MessageConstants;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +27,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import com.eztech.fitrans.config.Profiles;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/auth")
 @Slf4j
+@Profile({ Profiles.LDAP_AUTH, Profiles.JWT_AUTH, Profiles.IN_MEMORY_AUTHENTICATION })
 public class AuthController {
 
     @Autowired
@@ -45,6 +49,9 @@ public class AuthController {
 
     @Autowired
     UserDetailsServiceImpl userDetailsServiceImpl;
+
+    @Value("${app.admin.user}")
+	private String superAdmin;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @PostMapping("/login")
@@ -62,6 +69,17 @@ public class AuthController {
             String role = null;
             Long userId = null;
             // if (loginRequest.getIsLdap()) {
+            if (loginRequest.getIsLdap()) {
+                userDetailsServiceImpl.setIsLdap(true);
+            } else {
+                userDetailsServiceImpl.setIsLdap(false);
+
+            }
+            if(loginRequest.getUsername().equals(superAdmin)) {
+                userDetailsServiceImpl.setIsAdmin(true);
+            } else {
+                userDetailsServiceImpl.setIsAdmin(false);
+            }
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getUsername(),
@@ -77,7 +95,7 @@ public class AuthController {
                 Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
                 if (principal instanceof UserDetails) {
                     userDetails = (UserDetails) principal;
-                    if (userDetails.getUsername().equals("adminbidv")) {
+                    if (userDetails.getUsername().equals(superAdmin)) {
                         role = "ADMIN";
                         jwt = tokenProvider.generateToken(userDetails.getUsername(), role);
                     } else {
