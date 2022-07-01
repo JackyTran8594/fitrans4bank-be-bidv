@@ -3,6 +3,8 @@ package com.eztech.fitrans.config;
 import java.util.ArrayList;
 
 import org.hibernate.cfg.Environment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -11,12 +13,16 @@ import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.ldap.filter.Filter;
+import org.springframework.ldap.query.LdapQuery;
+import org.springframework.ldap.query.LdapQueryBuilder;
+import org.springframework.ldap.query.SearchScope;
 import org.springframework.ldap.support.LdapUtils;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.security.core.userdetails.User;
 
@@ -29,31 +35,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
+    private static final Logger logger = LoggerFactory.getLogger(LdapUserAuthoritiesProvider.class);
 
     private Environment environment;
 
-    @Autowired
-    private UserRepository repository;
+    private UserDetailsService userDetailsService;
 
-    // @Value("${spring.ldap.authen.url}")
     private String ldapUrl;
+    private String base;
 
-    // @Value("${spring.ldap.authen.dn-patterns}")
-    private String dnPatterns;
-
-    // @Value("${spring.ldap.authen.password}")
-    private String passwordAttribute;
-
-    // @Value("${spring.ldap.authen.managerDn:#{null}}")
-    // @Value("${spring.ldap.authen.managerDn}")
     private String managerDn;
 
-    // @Value("${spring.ldap.authen.managerPassword:#{null}}")
-    // @Value("${spring.ldap.authen.managerPassword}")
     private String managerPassword;
 
-    // @Value("${spring.ldap.authen.filter:#{null}}")
-    // @Value("${spring.ldap.authen.filter}")
     private String filter;
 
     public String username;
@@ -82,7 +76,6 @@ public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
     private void initContext() {
         contextSource = new LdapContextSource();
         contextSource.setUrl(ldapUrl);
-        contextSource.setBase(dnPatterns);
         contextSource.setUserDn(managerDn);
         contextSource.setPassword(managerPassword);
         contextSource.afterPropertiesSet();
@@ -90,15 +83,14 @@ public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
     }
 
     public LdapUserAuthoritiesProvider(Environment environment, String ldapUrl, String dnPatterns, String managerDn,
-            String managerPassword, String filter) {
+            String managerPassword, String filter, UserDetailsService userDetailsService) {
         this.environment = environment;
         this.ldapUrl = ldapUrl;
-        this.dnPatterns = dnPatterns;
         this.managerDn = managerDn;
         this.managerPassword = managerPassword;
-        // this.username = username;
-        // this.password = password;
         this.filter = filter;
+        this.base = dnPatterns;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -106,22 +98,21 @@ public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
         // TODO Auto-generated method stub
         initContext();
         Filter filterLdap = new EqualsFilter(filter, authentication.getPrincipal().toString());
-        // User user = ldapTemplate.findOne(query().base(dnPatterns).where(filter.encode()), User.class);
-        // User user = ldapTemplate.findOne(query()))
+        SearchScope searchScope = SearchScope.SUBTREE;
+        LdapQuery query = LdapQueryBuilder.query().base(base).searchScope(searchScope).filter(filterLdap);
 
-        Boolean authenticate = ldapTemplate.authenticate(LdapUtils.newLdapName(dnPatterns), filterLdap.encode(),
-                authentication.getCredentials().toString());
-        if (authenticate) {
-            UserDetails userDetails = new User(authentication.getName(), authentication.getCredentials().toString(),
-                    new ArrayList<>());
+        try {
+            ldapTemplate.authenticate(query, authentication.getCredentials().toString());
+            UserDetails userDetails = userDetailsService.loadUserByUsername(authentication.getName());
             Authentication auth = new UsernamePasswordAuthenticationToken(userDetails,
                     authentication.getCredentials().toString(), new ArrayList<>());
             return auth;
-        } else {
-
+        } catch (Exception e) {
+            //TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return null;
         }
 
-        return null;
     }
 
     @Override

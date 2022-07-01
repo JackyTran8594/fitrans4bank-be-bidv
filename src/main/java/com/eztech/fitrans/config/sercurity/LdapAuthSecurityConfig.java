@@ -27,6 +27,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletResponse;
@@ -47,14 +48,20 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 			"/*/**",
 	};
 
-	@Value("${spring.ldap.authen.url}")
+	@Value("${spring.ldap.authen.url:#{null}}")
 	private String ldapUrl;
 
-	@Value("${spring.ldap.authen.dn-patterns}")
+	@Value("${spring.ldap.domain:#{null}}")
+	private String ldapDomain;
+
+	@Value("${spring.ldap.authen.dn-patterns:#{null}}")
 	private String dnPatterns;
 
-	@Value("${spring.ldap.authen.password}")
-	private String passwordAttribute;
+	// @Value("${spring.ldap.authen.password}")
+	// private String passwordAttribute;
+
+	@Value("${spring.ldap.authen.base:#{null}}")
+	private String baseDn;
 
 	@Value("${spring.ldap.authen.managerDn:#{null}}")
 	private String managerDn;
@@ -65,6 +72,12 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Value("${spring.ldap.authen.filter:#{null}}")
 	private String filter;
 
+	@Value("${spring.ldap.authen.groupSearchFilter:#{null}}")
+	private String groupSearchFilter;
+
+	@Value("${spring.ldap.authen.groupSearchBase:#{null}}")
+	private String groupSearchBase;
+
 	@Value("${app.admin.user}")
 	private String superAdmin;
 
@@ -73,7 +86,7 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private final LdapUserAuthoritiesPopulator ldapUserAuthoritiesPopulator;
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-	private final UserDetailsService jwtUserDetailsService;
+	private final UserDetailsService userDetailsService;
 	private final JwtRequestFilter jwtRequestFilter;
 	private Environment env;
 
@@ -106,32 +119,41 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.inMemoryAuthentication().withUser(superAdmin).password(encoder.encode(adminPassword))
 				.roles(Role.ADMIN);
 
-		// auth.inMemoryAuthentication().withUser(superAdmin).password(passwordEncoder().encode(adminPassword))
-		// 		.roles(Role.ADMIN);
 
-		auth.userDetailsService(jwtUserDetailsService).passwordEncoder(bCryptPasswordEncoder());
+		auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
 
-		// auth.authenticationProvider(
-		// new LdapUserAuthoritiesProvider(env, ldapUrl, dnPatterns, managerDn,
-		// managerPassword, filter.trim()))
-		// .eraseCredentials(false);
+		auth.authenticationProvider(
+		new LdapUserAuthoritiesProvider(env, ldapUrl, baseDn, managerDn,
+		managerPassword, filter, userDetailsService))
+		.eraseCredentials(false);
+		// auth.ldapAuthentication().passwordCompare().passwordEncoder(bCryptPasswordEncoder());
 
-		auth
-		.ldapAuthentication()
-		.userDnPatterns(dnPatterns)
-		.userSearchFilter(filter)
-		// .groupSearchBase("ou=groups")
-		.contextSource()
-		.url(ldapUrl)
-		.managerDn(managerDn)
-		.managerPassword(managerPassword)
-		.and()
-		.passwordCompare()
-		.passwordEncoder(new BCryptPasswordEncoder())
-		// .passwordEncoder(passwordEncoder())
-		.passwordAttribute(passwordAttribute).and()
-		// Populates the user roles by LDAP user name from database
-		.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
+		// ActiveDirectoryLdapAuthenticationProvider adProvider = new ActiveDirectoryLdapAuthenticationProvider(ldapDomain,
+		// 		ldapUrl);
+		// adProvider.setConvertSubErrorCodesToExceptions(true);
+		// adProvider.setUseAuthenticationRequestCredentials(true);
+		// adProvider.setSearchFilter(baseDn);
+		// auth.authenticationProvider(adProvider).eraseCredentials(false);
+		// auth.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
+
+		// auth
+		// .ldapAuthentication()
+		// .userDnPatterns(dnPatterns)
+		// .userSearchFilter(filter)
+		// .userSearchBase(baseDn)
+		// .groupSearchBase(groupSearchBase)
+		// .groupSearchFilter(groupSearchFilter)
+		// .contextSource()
+		// .url(ldapUrl)
+		// .managerDn(managerDn)
+		// .managerPassword(managerPassword)
+		// .and()
+		// .passwordCompare()
+		// // .passwordEncoder(new BCryptPasswordEncoder())
+		// // // .passwordEncoder(passwordEncoder())
+		// // .passwordAttribute(passwordAttribute)
+		// // Populates the user roles by LDAP user name from database
+		// .and().ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
 
 		// // Returns LdapAuthenticationProviderConfigurer to allow customization of the
 		// // LDAP authentication
