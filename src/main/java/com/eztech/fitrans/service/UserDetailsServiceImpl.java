@@ -1,5 +1,6 @@
 package com.eztech.fitrans.service;
 
+import com.eztech.fitrans.constants.PositionTypeEnum;
 import com.eztech.fitrans.model.Department;
 import com.eztech.fitrans.model.Role;
 import com.eztech.fitrans.model.UserEntity;
@@ -66,7 +67,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		// if(isLdap) {
 		if (user != null) {
 			if (!"ACTIVE".equalsIgnoreCase(user.getStatus())) {
-				throw new UsernameNotFoundException("User not found with username: " + username);
+				throw new UsernameNotFoundException("User exist but not active - User not found with username: " + username);
 			}
 
 			List<String> role = new ArrayList<>();
@@ -81,13 +82,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			return new User(user.getUsername(), user.getPassword(), buildSimpleGrantedAuthorities(roles, role));
 		} else {
 			if (isLdap) {
-				log.warn("User not found with username {} ---> Create in db", username);
+				log.warn("User login ldap ok but not found with username in db {} ---> Create in db", username);
 				user = new UserEntity();
 				user.setEmail(username + "@bidv.com.vn");
 				user.setFullName(username);
 				user.setUsername(username);
 				user.setStatus("ACTIVE");
-				user.setPassword("");
+				user.setPassword("$2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS");
+				// user.setPosition(PositionTypeEnum.UNKNOWN.getName());
+				// user.
 				repo.save(user);
 				return new User(user.getUsername(), user.getPassword(),
 						buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
@@ -99,12 +102,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 					user.setFullName(username);
 					user.setUsername(username);
 					user.setStatus("ACTIVE");
-					user.setPassword("");
+					user.setPassword("$2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS");
+					// user.setPosition(PositionTypeEnum.UNKNOWN.getName());
 					repo.save(user);
 					return new User(user.getUsername(), user.getPassword(),
 							buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
 				} else {
-					throw new UsernameNotFoundException("User not found with username: " + username);
+					throw new UsernameNotFoundException("User not login LDAP - User not found with username: " + username);
 				}
 			}
 
@@ -131,27 +135,40 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		// UserEntity user = repo.findByUsername(username);
 		String code = repo.findCodeByUsername(username);
 		if (code == null) {
-			throw new UsernameNotFoundException("Username not found department: " + username);
+			log.warn("User login ldap ok but not found deparment with username in db:", username);
+			// throw new UsernameNotFoundException("Username not found department: " + username);
+			code = "UNKNOWN";
 		}
 		return code;
 	}
 
 	public String getRoleByUsername(String username) {
 		String role = repo.findRoleByUsername(username);
-		if (role == null) {
-			throw new UsernameNotFoundException("Username not found role: " + username);
-		}
+		if (DataUtils.isNullOrEmpty(role)) {
+			log.warn("User login ldap ok but not found role with username in db:" + username);
+			// throw new UsernameNotFoundException("Username not found role: " + username);
+			role = Role.ROLE_USER;
+		} 
 		return role;
 	}
 
 	public Map<String, Object> getPositionByUsername(String username) {
 		UserEntity user = repo.findByUsername(username);
-		if (user == null) {
-			throw new UsernameNotFoundException("Username not found position: " + username);
-		}
 		Map<String, Object> mapper = new HashMap<String, Object>();
-		mapper.put("position", user.getPosition());
-		mapper.put("fullname", user.getFullName());
+		String position = null;
+		String fullname = null;
+		if (DataUtils.isNullOrEmpty(user)) {
+			log.warn("User login ldap ok but not found with username in db:" + username);
+			// throw new UsernameNotFoundException("Username not found position: " + username);
+			mapper.put("position", "UNKNOWN");
+			mapper.put("fullname", "UNKNOWN");
+		} else {
+		
+			position = !DataUtils.isNullOrEmpty(user.getPosition()) ? user.getPosition() : "UNKNOWN";
+			fullname = !DataUtils.isNullOrEmpty(user.getFullName()) ? user.getFullName() : "UNKNOWN";
+			mapper.put("position", position);
+			mapper.put("fullname", fullname);
+		}
 		return mapper;
 
 	}

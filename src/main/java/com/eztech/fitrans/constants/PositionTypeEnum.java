@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 public enum PositionTypeEnum {
     CHUYENVIEN(1,"CHUYENVIEN"),
     TRUONGPHONG(2,"TRUONGPHONG"),
-    LANHDAO(2,"LANHDAO"),
+    LANHDAO(3,"LANHDAO"),
     UNKNOWN(-1,"UNKNOWN");
 
     private int value;

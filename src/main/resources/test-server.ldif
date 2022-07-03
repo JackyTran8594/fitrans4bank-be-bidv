@@ -325,3 +325,17 @@ userPassword: 123456a@
 mailNickName: admin_qtht3bidv
 distinguishedName: admin_qtht3bidv
 
+
+dn: uid=tranbaotrung,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: tranbaotrung
+sn: tranbaotrung
+uid: tranbaotrung
+userPassword: 123456a@
+mailNickName: tranbaotrungbidv
+distinguishedName: tranbaotrungbidv
+
+

@@ -3,6 +3,7 @@ package com.eztech.fitrans.controller.impl;
 import com.eztech.fitrans.dto.request.LoginRequest;
 import com.eztech.fitrans.dto.request.ValidateTokenRequest;
 import com.eztech.fitrans.exception.BusinessException;
+import com.eztech.fitrans.model.Role;
 import com.eztech.fitrans.security.ApiResponse;
 import com.eztech.fitrans.security.JwtAuthenticationResponse;
 import com.eztech.fitrans.security.JwtTokenProvider;
@@ -51,7 +52,7 @@ public class AuthController {
     UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Value("${app.admin.user}")
-	private String superAdmin;
+    private String superAdmin;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @PostMapping("/login")
@@ -67,6 +68,8 @@ public class AuthController {
             Map<String, Object> mapper = null;
             List<String> permissions = new ArrayList<>();
             String role = null;
+            String position = null;
+            String fullname = null;
             Long userId = null;
             // if (loginRequest.getIsLdap()) {
             if (loginRequest.getIsLdap()) {
@@ -75,7 +78,7 @@ public class AuthController {
                 userDetailsServiceImpl.setIsLdap(false);
 
             }
-            if(loginRequest.getUsername().equals(superAdmin)) {
+            if (loginRequest.getUsername().equals(superAdmin)) {
                 userDetailsServiceImpl.setIsAdmin(true);
             } else {
                 userDetailsServiceImpl.setIsAdmin(false);
@@ -100,9 +103,19 @@ public class AuthController {
                         jwt = tokenProvider.generateToken(userDetails.getUsername(), role);
                     } else {
                         role = userDetailsServiceImpl.getRoleByUsername(userDetails.getUsername());
+                        // if (DataUtils.isNullObject(role)) {
+                        //     role = Role.ROLE_USER;
+                        // }
                         mapper = userDetailsServiceImpl.getPositionByUsername(userDetails.getUsername());
+
+                        position = mapper.get("position").toString();
+                        fullname = mapper.get("fullname").toString();
+
                         departmentCode = userDetailsServiceImpl
                                 .getDepartmentCodeByUsername(userDetails.getUsername());
+                        // if (DataUtils.isNullObject(departmentCode)) {
+                        //     departmentCode = "UNKNOWN";
+                        // }
                         log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
                         if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
                             permissions = userDetails.getAuthorities().stream()
@@ -111,7 +124,7 @@ public class AuthController {
 
                         }
                         jwt = tokenProvider.generateToken(authentication, role, permissions, departmentCode,
-                                mapper.get("position").toString(), mapper.get("fullname").toString());
+                        position, fullname);
                     }
 
                 } else {
