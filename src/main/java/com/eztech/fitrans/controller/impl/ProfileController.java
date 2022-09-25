@@ -169,9 +169,9 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @PostMapping("/deleteList")
   // @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
-  public Boolean deleteList(@RequestParam(value = "ids") List<Long> ids) {
-    service.deleteList(ids);
-    return true;
+  public Boolean deleteList(@RequestBody List<Long> ids) {
+    Boolean delete = service.deleteList(ids);
+    return delete;
   }
 
   @GetMapping("/getProfileDashboard")
@@ -258,11 +258,6 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @PostMapping("/transferProfile")
   public ProfileDTO transferProfile(@RequestBody ConfirmRequest item) {
-    return service.saveHistory(item);
-  }
-
-  @PostMapping("/assignProfile")
-  public ProfileDTO assignProfile(@RequestBody ConfirmRequest item) {
     return service.saveHistory(item);
   }
 

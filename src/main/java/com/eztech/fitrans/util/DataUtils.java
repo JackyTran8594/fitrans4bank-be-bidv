@@ -1,5 +1,6 @@
 package com.eztech.fitrans.util;
 
+import com.eztech.fitrans.dto.response.TransactionTypeDTO;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -829,88 +830,347 @@ public class DataUtils {
 
     }
 
-    public static LocalDateTime calculatingDate(LocalDateTime from, LocalDateTime to, LocalDateTime timeReceived) {
-        long years = ChronoUnit.YEARS.between(from, to);
-        long months = ChronoUnit.MONTHS.between(from, to);
-        long days = ChronoUnit.DAYS.between(from, to);
-        long hours = ChronoUnit.HOURS.between(from, to);
-        long minutes = ChronoUnit.MINUTES.between(from, to);
-        long seconds = ChronoUnit.SECONDS.between(from, to);
-        LocalDateTime processTime = null;
-        LocalDate tomorrow = LocalDate.now();
-        // processDate = timeReceived from 2nd record
+    // timeWorked = thời gian đã làm -> dùng để tính đối với hoàn trả hồ sơ (trường
+    // này được lưu là additional time)
+    // timeReceivedOfPreviousRecord = thời gian xử lý của bản ghi trước đó
+    // hàm này thay cho hàm calculatingDate
+    public static Map<String, Object> calculatingDateFromTimeReceived(LocalDateTime timeReceived, Integer standardTime,
+            Integer timeChecker, Integer timeWorked, Integer numberOfPO, Integer numberOfBill,
+            Integer transactionType) {
 
-        if (years > 0) {
-            processTime = timeReceived.plusYears(years);
+        Map<String, Object> mapResult = new HashMap<>();
+        LocalDateTime timeReceivedNew = null;
+        int processTimeCase = 0;
+
+        int standard = (!DataUtils.isNullOrEmpty(standardTime)) ? standardTime : 0;
+        int checker = (!DataUtils.isNullOrEmpty(timeChecker)) ? timeChecker : 0;
+        int worked = (!DataUtils.isNullOrEmpty(timeWorked)) ? timeWorked : 0;
+
+        int PO = (!DataUtils.isNullOrEmpty(numberOfPO)) ? numberOfPO : 0;
+
+        int bill = (!DataUtils.isNullOrEmpty(numberOfBill)) ? numberOfBill : 0;
+
+        int type = (!DataUtils.isNullOrEmpty(transactionType)) ? transactionType : 0;
+
+        LocalDateTime timeMarker17h = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonth(),
+                timeReceived.getDayOfMonth(),
+                17, 0);
+        LocalDateTime timeMarker13h30 = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonth(),
+                timeReceived.getDayOfMonth(), 13, 30);
+        LocalDateTime timeMarker11h30 = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonth(),
+                timeReceived.getDayOfMonth(), 11, 30);
+
+        LocalDateTime tomorrow = timeReceived.plusDays(1);
+        LocalDateTime timeMarkerTomorrow = LocalDateTime.of(tomorrow.getYear(), tomorrow.getMonth(),
+                tomorrow.getDayOfMonth(), 8, 0);
+
+        int additionalTime = 0;
+        // checking transaction type and plusing additional time
+        switch (type) {
+            case 1:
+                if (PO >= 2) {
+                    additionalTime = additionalTime + 5 * PO;
+                }
+
+                if (bill >= 2) {
+                    additionalTime = additionalTime + 1 * bill;
+                }
+                break;
+            case 2:
+                break;
+            default:
+                break;
         }
-        if (months > 0) {
-            processTime = timeReceived.plusMonths(months);
-        }
-        if (days > 0) {
-            // if(hours > 17 && minutes > 0) {
-            // processTime = timeReceived.plusDays(days + 1);
-            // } else {
-            processTime = timeReceived.plusDays(days);
-            // }
-        }
-        if (hours > 0) {
-            // if(hours > 17 && minutes > 0) {
-            // processTime = timeReceived.withHour(4);
-            // } else {
-            processTime = timeReceived.plusHours(hours);
-            // }
+
+        // thời gian này đã bao gồm cả giờ nghỉ chưa
+        // do đó cần tính lại
+        LocalDateTime processTime = timeReceived.plusMinutes(standard + checker + additionalTime - worked);
+
+        // thời gian nhận trước 11h30
+        // thời gian xử lý: trước 11h30, 11h30-13h30, 13h30-17h, sau 17h
+        if (timeReceived.isBefore(timeMarker11h30)) {
+            // thời gian nhận mới bằng thời gian nhận cũ
+            timeReceivedNew = timeReceived;
+
+            // thời gian xử lý trước 11h30
+            // không cần tính lại vì trước 11h30
+            if (processTime.isBefore(timeMarker11h30)) {
+                processTimeCase = 1;
+            }
+            // thời gian xử lý 11h30-13h30
+            // thời gian xử lý tính lại từ mốc 13h30
+            if (processTime.isAfter(timeMarker11h30) && processTime.isBefore(timeMarker13h30)) {
+                processTimeCase = 2;
+            }
+            // thời gian xử lý 13h30 - 17h
+            // tính lại vì sẽ loại bỏ giờ nghỉ trưa
+            if (processTime.isAfter(timeMarker13h30) && processTime.isBefore(timeMarker17h)) {
+                processTimeCase = 3;
+            }
+            // thời gian xử lý sau 17h
+            if (processTime.isAfter(timeMarker17h)) {
+                processTimeCase = 4;
+            }
+
+            processTime = calculatingTimeProcess(processTime, timeReceived, timeMarker11h30, timeMarker13h30,
+                    timeMarker17h, timeMarkerTomorrow, processTimeCase, standard, checker, additionalTime, worked);
+
+            mapResult.put("processTime", processTime);
+            mapResult.put("timeReceived", timeReceivedNew);
 
         }
-        if (minutes > 0) {
-            processTime = timeReceived.plusMinutes(minutes);
-        }
-        if (seconds > 0) {
-            processTime = timeReceived.plusSeconds(seconds);
+
+        // thời gian nhận từ 11h30 - 13h30
+        // thời gian xử lý: 11h30 - 13h30, 13h30 - 17h, sau 17h
+        if (timeReceived.isAfter(timeMarker11h30) && timeReceived.isBefore(timeMarker13h30)) {
+            // thời gian nhận lấy mốc 13h30
+            timeReceivedNew = timeMarker13h30;
+
+            // thời gian xử lý 11h30-13h30
+            // thời gian xử lý tính lại từ mốc 13h30
+            if (processTime.isAfter(timeMarker11h30) && processTime.isBefore(timeMarker13h30)) {
+                processTimeCase = 2;
+
+            }
+
+            // thời gian xử lý 13h30 - 17h
+            // tính lại vì sẽ loại bỏ giờ nghỉ trưa
+            if (processTime.isAfter(timeMarker13h30) && processTime.isBefore(timeMarker17h)) {
+                processTimeCase = 3;
+            }
+
+            // thời gian xử lý sau 17h
+            if (processTime.isAfter(timeMarker17h)) {
+                processTimeCase = 4;
+            }
+
+            processTime = calculatingTimeProcess(processTime, timeReceived, timeMarker11h30, timeMarker13h30,
+                    timeMarker17h, timeMarkerTomorrow, processTimeCase, standard, checker, additionalTime, worked);
+
+            mapResult.put("processTime", processTime);
+            mapResult.put("timeReceived", timeReceivedNew);
         }
 
-        return processTime;
+        // thời gian nhận từ 13h30 - 17h
+        // thời gian xử lý: 13h30 - 17h, sau 17h
+        if (timeReceived.isAfter(timeMarker13h30) && timeReceived.isBefore(timeMarker17h)) {
+            // thời gian nhận mới bằng thời gian nhận cũ
+            timeReceivedNew = timeReceived;
+
+            // thời gian xử lý từ 13h30 - 17h
+            // không cần tính lại
+            if (processTime.isAfter(timeMarker13h30) && processTime.isBefore(timeMarker17h)) {
+                processTimeCase = 3;
+            }
+
+            // thời gian xử lý sau 17h
+            if (processTime.isAfter(timeMarker17h)) {
+                // thời gian từ 17h - thời gian xử lý => ngoài giờ hành chính
+                processTimeCase = 4;
+
+            }
+
+            processTime = calculatingTimeProcess(processTime, timeReceived, timeMarker11h30, timeMarker13h30,
+                    timeMarker17h, timeMarkerTomorrow, processTimeCase, standard, checker, additionalTime, worked);
+
+            mapResult.put("processTime", processTime);
+            mapResult.put("timeReceived", timeReceivedNew);
+
+        }
+
+        // thời gian nhận sau 17h
+
+        if (timeReceived.isAfter(timeMarker17h)) {
+            // thời gian nhận mới bằng mốc 8h sáng hôm sau
+            timeReceivedNew = timeMarkerTomorrow;
+
+            // thời gian xử lý tính sang ngày hôm sau
+            processTime = timeMarkerTomorrow
+                    .plusMinutes(standard + checker + additionalTime - worked);
+
+            mapResult.put("processTime", processTime);
+            mapResult.put("timeReceived", timeReceivedNew);
+        }
+
+        return mapResult;
+
     }
 
     public static LocalDateTime calculatingTimeProcess(LocalDateTime processTime, LocalDateTime timeReceived,
-            int marked, int markedMinutes,
-            int additionalTime) {
-        int yearOfProfile = timeReceived.getYear();
-        int monthOfProfile = timeReceived.getMonthValue();
-        int dayOfProfile = timeReceived.getDayOfMonth();
-        LocalDateTime markedTime = LocalDateTime.of(yearOfProfile, monthOfProfile, dayOfProfile, marked, markedMinutes);
-        if (processTime.getHour() > marked
-                || (processTime.getHour() == marked && processTime.getMinute() > markedMinutes)) {
-            Long duration = durationToMinute(markedTime, processTime);
-            int year = 0;
-            int month = 0;
-            int day = 0;
-            int hour = 0;
-            int minutes = duration.intValue() + additionalTime;
-            if (marked == 17) {
-                LocalDate tomorrow = LocalDate.now().plusDays(1);
-                year = tomorrow.getYear();
-                month = tomorrow.getMonthValue();
-                day = tomorrow.getDayOfMonth();
-                if (minutes > 60) {
-                    hour = 8 + minutes / 60;
-                    minutes = minutes % 60;
-                } else {
-                    hour = 8;
+            LocalDateTime timeMarker11h30,
+            LocalDateTime timeMarker13h30, LocalDateTime timeMarker17h, LocalDateTime timeMarkerTomorrow,
+            int processTimeCase, int standard, int checker, int additionalTime, int worked) {
+
+        switch (processTimeCase) {
+            // thời gian xử lý trước 11h30
+            case 1:
+
+                break;
+
+            // thời gian xử lý từ 11h30 - 13h30
+            case 2:
+                // thời gian xử lý 11h30-13h30
+                // thời gian xử lý tính lại từ mốc 13h30
+                // thời gian chênh lệch giữa thời gian nhận và mốc 11h30 => thời gian làm
+                if (timeReceived.isBefore(timeMarker11h30)) {
+                    Long time1 = durationToMinute(timeReceived, timeMarker11h30);
+                    // thời gian xử lý = thời gian xử lý cũ - thời gian đã làm
+                    processTime = timeMarker13h30.plusMinutes(standard + checker + additionalTime - worked - time1);
+
                 }
-            }
-            if (marked == 11) {
-                year = LocalDate.now().getYear();
-                month = LocalDate.now().getMonthValue();
-                day = LocalDate.now().getDayOfMonth();
-                minutes = minutes + 30;
-                if (minutes > 60) {
-                    hour = 13 + minutes / 60;
-                    minutes = minutes % 60;
-                } else {
-                    hour = 13;
+                if (timeReceived.isAfter(timeMarker11h30) && timeReceived.isBefore(timeMarker13h30)) {
+                    processTime = timeMarker13h30.plusMinutes(standard + checker + additionalTime - worked);
+
                 }
-            }
-            processTime = LocalDateTime.of(year, month, day, hour, minutes);
+
+                // tính lại thời gian xử lý nếu quá 17h
+                if (processTime.isAfter(timeMarker17h)) {
+                    // thời gian chênh lệch giữa thời gian nhận và mốc 17h => thời gian ngoài giờ
+                    Long time4 = durationToMinute(timeMarker17h, processTime);
+                    processTime = timeMarkerTomorrow.plusMinutes(time4);
+
+                    // thời gian xử lý 11h30-13h30 ngày hôm sau
+                    LocalDateTime timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                    LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                    LocalDateTime timeMarker17hTomorrow = timeMarker17h.plusDays(1);
+
+                    if(processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
+                        Long time5 = durationToMinute(processTime, timeMarker11h30Tomorrow);
+                        processTime = timeMarker13h30Tomorrow.plusMinutes(time5);
+                    }
+
+                    if(processTime.isAfter(timeMarker17hTomorrow)) {
+                        Long time5 = durationToMinute(timeMarker17hTomorrow, processTime);
+                        LocalDateTime tomorrow2 = timeMarker17hTomorrow.plusDays(1);
+                        LocalDateTime timeMarkerTomorrow2 = LocalDateTime.of(tomorrow2.getYear(), tomorrow2.getMonth(), tomorrow2.getDayOfMonth(), 8,0);
+                        processTime = timeMarkerTomorrow2.plusMinutes(time5);
+                    }
+                }
+
+                break;
+
+            // thời gian xử lý từ 13h30 - 17h
+            case 3:
+                // thời gian còn lại = thời gian xử lý - thời gian đã làm
+                if (timeReceived.isBefore(timeMarker11h30)) {
+                    // thời gian chênh lệch giữa thời gian nhận và mốc 11h30 => thời gian làm
+                    Long time1 = durationToMinute(timeReceived, timeMarker11h30);
+                    // // thời gian nghỉ trưa : 11h30 - 13h30 => thời gian không làm
+                    // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); // không cần tính thời gian nghỉ chưa
+                    processTime = timeMarker13h30
+                            .plusMinutes(standard + checker + additionalTime - worked - time1);
+
+                }
+                if (timeReceived.isAfter(timeMarker11h30) && timeReceived.isBefore(timeMarker13h30)) {
+                    // thời gian chênh lệch giữa thời gian nhận và mốc 11h30 => thời gian làm
+                    // Long time1 = durationToMinute(timeReceived, timeMarker11h30); 
+                    // thời gian nghỉ trưa : 11h30 - 13h30 => thời gian không làm
+                    // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); => không cần
+                    // tính, chỉ cần tính thời gian đã làm
+                    processTime = timeMarker13h30
+                            .plusMinutes(standard + checker + additionalTime - worked);
+
+                }
+                if (timeReceived.isAfter(timeMarker13h30) && timeReceived.isBefore(timeMarker17h)) {
+
+                }
+
+                // tính lại thời gian xử lý nếu quá 17h
+                if (processTime.isAfter(timeMarker17h)) {
+                    // thời gian chênh lệch giữa thời gian nhận và mốc 17h
+                    Long time4 = durationToMinute(timeMarker17h, processTime);
+                    processTime = timeMarkerTomorrow.plusMinutes(time4);
+
+                    // thời gian xử lý 11h30-13h30 ngày hôm sau
+                    LocalDateTime timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                    LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                    LocalDateTime timeMarker17hTomorrow = timeMarker17h.plusDays(1);
+
+                    if(processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
+                        Long time5 = durationToMinute(processTime, timeMarker11h30Tomorrow);
+                        processTime = timeMarker13h30Tomorrow.plusMinutes(time5);
+                    }
+
+                    if(processTime.isAfter(timeMarker17hTomorrow)) {
+                        Long time5 = durationToMinute(timeMarker17hTomorrow, processTime);
+                        LocalDateTime tomorrow2 = timeMarker17hTomorrow.plusDays(1);
+                        LocalDateTime timeMarkerTomorrow2 = LocalDateTime.of(tomorrow2.getYear(), tomorrow2.getMonth(), tomorrow2.getDayOfMonth(), 8,0);
+                        processTime = timeMarkerTomorrow2.plusMinutes(time5);
+                    }
+                }
+
+                break;
+
+            // thời gian xử lý sau 17h
+            case 4:
+
+                if (timeReceived.isBefore(timeMarker11h30)) {
+                    // thời gian chênh lệch giữa thời gian nhận và mốc 11h30
+                    Long time1 = durationToMinute(timeReceived, timeMarker11h30); // thời gian đã làm
+                    // thời gian nghỉ trưa : 11h30 - 13h30
+                    // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); // => không cần tính chỉ cần tính thời gian đã làm
+                    // thời gian đã làm : 13h30 - 17
+                    Long time2 = durationToMinute(timeMarker13h30, timeMarker17h); // thời gian đã làm
+                    // thời gian từ 17h - thời gian xử lý
+                    // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian ngoài giờ hành chính, tính cho sáng hôm sau nếu có
+
+                    // thời gian xử lý = thời gian xử lý cũ - thời gian đã làm
+                    processTime = timeMarkerTomorrow
+                            .plusMinutes(standard + checker + additionalTime - worked - time1 - time2);
+                }
+
+                if (timeReceived.isAfter(timeMarker11h30) && timeReceived.isBefore(timeMarker13h30)) {
+                    // thời gian chênh lệch giữa thời gian nhận và mốc 11h30
+                    // Long time1 = durationToMinute(timeReceived, timeMarker13h30); // Trả về 0 nếu timeReceived >
+                    //                                                               // timeMarker11h30
+                    // thời gian 13h30 - 17h
+                    Long time2 = durationToMinute(timeMarker13h30, timeMarker17h); // thời gian đã làm
+                    // thời gian từ 17h - thời gian xử lý
+                    // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian ngoài giờ hành chính
+
+                    // thời gian xử lý = thời gian xử lý cũ - thời gian đã làm
+                    processTime = timeMarkerTomorrow
+                            .plusMinutes(standard + checker + additionalTime - worked - time2);
+
+                }
+                if (timeReceived.isAfter(timeMarker13h30) && timeReceived.isBefore(timeMarker17h)) {
+                    // thời gian từ 17h - thời gian xử lý => ngoài giờ hành chính
+                    Long time3 = durationToMinute(timeMarker17h, processTime);
+
+                    processTime = timeMarkerTomorrow
+                            .plusMinutes(time3);
+
+                }
+                if (timeReceived.isAfter(timeMarker17h)) {
+                    // thời gian xử lý tính sang ngày hôm sau
+                    processTime = timeMarkerTomorrow
+                            .plusMinutes(standard + checker + additionalTime - worked);
+
+                }
+
+                // thời gian xử lý 11h30-13h30 ngày hôm sau
+                LocalDateTime timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                LocalDateTime timeMarker17hTomorrow = timeMarker17h.plusDays(1);
+
+                if(processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
+                    Long time5 = durationToMinute(timeMarker11h30Tomorrow, processTime);
+                    processTime = timeMarker13h30Tomorrow.plusMinutes(time5);
+                }
+
+                if(processTime.isAfter(timeMarker17hTomorrow)) {
+                    Long time5 = durationToMinute(timeMarker17hTomorrow, processTime);
+                    LocalDateTime tomorrow2 = timeMarker17hTomorrow.plusDays(1);
+                    LocalDateTime timeMarkerTomorrow2 = LocalDateTime.of(tomorrow2.getYear(), tomorrow2.getMonth(), tomorrow2.getDayOfMonth(), 8,0);
+                    processTime = timeMarkerTomorrow2.plusMinutes(time5);
+                }
+
+                break;
+
+            default:
+                processTime = timeMarkerTomorrow
+                        .plusMinutes(standard + checker + additionalTime - worked);
+                break;
         }
 
         return processTime;
@@ -918,21 +1178,88 @@ public class DataUtils {
 
     public static LocalDateTime checkTime(LocalDateTime processTime, int marked, int markedMinutes, int standardTime,
             int timeChecker,
-            int additionalTime) {
+            int additionalTime, LocalDateTime timeReceived) {
         if (processTime.getHour() > marked
                 || (processTime.getHour() == marked && processTime.getMinute() > markedMinutes)) {
 
-            int year = 0;
-            int month = 0;
-            int day = 0;
-            int minutes = standardTime
-                    + timeChecker + additionalTime;
+            // int year = LocalDate.now().getYear();
+            // ;
+            // int month = LocalDate.now().getMonthValue();
+            // int day = LocalDate.now().getDayOfMonth();
+
+            int year = timeReceived.getYear();
+            int month = timeReceived.getMonthValue();
+            int day = timeReceived.getDayOfMonth();
+
+            // thời gian giữa nhận và xử lý
+            // thời gian nhận trước thời gian xử lý => kết quả > 0 và ngược lại = 0
+            Long duration = durationToMinute(timeReceived, processTime);
+            // int minutes = standardTime
+            // + timeChecker + additionalTime;
+
+            // đã có thời gian nhận và xử lý nên ko cần cộng thêm thời gian checker,
+            // additionalTime, standardTime
+            // vì thời gian xử lý đã được tính trước đó
+            int minutes = 0;
             int hour = 0;
+
+            // thơi gian nhận trước 17h
+            // thời gian xử lý truyền vào là sau 17h
             if (marked == 17) {
-                LocalDate tomorrow = LocalDate.now().plusDays(1);
+                // tính lại thời gian năm , tháng, ngày
+                LocalDateTime tomorrow = timeReceived.plusDays(1);
                 year = tomorrow.getYear();
                 month = tomorrow.getMonthValue();
                 day = tomorrow.getDayOfMonth();
+
+                LocalDateTime timeMarker17h = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonthValue(),
+                        timeReceived.getDayOfMonth(), 17, 0);
+                LocalDateTime timeMarker13h30 = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonthValue(),
+                        timeReceived.getDayOfMonth(), 13, 30);
+                LocalDateTime timeMarker11h30 = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonthValue(),
+                        timeReceived.getDayOfMonth(), 11, 30);
+                boolean isAfter = timeReceived.isAfter(timeMarker13h30);
+                boolean isBefore = timeReceived.isBefore(timeMarker17h);
+                boolean isBefore11h30 = timeReceived.isBefore(timeMarker11h30);
+                // tính thời gian giữa giờ nghỉ 17h đến thời gian nhận
+                Long durationWithTimeReceived = 0L;
+
+                // thời gian nhận trước 11h30
+                if (isBefore11h30) {
+                    durationWithTimeReceived = durationToMinute(
+                            timeMarker17h, processTime);
+                    // thời gian nhận đến 11h30
+                    Long time = durationToMinute(timeReceived, timeMarker11h30);
+                    // mốc thời gian + thời gian xử lý tính từ mốc
+                    minutes = minutes + time.intValue() + durationWithTimeReceived.intValue();
+                }
+
+                // thời gian nhận từ 11h30 - 13h30
+                // xử lý tính từ 13h30
+                if (!isBefore11h30 && !isAfter) {
+                    durationWithTimeReceived = durationToMinute(
+                            timeMarker13h30, timeMarker17h);
+                    // tổng thời gian xử lý - thời gian tính từ mốc 13h30 - 17h
+                    minutes = minutes + duration.intValue() - durationWithTimeReceived.intValue();
+                }
+
+                // thời gian nhận từ 13h30 - 17h
+                if (isAfter && isBefore) {
+                    durationWithTimeReceived = durationToMinute(
+                            timeMarker17h, processTime);
+                    // thời gian còn lại sẽ + thêm thời gian xử lý còn lại
+                    minutes = minutes + (duration.intValue() - durationWithTimeReceived.intValue());
+                }
+
+                // thời gian nhận sau 17h
+                if (isAfter && !isBefore) {
+                    duration = 0L;
+                    durationWithTimeReceived = 0L;
+                    minutes = minutes + duration.intValue() + durationWithTimeReceived.intValue();
+                }
+
+                // minutes = minutes + (duration.intValue() -
+                // durationWithTimeReceived.intValue());
                 if (minutes > 60) {
                     hour = 8 + minutes / 60;
                     minutes = minutes % 60;
@@ -941,13 +1268,49 @@ public class DataUtils {
                 }
             }
 
+            // thời gian nhận trước 11h30
             if (marked == 11) {
-                year = LocalDate.now().getYear();
-                month = LocalDate.now().getMonthValue();
-                day = LocalDate.now().getDayOfMonth();
-                minutes = minutes + 30;
+                // year = LocalDate.now().getYear();
+                // month = LocalDate.now().getMonthValue();
+                // day = LocalDate.now().getDayOfMonth();
+                LocalDateTime timeMarker = LocalDateTime.of(year, month, day, 11, 30);
+                boolean isBefore = timeReceived.isBefore(timeMarker);
+                // tính thời gian giữa giờ nghỉ 11h30 đến thời gian nhận
+                Long durationWithTimeReceived = null;
+                if (isBefore) {
+                    durationWithTimeReceived = durationToMinute(timeReceived,
+                            LocalDateTime.of(year, month, day, 11, 30));
+                }
+                // nếu sau ko tính duration
+                else {
+                    duration = 0L;
+                    durationWithTimeReceived = 0L;
+                }
+                // thời gian còn lại sẽ + thêm thời gian xử lý còn lại
+                minutes = minutes + (duration.intValue() - durationWithTimeReceived.intValue());
                 if (minutes > 60) {
                     hour = 13 + minutes / 60;
+                    minutes = minutes % 60;
+                } else {
+                    hour = 13;
+                }
+            }
+
+            // thời gian nhận trong khoảng 11h30 - 13h30
+            // cộng thêm duration giữa thời gian xử lý và thời gian bàn giao
+            if (marked == 13) {
+                // year = LocalDate.now().getYear();
+                // month = LocalDate.now().getMonthValue();
+                // day = LocalDate.now().getDayOfMonth();
+                // LocalDateTime timeMarker = LocalDateTime.of(year, month, day, 13, 30);
+                // boolean isBefore = timeMarker.isBefore(timeReceived);
+                // // nhận trước 13h30 và sau 11h30 thì duration = 0;
+                // if(isBefore) {
+                // duration = 0L;
+                // }
+                minutes = minutes + 30 + duration.intValue();
+                if (minutes > 60) {
+                    hour = 13 + (minutes + 30) / 60;
                     minutes = minutes % 60;
                 } else {
                     hour = 13;
@@ -962,29 +1325,11 @@ public class DataUtils {
     }
 
     public static Long durationToMinute(LocalDateTime from, LocalDateTime to) {
-        long minutesInDay = 24 * 60;
-        long years = ChronoUnit.YEARS.between(from, to);
-        long months = ChronoUnit.MONTHS.between(from, to);
-        long days = ChronoUnit.DAYS.between(from, to);
-        long hours = ChronoUnit.HOURS.between(from, to);
+
         long minutes = ChronoUnit.MINUTES.between(from, to);
-        long seconds = ChronoUnit.SECONDS.between(from, to);
+        // long seconds = ChronoUnit.SECONDS.between(from, to);
         long minutesProcess = 0;
-        if (years > 0) {
-            Calendar cal = Calendar.getInstance();
-            int numberOfDay = cal.getActualMaximum(Calendar.DAY_OF_YEAR);
-            minutesProcess = minutesProcess + years * (minutesInDay * numberOfDay);
-        }
-        if (months > 0) {
-            Duration duration = Duration.between(from, to);
-            minutesProcess = minutesProcess + duration.toDays() * minutesInDay;
-        }
-        if (days > 0) {
-            minutesProcess = minutesProcess + days * minutesInDay;
-        }
-        if (hours > 0) {
-            minutesProcess = minutesProcess + hours * 60;
-        }
+
         if (minutes > 0) {
             minutesProcess = minutesProcess + minutes;
         }

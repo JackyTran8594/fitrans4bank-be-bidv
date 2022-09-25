@@ -4,21 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.math.BigInteger;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
@@ -29,8 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
-import java.awt.image.*;
 
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileListDTO;
@@ -162,13 +149,13 @@ public class ReadAndWriteDoc {
                                 }
 
                                 // row 6
-                                if (!DataUtils.isNullOrEmpty(profile.getNote())) {
+                                if (!DataUtils.isNullOrEmpty(profile.getDescription())) {
                                     XWPFTableRow row6 = table.getRow(5);
                                     XWPFTableCell cell6 = row6.getCell(1);
                                     XWPFParagraph para6 = cell6.getParagraphs().get(0);
                                     para6.setAlignment(ParagraphAlignment.CENTER);
                                     XWPFRun run6 = para6.createRun();
-                                    run6.setText(profile.getNote());
+                                    run6.setText(profile.getDescription());
                                     run6.setFontSize(12);
                                 }
 

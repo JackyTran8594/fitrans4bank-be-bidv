@@ -42,7 +42,7 @@ objectclass: inetOrgPerson
 cn: Ben Alex
 sn: Alex
 uid: ben
-userPassword: 123456a@
+userPassword: $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: benbidv
 distinguishedName: benbidv
 
@@ -54,7 +54,7 @@ objectclass: inetOrgPerson
 cn: admin
 sn: admin
 uid: admin
-userPassword: admin@123
+userPassword: $2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS
 mailNickName: adminhtbidv
 distinguishedName: adminhtbidv
 
@@ -67,7 +67,7 @@ objectclass: inetOrgPerson
 cn: test
 sn: test
 uid: test
-userPassword: 123456a@
+userPassword: $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: testbidv
 distinguishedName: testbidv
 
@@ -80,7 +80,7 @@ objectclass: inetOrgPerson
 cn: bachtuvu
 sn: bachtuvu
 uid: bachtuvu
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: bachtuvubidv
 distinguishedName: bachtuvubidv
 
@@ -94,7 +94,7 @@ objectclass: inetOrgPerson
 cn: JackyTran
 sn: JackyTran
 uid: JackyTran
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: JackyTranbidv
 distinguishedName: JackyTranbidv
 
@@ -108,7 +108,7 @@ objectclass: inetOrgPerson
 cn: duongvt
 sn: duongvt
 uid: duongvt
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: duongvtbidv
 distinguishedName: duongvtbidv
 
@@ -122,7 +122,7 @@ objectclass: inetOrgPerson
 cn: hoangkieu
 sn: hoangkieu
 uid: hoangkieu
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: hoangkieubidv
 distinguishedName: hoangkieubidv
 
@@ -136,7 +136,7 @@ objectclass: inetOrgPerson
 cn: longnguyen
 sn: longnguyen
 uid: longnguyen
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: longnguyenbidv
 distinguishedName: longnguyenbidv
 
@@ -150,7 +150,7 @@ objectclass: inetOrgPerson
 cn: thuyetlt
 sn: thuyetlt
 uid: thuyetlt
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: thuyetltbidv
 distinguishedName: thuyetltbidv
 
@@ -164,7 +164,7 @@ objectclass: inetOrgPerson
 cn: trantuanvu
 sn: trantuanvu
 uid: trantuanvu
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: trantuanvubidv
 distinguishedName: trantuanvubidv
 
@@ -179,7 +179,7 @@ objectclass: inetOrgPerson
 cn: ha123
 sn: ha123
 uid: ha123
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: ha123bidv
 distinguishedName: ha123bidv
 
@@ -193,7 +193,7 @@ objectclass: inetOrgPerson
 cn: test01
 sn: test01
 uid: test01
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: test01bidv
 distinguishedName: test01bidv
 
@@ -207,7 +207,7 @@ objectclass: inetOrgPerson
 cn: cvqlkh
 sn: cvqlkh
 uid: cvqlkh
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: cvqlkhbidv
 distinguishedName: cvqlkhbidv
 
@@ -221,7 +221,7 @@ objectclass: inetOrgPerson
 cn: ldqttd
 sn: ldqttd
 uid: ldqttd
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: ldqttdbidv
 distinguishedName: ldqttdbidv
 
@@ -235,7 +235,7 @@ objectclass: inetOrgPerson
 cn: cvqttd
 sn: cvqttd
 uid: cvqttd
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: cvqttdbidv
 distinguishedName: cvqttdbidv
 
@@ -249,7 +249,7 @@ objectclass: inetOrgPerson
 cn: ldgdkh
 sn: ldgdkh
 uid: ldgdkh
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: ldgdkhbidv
 distinguishedName: ldgdkhbidv
 
@@ -264,7 +264,7 @@ objectclass: inetOrgPerson
 cn: cvgdkh
 sn: cvgdkh
 uid: cvgdkh
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: cvgdkhbidv
 distinguishedName: cvgdkhbidv
 
@@ -279,7 +279,7 @@ objectclass: inetOrgPerson
 cn: admin_minh
 sn: admin_minh
 uid: admin_minh
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: admin_minhbidv
 distinguishedName: admin_minhbidv
 
@@ -293,7 +293,7 @@ objectclass: inetOrgPerson
 cn: admin_qtht
 sn: admin_qtht
 uid: admin_qtht
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: admin_qthtbidv
 distinguishedName: admin_qthtbidv
 
@@ -307,7 +307,7 @@ objectclass: inetOrgPerson
 cn: admin_qtht2
 sn: admin_qtht2
 uid: admin_qtht2
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: admin_qtht2bidv
 distinguishedName: admin_qtht2bidv
 
@@ -321,21 +321,7 @@ objectclass: inetOrgPerson
 cn: admin_qtht3
 sn: admin_qtht3
 uid: admin_qtht3
-userPassword: 123456a@
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: admin_qtht3bidv
 distinguishedName: admin_qtht3bidv
-
-
-dn: uid=tranbaotrung,ou=people,dc=springframework,dc=org
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-objectclass: inetOrgPerson
-cn: tranbaotrung
-sn: tranbaotrung
-uid: tranbaotrung
-userPassword: 123456a@
-mailNickName: tranbaotrungbidv
-distinguishedName: tranbaotrungbidv
-
 

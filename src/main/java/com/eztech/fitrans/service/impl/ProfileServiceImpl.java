@@ -254,6 +254,10 @@ public class ProfileServiceImpl implements ProfileService {
 
             } else {
                 Map<String, Object> params = new HashMap<>();
+
+                // lưu kết quả của timeReceived và processTime;
+                Map<String, Object> mapResult = new HashMap<>();
+
                 Long count = null;
                 params.put("state", ProfileStateEnum.PROCESSING.getValue());
                 // checking: transaction is finished
@@ -265,44 +269,34 @@ public class ProfileServiceImpl implements ProfileService {
                     params.put("state", ProfileStateEnum.WAITING.getValue());
                     params.put("code", item.getUsername());
 
-                    Map<String, Object> paramsWaiting = new HashMap<>();
-                    paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
-                    List<ProfileDTO> listProfileWaiting = new ArrayList<>();
-                    switch (item.getCode()) {
-                        // transaction type : 1,2
-                        // type 1: QTTD không kết thúc giao dịch, do đó không có staffId_CT
-                        // type 2 :QTTD kết thúc giao dịch, do đó không có staffId_CT
-                        case "QTTD":
-                            paramsWaiting.put("staffId_CM", user.getId());
-                            paramsWaiting.put("staffId_CT", "NULL");
+                    // kiểm tra xem có thuộc luồng chưa giải quyết không
+                    // luông chưa giải quyết thì save riêng và không update những bản ghi đằng sau
+                    if (profile.getState().equals(ProfileStateEnum.PENDING.getValue())) {
 
-                            // checking end time is before and after for time receive
-                            // LocalDateTime from = profile.getTimeReceived_CM();
-                            // LocalDateTime to = profile.getEndTime();
-                            // LocalDateTime processTime = profile.getProcessDate();
-                            // if (to.isAfter(from) && processTime.isAfter(to)) {
-                            // // set endtime = processDate
-                            // profile.setProcessDate(to);
-                            // } else {
+                    } else {
+                        Map<String, Object> paramsWaiting = new HashMap<>();
+                        paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
+                        List<ProfileDTO> listProfileWaiting = new ArrayList<>();
+                        switch (item.getCode()) {
+                            // transaction type : 1,2
+                            // type 1: QTTD không kết thúc giao dịch, do đó không có staffId_CT
+                            // type 2 :QTTD kết thúc giao dịch, do đó không có staffId_CT
+                            case "QTTD":
+                                paramsWaiting.put("staffId_CM", user.getId());
+                                paramsWaiting.put("staffId_CT", "NULL");
 
-                            // }
+                                // sort theo process_date tăng dần và lấy thằng đầu tiên để update
+                                isAsc = true;
+                                listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
+                                this.updateProfileList(listProfileWaiting, profile, user, profileHistory,
+                                        department.getId(),
+                                        item.getCode(), transactionType);
+                                break;
+                            case "GDKH":
+                                // GDKH ko có chờ xử lý
 
-                            listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
-                            this.updateProfileList(listProfileWaiting, profile, user, profileHistory,
-                                    department.getId(),
-                                    item.getCode(), transactionType);
-                            break;
-                        case "GDKH":
-                            // GDKH ko có chờ xử lý
-                            // if (transactionType.getType().equals(1)) {
-                            // paramsWaiting.put("staffId_CT", user.getId());
-                            // }
-                            // if (transactionType.getType().equals(3)) {
-                            // paramsWaiting.put("staffId_CM", "NULL");
-                            // paramsWaiting.put("staffId_CT", user.getId());
-                            // }
-                            // listProfileWaiting = repository.getProfileWithParams(paramsWaiting, isAsc);
-                            break;
+                                break;
+                        }
                     }
 
                 } else {
@@ -352,17 +346,6 @@ public class ProfileServiceImpl implements ProfileService {
 
                         List<ProfileDTO> listData = repository.getProfileWithParams(params, isAsc);
 
-                        int month = LocalDateTime.now().getMonthValue();
-                        int dayOfMonth = LocalDateTime.now().getDayOfMonth();
-
-                        // thời gian buổi trưa 11h30' - mốc để tính ngoài giờ hành chính
-                        LocalDateTime lunchTime1 = LocalDateTime.of(processTime.getYear(), month, dayOfMonth, 11,
-                                30);
-                        // thời gian buổi trưa 13h30' - mốc để tính ngoài giờ hành chính
-                        LocalDateTime lunchTime2 = LocalDateTime.of(processTime.getYear(), month, dayOfMonth, 13,
-                                30);
-                        // thời gian buổi chiều 17h00 - mốc để tính ngoài giờ hành chính
-                        LocalDateTime endDay = LocalDateTime.of(processTime.getYear(), month, dayOfMonth, 17, 0);
                         // checking process of profile : processing
                         if (listData.size() == 1) {
                             ProfileDTO profile_first = new ProfileDTO();
@@ -383,230 +366,34 @@ public class ProfileServiceImpl implements ProfileService {
                             // boolean isAfter = profileHistory.getTimeReceived()
                             // .isAfter(date);
 
-                            profile.setTimeReceived_CM(profile_first.getProcessDate());
-
-                            processTime = profile_first.getProcessDate();
-
-                            if (!DataUtils.isNullOrEmpty(transactionType.getStandardTimeCM())) {
-                                processTime = processTime.plusMinutes(transactionType.getStandardTimeCM());
-                            }
-
-                            if (!DataUtils.isNullOrEmpty(transactionType.getStandardTimeChecker())) {
-                                processTime = processTime.plusMinutes(transactionType.getStandardTimeChecker());
-                            }
-
-                            if (!DataUtils.isNullOrEmpty(additionalTime)) {
-                                processTime = processTime.plusMinutes(additionalTime);
-                            }
-
-                            // minus time for profile which is deliveried again
-                            if (timeForAdditional > 0) {
-                                processTime = processTime.minusMinutes(timeForAdditional);
-                            }
-
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
 
-                            // day, hour, time of process time
-                            int monthOfProfile = processTime.getMonthValue();
-                            int dayOfProfile = processTime.getDayOfMonth();
-                            int hourOfProfile = processTime.getHour();
-                            int minutesOfProfile = processTime.getMinute();
+                            mapResult = DataUtils.calculatingDateFromTimeReceived(
+                                    profile_first.getProcessDate(), transactionType.getStandardTimeCM(),
+                                    transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
+                                    profile.getNumberOfPO(),
+                                    profile.getNumberOfBill(), transactionType.getType());
 
-                            // checking time received of record to moving profile in tomorrow
-
-                            if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
-
-                                // 11h30 đến 13h30
-                                if (lunchTime1.isBefore(processTime) && lunchTime2.isAfter(processTime)) {
-                                    // int hourHis = profileHistory.getTimeReceived().getHour();
-                                    // int minutesHis = profileHistory.getTimeReceived().getMinute();
-                                    if (lunchTime1.isBefore(profileHistory.getTimeReceived())
-                                            && lunchTime2.isAfter(profileHistory.getTimeReceived())) {
-                                        processTime = DataUtils.checkTime(processTime, 11, 30,
-                                                transactionType.getStandardTimeCM(),
-                                                transactionType.getStandardTimeChecker(), additionalTime);
-                                        LocalDate today = LocalDate.now();
-                                        int year = today.getYear();
-                                        int m = today.getMonthValue();
-                                        int day = today.getDayOfMonth();
-                                        LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 13, 30, 0);
-                                        profile.setTimeReceived_CM(timeReceived);
-                                    } else {
-                                        processTime = DataUtils.calculatingTimeProcess(processTime,
-                                                profile_first.getProcessDate(), 13, 30, 0);
-                                        // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                                    }
-
-                                    // if ((hourHis >= 11 && minutesHis >= 30) && (hourHis <= 11 && minutesHis <=
-                                    // 30)) {
-
-                                    // } else {
-
-                                    // }
-                                }
-
-                                // sau 17h00 - ngoài giờ hành chính
-                                if (processTime.isAfter(endDay)) {
-                                    if (profileHistory.getTimeReceived().isAfter(endDay)) {
-                                        processTime = DataUtils.checkTime(processTime, 17, 0,
-                                                transactionType.getStandardTimeCM(),
-                                                transactionType.getStandardTimeChecker(), additionalTime);
-                                        LocalDate tomorrow = LocalDate.now().plusDays(1);
-                                        int year = tomorrow.getYear();
-                                        int m = tomorrow.getMonthValue();
-                                        int day = tomorrow.getDayOfMonth();
-                                        LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
-                                        profile.setTimeReceived_CM(timeReceived);
-                                    } else {
-                                        processTime = DataUtils.calculatingTimeProcess(processTime,
-                                                profile_first.getProcessDate(), 17, 0, 0);
-                                        // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                                    }
-                                }
-
-                                // if (hourOfProfile >= 17 && minutesOfProfile > 0) {
-
-                                // }
-
-                                // if (hourOfProfile >= 11 && hourOfProfile <= 13) {
-                                // if (minutesOfProfile > 30 || minutesOfProfile < 30) {
-
-                                // }
-
-                                // }
-
-                            }
+                            profile.setTimeReceived_CM(profile_first.getProcessDate());
+                            processTime = (LocalDateTime) mapResult.get("processTime");
 
                         } else if (listData.size() == 0) {
 
                             profile.setState(ProfileStateEnum.PROCESSING.getValue());
                             profileHistory.setState(ProfileStateEnum.PROCESSING.getValue());
 
-                            if (!DataUtils.isNullOrEmpty(transactionType.getStandardTimeCM())) {
-                                processTime = processTime.plusMinutes(transactionType.getStandardTimeCM());
-                            }
-
-                            if (!DataUtils.isNullOrEmpty(transactionType.getStandardTimeChecker())) {
-                                processTime = processTime.plusMinutes(transactionType.getStandardTimeChecker());
-                            }
-
-                            if (!DataUtils.isNullOrEmpty(additionalTime)) {
-                                processTime = processTime.plusMinutes(additionalTime);
-                            }
-
-                            // minus time for profile which is deliveried again
-                            if (timeForAdditional > 0) {
-                                processTime = processTime.minusMinutes(timeForAdditional);
-                            }
-
-                            // day, hour, time of process time
-                            int monthOfProfile = processTime.getMonthValue();
-                            int dayOfProfile = processTime.getDayOfMonth();
-                            int hourOfProfile = processTime.getHour();
-                            int minutesOfProfile = processTime.getMinute();
-                            // int month = LocalDateTime.now().getMonthValue();
-                            // int dayOfMonth = LocalDateTime.now().getDayOfMonth();
-                            int yearOfProfile = LocalDateTime.now().getYear();
-                            // checking time received of record to moving profile in tomorrow
-
-                            if ((monthOfProfile == month) && (dayOfProfile == dayOfMonth)) {
-
-                                // kiểm tra xem có sau 17h không
-                                // nếu có tính sang ngày hôm sau
-                                // 11h30 đến 13h30
-                                if (lunchTime1.isBefore(processTime) && lunchTime2.isAfter(processTime)) {
-                                    // int hourHis = profileHistory.getTimeReceived().getHour();
-                                    // int minutesHis = profileHistory.getTimeReceived().getMinute();
-
-                                    if (lunchTime1.isBefore(profileHistory.getTimeReceived())
-                                            && lunchTime2.isAfter(profileHistory.getTimeReceived())) {
-                                        processTime = DataUtils.checkTime(processTime, 11, 30,
-                                                transactionType.getStandardTimeCM(),
-                                                transactionType.getStandardTimeChecker(), additionalTime);
-                                        LocalDate today = LocalDate.now();
-                                        int year = today.getYear();
-                                        int m = today.getMonthValue();
-                                        int day = today.getDayOfMonth();
-                                        LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 13, 30, 0);
-                                        profile.setTimeReceived_CM(timeReceived);
-                                    } else if (lunchTime1.isBefore(profileHistory.getTimeReceived())) {
-                                        processTime = DataUtils.calculatingTimeProcess(processTime,
-                                                profileHistory.getTimeReceived(), 13, 30, 0);
-                                        // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                                    }
-                                }
-
-                                // sau 17h00 - ngoài giờ hành chính
-                                if (processTime.isAfter(endDay)) {
-                                    if (profileHistory.getTimeReceived().isAfter(endDay)) {
-                                        processTime = DataUtils.checkTime(processTime, 17, 0,
-                                                transactionType.getStandardTimeCM(),
-                                                transactionType.getStandardTimeChecker(), additionalTime);
-                                        LocalDate tomorrow = LocalDate.now().plusDays(1);
-                                        int year = tomorrow.getYear();
-                                        int m = tomorrow.getMonthValue();
-                                        int day = tomorrow.getDayOfMonth();
-                                        LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
-                                        profile.setTimeReceived_CM(timeReceived);
-                                    } else {
-                                        processTime = DataUtils.calculatingTimeProcess(processTime,
-                                                profileHistory.getTimeReceived(), 17, 0, 0);
-                                        // profile.setTimeReceived_CM(profileHistory.getTimeReceived());
-                                    }
-                                }
-
-                                // if (hourOfProfile >= 17 && minutesOfProfile > 0) {
-
-                                // if (profileHistory.getTimeReceived().getHour() >= 17
-                                // && profileHistory.getTimeReceived().getMinute() >= 0) {
-                                // processTime = DataUtils.checkTime(processTime, 17, 0,
-                                // transactionType.getStandardTimeCM(),
-                                // transactionType.getStandardTimeChecker(), additionalTime);
-                                // LocalDate tomorrow = LocalDate.now().plusDays(1);
-                                // int year = tomorrow.getYear();
-                                // int m = tomorrow.getMonthValue();
-                                // int day = tomorrow.getDayOfMonth();
-                                // LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 8, 0, 0);
-                                // profile.setTimeReceived_CM(timeReceived);
-                                // } else {
-                                // processTime = DataUtils.calculatingTimeProcess(processTime,
-                                // profileHistory.getTimeReceived(), 17, 0, additionalTime);
-                                // }
-
-                                // }
-                                // // kiểm tra xem có sau 11h30 không
-                                // // nếu có tính sang 13h30 cùng ngày
-                                // if ((hourOfProfile >= 11 && minutesOfProfile > 30)
-                                // && (hourOfProfile <= 13 && minutesOfProfile < 30)) {
-
-                                // int hourHis = profileHistory.getTimeReceived().getHour();
-                                // int minutesHis = profileHistory.getTimeReceived().getMinute();
-                                // if ((hourHis >= 11 && minutesHis >= 30) && (hourHis <= 11 && minutesHis <=
-                                // 30)) {
-                                // processTime = DataUtils.checkTime(processTime, 11, 30,
-                                // transactionType.getStandardTimeCM(),
-                                // transactionType.getStandardTimeChecker(), additionalTime);
-                                // LocalDate today = LocalDate.now();
-                                // int year = today.getYear();
-                                // int m = today.getMonthValue();
-                                // int day = today.getDayOfMonth();
-                                // LocalDateTime timeReceived = LocalDateTime.of(year, m, day, 13, 30, 0);
-                                // profile.setTimeReceived_CM(timeReceived);
-                                // } else {
-                                // processTime = DataUtils.calculatingTimeProcess(processTime,
-                                // profileHistory.getTimeReceived(), 13, 30, additionalTime);
-
-                                // }
-
-                                // }
-                            }
-
-                            // không có hồ sơ nào đang xử lý => do đó khi quét hồ sơ => trạng thái chuyển
-                            // thành đang xử lý
-                            // và thời gian nhận ghi nhận tại thời điểm nhận hồ sơ
                             profile.setTimeReceived_CM(profileHistory.getTimeReceived());
 
+                            mapResult = DataUtils.calculatingDateFromTimeReceived(
+                                    profileHistory.getTimeReceived(), transactionType.getStandardTimeCM(),
+                                    transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
+                                    profile.getNumberOfPO(),
+                                    profile.getNumberOfBill(), transactionType.getType());
+
+                            LocalDateTime timeReceived = (LocalDateTime) mapResult.get("timeReceived");
+                            processTime = (LocalDateTime) mapResult.get("processTime");
+                            profile.setTimeReceived_CM(timeReceived);
                         }
 
                         profile.setProcessDate(processTime);
@@ -634,7 +421,9 @@ public class ProfileServiceImpl implements ProfileService {
             profileHistory.setProfileId(profile.getId());
             profileHistoryService.save(profileHistory);
             return profile;
-        } catch (Exception e) {
+        } catch (
+
+        Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
             return null;
@@ -671,6 +460,7 @@ public class ProfileServiceImpl implements ProfileService {
 
             // không reset lại thời gian cho QTTD nữa, reset cho GDKH và update hồ sơ chờ
             // thành đang xử lý
+            // lưu khi hoàn trả hồ sơ
             if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
 
                 isAsc = true;
@@ -710,8 +500,9 @@ public class ProfileServiceImpl implements ProfileService {
 
             }
 
-            if (old.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())
-                    || old.getState().equals(ProfileStateEnum.PENDING.getValue())) {
+            // lưu khi chưa giải quyết, không tính thời gian đã làm -> cái này giành cho
+            // hoàn trả hồ sơ
+            if (old.getState().equals(ProfileStateEnum.PENDING.getValue())) {
 
                 isAsc = true;
                 Map<String, Object> params = new HashMap<>();
@@ -731,13 +522,13 @@ public class ProfileServiceImpl implements ProfileService {
                         LocalDateTime from = old.getTimeReceived_CM();
                         LocalDateTime to = LocalDateTime.now();
                         LocalDateTime processTime = old.getProcessDate();
-                        if (to.isAfter(from) && processTime.isAfter(to)) {
-                            Long additionalTime = DataUtils.durationToMinute(from, to);
-                            old.setAdditionalTime(Integer.valueOf(additionalTime.intValue()));
-                            // old.setProcessDate(to);
-                        } else {
+                        // if (to.isAfter(from) && processTime.isAfter(to)) {
+                        // Long additionalTime = DataUtils.durationToMinute(from, to);
+                        // old.setAdditionalTime(Integer.valueOf(additionalTime.intValue()));
+                        // // old.setProcessDate(to);
+                        // } else {
 
-                        }
+                        // }
                         listDataWaiting = repository.getProfileWithParams(params, isAsc);
                         this.updateProfileList(listDataWaiting, old, user, profileHistory, department.getId(),
                                 item.getCode(), transactionType);
@@ -883,6 +674,9 @@ public class ProfileServiceImpl implements ProfileService {
             List<ProfileDTO> listDataWaiting = new ArrayList<>();
             List<ProfileDTO> listDataProcessing = new ArrayList<>();
 
+            // lưu kết quả của timeReceived và processTime;
+            Map<String, Object> mapResult = new HashMap<>();
+
             if (DataUtils.isNullObject(user)) {
                 throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
             }
@@ -930,8 +724,18 @@ public class ProfileServiceImpl implements ProfileService {
                         // set user bằng user người dùng thực hiện quét
                         old.setStaffId_CM(user.getId());
 
-                        LocalDateTime processTime = DataUtils.calculatingDate(old.getTimeReceived_CM(),
-                                old.getProcessDate(), pHistoryInternal.getTimeReceived());
+                        // LocalDateTime processTime =
+                        // DataUtils.calculatingDate(old.getTimeReceived_CM(),
+                        // old.getProcessDate(), pHistoryInternal.getTimeReceived());
+
+                        mapResult = DataUtils.calculatingDateFromTimeReceived(old.getTimeReceived_CM(),
+                                transactionType.getStandardTimeCM(),
+                                transactionType.getStandardTimeChecker(), old.getAdditionalTime(),
+                                old.getNumberOfPO(), old.getNumberOfBill(),
+                                transactionType.getType());
+
+                        LocalDateTime processTime = (LocalDateTime) mapResult.get("processTime");
+
                         // set lại thời gian nhận cho hồ sơ
                         old.setTimeReceived_CM(pHistoryInternal.getTimeReceived());
                         old.setProcessDate(processTime);
@@ -944,8 +748,19 @@ public class ProfileServiceImpl implements ProfileService {
                             // set user bằng user người dùng thực hiện quét
                             old.setStaffId_CM(user.getId());
 
-                            LocalDateTime processTime = DataUtils.calculatingDate(old.getTimeReceived_CM(),
-                                    old.getProcessDate(), pHistoryInternal.getTimeReceived());
+                            // LocalDateTime processTime =
+                            // DataUtils.calculatingDate(old.getTimeReceived_CM(),
+                            // old.getProcessDate(), pHistoryInternal.getTimeReceived());
+
+                            mapResult = DataUtils.calculatingDateFromTimeReceived(
+                                    listDataProcessing.get(0).getProcessDate(), transactionType.getStandardTimeCM(),
+                                    transactionType.getStandardTimeChecker(),
+                                    old.getAdditionalTime(),
+                                    old.getNumberOfPO(), old.getNumberOfBill(),
+                                    transactionType.getType());
+
+                            LocalDateTime processTime = (LocalDateTime) mapResult.get("processTime");
+
                             // set lại thời gian nhận cho hồ sơ bằng thời gian xử lý của hồ sơ đang xử lý
                             old.setTimeReceived_CM(listDataProcessing.get(0).getProcessDate());
                             old.setProcessDate(processTime);
@@ -958,9 +773,19 @@ public class ProfileServiceImpl implements ProfileService {
                             ProfileDTO last = listDataWaiting.get(listDataWaiting.size() - 1);
 
                             // thời gian xử lý : tính từ thời gian của hồ sơ chờ phía trước
-                            LocalDateTime processTime = DataUtils.calculatingDate(old.getTimeReceived_CM(),
-                                    old.getProcessDate(), last.getProcessDate());
 
+                            // LocalDateTime processTime =
+                            // DataUtils.calculatingDate(old.getTimeReceived_CM(),
+                            // old.getProcessDate(), last.getProcessDate());
+
+                            mapResult = DataUtils.calculatingDateFromTimeReceived(
+                                    last.getProcessDate(), transactionType.getStandardTimeCM(),
+                                    transactionType.getStandardTimeChecker(),
+                                    old.getAdditionalTime(),
+                                    old.getNumberOfPO().intValue(), old.getNumberOfBill(),
+                                    transactionType.getType());
+
+                            LocalDateTime processTime = (LocalDateTime) mapResult.get("processTime");
                             // set lại thời gian nhận cho hồ sơ bằng thời gian xử lý của hồ sơ chờ cuối cùng
                             // trong list
                             old.setTimeReceived_CM(last.getProcessDate());
@@ -1020,14 +845,19 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public void deleteList(List<Long> ids) {
+    public Boolean deleteList(List<Long> ids) {
         // TODO Auto-generated method stub
         try {
-            repository.deleteList(ids);
-            profileHistoryService.deleteListByProfileId(ids);
+            Integer delete = repository.deleteList(ids);
+            if (delete > 0) {
+                profileHistoryService.deleteListByProfileId(ids);
+                return true;
+            }
+            return false;
         } catch (Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
+            return false;
         }
 
     }
@@ -1479,7 +1309,7 @@ public class ProfileServiceImpl implements ProfileService {
                         ProfileStateEnum.PROCESSING.getValue(), dto.getStaffId_CM());
 
                 // LocalDateTime timeReceived = LocalDateTime.now();
-                LocalDateTime processDate = null;
+                LocalDateTime processTime = null;
 
                 if (process.size() > 0) {
                     // first record
@@ -1488,26 +1318,24 @@ public class ProfileServiceImpl implements ProfileService {
                         LocalDateTime to = dto.getProcessDate();
 
                         LocalDateTime timeReceived = process.get(0).getProcessDate();
-                        processDate = DataUtils.calculatingDate(from, to, timeReceived);
+
+                        // processDate = DataUtils.calculatingDate(from, to, timeReceived);
+                        // lưu kết quả của timeReceived và processTime;
+                        Map<String, Object> mapResult = new HashMap<>();
+
+                        // lấy thời gian xử lý của hồ sơ đang xử lý làm thời gian nhận
+                        mapResult = DataUtils.calculatingDateFromTimeReceived(timeReceived,
+                                transactionType.getStandardTimeCM(),
+                                transactionType.getStandardTimeChecker(), dto.getAdditionalTime(),
+                                dto.getNumberOfPO(), dto.getNumberOfBill(),
+                                transactionType.getType());
+
+                        processTime = (LocalDateTime) mapResult.get("processTime");
+
                         // save dto
                         dto.setTimeReceived_CM(process.get(0).getProcessDate());
-                        dto.setProcessDate(processDate);
+                        dto.setProcessDate(processTime);
                         save(dto);
-                        LocalDateTime today = LocalDateTime.now();
-                        int year = today.getYear();
-                        int month = today.getMonthValue();
-                        int day = today.getDayOfMonth();
-                        // thời gian buổi trưa 11h30' - mốc để tính ngoài giờ hành chính
-                        LocalDateTime lunchTime1 = LocalDateTime.of(year, month, day,
-                                11,
-                                30);
-                        // thời gian buổi trưa 13h30' - mốc để tính ngoài giờ hành chính
-                        LocalDateTime lunchTime2 = LocalDateTime.of(year, month, day,
-                                13,
-                                30);
-                        // thời gian buổi chiều 17h00 - mốc để tính ngoài giờ hành chính
-                        LocalDateTime endDay = LocalDateTime.of(year, month, day, 17,
-                                0);
 
                         // get list after saving dto
                         List<Profile> listData = repository.findBySateAndStaffIdAndIgnore(
@@ -1523,63 +1351,27 @@ public class ProfileServiceImpl implements ProfileService {
                                     Profile first = listData.get(i);
                                     LocalDateTime fromFirst = first.getTimeReceived_CM();
                                     LocalDateTime toFirst = first.getProcessDate();
+                                    // thời gian nhận của bản ghi chờ thứ nhất là thời gian xử lý của dto
                                     LocalDateTime timeReceivedOfSecond = dto.getProcessDate();
-                                    LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
-                                            timeReceivedOfSecond);
-                                    int hourOfProfile = date.getHour();
-                                    int minutesOfProfile = date.getMinute();
-                                    if ((date.getMonthValue() == month) && (date.getDayOfMonth() == day)) {
-                                        int additionalTime = (!DataUtils.isNullOrEmpty(dto.getAdditionalTime()))
-                                                ? dto.getAdditionalTime()
-                                                : 0;
 
-                                        // kiểm tra xem có sau 11h30 không
-                                        // nếu có tính sang 13h30 cùng ngày
-                                        if (lunchTime1.isBefore(date) && lunchTime2.isAfter(date)) {
-                                            if (timeReceivedOfSecond.isAfter(lunchTime1)
-                                                    && timeReceivedOfSecond.isAfter(date)) {
-                                                date = DataUtils.checkTime(date, 11, 30,
-                                                        transactionType.getStandardTimeCM(),
-                                                        transactionType.getStandardTimeChecker(), additionalTime);
-                                                timeReceivedOfSecond = LocalDateTime.of(year, month, day, 13, 30, 0);
-                                            } else if (timeReceivedOfSecond.isBefore(lunchTime1)) {
-                                                // ko tính lại timereceived
-                                                date = DataUtils.calculatingTimeProcess(date, timeReceivedOfSecond, 13,
-                                                        30, additionalTime);
-                                                // timeReceivedOfSecond = LocalDateTime.of(year, month, day, 13, 30, 0);
-                                            }
+                                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                                    // timeReceivedOfSecond);
 
-                                        } else if (date.isAfter(endDay)) {
-                                            if (timeReceivedOfSecond.isAfter(endDay)) {
-                                                date = DataUtils.checkTime(date, 17, 0,
-                                                        transactionType.getStandardTimeCM(),
-                                                        transactionType.getStandardTimeChecker(), additionalTime);
+                                    TransactionTypeDTO transaction = transactionTypeService
+                                            .findById(Long.parseLong(first.getType().toString()));
 
-                                                LocalDateTime tomorrow = today.plusDays(1);
+                                    // lưu kết quả của timeReceived và processTime;
+                                    Map<String, Object> mapResultNew = new HashMap<>();
 
-                                                timeReceivedOfSecond = LocalDateTime.of(tomorrow.getYear(),
-                                                        tomorrow.getMonthValue(), tomorrow.getDayOfMonth(), 8, 0, 0);
-                                            } else {
-                                                date = DataUtils.calculatingTimeProcess(date, timeReceivedOfSecond, 8,
-                                                        0, additionalTime);
-                                                // timeReceivedOfSecond = pro
-                                            }
+                                    mapResultNew = DataUtils.calculatingDateFromTimeReceived(
+                                            timeReceivedOfSecond,
+                                            transaction.getStandardTimeCM(),
+                                            transaction.getStandardTimeChecker(),
+                                            first.getAdditionalTime(),
+                                            first.getNumberOfPO(), first.getNumberOfBill(),
+                                            transaction.getType());
 
-                                        }
-
-                                        // kiểm tra xem thời gian xử lý có sau 17h không
-                                        // nếu có tính sang ngày hôm sau
-                                        // if (hourOfProfile >= 17 && minutesOfProfile > 0) {
-
-                                        // }
-                                        // kiểm tra xem có sau 11h30 không
-                                        // nếu có tính sang 13h30 cùng ngày
-                                        // else if ((hourOfProfile >= 11 && minutesOfProfile > 30)
-                                        // && (hourOfProfile <= 13 && minutesOfProfile < 30)) {
-
-                                        // }
-
-                                    }
+                                    LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
                                     first.setTimeReceived_CM(timeReceivedOfSecond);
                                     first.setProcessDate(date);
                                     first.setLastUpdatedDate(LocalDateTime.now());
@@ -1591,48 +1383,26 @@ public class ProfileServiceImpl implements ProfileService {
                                     // thời gian xử lý: giờ, phút
                                     LocalDateTime fromFirst = second.getTimeReceived_CM();
                                     LocalDateTime toFirst = second.getProcessDate();
+
+                                    // thời gian chờ của bản ghi thứ 2 là thời gian xử lý của bản ghi thứ nhất
                                     LocalDateTime timeReceivedOfSecond = first.getProcessDate();
-                                    LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
-                                            timeReceivedOfSecond);
-                                    // kết thúc
-                                    int hourOfProfile = date.getHour();
-                                    int minutesOfProfile = date.getMinute();
-                                    if ((date.getMonthValue() == month) && (date.getDayOfMonth() == day)) {
-                                        int additionalTime = (!DataUtils.isNullOrEmpty(first.getAdditionalTime()))
-                                                ? first.getAdditionalTime()
-                                                : 0;
-                                        // kiểm tra xem có sau 17h không
-                                        // nếu có tính sang ngày hôm sau
-                                        if (date.isAfter(endDay)) {
-                                            if (timeReceivedOfSecond.isAfter(endDay)) {
-                                                date = DataUtils.checkTime(date, 17, 0,
-                                                        transactionType.getStandardTimeCM(),
-                                                        transactionType.getStandardTimeChecker(), additionalTime);
 
-                                                timeReceivedOfSecond = LocalDateTime.of(year, month, day + 1, 8, 0, 0);
-                                            } else {
-                                                date = DataUtils.calculatingTimeProcess(date, timeReceivedOfSecond, 8,
-                                                        0, additionalTime);
-                                            }
+                                    // loại giao dịch của mỗi hồ sơ - bản ghi
+                                    TransactionTypeDTO transaction = transactionTypeService
+                                            .findById(Long.parseLong(second.getType().toString()));
 
-                                        }
-                                        // kiểm tra xem có sau 11h30 không
-                                        // nếu có tính sang 13h30 cùng ngày
-                                        else if (lunchTime1.isBefore(date) && lunchTime2.isAfter(date)) {
-                                            if (timeReceivedOfSecond.isAfter(lunchTime1)
-                                                    && timeReceivedOfSecond.isAfter(date)) {
-                                                date = DataUtils.checkTime(date, 11, 30,
-                                                        transactionType.getStandardTimeCM(),
-                                                        transactionType.getStandardTimeChecker(), additionalTime);
-                                                timeReceivedOfSecond = LocalDateTime.of(year, month, day, 13, 30, 0);
-                                            } else if (timeReceivedOfSecond.isBefore(lunchTime1)) {
-                                                date = DataUtils.calculatingTimeProcess(date, timeReceivedOfSecond, 13,
-                                                        30, additionalTime);
-                                            }
+                                    // lưu kết quả của timeReceived và processTime;
+                                    Map<String, Object> mapResultNew = new HashMap<>();
 
-                                        }
+                                    mapResultNew = DataUtils.calculatingDateFromTimeReceived(
+                                            timeReceivedOfSecond,
+                                            transaction.getStandardTimeCM(),
+                                            transaction.getStandardTimeChecker(),
+                                            second.getAdditionalTime(),
+                                            second.getNumberOfPO(), second.getNumberOfBill(),
+                                            transaction.getType());
 
-                                    }
+                                    LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
                                     second.setTimeReceived_CM(timeReceivedOfSecond);
                                     second.setProcessDate(date);
                                     second.setLastUpdatedDate(LocalDateTime.now());
@@ -1696,13 +1466,19 @@ public class ProfileServiceImpl implements ProfileService {
                             if (profile.getEndTime().isAfter(endDay)) {
                                 // hồ sơ kết thúc ngoài giờ hành chính từ 17h trở đi
                                 // hồ sơ chờ tiếp sau sẽ update thời gian nhận tính từ 8h sáng hôm sau
-                                timeReceivedOfSecond = LocalDateTime.of(year, month, day + 1, 8, 0);
-                            } else if (lunchTime1.isBefore(profile.getEndTime())
+                                LocalDateTime tomorrow = profile.getEndTime().plusDays(1);
+                                timeReceivedOfSecond = LocalDateTime.of(tomorrow.getYear(), tomorrow.getMonth(),
+                                        tomorrow.getDayOfMonth(), 8, 0);
+                            }
+                            // kết thúc trong khoảng 11h30 - 13h30
+                            else if (lunchTime1.isBefore(profile.getEndTime())
                                     && lunchTime2.isAfter(profile.getEndTime())) {
                                 // if (minutes > 30) {
                                 // hồ sơ kết thúc ngoài giờ hành chính từ 11h30 trở đi đến trước 13h30
                                 // hồ sơ chờ tiếp sau sẽ update thời gian nhận tính từ 13h30 cùng ngày
-                                timeReceivedOfSecond = LocalDateTime.of(year, month, day, 13, 30);
+                                LocalDateTime today = profile.getEndTime();
+                                timeReceivedOfSecond = LocalDateTime.of(today.getYear(), today.getMonth(),
+                                        today.getDayOfMonth(), 13, 30);
                                 // }
                             } else {
                                 // hồ sơ kết thúc trong giờ hành chính
@@ -1713,40 +1489,24 @@ public class ProfileServiceImpl implements ProfileService {
                             timeReceivedOfSecond = profileHistory.getTimeReceived();
                         }
 
-                        LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
-                                timeReceivedOfSecond);
-                        if (date.getDayOfMonth() == day) {
-                            Long duration = DataUtils.durationToMinute(fromFirst, toFirst);
-                            LocalDateTime localDate = LocalDateTime.now();
-                            // sau 17h
-                            if (date.isAfter(endDay)) {
-                                if (timeReceivedOfSecond.isAfter(endDay)) {
-                                    LocalDateTime tomorrow = localDate.plusDays(1);
-                                    date = LocalDateTime.of(tomorrow.getYear(), tomorrow.getMonth(),
-                                            tomorrow.getDayOfMonth(),
-                                            8,
-                                            duration.intValue());
-                                } else {
-                                    date = DataUtils.calculatingTimeProcess(date, timeReceivedOfSecond, 17,
-                                            0, 0);
-                                    // date = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth()
-                                    // + 1,
-                                    // 8,
-                                    // duration.intValue());
-                                }
+                        // loại giao dịch của mỗi hồ sơ - bản ghi
+                        TransactionTypeDTO transaction = transactionTypeService
+                                .findById(Long.parseLong(first.getType().toString()));
 
-                            } else if (lunchTime1.isBefore(date) && lunchTime2.isAfter(date)) {
-                                if (timeReceivedOfSecond.isBefore(date) && timeReceivedOfSecond.isAfter(date)) {
-                                    date = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 13,
-                                            30 +
-                                                    duration.intValue());
-                                } else {
-                                    date = DataUtils.calculatingTimeProcess(date, timeReceivedOfSecond, 11,
-                                            30, 0);
-                                }
+                        // lưu kết quả của timeReceived và processTime;
+                        Map<String, Object> mapResultNew = new HashMap<>();
 
-                            }
-                        }
+                        // tính lại thời gian xử lý của hồ sơ/bản ghi thứ nhất
+
+                        mapResultNew = DataUtils.calculatingDateFromTimeReceived(
+                                timeReceivedOfSecond,
+                                transaction.getStandardTimeCM(),
+                                transaction.getStandardTimeChecker(),
+                                first.getAdditionalTime(),
+                                first.getNumberOfPO(), first.getNumberOfBill(),
+                                transaction.getType());
+
+                        LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
 
                         first.setTimeReceived_CM(timeReceivedOfSecond);
                         first.setProcessDate(date);
@@ -1801,26 +1561,30 @@ public class ProfileServiceImpl implements ProfileService {
                         save(first);
 
                     } else {
+                        // hồ sơ thứ 2 trở đi
                         ProfileDTO first = listData.get(i - 1);
                         ProfileDTO second = listData.get(i);
                         // processDate: hours, minutes
                         LocalDateTime fromFirst = second.getTimeReceived_CM();
                         LocalDateTime toFirst = second.getProcessDate();
                         LocalDateTime timeReceivedOfSecond = first.getProcessDate();
-                        LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
-                                timeReceivedOfSecond);
-                        if (date.getDayOfMonth() == day) {
-                            Long duration = DataUtils.durationToMinute(fromFirst, toFirst);
-                            if (date.isAfter(endDay)) {
-                                date = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth() + 1, 8,
-                                        duration.intValue());
-                            } else if (lunchTime1.isBefore(date) && lunchTime2.isAfter(date)) {
-                                date = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 13, 30 +
-                                        duration.intValue());
-                            }
 
-                        }
-                        // end
+                        // loại giao dịch của mỗi hồ sơ - bản ghi -> hồ sơ thứ 2 (i)
+                        TransactionTypeDTO transaction = transactionTypeService
+                                .findById(Long.parseLong(second.getType().toString()));
+                        // lưu kết quả của timeReceived và processTime;
+                        Map<String, Object> mapResultNew = new HashMap<>();
+                        // tính lại thời gian xử lý của hồ sơ/bản ghi tiếp sau
+                        mapResultNew = DataUtils.calculatingDateFromTimeReceived(
+                                timeReceivedOfSecond,
+                                transaction.getStandardTimeCM(),
+                                transaction.getStandardTimeChecker(),
+                                second.getAdditionalTime(),
+                                second.getNumberOfPO(), second.getNumberOfBill(),
+                                transaction.getType());
+
+                        LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
+
                         second.setTimeReceived_CM(timeReceivedOfSecond);
                         second.setProcessDate(date);
                         second.setLastUpdatedDate(LocalDateTime.now());

@@ -126,7 +126,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                     .append(sql_filter);
                             if (PositionTypeEnum.CHUYENVIEN.getName().equals(position)) {
                                 // QTTD view theo username đối với chuyên viên
-
+                                
                                 if (paramSearch.containsKey("username")) {
                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
                                         sb.append(" AND  ucm.username = :username");
@@ -156,7 +156,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             sql_filter = " AND p.state NOT IN (0) ";
                             sb.append(sql_gdkh)
                                     .append(sql_filter);
-                            // .append(sql_username);
+                            
                             if (paramSearch.containsKey("usernameByCode")) {
                                 if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
                                     sb.append(" AND  uct.username like :usernameByCode");

@@ -35,7 +35,7 @@ public interface ProfileService {
 
   ProfileDTO confirmProfile(ConfirmRequest req);
 
-  void deleteList(List<Long> ids);
+  Boolean deleteList(List<Long> ids);
 
   MessageDTO checkScanAgain(ConfirmRequest item);
 
