@@ -16,7 +16,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, Profile
 
         @Modifying
         @Transactional
-        @Query(value = "DELETE  FROM profile WHERE id IN :ids", nativeQuery = true)
+        @Query(value = "DELETE  FROM profile WHERE id IN :ids AND state IN (0)", nativeQuery = true)
         Integer deleteList(@Param("ids") List<Long> id);
 
         @Modifying

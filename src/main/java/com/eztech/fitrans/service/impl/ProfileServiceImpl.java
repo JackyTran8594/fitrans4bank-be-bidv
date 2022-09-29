@@ -579,71 +579,77 @@ public class ProfileServiceImpl implements ProfileService {
                 throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
             }
 
-            switch (transactionType.getType()) {
-                case 1:
-                    if (item.getCode().trim().toUpperCase().equals("QTTD")) {
-                        if (DataUtils.isNullOrEmpty(old.getStaffId_CM())) {
-                            message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
-                            message.setIsExist(true);
-                        } else {
-                            if (old.getStaffId_CM().equals(user.getId())) {
-                                message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+            if (!old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                switch (transactionType.getType()) {
+                    case 1:
+                        if (item.getCode().trim().toUpperCase().equals("QTTD")) {
+                            if (DataUtils.isNullOrEmpty(old.getStaffId_CM())) {
+                                message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                                 message.setIsExist(true);
                             } else {
-                                message.setIsExist(false);
+                                if (old.getStaffId_CM().equals(user.getId())) {
+                                    message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
+                                }
                             }
                         }
-                    }
 
-                    if (item.getCode().trim().toUpperCase().equals("GDKH")) {
-                        if (DataUtils.isNullOrEmpty(old.getStaffId_CT())) {
-                            message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
-                            message.setIsExist(true);
-                        } else {
-                            if (old.getStaffId_CT().equals(user.getId())) {
-                                message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                        if (item.getCode().trim().toUpperCase().equals("GDKH")) {
+                            if (DataUtils.isNullOrEmpty(old.getStaffId_CT())) {
+                                message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
                                 message.setIsExist(true);
                             } else {
-                                message.setIsExist(false);
+                                if (old.getStaffId_CT().equals(user.getId())) {
+                                    message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
 
+                                }
                             }
                         }
-                    }
 
-                    break;
-                case 2:
-                    if (item.getCode().equals("QTTD")) {
-                        if (DataUtils.isNullOrEmpty(old.getStaffId_CM())) {
-                            message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
-                            message.setIsExist(true);
-                        } else {
-                            if (old.getStaffId_CM().equals(user.getId())) {
-                                message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                        break;
+                    case 2:
+                        if (item.getCode().equals("QTTD")) {
+                            if (DataUtils.isNullOrEmpty(old.getStaffId_CM())) {
+                                message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                                 message.setIsExist(true);
                             } else {
-                                message.setIsExist(false);
+                                if (old.getStaffId_CM().equals(user.getId())) {
+                                    message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
+                                }
                             }
                         }
-                    }
-                    break;
-                case 3:
-                    if (item.getCode().equals("GDKH")) {
-                        if (DataUtils.isNullOrEmpty(old.getStaffId_CT())) {
-                            message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
-                            message.setIsExist(true);
-                        } else {
-                            if (old.getStaffId_CT().equals(user.getId())) {
-                                message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                        break;
+                    case 3:
+                        if (item.getCode().equals("GDKH")) {
+                            if (DataUtils.isNullOrEmpty(old.getStaffId_CT())) {
+                                message.setMessage("Hồ sơ chưa bàn giao cho cán bộ GDKH");
                                 message.setIsExist(true);
                             } else {
-                                message.setIsExist(false);
+                                if (old.getStaffId_CT().equals(user.getId())) {
+                                    message.setMessage("Hồ sơ cần chuyển cho cán bộ khác");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
 
+                                }
                             }
                         }
-                    }
-                    break;
-                default:
-                    break;
+                        break;
+                    default:
+                        break;
+                }
+
+            } else {
+                message.setMessage("Hồ sơ đang trong quá trình xử lý");
+                message.setIsExist(true);
             }
 
             return message;
@@ -702,15 +708,48 @@ public class ProfileServiceImpl implements ProfileService {
 
             if (Arrays.asList(intArray).contains(transactionType.getType())) {
                 if (item.getCode().trim().toUpperCase().equals("QTTD")) {
+
+                    // check hồ sơ chờ của người chuyển nội bộ - người bàn giao
+                    Map<String, Object> paramWaitingOfOldUser = new HashMap<>();
+                    Map<String, Object> paramProcessingOfOldUser = new HashMap<>();
+                    paramWaitingOfOldUser.put("staffId_CM", old.getStaffId_CM());
+                    paramWaitingOfOldUser.put("state", ProfileStateEnum.WAITING.getValue());
+                    paramWaitingOfOldUser.put("staffId_CT", "NULL");
+                    // ignoreId = loại bỏ hồ sơ đang chuyển
+                    paramWaitingOfOldUser.put("ignoreId", old.getId());
+
+                    paramProcessingOfOldUser.put("staffId_CM", old.getStaffId_CM());
+                    paramProcessingOfOldUser.put("state", ProfileStateEnum.PROCESSING.getValue());
+                    paramProcessingOfOldUser.put("staffId_CT", "NULL");
+
+                    // get list after saving dto
+                    List<ProfileDTO> dataWaitingOfOldUser = repository.getProfileWithParams(paramWaitingOfOldUser,
+                            isAsc);
+                    List<ProfileDTO> dataProcessingOfOldUser = repository.getProfileWithParams(paramProcessingOfOldUser,
+                            isAsc);
+
+                    // update các hồ sơ chờ còn lại của hồ sơ cũ
+                    if (dataWaitingOfOldUser.size() > 0) {
+                        // có hồ sơ đang xử lý
+                        if (dataProcessingOfOldUser.size() > 0) {
+                            this.updateProfileWaitingList(dataWaitingOfOldUser, dataProcessingOfOldUser.get(0));
+                        }
+                        // không có hồ sơ đang xử lý thì không làm gì vì sẽ tự add sang đang xử lý
+                        else {
+
+                        }
+
+                    }
+
                     // đã check null staffId_CM ở hàm checkTransfer
                     pHistoryInternal.setStaffId(old.getStaffId_CM());
                     // hồ sơ luồng 1,2 : staffId_CT = null;
-                    // hồ sơ chờ xử lý
+                    // hồ sơ chờ xử lý của người được chuyển
                     params.put("staffId_CM", user.getId());
                     params.put("staffId_CT", "NULL");
                     listDataWaiting = repository.getProfileWithParams(params, isAsc);
 
-                    // hồ sơ đang xử lý của người quét chuyển hồ sơ
+                    // hồ sơ đang xử lý của người quét chuyển hồ sơ - người nhận
                     paramsProcessing.put("staffId_CM", user.getId());
                     paramsProcessing.put("staffId_CT", "NULL");
                     listDataProcessing = repository.getProfileWithParams(paramsProcessing, isAsc);
@@ -724,11 +763,7 @@ public class ProfileServiceImpl implements ProfileService {
                         // set user bằng user người dùng thực hiện quét
                         old.setStaffId_CM(user.getId());
 
-                        // LocalDateTime processTime =
-                        // DataUtils.calculatingDate(old.getTimeReceived_CM(),
-                        // old.getProcessDate(), pHistoryInternal.getTimeReceived());
-
-                        mapResult = DataUtils.calculatingDateFromTimeReceived(old.getTimeReceived_CM(),
+                        mapResult = DataUtils.calculatingDateFromTimeReceived(pHistoryInternal.getTimeReceived(),
                                 transactionType.getStandardTimeCM(),
                                 transactionType.getStandardTimeChecker(), old.getAdditionalTime(),
                                 old.getNumberOfPO(), old.getNumberOfBill(),
@@ -747,10 +782,6 @@ public class ProfileServiceImpl implements ProfileService {
 
                             // set user bằng user người dùng thực hiện quét
                             old.setStaffId_CM(user.getId());
-
-                            // LocalDateTime processTime =
-                            // DataUtils.calculatingDate(old.getTimeReceived_CM(),
-                            // old.getProcessDate(), pHistoryInternal.getTimeReceived());
 
                             mapResult = DataUtils.calculatingDateFromTimeReceived(
                                     listDataProcessing.get(0).getProcessDate(), transactionType.getStandardTimeCM(),
@@ -1426,6 +1457,78 @@ public class ProfileServiceImpl implements ProfileService {
 
         }
 
+    }
+
+    private void updateProfileWaitingList(List<ProfileDTO> listData, ProfileDTO profile) {
+        // update processDate for all list
+        // int i = 0;
+        if (listData.size() > 0) {
+
+            for (int i = 0; i < listData.size(); i++) {
+                // first record update by dto (priority)
+                if (i == 0) {
+                    ProfileDTO first = listData.get(i);
+                    LocalDateTime fromFirst = first.getTimeReceived_CM();
+                    LocalDateTime toFirst = first.getProcessDate();
+                    // thời gian nhận của bản ghi chờ thứ nhất là thời gian xử lý của dto
+                    LocalDateTime timeReceivedOfSecond = profile.getProcessDate();
+
+                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                    // timeReceivedOfSecond);
+
+                    TransactionTypeDTO transaction = transactionTypeService
+                            .findById(Long.parseLong(first.getType().toString()));
+
+                    // lưu kết quả của timeReceived và processTime;
+                    Map<String, Object> mapResultNew = new HashMap<>();
+
+                    mapResultNew = DataUtils.calculatingDateFromTimeReceived(
+                            timeReceivedOfSecond,
+                            transaction.getStandardTimeCM(),
+                            transaction.getStandardTimeChecker(),
+                            first.getAdditionalTime(),
+                            first.getNumberOfPO(), first.getNumberOfBill(),
+                            transaction.getType());
+
+                    LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
+                    first.setTimeReceived_CM(timeReceivedOfSecond);
+                    first.setProcessDate(date);
+                    first.setLastUpdatedDate(LocalDateTime.now());
+                    save(first);
+
+                } else {
+                    ProfileDTO first = listData.get(i - 1);
+                    ProfileDTO second = listData.get(i);
+                    // thời gian xử lý: giờ, phút
+                    LocalDateTime fromFirst = second.getTimeReceived_CM();
+                    LocalDateTime toFirst = second.getProcessDate();
+
+                    // thời gian chờ của bản ghi thứ 2 là thời gian xử lý của bản ghi thứ nhất
+                    LocalDateTime timeReceivedOfSecond = first.getProcessDate();
+
+                    // loại giao dịch của mỗi hồ sơ - bản ghi
+                    TransactionTypeDTO transaction = transactionTypeService
+                            .findById(Long.parseLong(second.getType().toString()));
+
+                    // lưu kết quả của timeReceived và processTime;
+                    Map<String, Object> mapResultNew = new HashMap<>();
+
+                    mapResultNew = DataUtils.calculatingDateFromTimeReceived(
+                            timeReceivedOfSecond,
+                            transaction.getStandardTimeCM(),
+                            transaction.getStandardTimeChecker(),
+                            second.getAdditionalTime(),
+                            second.getNumberOfPO(), second.getNumberOfBill(),
+                            transaction.getType());
+
+                    LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
+                    second.setTimeReceived_CM(timeReceivedOfSecond);
+                    second.setProcessDate(date);
+                    second.setLastUpdatedDate(LocalDateTime.now());
+                    save(second);
+                }
+            }
+        }
     }
 
     private void updateProfileList(List<ProfileDTO> listData, ProfileDTO profile, UserDTO user,

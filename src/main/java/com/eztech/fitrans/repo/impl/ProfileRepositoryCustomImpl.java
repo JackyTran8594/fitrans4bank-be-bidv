@@ -370,9 +370,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 parameters.put("staffId_CT", DataUtils.parseToLong(params.get("staffId_CT")));
 
             }
-            // sb.append("AND p.staff_id_ct = :staffId_CT ");
-            // parameters.put("staffId_CT",
-            // DataUtils.parseToLong(params.get("staffId_CT")));
+
+          
         }
 
         if (params.containsKey("staffId_CM")) {
@@ -383,6 +382,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 sb.append(" AND p.staff_id_cm = :staffId_CM");
                 parameters.put("staffId_CM", DataUtils.parseToLong(params.get("staffId_CM")));
 
+            }
+            
+            if(params.containsKey("ignoreId")) {
+                sb.append(" AND p.id <> :ignoreId");
+                parameters.put("ignoreId", DataUtils.parseToLong(params.get("ignoreId")));
             }
         }
         if (params.containsKey("code")) {
