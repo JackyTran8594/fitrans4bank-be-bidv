@@ -122,10 +122,10 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
 
-		auth.authenticationProvider(
-		new LdapUserAuthoritiesProvider(env, ldapUrl, baseDn, managerDn,
-		managerPassword, filter, userDetailsService))
-		.eraseCredentials(false);
+		// auth.authenticationProvider(
+		// new LdapUserAuthoritiesProvider(env, ldapUrl, baseDn, managerDn,
+		// managerPassword, filter, userDetailsService))
+		// .eraseCredentials(false);
 		// auth.ldapAuthentication().passwordCompare().passwordEncoder(bCryptPasswordEncoder());
 
 		// ActiveDirectoryLdapAuthenticationProvider adProvider = new ActiveDirectoryLdapAuthenticationProvider(ldapDomain,
@@ -136,24 +136,24 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 		// auth.authenticationProvider(adProvider).eraseCredentials(false);
 		// auth.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
 
-		// auth
-		// .ldapAuthentication()
-		// .userDnPatterns(dnPatterns)
-		// .userSearchFilter(filter)
-		// .userSearchBase(baseDn)
+		auth
+		.ldapAuthentication()
+		.userDnPatterns(dnPatterns)
+		.userSearchFilter(filter)
+		.userSearchBase(baseDn)
 		// .groupSearchBase(groupSearchBase)
 		// .groupSearchFilter(groupSearchFilter)
-		// .contextSource()
-		// .url(ldapUrl)
+		.contextSource()
+		.url(ldapUrl)
 		// .managerDn(managerDn)
 		// .managerPassword(managerPassword)
-		// .and()
-		// .passwordCompare()
-		// // .passwordEncoder(new BCryptPasswordEncoder())
-		// // // .passwordEncoder(passwordEncoder())
-		// // .passwordAttribute(passwordAttribute)
-		// // Populates the user roles by LDAP user name from database
-		// .and().ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
+		.and()
+		.passwordCompare()
+		// .passwordEncoder(new BCryptPasswordEncoder())
+		// // .passwordEncoder(passwordEncoder())
+		// .passwordAttribute(passwordAttribute)
+		// Populates the user roles by LDAP user name from database
+		.and().ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
 
 		// // Returns LdapAuthenticationProviderConfigurer to allow customization of the
 		// // LDAP authentication
