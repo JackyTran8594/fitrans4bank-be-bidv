@@ -122,61 +122,11 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder());
 
-		// auth.authenticationProvider(
-		// new LdapUserAuthoritiesProvider(env, ldapUrl, baseDn, managerDn,
-		// managerPassword, filter, userDetailsService))
-		// .eraseCredentials(false);
-		// auth.ldapAuthentication().passwordCompare().passwordEncoder(bCryptPasswordEncoder());
-
-		// ActiveDirectoryLdapAuthenticationProvider adProvider = new ActiveDirectoryLdapAuthenticationProvider(ldapDomain,
-		// 		ldapUrl);
-		// adProvider.setConvertSubErrorCodesToExceptions(true);
-		// adProvider.setUseAuthenticationRequestCredentials(true);
-		// adProvider.setSearchFilter(baseDn);
-		// auth.authenticationProvider(adProvider).eraseCredentials(false);
-		// auth.ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
-
-		auth
-		.ldapAuthentication()
-		.userDnPatterns(dnPatterns)
-		.userSearchFilter(filter)
-		.userSearchBase(baseDn)
-		// .groupSearchBase(groupSearchBase)
-		// .groupSearchFilter(groupSearchFilter)
-		.contextSource()
-		.url(ldapUrl)
-		// .managerDn(managerDn)
-		// .managerPassword(managerPassword)
-		.and()
-		.passwordCompare()
-		// .passwordEncoder(new BCryptPasswordEncoder())
-		// // .passwordEncoder(passwordEncoder())
-		// .passwordAttribute(passwordAttribute)
-		// Populates the user roles by LDAP user name from database
-		.and().ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
-
-		// // Returns LdapAuthenticationProviderConfigurer to allow customization of the
-		// // LDAP authentication
-		// auth.ldapAuthentication()
-		// // Pass the LDAP patterns for finding the username.
-		// // The key "{0}" will be substituted with the username
-		// .userDnPatterns("uid={0},ou=users")
-		// // Pass search base as argument for group membership searches.
-		// .groupSearchBase("ou=groups")
-		// // Configures base LDAP path context source
-		// .contextSource().url("ldap://localhost:10389/dc=javachinna,dc=com")
-		// // DN of the user who will bind to the LDAP server to perform the search
-		// .managerDn("uid=admin,ou=system")
-		// // Password of the user who will bind to the LDAP server to perform the
-		// search
-		// .managerPassword("secret").and()
-		// // Configures LDAP compare operation of the user password to authenticate
-		// .passwordCompare().passwordEncoder(new LdapShaPasswordEncoder())
-		// // Specifies the attribute in the directory which contains the user password.
-		// // Defaults to "userPassword".
-		// .passwordAttribute("userPassword").and()
-		// // Populates the user roles by LDAP user name from database
-		// .ldapAuthoritiesPopulator(ldapUserAuthoritiesPopulator);
+		auth.authenticationProvider(
+		new LdapUserAuthoritiesProvider(env, ldapUrl, baseDn, managerDn,
+		managerPassword, filter, userDetailsService))
+		.eraseCredentials(false);
+		
 	}
 
 	@Override
@@ -224,27 +174,7 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 		// Add JWT token filter
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 	}
-
-	// Backup
-	// @Override
-	// protected void configure(HttpSecurity httpSecurity) throws Exception {
-	// // Disable CSRF
-	// httpSecurity.csrf().disable()
-	// // Only admin can perform HTTP delete operation
-	// .authorizeRequests().antMatchers(HttpMethod.DELETE).hasRole(Role.ADMIN)
-	// // any authenticated user can perform all other operations
-	// .antMatchers("/products/**").hasAnyRole(Role.ADMIN, Role.USER)
-	// // Permit all other request without authentication
-	// .and().authorizeRequests().anyRequest().permitAll()
-	// // Reject every unauthenticated request and send error code 401.
-	// .and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
-	// // We don't need sessions to be created.
-	// .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-	//
-	// // Add a filter to validate the tokens with every request
-	// httpSecurity.addFilterBefore(jwtRequestFilter,
-	// UsernamePasswordAuthenticationFilter.class);
-	// }
+	
 
 	// Add JWT
 	@Autowired
