@@ -66,7 +66,7 @@ public class ReadAndWriteDoc {
 
             File file = File.createTempFile("BIDV_Template_", ".docx");
             FileUtils.copyInputStreamToFile(resource, file);
-            String folder = "C:\\BIDV_BBBG\\";
+            String folder = "D:\\BIDV_BBBG\\";
             String filename = "BBBG_" + username + "_" + Timestamp.valueOf(LocalDateTime.now()).getTime() + ".docx";
             File outputFile = new File(folder + filename);
             ;
