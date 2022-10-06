@@ -395,11 +395,17 @@ public class ReadAndWriteDoc {
                     if (!Files.isDirectory(Paths.get(folder))) {
                         new File(folder).mkdir();
                         outputFile.createNewFile();
+                        System.out.println("--create file and folder done--");
+                        log.info("--create file and folder done--");
                     } else {
                         outputFile.createNewFile();
+                        System.out.println("--create file done:");
+                        log.info("--create file done: " + outputFile.getAbsolutePath() + "-" + outputFile.getName());
                     }
                     FileOutputStream outpuStream = new FileOutputStream(outputFile);
+                    
                     docDes.write(outpuStream);
+                    
                     outpuStream.close();
                     docDes.close();
                 } catch (Throwable ex) {

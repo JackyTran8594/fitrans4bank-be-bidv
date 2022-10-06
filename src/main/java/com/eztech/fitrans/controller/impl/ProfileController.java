@@ -208,7 +208,10 @@ public class ProfileController extends BaseController implements ProfileApi {
       throw new ResourceNotFoundException("transactionType " + typeEnum.getId() + " not found");
     }
     item.setTypeEnum(typeEnum.getTransactionDetail() + " - Luồng " + typeEnum.getType());
-
+    System.out.println(item.toString());
+    System.out.println(username.toString());
+    System.out.println(mapParams.toString());
+    
     File file = readandwrite.ExportDocFile(item, username, mapParams);
 
     HttpHeaders respHeaders = new HttpHeaders();
