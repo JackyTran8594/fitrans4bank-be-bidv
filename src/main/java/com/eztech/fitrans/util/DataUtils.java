@@ -853,8 +853,11 @@ public class DataUtils {
         int type = (!DataUtils.isNullOrEmpty(transactionType)) ? transactionType : 0;
 
         LocalDateTime timeMarker17h = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonth(),
-                timeReceived.getDayOfMonth(),
-                17, 0);
+                timeReceived.getDayOfMonth(), 17, 0);
+
+        LocalDateTime timeMarkerConfig = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonth(),
+                timeReceived.getDayOfMonth(), 17, 0);
+
         LocalDateTime timeMarker13h30 = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonth(),
                 timeReceived.getDayOfMonth(), 13, 30);
         LocalDateTime timeMarker11h30 = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonth(),
@@ -1034,15 +1037,16 @@ public class DataUtils {
                     LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
                     LocalDateTime timeMarker17hTomorrow = timeMarker17h.plusDays(1);
 
-                    if(processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
+                    if (processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
                         Long time5 = durationToMinute(processTime, timeMarker11h30Tomorrow);
                         processTime = timeMarker13h30Tomorrow.plusMinutes(time5);
                     }
 
-                    if(processTime.isAfter(timeMarker17hTomorrow)) {
+                    if (processTime.isAfter(timeMarker17hTomorrow)) {
                         Long time5 = durationToMinute(timeMarker17hTomorrow, processTime);
                         LocalDateTime tomorrow2 = timeMarker17hTomorrow.plusDays(1);
-                        LocalDateTime timeMarkerTomorrow2 = LocalDateTime.of(tomorrow2.getYear(), tomorrow2.getMonth(), tomorrow2.getDayOfMonth(), 8,0);
+                        LocalDateTime timeMarkerTomorrow2 = LocalDateTime.of(tomorrow2.getYear(), tomorrow2.getMonth(),
+                                tomorrow2.getDayOfMonth(), 8, 0);
                         processTime = timeMarkerTomorrow2.plusMinutes(time5);
                     }
                 }
@@ -1056,14 +1060,15 @@ public class DataUtils {
                     // thời gian chênh lệch giữa thời gian nhận và mốc 11h30 => thời gian làm
                     Long time1 = durationToMinute(timeReceived, timeMarker11h30);
                     // // thời gian nghỉ trưa : 11h30 - 13h30 => thời gian không làm
-                    // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); // không cần tính thời gian nghỉ chưa
+                    // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); // không cần
+                    // tính thời gian nghỉ chưa
                     processTime = timeMarker13h30
                             .plusMinutes(standard + checker + additionalTime - worked - time1);
 
                 }
                 if (timeReceived.isAfter(timeMarker11h30) && timeReceived.isBefore(timeMarker13h30)) {
                     // thời gian chênh lệch giữa thời gian nhận và mốc 11h30 => thời gian làm
-                    // Long time1 = durationToMinute(timeReceived, timeMarker11h30); 
+                    // Long time1 = durationToMinute(timeReceived, timeMarker11h30);
                     // thời gian nghỉ trưa : 11h30 - 13h30 => thời gian không làm
                     // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); => không cần
                     // tính, chỉ cần tính thời gian đã làm
@@ -1086,15 +1091,16 @@ public class DataUtils {
                     LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
                     LocalDateTime timeMarker17hTomorrow = timeMarker17h.plusDays(1);
 
-                    if(processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
+                    if (processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
                         Long time5 = durationToMinute(processTime, timeMarker11h30Tomorrow);
                         processTime = timeMarker13h30Tomorrow.plusMinutes(time5);
                     }
 
-                    if(processTime.isAfter(timeMarker17hTomorrow)) {
+                    if (processTime.isAfter(timeMarker17hTomorrow)) {
                         Long time5 = durationToMinute(timeMarker17hTomorrow, processTime);
                         LocalDateTime tomorrow2 = timeMarker17hTomorrow.plusDays(1);
-                        LocalDateTime timeMarkerTomorrow2 = LocalDateTime.of(tomorrow2.getYear(), tomorrow2.getMonth(), tomorrow2.getDayOfMonth(), 8,0);
+                        LocalDateTime timeMarkerTomorrow2 = LocalDateTime.of(tomorrow2.getYear(), tomorrow2.getMonth(),
+                                tomorrow2.getDayOfMonth(), 8, 0);
                         processTime = timeMarkerTomorrow2.plusMinutes(time5);
                     }
                 }
@@ -1108,11 +1114,13 @@ public class DataUtils {
                     // thời gian chênh lệch giữa thời gian nhận và mốc 11h30
                     Long time1 = durationToMinute(timeReceived, timeMarker11h30); // thời gian đã làm
                     // thời gian nghỉ trưa : 11h30 - 13h30
-                    // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); // => không cần tính chỉ cần tính thời gian đã làm
+                    // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); // => không
+                    // cần tính chỉ cần tính thời gian đã làm
                     // thời gian đã làm : 13h30 - 17
                     Long time2 = durationToMinute(timeMarker13h30, timeMarker17h); // thời gian đã làm
                     // thời gian từ 17h - thời gian xử lý
-                    // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian ngoài giờ hành chính, tính cho sáng hôm sau nếu có
+                    // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian ngoài
+                    // giờ hành chính, tính cho sáng hôm sau nếu có
 
                     // thời gian xử lý = thời gian xử lý cũ - thời gian đã làm
                     processTime = timeMarkerTomorrow
@@ -1121,12 +1129,14 @@ public class DataUtils {
 
                 if (timeReceived.isAfter(timeMarker11h30) && timeReceived.isBefore(timeMarker13h30)) {
                     // thời gian chênh lệch giữa thời gian nhận và mốc 11h30
-                    // Long time1 = durationToMinute(timeReceived, timeMarker13h30); // Trả về 0 nếu timeReceived >
-                    //                                                               // timeMarker11h30
+                    // Long time1 = durationToMinute(timeReceived, timeMarker13h30); // Trả về 0 nếu
+                    // timeReceived >
+                    // // timeMarker11h30
                     // thời gian 13h30 - 17h
                     Long time2 = durationToMinute(timeMarker13h30, timeMarker17h); // thời gian đã làm
                     // thời gian từ 17h - thời gian xử lý
-                    // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian ngoài giờ hành chính
+                    // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian ngoài
+                    // giờ hành chính
 
                     // thời gian xử lý = thời gian xử lý cũ - thời gian đã làm
                     processTime = timeMarkerTomorrow
@@ -1153,15 +1163,16 @@ public class DataUtils {
                 LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
                 LocalDateTime timeMarker17hTomorrow = timeMarker17h.plusDays(1);
 
-                if(processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
+                if (processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
                     Long time5 = durationToMinute(timeMarker11h30Tomorrow, processTime);
                     processTime = timeMarker13h30Tomorrow.plusMinutes(time5);
                 }
 
-                if(processTime.isAfter(timeMarker17hTomorrow)) {
+                if (processTime.isAfter(timeMarker17hTomorrow)) {
                     Long time5 = durationToMinute(timeMarker17hTomorrow, processTime);
                     LocalDateTime tomorrow2 = timeMarker17hTomorrow.plusDays(1);
-                    LocalDateTime timeMarkerTomorrow2 = LocalDateTime.of(tomorrow2.getYear(), tomorrow2.getMonth(), tomorrow2.getDayOfMonth(), 8,0);
+                    LocalDateTime timeMarkerTomorrow2 = LocalDateTime.of(tomorrow2.getYear(), tomorrow2.getMonth(),
+                            tomorrow2.getDayOfMonth(), 8, 0);
                     processTime = timeMarkerTomorrow2.plusMinutes(time5);
                 }
 
