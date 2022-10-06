@@ -128,22 +128,22 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                 // QTTD view theo username đối với chuyên viên
                                 
                                 if (paramSearch.containsKey("username")) {
-                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
-                                        sb.append(" AND  ucm.username = :username");
-                                        parameters.put("username",
-                                                paramSearch.get("username").toString()
-                                                        .toLowerCase());
-                                    }
+                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
+                                    //     sb.append(" AND  ucm.username = :username");
+                                    //     parameters.put("username",
+                                    //             paramSearch.get("username").toString()
+                                    //                     .toLowerCase());
+                                    // }
 
                                 }
                             } else {
                                 if (paramSearch.containsKey("usernameByCode")) {
-                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                        sb.append(" AND ucm.username like :usernameByCode");
-                                        parameters.put("usernameByCode",
-                                                formatLike((String) paramSearch.get("usernameByCode").toString()
-                                                        .toLowerCase()));
-                                    }
+                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                    //     sb.append(" AND ucm.username like :usernameByCode");
+                                    //     parameters.put("usernameByCode",
+                                    //             formatLike((String) paramSearch.get("usernameByCode").toString()
+                                    //                     .toLowerCase()));
+                                    // }
 
                                 }
                             }
@@ -158,12 +158,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                     .append(sql_filter);
                             
                             if (paramSearch.containsKey("usernameByCode")) {
-                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    sb.append(" AND  uct.username like :usernameByCode");
-                                    parameters.put("usernameByCode",
-                                            formatLike((String) paramSearch.get("usernameByCode").toString()
-                                                    .toLowerCase()));
-                                }
+                                // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                //     sb.append(" AND  uct.username like :usernameByCode");
+                                //     parameters.put("usernameByCode",
+                                //             formatLike((String) paramSearch.get("usernameByCode").toString()
+                                //                     .toLowerCase()));
+                                // }
 
                             }
                             break;
@@ -397,6 +397,21 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 if (params.get("code").toString().trim().toUpperCase().equals("GDKH")) {
                     sb.append(" AND trans.type IN (1,3) ");
                 }
+            }
+        }
+
+        // giành cho bàn giao trước 16h cùng ngày
+        if(params.containsKey("isToday")) {
+            if(!DataUtils.isNullOrEmpty(params.get("isToday"))) {
+                // tìm những bản ghi trong ngày
+                if(params.get("isToday").equals(true)) {
+                    sb.append(" AND CAST(p.real_time_received_cm AS DATE) = CAST(CURRENT_TIMESTAMP AS DATE) ");
+                } else {
+                    String sql_time = " AND DATEPART(HOUR, p.real_time_received_cm) = 16 AND DATEPART(MINUTE, p.real_time_received_cm) > 0 ";
+                    String sql_time2 = "AND DATEPART(DAY, p.real_time_received_cm) >= DATEPART(DAY, CURRENT_TIMESTAMP) ";
+                    sb.append(sql_time + sql_time2);
+                }
+               
             }
         }
 
