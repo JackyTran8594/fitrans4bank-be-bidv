@@ -70,7 +70,7 @@ public class ReadAndWriteDoc {
 
             File file = File.createTempFile("BIDV_Template_", ".docx");
             FileUtils.copyInputStreamToFile(resource, file);
-            String folder = "D:\\BIDV_BBBG\\";
+            String folder = "C:\\BIDV_BBBG\\";
             String filename = "BBBG_" + username + "_" + Timestamp.valueOf(LocalDateTime.now()).getTime() + ".docx";
             File outputFile = new File(folder + filename);
             if (file == null) {
@@ -96,7 +96,8 @@ public class ReadAndWriteDoc {
                                 XWPFParagraph para1 = cell1.getParagraphs().get(0);
                                 para1.setAlignment(ParagraphAlignment.CENTER);
                                 XWPFRun run = para1.createRun();
-                                run.setText(profile.getStaffName().toString());
+                                String staffName = (!DataUtils.isNullOrEmpty(profile.getStaffName())) ? profile.getStaffName().toString() : "";
+                                run.setText(staffName);
                                 run.setFontSize(12);
 
                                 // check transactionType : 1,2,3
@@ -202,7 +203,8 @@ public class ReadAndWriteDoc {
                                     XWPFParagraph para = cell2.getParagraphs().get(0);
                                     para.setAlignment(ParagraphAlignment.CENTER);
                                     XWPFRun run = para.createRun();
-                                    run.setText(profile.getTypeEnum());
+                                    String type = (!DataUtils.isNullOrEmpty(profile.getTypeEnum())) ? profile.getTypeEnum()  : "";
+                                    run.setText(type);
                                     run.setFontSize(12);
                                     // cell2.setText(profile.getTypeEnum());
                                     XWPFTableRow oldRow = table.getRows().get(3);
@@ -398,17 +400,11 @@ public class ReadAndWriteDoc {
                     if (!Files.isDirectory(Paths.get(folder))) {
                         new File(folder).mkdir();
                         outputFile.createNewFile();
-                        System.out.println("--create file and folder done--");
-                        log.info("--create file and folder done--");
                     } else {
                         outputFile.createNewFile();
-                        System.out.println("--create file done:");
-                        log.info("--create file done: " + outputFile.getAbsolutePath() + "-" + outputFile.getName());
                     }
                     FileOutputStream outpuStream = new FileOutputStream(outputFile);
-                    
                     docDes.write(outpuStream);
-                    
                     outpuStream.close();
                     docDes.close();
                 } catch (Throwable ex) {
