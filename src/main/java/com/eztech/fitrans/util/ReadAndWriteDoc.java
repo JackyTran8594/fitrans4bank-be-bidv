@@ -96,7 +96,8 @@ public class ReadAndWriteDoc {
                                 XWPFParagraph para1 = cell1.getParagraphs().get(0);
                                 para1.setAlignment(ParagraphAlignment.CENTER);
                                 XWPFRun run = para1.createRun();
-                                run.setText(profile.getStaffName().toString());
+                                String staffName = (!DataUtils.isNullOrEmpty(profile.getStaffName())) ? profile.getStaffName().toString() : "";
+                                run.setText(staffName);
                                 run.setFontSize(12);
 
                                 // check transactionType : 1,2,3
@@ -202,7 +203,8 @@ public class ReadAndWriteDoc {
                                     XWPFParagraph para = cell2.getParagraphs().get(0);
                                     para.setAlignment(ParagraphAlignment.CENTER);
                                     XWPFRun run = para.createRun();
-                                    run.setText(profile.getTypeEnum());
+                                    String type = (!DataUtils.isNullOrEmpty(profile.getTypeEnum())) ? profile.getTypeEnum()  : "";
+                                    run.setText(type);
                                     run.setFontSize(12);
                                     // cell2.setText(profile.getTypeEnum());
                                     XWPFTableRow oldRow = table.getRows().get(3);
