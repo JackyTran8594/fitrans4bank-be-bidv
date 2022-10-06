@@ -51,6 +51,9 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
+import static com.eztech.fitrans.util.DataUtils.readInputStreamResource;
+import static com.eztech.fitrans.util.ExcelFileReader.readExcelFromResource;
+
 @Slf4j
 @Component
 public class ReadAndWriteDoc {
@@ -62,14 +65,14 @@ public class ReadAndWriteDoc {
 
         try {
 
-            InputStream resource = getClass().getClassLoader().getResourceAsStream("template/BIDV_Template.docx");
+//            InputStream resource = getClass().getClassLoader().getResourceAsStream("template/BIDV_Template.docx");
+            InputStream resource = readInputStreamResource("template/BIDV_Template.docx");
 
             File file = File.createTempFile("BIDV_Template_", ".docx");
             FileUtils.copyInputStreamToFile(resource, file);
             String folder = "D:\\BIDV_BBBG\\";
             String filename = "BBBG_" + username + "_" + Timestamp.valueOf(LocalDateTime.now()).getTime() + ".docx";
             File outputFile = new File(folder + filename);
-            ;
             if (file == null) {
                 throw new IllegalArgumentException("file not found");
             } else {
