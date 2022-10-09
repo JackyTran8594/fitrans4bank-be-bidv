@@ -24,8 +24,10 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, Profile
         List<Profile> findBySateAndStaffId(@Param("state") Integer state,
                         @Param("staffId") Long staffId);
 
+        // dùng cho ưu tiên hồ sơ 
+        // chỉ cho phép ưu tiên đối với hồ sơ nhận trong ngày (trước 16h)
         @Modifying
-        @Query(value = "SELECT p.* from profile as p LEFT JOIN transaction_type as trans ON trans.id = p.type WHERE trans.type in (1,2) AND p.id <> :profileId AND p.state = :state AND p.staff_id_cm = :staffId AND p.staff_id_ct IS NULL ORDER BY p.time_received_cm ASC", nativeQuery = true)
+        @Query(value = "SELECT p.* from profile as p LEFT JOIN transaction_type as trans ON trans.id = p.type WHERE trans.type in (1,2) AND p.id <> :profileId AND p.state = :state AND p.staff_id_cm = :staffId AND p.staff_id_ct IS NULL AND CAST(p.real_time_received_cm AS DATE) = CAST(CURRENT_TIMESTAMP AS DATE) ORDER BY p.time_received_cm ASC", nativeQuery = true)
         List<Profile> findBySateAndStaffIdAndIgnore(@Param("state") Integer state,
                         @Param("staffId") Long staffId, @Param("profileId") Long profileId);
 

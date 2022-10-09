@@ -21,6 +21,9 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     @Value("${app.dashboard.checkTime:0}")
     private Integer checkTime;
 
+    @Value("${app.timeConfig:0}")
+    private Integer timeConfig;
+
     @Override
     public List search(Map searchDTO, Class aClass) {
         Map<String, Object> parameters = new HashMap<>();
@@ -126,24 +129,24 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                     .append(sql_filter);
                             if (PositionTypeEnum.CHUYENVIEN.getName().equals(position)) {
                                 // QTTD view theo username đối với chuyên viên
-                                
+
                                 if (paramSearch.containsKey("username")) {
-                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
-                                        sb.append(" AND  ucm.username = :username");
-                                        parameters.put("username",
-                                                paramSearch.get("username").toString()
-                                                        .toLowerCase());
-                                    }
+                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
+                                    // sb.append(" AND ucm.username = :username");
+                                    // parameters.put("username",
+                                    // paramSearch.get("username").toString()
+                                    // .toLowerCase());
+                                    // }
 
                                 }
                             } else {
                                 if (paramSearch.containsKey("usernameByCode")) {
-                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                        sb.append(" AND ucm.username like :usernameByCode");
-                                        parameters.put("usernameByCode",
-                                                formatLike((String) paramSearch.get("usernameByCode").toString()
-                                                        .toLowerCase()));
-                                    }
+                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                    // sb.append(" AND ucm.username like :usernameByCode");
+                                    // parameters.put("usernameByCode",
+                                    // formatLike((String) paramSearch.get("usernameByCode").toString()
+                                    // .toLowerCase()));
+                                    // }
 
                                 }
                             }
@@ -156,14 +159,14 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             sql_filter = " AND p.state NOT IN (0) ";
                             sb.append(sql_gdkh)
                                     .append(sql_filter);
-                            
+
                             if (paramSearch.containsKey("usernameByCode")) {
-                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    sb.append(" AND  uct.username like :usernameByCode");
-                                    parameters.put("usernameByCode",
-                                            formatLike((String) paramSearch.get("usernameByCode").toString()
-                                                    .toLowerCase()));
-                                }
+                                // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                // sb.append(" AND uct.username like :usernameByCode");
+                                // parameters.put("usernameByCode",
+                                // formatLike((String) paramSearch.get("usernameByCode").toString()
+                                // .toLowerCase()));
+                                // }
 
                             }
                             break;
@@ -371,7 +374,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             }
 
-          
         }
 
         if (params.containsKey("staffId_CM")) {
@@ -383,8 +385,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 parameters.put("staffId_CM", DataUtils.parseToLong(params.get("staffId_CM")));
 
             }
-            
-            if(params.containsKey("ignoreId")) {
+
+            if (params.containsKey("ignoreId")) {
                 sb.append(" AND p.id <> :ignoreId");
                 parameters.put("ignoreId", DataUtils.parseToLong(params.get("ignoreId")));
             }
@@ -397,6 +399,28 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 if (params.get("code").toString().trim().toUpperCase().equals("GDKH")) {
                     sb.append(" AND trans.type IN (1,3) ");
                 }
+            }
+        }
+
+        // giành cho bàn giao trước 16h cùng ngày
+        if (params.containsKey("isToday")) {
+            if (!DataUtils.isNullOrEmpty(params.get("isToday"))) {
+                // tìm những bản ghi trong ngày
+                if (params.get("isToday").equals(true)) {
+                    String sql_time1 = " AND CAST(p.real_time_received_cm AS DATE) = CAST(CURRENT_TIMESTAMP AS DATE)";
+                    String sql_time2 = " AND DATEPART(HOUR, p.real_time_received_cm) < " + timeConfig + " ";
+                    sb.append(sql_time1 + sql_time2);
+                } else {
+                    // tìm những bản ghi sang ngày hôm sau
+                    // String sql_time = " AND DATEPART(HOUR, p.real_time_received_cm) = 16 AND
+                    // DATEPART(MINUTE, p.real_time_received_cm) > 0 ";
+                    // String sql_time2 = "AND DATEPART(DAY, p.real_time_received_cm) >=
+                    // DATEPART(DAY, CURRENT_TIMESTAMP) ";
+                    String sql_time1 = " AND CAST(p.time_received_cm AS DATE) > CAST(CURRENT_TIMESTAMP AS DATE) AND DATEPART(HOUR, p.real_time_received_cm) >= "
+                            + timeConfig + " ";
+                    sb.append(sql_time1);
+                }
+
             }
         }
 
