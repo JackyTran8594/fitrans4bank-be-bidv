@@ -21,22 +21,24 @@ public class CalculatingTime {
     }
 
     // public LocalDateTime setTimeConfig() {
-    //     if (timeConfig == null) {
-    //         return LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth(),
-    //                 LocalDateTime.now().getDayOfMonth(), 16, 0);
-    //     }
-    //     double result = (double) timeConfig % 1;
-    //     int hour = 0;
-    //     int minutes = 0;
-    //     if (result != 0) {
-    //         hour = (int) timeConfig.doubleValue();
-    //         minutes = Math.round((int) (result * 60));
+    // if (timeConfig == null) {
+    // return LocalDateTime.of(LocalDateTime.now().getYear(),
+    // LocalDateTime.now().getMonth(),
+    // LocalDateTime.now().getDayOfMonth(), 16, 0);
+    // }
+    // double result = (double) timeConfig % 1;
+    // int hour = 0;
+    // int minutes = 0;
+    // if (result != 0) {
+    // hour = (int) timeConfig.doubleValue();
+    // minutes = Math.round((int) (result * 60));
 
-    //     } else {
-    //         hour = (int) timeConfig.doubleValue();
-    //     }
-    //     return LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth(),
-    //             LocalDateTime.now().getDayOfMonth(), hour, minutes); 
+    // } else {
+    // hour = (int) timeConfig.doubleValue();
+    // }
+    // return LocalDateTime.of(LocalDateTime.now().getYear(),
+    // LocalDateTime.now().getMonth(),
+    // LocalDateTime.now().getDayOfMonth(), hour, minutes);
     // }
 
     public LocalDateTime convertTimeMarker(Double timeMarker) {
@@ -219,6 +221,17 @@ public class CalculatingTime {
 
         }
 
+        // thời gian nhận sau timeMarkerConfig
+
+        if (realTimeReceived.isAfter(timeMarkerConfig)) {
+            // thời gian xử lý không tính lại
+            // thời gian nhận mới bằng thời gian nhận cũ
+            timeReceivedNew = realTimeReceived;
+
+            mapResult.put("processTime", processTime);
+            mapResult.put("timeReceived", timeReceivedNew);
+        }
+
         return mapResult;
     }
 
@@ -300,45 +313,54 @@ public class CalculatingTime {
             case 4:
 
                 // if (realTimeReceived.isBefore(timeMarker11h30)) {
-                //     // thời gian chênh lệch giữa thời gian nhận và mốc 11h30
-                //     Long time1 = durationToMinute(realTimeReceived, timeMarker11h30); // thời gian đã làm
-                //     // thời gian nghỉ trưa : 11h30 - 13h30
-                //     // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); // => không
-                //     // cần tính chỉ cần tính thời gian đã làm
-                //     // thời gian đã làm : 13h30 - timeMarkerConfig
-                //     Long time2 = durationToMinute(timeMarker13h30, timeMarkerConfig); // thời gian đã làm
-                //     // thời gian từ 17h - thời gian xử lý
-                //     // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian ngoài
-                //     // giờ hành chính, tính cho sáng hôm sau nếu có
+                // // thời gian chênh lệch giữa thời gian nhận và mốc 11h30
+                // Long time1 = durationToMinute(realTimeReceived, timeMarker11h30); // thời
+                // gian đã làm
+                // // thời gian nghỉ trưa : 11h30 - 13h30
+                // // Long time2 = durationToMinute(timeMarker11h30, timeMarker13h30); // =>
+                // không
+                // // cần tính chỉ cần tính thời gian đã làm
+                // // thời gian đã làm : 13h30 - timeMarkerConfig
+                // Long time2 = durationToMinute(timeMarker13h30, timeMarkerConfig); // thời
+                // gian đã làm
+                // // thời gian từ 17h - thời gian xử lý
+                // // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian
+                // ngoài
+                // // giờ hành chính, tính cho sáng hôm sau nếu có
 
-                //     // thời gian xử lý = thời gian xử lý cũ - thời gian đã làm
-                //     processTime = timeMarkerTomorrow
-                //             .plusMinutes(standard + checker + additionalTime - worked - time1 - time2);
+                // // thời gian xử lý = thời gian xử lý cũ - thời gian đã làm
+                // processTime = timeMarkerTomorrow
+                // .plusMinutes(standard + checker + additionalTime - worked - time1 - time2);
                 // }
 
-                // if (realTimeReceived.isAfter(timeMarker11h30) && realTimeReceived.isBefore(timeMarker13h30)) {
-                //     // thời gian chênh lệch giữa thời gian nhận và mốc 11h30
-                //     // Long time1 = durationToMinute(timeReceived, timeMarker13h30); // Trả về 0 nếu
-                //     // timeReceived >
-                //     // // timeMarker11h30
-                //     // thời gian 13h30 - timeMarkerConfigTomorrow
-                //     Long time2 = durationToMinute(timeMarker13h30, timeMarkerConfig); // thời gian đã làm
-                //     // thời gian từ timeMarkerConfigTomorrow - thời gian xử lý
-                //     // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian ngoài
-                //     // giờ hành chính
+                // if (realTimeReceived.isAfter(timeMarker11h30) &&
+                // realTimeReceived.isBefore(timeMarker13h30)) {
+                // // thời gian chênh lệch giữa thời gian nhận và mốc 11h30
+                // // Long time1 = durationToMinute(timeReceived, timeMarker13h30); // Trả về 0
+                // nếu
+                // // timeReceived >
+                // // // timeMarker11h30
+                // // thời gian 13h30 - timeMarkerConfigTomorrow
+                // Long time2 = durationToMinute(timeMarker13h30, timeMarkerConfig); // thời
+                // gian đã làm
+                // // thời gian từ timeMarkerConfigTomorrow - thời gian xử lý
+                // // Long time3 = durationToMinute(timeMarker17h, processTime); // thời gian
+                // ngoài
+                // // giờ hành chính
 
-                //     // thời gian xử lý = thời gian xử lý cũ - thời gian đã làm
-                //     processTime = timeMarkerTomorrow
-                //             .plusMinutes(standard + checker + additionalTime - worked - time2);
+                // // thời gian xử lý = thời gian xử lý cũ - thời gian đã làm
+                // processTime = timeMarkerTomorrow
+                // .plusMinutes(standard + checker + additionalTime - worked - time2);
 
                 // }
-                // if (realTimeReceived.isAfter(timeMarker13h30) && realTimeReceived.isBefore(timeMarkerConfig)) {
-                //     // thời gian từ timeMarkerConfig - thời gian xử lý => ngoài giờ hành chính
+                // if (realTimeReceived.isAfter(timeMarker13h30) &&
+                // realTimeReceived.isBefore(timeMarkerConfig)) {
+                // // thời gian từ timeMarkerConfig - thời gian xử lý => ngoài giờ hành chính
 
-                //     Long time3 = durationToMinute(timeMarkerConfig, processTime);
+                // Long time3 = durationToMinute(timeMarkerConfig, processTime);
 
-                //     processTime = timeMarkerTomorrow
-                //             .plusMinutes(time3);
+                // processTime = timeMarkerTomorrow
+                // .plusMinutes(time3);
 
                 // }
 
@@ -355,7 +377,9 @@ public class CalculatingTime {
 
     /* #endregion */
 
-    /* #region Tình thời gian xử lý đối với việc bàn giao hồ sơ sau 16h trong ngày */
+    /*
+     * #region Tình thời gian xử lý đối với việc bàn giao hồ sơ sau 16h trong ngày
+     */
     // timeWorked = thời gian đã làm -> dùng để tính đối với hoàn trả hồ sơ (trường
     // này được lưu là additional time)
     // timeReceivedOfPreviousRecord = thời gian xử lý của bản ghi trước đó
@@ -392,8 +416,7 @@ public class CalculatingTime {
         // LocalDateTime timeMarker17h = LocalDateTime.of(timeReceived.getYear(),
         // timeReceived.getMonth(),
         // timeReceived.getDayOfMonth(), 17, 0);
-        
-        
+
         double result = (double) timeConfig % 1;
         int hour = 0;
         int minutes = 0;
@@ -405,7 +428,8 @@ public class CalculatingTime {
             hour = (int) timeConfig.doubleValue();
         }
 
-        LocalDateTime timeMarkerConfig = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonth(),timeReceived.getDayOfMonth(), hour, minutes);
+        LocalDateTime timeMarkerConfig = LocalDateTime.of(timeReceived.getYear(), timeReceived.getMonth(),
+                timeReceived.getDayOfMonth(), hour, minutes);
         // LocalDate dateMarker = timeMarkerConfig.toLocalDate();
         // LocalDate dateReceived = timeReceived.toLocalDate();
 
@@ -537,10 +561,13 @@ public class CalculatingTime {
         if (timeReceived.isAfter(timeMarkerConfig)) {
             // thời gian nhận mới bằng mốc 8h sáng hôm sau
             timeReceivedNew = timeMarkerTomorrow;
-
+            processTimeCase = 4;
             // thời gian xử lý tính sang ngày hôm sau
-            processTime = timeMarkerTomorrow
-                    .plusMinutes(standard + checker + additionalTime - worked);
+            // processTime = timeMarkerTomorrow
+            //         .plusMinutes(standard + checker + additionalTime - worked);
+
+            processTime = calculatingTimeProcess(processTime, timeReceived, timeMarker11h30, timeMarker13h30,
+                    timeMarkerConfig, timeMarkerTomorrow, processTimeCase, standard, checker, additionalTime, worked);
 
             mapResult.put("processTime", processTime);
             mapResult.put("timeReceived", timeReceivedNew);

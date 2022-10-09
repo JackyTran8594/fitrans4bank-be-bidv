@@ -216,9 +216,12 @@
 					<include>i18n/*.properties</include>
 					<include>**/*.docx</include>
 					<include>**/*.xlsx</include>
+					<include>**/*.xls</include>
 					<include>**/*.ldif</include>
 					<include>**/*.png</include>
-				  </includes>
+					<include>**/*.jpg</include>
+					<include>**/*.json</include>
+				</includes>
 				<excludes>
 					<exclude>**/application.properties</exclude>
 				</excludes>

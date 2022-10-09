@@ -21,6 +21,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     @Value("${app.dashboard.checkTime:0}")
     private Integer checkTime;
 
+    @Value("${app.timeConfig:0}")
+    private Integer timeConfig;
+
+
     @Override
     public List search(Map searchDTO, Class aClass) {
         Map<String, Object> parameters = new HashMap<>();
@@ -407,9 +411,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 if(params.get("isToday").equals(true)) {
                     sb.append(" AND CAST(p.real_time_received_cm AS DATE) = CAST(CURRENT_TIMESTAMP AS DATE) ");
                 } else {
-                    String sql_time = " AND DATEPART(HOUR, p.real_time_received_cm) = 16 AND DATEPART(MINUTE, p.real_time_received_cm) > 0 ";
-                    String sql_time2 = "AND DATEPART(DAY, p.real_time_received_cm) >= DATEPART(DAY, CURRENT_TIMESTAMP) ";
-                    sb.append(sql_time + sql_time2);
+                    // String sql_time = " AND DATEPART(HOUR, p.real_time_received_cm) = 16 AND DATEPART(MINUTE, p.real_time_received_cm) > 0 ";
+                    // String sql_time2 = "AND DATEPART(DAY, p.real_time_received_cm) >= DATEPART(DAY, CURRENT_TIMESTAMP) ";
+                    String sql_time1 = " AND CAST(p.time_received_cm AS DATE) > CAST(CURRENT_TIMESTAMP AS DATE) AND DATEPART(HOUR, p.real_time_received_cm) >= " + timeConfig + " ";
+                    sb.append(sql_time1);
                 }
                
             }

@@ -342,28 +342,28 @@ public class ProfileServiceImpl implements ProfileService {
                         // Integer additionalTime = 0;
                         // // checking transaction type and plusing additional time
                         // switch (transactionType.getType()) {
-                        //     case 1:
-                        //         if (!DataUtils.isNullOrEmpty(profile.getNumberOfPO())) {
-                        //             if (profile.getNumberOfPO() >= 2) {
-                        //                 additionalTime = additionalTime + 5 * profile.getNumberOfPO();
-                        //             }
-                        //         }
+                        // case 1:
+                        // if (!DataUtils.isNullOrEmpty(profile.getNumberOfPO())) {
+                        // if (profile.getNumberOfPO() >= 2) {
+                        // additionalTime = additionalTime + 5 * profile.getNumberOfPO();
+                        // }
+                        // }
 
-                        //         if (!DataUtils.isNullOrEmpty(profile.getNumberOfBill())) {
-                        //             if (profile.getNumberOfBill() >= 2) {
-                        //                 additionalTime = additionalTime + 1 * profile.getNumberOfBill();
-                        //             }
-                        //         }
+                        // if (!DataUtils.isNullOrEmpty(profile.getNumberOfBill())) {
+                        // if (profile.getNumberOfBill() >= 2) {
+                        // additionalTime = additionalTime + 1 * profile.getNumberOfBill();
+                        // }
+                        // }
 
-                        //         params.put("staffId_CT", "NULL");
+                        // params.put("staffId_CT", "NULL");
 
-                        //         break;
-                        //     case 2:
+                        // break;
+                        // case 2:
 
-                        //         params.put("staffId_CT", "NULL");
-                        //         break;
-                        //     default:
-                        //         break;
+                        // params.put("staffId_CT", "NULL");
+                        // break;
+                        // default:
+                        // break;
                         // }
 
                         // danh sách hồ sơ đang xử lý - thường chỉ là 1
@@ -380,12 +380,16 @@ public class ProfileServiceImpl implements ProfileService {
                             } else {
                                 params.put("isToday", false);
                             }
-
+                            // isAsc = false;
                             List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params, isAsc);
-                            LocalDateTime date = LocalDateTime.now();
+                            // LocalDateTime date = LocalDateTime.now();
+
+                            // LocalDateTime timeReceivedProfile = null;
+                            // nếu hồ sơ chờ lớn hơn 1
                             if (listDataWaiting.size() >= 1) {
                                 // check time received
                                 profile_first = listDataWaiting.get(0);
+                                // timeReceivedProfile = profile_first.getProcessDate();
 
                             } else {
                                 // chính là hồ sơ đang xử lý trong ngày
@@ -402,50 +406,30 @@ public class ProfileServiceImpl implements ProfileService {
                                 // ngày hôm sau (8h sáng)
                                 // nếu thời gian xử lý trong ngày
                                 // tính toán theo hàm trong ngày
-                                if (today.equals(markerDate)) {
 
-                                    mapResult = calculatingTime.calculatingDateFromRealTimeReceived(
-                                            profile_first.getProcessDate(), transactionType.getStandardTimeCM(),
-                                            transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
-                                            profile.getNumberOfPO(),
-                                            profile.getNumberOfBill(), transactionType.getType());
+                                mapResult = calculatingTime.calculatingDateFromRealTimeReceived(
+                                        profile_first.getProcessDate(), transactionType.getStandardTimeCM(),
+                                        transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
+                                        profile.getNumberOfPO(),
+                                        profile.getNumberOfBill(), transactionType.getType());
 
-                                }
-                                // ngày xử ly của hồ sơ sang hôm ssau
-                                else {
-                                    mapResult = calculatingTime.calculatingDateFromTimeReceived(
-                                            profile_first.getProcessDate(), transactionType.getStandardTimeCM(),
-                                            transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
-                                            profile.getNumberOfPO(),
-                                            profile.getNumberOfBill(), transactionType.getType());
-                                }
                             } else {
-                                // kiểm tra xem thời gian xử lý (ngày xử lý) của hồ ơ đang xử lý có nằm sau
-                                // timeMarkerValue không, nếu có thì trường hợp này là đang xử lý vào
-                                // ngày hôm sau (8h sáng)
-                                // nếu thời gian xử lý trong ngày
-                                // tính toán theo hàm trong ngày
-                                if (today.equals(markerDate)) {
-                                    mapResult = calculatingTime.calculatingDateFromRealTimeReceived(
-                                            profile_first.getProcessDate(), transactionType.getStandardTimeCM(),
-                                            transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
-                                            profile.getNumberOfPO(),
-                                            profile.getNumberOfBill(), transactionType.getType());
-
-                                } else {
-                                    mapResult = calculatingTime.calculatingDateFromTimeReceived(
-                                            profile_first.getProcessDate(), transactionType.getStandardTimeCM(),
-                                            transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
-                                            profile.getNumberOfPO(),
-                                            profile.getNumberOfBill(), transactionType.getType());
+                                LocalDateTime timeReceivedProfile = profileHistory.getTimeReceived();
+                                if (listDataWaiting.size() >= 1) {
+                                    timeReceivedProfile = profile_first.getProcessDate();
                                 }
+                                mapResult = calculatingTime.calculatingDateFromTimeReceived(
+                                        timeReceivedProfile, transactionType.getStandardTimeCM(),
+                                        transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
+                                        profile.getNumberOfPO(),
+                                        profile.getNumberOfBill(), transactionType.getType());
 
                             }
 
                             profile.setState(ProfileStateEnum.WAITING.getValue());
                             profileHistory.setState(ProfileStateEnum.WAITING.getValue());
-
-                            profile.setTimeReceived_CM(profile_first.getProcessDate());
+                            LocalDateTime timeReceived = (LocalDateTime) mapResult.get("timeReceived");
+                            profile.setTimeReceived_CM(timeReceived);
                             processTime = (LocalDateTime) mapResult.get("processTime");
 
                         }
@@ -880,9 +864,10 @@ public class ProfileServiceImpl implements ProfileService {
                         }
 
                         LocalDateTime processTime = (LocalDateTime) mapResult.get("processTime");
+                        LocalDateTime timeReceived = (LocalDateTime) mapResult.get("timeReceived");
 
                         // set lại thời gian nhận cho hồ sơ
-                        old.setTimeReceived_CM(pHistoryInternal.getTimeReceived());
+                        old.setTimeReceived_CM(timeReceived);
                         old.setProcessDate(processTime);
                     } else {
                         if (listDataWaiting.size() == 0) {
@@ -895,15 +880,18 @@ public class ProfileServiceImpl implements ProfileService {
 
                             // kiểm tra xem thời gian nhận có vượt 16h hôm nay ko để chọn hàm tính thời gian
                             if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
+                                // không vượt thì tính liền
                                 mapResult = calculatingTime.calculatingDateFromRealTimeReceived(
                                         listDataProcessing.get(0).getProcessDate(), transactionType.getStandardTimeCM(),
                                         transactionType.getStandardTimeChecker(),
                                         old.getAdditionalTime(),
                                         old.getNumberOfPO(), old.getNumberOfBill(),
                                         transactionType.getType());
+
                             } else {
+                                // vượt thì tính mốc
                                 mapResult = calculatingTime.calculatingDateFromTimeReceived(
-                                        listDataProcessing.get(0).getProcessDate(), transactionType.getStandardTimeCM(),
+                                        profileHistory.getTimeReceived(), transactionType.getStandardTimeCM(),
                                         transactionType.getStandardTimeChecker(),
                                         old.getAdditionalTime(),
                                         old.getNumberOfPO(), old.getNumberOfBill(),
@@ -911,9 +899,9 @@ public class ProfileServiceImpl implements ProfileService {
                             }
 
                             LocalDateTime processTime = (LocalDateTime) mapResult.get("processTime");
-
+                            LocalDateTime timeReceived = (LocalDateTime) mapResult.get("timeReceived");
                             // set lại thời gian nhận cho hồ sơ bằng thời gian xử lý của hồ sơ đang xử lý
-                            old.setTimeReceived_CM(listDataProcessing.get(0).getProcessDate());
+                            old.setTimeReceived_CM(timeReceived);
                             old.setProcessDate(processTime);
                         } else {
                             // do có hồ sơ chờ nên set hồ sơ tiếp theo thành chờ xử lý
@@ -1472,140 +1460,146 @@ public class ProfileServiceImpl implements ProfileService {
                 LocalDateTime processTime = null;
 
                 if (process.size() > 0) {
-                    // first record
-                    if (item.getCode().equals("QTTD")) {
-                        LocalDateTime from = dto.getTimeReceived_CM();
-                        LocalDateTime to = dto.getProcessDate();
 
-                        LocalDateTime timeReceived = process.get(0).getProcessDate();
+                    if (process.get(0).getProcessDate().equals(dto.getTimeReceived_CM())) {
+                        message.setMessage("Hồ sơ này tiếp sau hồ đang xử lý");
+                        message.setIsExist(true);
+                    } else {
+                        // first record
+                        if (item.getCode().equals("QTTD")) {
+                            // LocalDateTime from = dto.getTimeReceived_CM();
+                            // LocalDateTime to = dto.getProcessDate();
 
-                        // processDate = DataUtils.calculatingDate(from, to, timeReceived);
-                        // lưu kết quả của timeReceived và processTime;
-                        Map<String, Object> mapResult = new HashMap<>();
+                            LocalDateTime timeReceived = process.get(0).getProcessDate();
 
-                        mapResult = calculatingTime.calculatingDateFromRealTimeReceived(timeReceived,
-                                transactionType.getStandardTimeCM(),
-                                transactionType.getStandardTimeChecker(), dto.getAdditionalTime(),
-                                dto.getNumberOfPO(), dto.getNumberOfBill(),
-                                transactionType.getType());
+                            // processDate = DataUtils.calculatingDate(from, to, timeReceived);
+                            // lưu kết quả của timeReceived và processTime;
+                            Map<String, Object> mapResult = new HashMap<>();
 
-                        // lấy thời gian xử lý của hồ sơ đang xử lý làm thời gian nhận
-                        // mapResult = CalculatingTime.calculatingDateFromTimeReceived(timeReceived,
-                        // transactionType.getStandardTimeCM(),
-                        // transactionType.getStandardTimeChecker(), dto.getAdditionalTime(),
-                        // dto.getNumberOfPO(), dto.getNumberOfBill(),
-                        // transactionType.getType());
+                            // // get list after saving dto
+                            // List<Profile> listData = repository.findBySateAndStaffIdAndIgnore(
+                            // ProfileStateEnum.WAITING.getValue(), dto.getStaffId_CM(), dto.getId());
 
-                        processTime = (LocalDateTime) mapResult.get("processTime");
+                            Map<String, Object> params = new HashMap<String, Object>();
+                            params.put("staffId_CM", dto.getStaffId_CM());
+                            params.put("state", ProfileStateEnum.WAITING.getValue());
+                            params.put("staffId_CT", "NULL");
+                            // ignoreId = loại bỏ hồ sơ đang chuyển
+                            params.put("ignoreId", dto.getId());
+                            params.put("isToday", true);
 
-                        // save dto
-                        dto.setTimeReceived_CM(process.get(0).getProcessDate());
-                        dto.setProcessDate(processTime);
-                        save(dto);
+                            // get list after saving dto
+                            List<ProfileDTO> listData = repository.getProfileWithParams(params,
+                                    true);
 
-                        // // get list after saving dto
-                        // List<Profile> listData = repository.findBySateAndStaffIdAndIgnore(
-                        // ProfileStateEnum.WAITING.getValue(), dto.getStaffId_CM(), dto.getId());
+                            // update processDate for all list
+                            // int i = 0;
+                            if (listData.size() > 0) {
 
-                        Map<String, Object> params = new HashMap<String, Object>();
-                        params.put("staffId_CM", dto.getStaffId_CM());
-                        params.put("state", ProfileStateEnum.WAITING.getValue());
-                        params.put("staffId_CT", "NULL");
-                        // ignoreId = loại bỏ hồ sơ đang chuyển
-                        params.put("ignoreId", dto.getId());
-                        params.put("isToday", true);
+                                mapResult = calculatingTime.calculatingDateFromRealTimeReceived(timeReceived,
+                                        transactionType.getStandardTimeCM(),
+                                        transactionType.getStandardTimeChecker(), dto.getAdditionalTime(),
+                                        dto.getNumberOfPO(), dto.getNumberOfBill(),
+                                        transactionType.getType());
 
-                        // get list after saving dto
-                        List<ProfileDTO> listData = repository.getProfileWithParams(params,
-                                true);
+                                // lấy thời gian xử lý của hồ sơ đang xử lý làm thời gian nhận
+                                // mapResult = CalculatingTime.calculatingDateFromTimeReceived(timeReceived,
+                                // transactionType.getStandardTimeCM(),
+                                // transactionType.getStandardTimeChecker(), dto.getAdditionalTime(),
+                                // dto.getNumberOfPO(), dto.getNumberOfBill(),
+                                // transactionType.getType());
 
-                        // update processDate for all list
-                        // int i = 0;
-                        if (listData.size() > 0) {
+                                processTime = (LocalDateTime) mapResult.get("processTime");
 
-                            for (int i = 0; i < listData.size(); i++) {
-                                // first record update by dto (priority)
-                                if (i == 0) {
-                                    // Profile first = listData.get(i);
-                                    ProfileDTO first = listData.get(i);
-                                    LocalDateTime fromFirst = first.getTimeReceived_CM();
-                                    LocalDateTime toFirst = first.getProcessDate();
-                                    // thời gian nhận của bản ghi chờ thứ nhất là thời gian xử lý của dto
-                                    LocalDateTime timeReceivedOfSecond = dto.getProcessDate();
+                                // save dto nếu listData > 0 mới save
+                                dto.setTimeReceived_CM(process.get(0).getProcessDate());
+                                dto.setProcessDate(processTime);
+                                save(dto);
 
-                                    // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
-                                    // timeReceivedOfSecond);
+                                for (int i = 0; i < listData.size(); i++) {
+                                    // first record update by dto (priority)
+                                    if (i == 0) {
+                                        // Profile first = listData.get(i);
+                                        ProfileDTO first = listData.get(i);
+                                        // LocalDateTime fromFirst = first.getTimeReceived_CM();
+                                        // LocalDateTime toFirst = first.getProcessDate();
+                                        // thời gian nhận của bản ghi chờ thứ nhất là thời gian xử lý của dto
+                                        LocalDateTime timeReceivedOfSecond = dto.getProcessDate();
 
-                                    TransactionTypeDTO transaction = transactionTypeService
-                                            .findById(Long.parseLong(first.getType().toString()));
+                                        // LocalDateTime date = DataUtils.calculatingDate(fromFirst, toFirst,
+                                        // timeReceivedOfSecond);
 
-                                    // lưu kết quả của timeReceived và processTime;
-                                    Map<String, Object> mapResultNew = new HashMap<>();
+                                        TransactionTypeDTO transaction = transactionTypeService
+                                                .findById(Long.parseLong(first.getType().toString()));
 
-                                    // mapResultNew = CalculatingTime.calculatingDateFromTimeReceived(
-                                    // timeReceivedOfSecond,
-                                    // transaction.getStandardTimeCM(),
-                                    // transaction.getStandardTimeChecker(),
-                                    // first.getAdditionalTime(),
-                                    // first.getNumberOfPO(), first.getNumberOfBill(),
-                                    // transaction.getType());
+                                        // lưu kết quả của timeReceived và processTime;
+                                        Map<String, Object> mapResultNew = new HashMap<>();
 
-                                    mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
-                                            timeReceivedOfSecond,
-                                            transaction.getStandardTimeCM(),
-                                            transaction.getStandardTimeChecker(),
-                                            first.getAdditionalTime(),
-                                            first.getNumberOfPO(), first.getNumberOfBill(),
-                                            transaction.getType());
+                                        // mapResultNew = CalculatingTime.calculatingDateFromTimeReceived(
+                                        // timeReceivedOfSecond,
+                                        // transaction.getStandardTimeCM(),
+                                        // transaction.getStandardTimeChecker(),
+                                        // first.getAdditionalTime(),
+                                        // first.getNumberOfPO(), first.getNumberOfBill(),
+                                        // transaction.getType());
 
-                                    LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
-                                    first.setTimeReceived_CM(timeReceivedOfSecond);
-                                    first.setProcessDate(date);
-                                    first.setLastUpdatedDate(LocalDateTime.now());
-                                    // repository.save(first);
-                                    save(first);
+                                        mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
+                                                timeReceivedOfSecond,
+                                                transaction.getStandardTimeCM(),
+                                                transaction.getStandardTimeChecker(),
+                                                first.getAdditionalTime(),
+                                                first.getNumberOfPO(), first.getNumberOfBill(),
+                                                transaction.getType());
 
-                                } else {
-                                    // Profile first = listData.get(i - 1);
-                                    // Profile second = listData.get(i);
+                                        LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
+                                        first.setTimeReceived_CM(timeReceivedOfSecond);
+                                        first.setProcessDate(date);
+                                        first.setLastUpdatedDate(LocalDateTime.now());
+                                        // repository.save(first);
+                                        save(first);
 
-                                    ProfileDTO first = listData.get(i - 1);
-                                    ProfileDTO second = listData.get(i);
+                                    } else {
+                                        // Profile first = listData.get(i - 1);
+                                        // Profile second = listData.get(i);
 
-                                    // thời gian xử lý: giờ, phút
-                                    LocalDateTime fromFirst = second.getTimeReceived_CM();
-                                    LocalDateTime toFirst = second.getProcessDate();
+                                        ProfileDTO first = listData.get(i - 1);
+                                        ProfileDTO second = listData.get(i);
 
-                                    // thời gian chờ của bản ghi thứ 2 là thời gian xử lý của bản ghi thứ nhất
-                                    LocalDateTime timeReceivedOfSecond = first.getProcessDate();
+                                        // thời gian xử lý: giờ, phút
+                                        // LocalDateTime fromFirst = second.getTimeReceived_CM();
+                                        // LocalDateTime toFirst = second.getProcessDate();
 
-                                    // loại giao dịch của mỗi hồ sơ - bản ghi
-                                    TransactionTypeDTO transaction = transactionTypeService
-                                            .findById(Long.parseLong(second.getType().toString()));
+                                        // thời gian chờ của bản ghi thứ 2 là thời gian xử lý của bản ghi thứ nhất
+                                        LocalDateTime timeReceivedOfSecond = first.getProcessDate();
 
-                                    // lưu kết quả của timeReceived và processTime;
-                                    Map<String, Object> mapResultNew = new HashMap<>();
+                                        // loại giao dịch của mỗi hồ sơ - bản ghi
+                                        TransactionTypeDTO transaction = transactionTypeService
+                                                .findById(Long.parseLong(second.getType().toString()));
 
-                                    // tính thời gian trong ngày
-                                    mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
-                                            timeReceivedOfSecond,
-                                            transaction.getStandardTimeCM(),
-                                            transaction.getStandardTimeChecker(),
-                                            second.getAdditionalTime(),
-                                            second.getNumberOfPO(), second.getNumberOfBill(),
-                                            transaction.getType());
+                                        // lưu kết quả của timeReceived và processTime;
+                                        Map<String, Object> mapResultNew = new HashMap<>();
 
-                                    LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
-                                    second.setTimeReceived_CM(timeReceivedOfSecond);
-                                    second.setProcessDate(date);
-                                    second.setLastUpdatedDate(LocalDateTime.now());
-                                    // repository.save(second);
-                                    save(second);
+                                        // tính thời gian trong ngày
+                                        mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
+                                                timeReceivedOfSecond,
+                                                transaction.getStandardTimeCM(),
+                                                transaction.getStandardTimeChecker(),
+                                                second.getAdditionalTime(),
+                                                second.getNumberOfPO(), second.getNumberOfBill(),
+                                                transaction.getType());
+
+                                        LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
+                                        second.setTimeReceived_CM(timeReceivedOfSecond);
+                                        second.setProcessDate(date);
+                                        second.setLastUpdatedDate(LocalDateTime.now());
+                                        // repository.save(second);
+                                        save(second);
+                                    }
                                 }
                             }
+                            message.setMessage("");
+                            message.setIsExist(false);
                         }
-                        message.setMessage("");
-                        message.setIsExist(false);
                     }
 
                 }
