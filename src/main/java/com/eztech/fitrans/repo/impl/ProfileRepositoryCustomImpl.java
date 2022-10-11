@@ -161,12 +161,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                     .append(sql_filter);
 
                             if (paramSearch.containsKey("usernameByCode")) {
-                                // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                // sb.append(" AND uct.username like :usernameByCode");
-                                // parameters.put("usernameByCode",
-                                // formatLike((String) paramSearch.get("usernameByCode").toString()
-                                // .toLowerCase()));
-                                // }
+                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                sb.append(" AND uct.username like :usernameByCode");
+                                parameters.put("usernameByCode",
+                                formatLike((String) paramSearch.get("usernameByCode").toString()
+                                .toLowerCase()));
+                                }
 
                             }
                             break;

@@ -230,7 +230,6 @@ public class ProfileServiceImpl implements ProfileService {
                     params.put("staffIdCM", profile.getStaffId_CM());
                     isAsc = true;
                     List<ProfileDTO> listData = new ArrayList<>();
-                    List<ProfileDTO> listDataWaittingTomorrow = new ArrayList<>();
                     // kiểm tra hồ sơ được bàn giao chưa
                     if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
                         // profile.setTimeReceived_CT(profileHistory.getTimeReceived());
@@ -254,7 +253,10 @@ public class ProfileServiceImpl implements ProfileService {
                                     item.getCode(),
                                     transactionType);
                         } else {
+                            // các hồ sơ chờ của ngày hôm sau
+                            // chỉ update trạng thái xử lý với hồ sơ đầu tiên
                             Map<String, Object> paramsWaiting = new HashMap<>();
+                            List<ProfileDTO> listDataWaittingTomorrow = new ArrayList<>();
                             paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
                             paramsWaiting.put("staffIdCM", profile.getStaffId_CM());
                             paramsWaiting.put("staffIdCT", "NULL");
@@ -263,6 +265,7 @@ public class ProfileServiceImpl implements ProfileService {
                             if (listDataWaittingTomorrow.size() > 0) {
                                 ProfileDTO profileProcessingTomorrow = listDataWaittingTomorrow.get(0);
                                 profileProcessingTomorrow.setState(ProfileStateEnum.PROCESSING.getValue());
+                                save(profileProcessingTomorrow);
                             }
                             // listData waitting
                             // profile.setTimeReceived_CT(profileHistory.getTimeReceived());
@@ -313,7 +316,7 @@ public class ProfileServiceImpl implements ProfileService {
                         paramsWaiting.put("isToday", true);
 
                         List<ProfileDTO> listProfileWaiting = new ArrayList<>();
-                        List<ProfileDTO> listProfileWaitingTomorrow = new ArrayList<>();
+
                         switch (item.getCode()) {
                             // transaction type : 1,2
                             // type 1: QTTD không kết thúc giao dịch, do đó không có staffId_CT
@@ -333,6 +336,7 @@ public class ProfileServiceImpl implements ProfileService {
                                             item.getCode(), transactionType);
                                 } else {
                                     // lọc ra các hồ sơ chờ ngày hôm sau
+                                    List<ProfileDTO> listProfileWaitingTomorrow = new ArrayList<>();
                                     paramsWaitingTomorrow.put("state", ProfileStateEnum.WAITING.getValue());
                                     paramsWaitingTomorrow.put("isToday", true);
                                     paramsWaitingTomorrow.put("staffId_CM", user.getId());
@@ -344,6 +348,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     if (listProfileWaitingTomorrow.size() > 0) {
                                         ProfileDTO profileProcessingTomorrow = listProfileWaitingTomorrow.get(0);
                                         profileProcessingTomorrow.setState(ProfileStateEnum.PROCESSING.getValue());
+                                        save(profileProcessingTomorrow);
                                     }
 
                                 }
@@ -366,44 +371,8 @@ public class ProfileServiceImpl implements ProfileService {
                         item.getProfile().setStaffId_CM(user.getId());
                         params.put("staffId_CM", user.getId());
 
-                        // params.put("type", transactionType.getType());
-                        // check profile is additional and delivery again
-                        Integer timeForAdditional = 0;
-                        if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                            if (!DataUtils.isNullOrEmpty(profile.getAdditionalTime())) {
-                                timeForAdditional = profile.getAdditionalTime();
-                            }
-                        }
-
-                        // check if profile is processing
                         // calculating time for processing time for
                         LocalDateTime processTime = LocalDateTime.now();
-                        // Integer additionalTime = 0;
-                        // // checking transaction type and plusing additional time
-                        // switch (transactionType.getType()) {
-                        // case 1:
-                        // if (!DataUtils.isNullOrEmpty(profile.getNumberOfPO())) {
-                        // if (profile.getNumberOfPO() >= 2) {
-                        // additionalTime = additionalTime + 5 * profile.getNumberOfPO();
-                        // }
-                        // }
-
-                        // if (!DataUtils.isNullOrEmpty(profile.getNumberOfBill())) {
-                        // if (profile.getNumberOfBill() >= 2) {
-                        // additionalTime = additionalTime + 1 * profile.getNumberOfBill();
-                        // }
-                        // }
-
-                        // params.put("staffId_CT", "NULL");
-
-                        // break;
-                        // case 2:
-
-                        // params.put("staffId_CT", "NULL");
-                        // break;
-                        // default:
-                        // break;
-                        // }
 
                         // danh sách hồ sơ đang xử lý - thường chỉ là 1
                         List<ProfileDTO> listData = repository.getProfileWithParams(params, isAsc);
@@ -411,7 +380,7 @@ public class ProfileServiceImpl implements ProfileService {
                         // checking process of profile : processing
                         if (listData.size() == 1) {
                             ProfileDTO profile_first = new ProfileDTO();
-                            // update lại state
+                            // update lại state trong hashmap
                             params.put("state", ProfileStateEnum.WAITING.getValue());
                             // kiểm tra xem thời gian nhận có vượt 16h hôm nay ko
                             if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
@@ -419,11 +388,9 @@ public class ProfileServiceImpl implements ProfileService {
                             } else {
                                 params.put("isToday", false);
                             }
-                            // isAsc = false;
-                            List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params, isAsc);
-                            // LocalDateTime date = LocalDateTime.now();
 
-                            // LocalDateTime timeReceivedProfile = null;
+                            // isAsc = true
+                            List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params, isAsc);
                             // nếu hồ sơ chờ lớn hơn 1
                             if (listDataWaiting.size() >= 1) {
                                 // check time received
@@ -435,8 +402,8 @@ public class ProfileServiceImpl implements ProfileService {
                                 profile_first = listData.get(0);
                             }
 
-                            LocalDate markerDate = timeMarkerValue.toLocalDate();
-                            LocalDate today = profile_first.getProcessDate().toLocalDate();
+                            // LocalDate markerDate = timeMarkerValue.toLocalDate();
+                            // LocalDate today = profile_first.getProcessDate().toLocalDate();
 
                             // kiểm tra xem thời gian nhận có vượt 16h hôm nay ko để chọn hàm tính thời gian
                             if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
@@ -453,10 +420,32 @@ public class ProfileServiceImpl implements ProfileService {
                                         profile.getNumberOfBill(), transactionType.getType());
 
                             } else {
-                                LocalDateTime timeReceivedProfile = profileHistory.getTimeReceived();
-                                if (listDataWaiting.size() >= 1) {
-                                    timeReceivedProfile = profile_first.getProcessDate();
+
+                                LocalDateTime timeReceivedProfile = null;
+
+                                switch (listDataWaiting.size()) {
+                                    case 0:
+                                        // thời gian nhận bằng thời gian xử lý của hồ sơ đang xử lý
+                                        // timeReceivedProfile = profile_first.getProcessDate();
+
+                                        // kiểm tra thời gian nhận có sau timeMarker không
+                                        // nếu có xét bằng thời gian nhận
+                                        // if(timeReceivedProfile.isAfter(timeMarkerValue)) {
+                                        timeReceivedProfile = profileHistory.getTimeReceived();
+                                        // }
+                                        break;
+                                    default:
+                                        // thời gian nhận bằng thời gian xử lý của hồ sơ chờ
+                                        timeReceivedProfile = profile_first.getProcessDate();
+
+                                        // thời gian nhận được xét với trường hợp hồ sơ đang xử lý của ngày hôm trước
+                                        // và thời gian xử lý sau 16h dẫn đến phải nhảy sang ngày hôm sau
+                                        // if (timeReceivedProfile.isAfter(timeMarkerValue)) {
+                                        //     timeReceivedProfile = profileHistory.getTimeReceived();
+                                        // }
+                                        break;
                                 }
+
                                 mapResult = calculatingTime.calculatingDateFromTimeReceived(
                                         timeReceivedProfile, transactionType.getStandardTimeCM(),
                                         transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
@@ -607,11 +596,12 @@ public class ProfileServiceImpl implements ProfileService {
                             paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
                             paramsWaiting.put("staffIdCM", user.getId());
                             paramsWaiting.put("staffIdCT", "NULL");
-                            paramsWaiting.put("isToday", true);
+                            paramsWaiting.put("isToday", false);
                             listDataWaittingTomorrow = repository.getProfileWithParams(paramsWaiting, isAsc);
                             if (listDataWaittingTomorrow.size() > 0) {
                                 ProfileDTO profileProcessingTomorrow = listDataWaittingTomorrow.get(0);
                                 profileProcessingTomorrow.setState(ProfileStateEnum.PROCESSING.getValue());
+                                save(profileProcessingTomorrow);
                             }
                         }
 
@@ -654,12 +644,12 @@ public class ProfileServiceImpl implements ProfileService {
                         // } else {
 
                         // }
-                        
+
                         // lọc ra các hồ sơ trong ngày
                         listDataWaiting = repository.getProfileWithParams(params, isAsc);
-                        if (listDataWaiting.size() > 0) { 
+                        if (listDataWaiting.size() > 0) {
                             this.updateProfileList(listDataWaiting, old, user, profileHistory, department.getId(),
-                            item.getCode(), transactionType);
+                                    item.getCode(), transactionType);
                         } else {
                             // lọc ra các hồ sơ ngày hôm sau
                             // các hồ sơ của ngày hôm sau chỉ update trạng thái với hồ sơ đầu tiên
@@ -668,14 +658,14 @@ public class ProfileServiceImpl implements ProfileService {
                             paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
                             paramsWaiting.put("staffIdCM", user.getId());
                             paramsWaiting.put("staffIdCT", "NULL");
-                            paramsWaiting.put("isToday", true);
+                            paramsWaiting.put("isToday", false);
                             listDataWaittingTomorrow = repository.getProfileWithParams(paramsWaiting, isAsc);
                             if (listDataWaittingTomorrow.size() > 0) {
                                 ProfileDTO profileProcessingTomorrow = listDataWaittingTomorrow.get(0);
                                 profileProcessingTomorrow.setState(ProfileStateEnum.PROCESSING.getValue());
+                                save(profileProcessingTomorrow);
                             }
                         }
-                       
 
                         break;
 
