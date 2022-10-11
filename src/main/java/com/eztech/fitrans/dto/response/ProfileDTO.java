@@ -57,14 +57,15 @@ public class ProfileDTO implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime endTime; // Ngày kết thúc giao dịch
 
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime realTimeReceivedCT; // Ngày thực tế nhận tại QTTD
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime realTimeReceivedCM; // Ngày thực tế nhận tại GDKH
+    private LocalDateTime realTimeReceivedCM; // Ngày thực tế nhận tại QTTD
 
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime realTimeReceivedCT; // Ngày thực tế nhận tại GDKH
+  
     public Integer numberOfBill; // Số lượng hóa đơn
 
     public Integer numberOfPO; // Số lượng ủy nhiệm chi
@@ -141,8 +142,8 @@ public class ProfileDTO implements Serializable {
             String currency,
             String description,
             // Integer priorityNumber,
-            LocalDateTime realTimeReceivedCT,
             LocalDateTime realTimeReceivedCM,
+            LocalDateTime realTimeReceivedCT,
             String pendingNote,
             String staffNameLast,
             String customerName,
