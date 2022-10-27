@@ -65,6 +65,10 @@ public class ProfileDTO implements Serializable {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime realTimeReceivedCT; // Ngày thực tế nhận tại GDKH
+
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime timeReceivedHistory; // Ngày nhận tại bảng history, dùng để lưu lịch sử các lần quét
   
     public Integer numberOfBill; // Số lượng hóa đơn
 
@@ -153,7 +157,8 @@ public class ProfileDTO implements Serializable {
             Integer transactionType,
             String transactionDetail,
             Integer additionalTimeMax,
-            Integer customerType) {
+            Integer customerType,
+            LocalDateTime timeReceivedHistory) {
         this.id = id;
         this.customerid = customerid;
         this.cif = cif;
@@ -210,6 +215,7 @@ public class ProfileDTO implements Serializable {
         this.realTimeReceivedCT = realTimeReceivedCT;
         this.realTimeReceivedCM = realTimeReceivedCM;
         this.pendingNote = pendingNote;
+        this.timeReceivedHistory = timeReceivedHistory;
     }
 
     public void fillTransient() {

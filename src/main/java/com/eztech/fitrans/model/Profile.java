@@ -71,6 +71,7 @@ import lombok.NoArgsConstructor;
         @ColumnResult(name = "transaction_detail", type = String.class),
         @ColumnResult(name = "additional_time_max", type = Integer.class),
         @ColumnResult(name = "customer_type", type = Integer.class),
+        @ColumnResult(name = "time_received_history", type = LocalDateTime.class)
     })
 
 })

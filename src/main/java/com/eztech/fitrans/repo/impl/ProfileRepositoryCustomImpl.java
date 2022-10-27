@@ -76,7 +76,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql_select = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type  \n";
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history  \n";
 
         if (count) {
             sb.append("SELECT COUNT(p.id) \n")
@@ -108,11 +108,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "OR uc.full_name LIKE :txtSearch OR p.return_reason LIKE :txtSearch OR p.review_note LIKE :txtSearch OR p.note LIKE :txtSearch ";
         String sql_search_value = "OR CAST(p.value AS varchar(100)) LIKE :txtSearch  OR CAST(p.type AS varchar(100))  LIKE :txtSearch  OR CAST(p.number_of_bill AS varchar(100))  LIKE :txtSearch "
                 + "OR CAST(p.number_of_po AS varchar(100)) LIKE :txtSearch OR CAST(p.state AS varchar(100)) LIKE :txtSearch) \n";
-
+                String departmentCode = null;
         if (paramSearch.containsKey("code")) {
-            String deparmentCode = paramSearch.get("code").toString();
+            departmentCode = paramSearch.get("code").toString();
 
-            if (!DataUtils.isNullOrEmpty(deparmentCode)) {
+            if (!DataUtils.isNullOrEmpty(departmentCode)) {
                 // default null from client
                 String username = paramSearch.containsKey("username") ? paramSearch.get("username").toString() : "";
 
@@ -121,7 +121,33 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     String position = paramSearch.containsKey("position") ? paramSearch.get("position").toString() : "";
                     String sql_filter = "";
 
-                    switch (deparmentCode) {
+                    switch (departmentCode) {
+                        case "QLKH":
+                            if (PositionTypeEnum.CHUYENVIEN.getName().equals(position)) {
+                                // QKH view theo username đối với chuyên viên
+                                if (paramSearch.containsKey("username")) {
+                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
+                                        sb.append(" AND uc.username = :username");
+                                        parameters.put("username",
+                                                paramSearch.get("username").toString()
+                                                        .toLowerCase());
+                                    }
+
+                                }
+                            }
+                            // view theo phong - username by code doi voi truong phong/giam doc
+                            else {
+                                if (paramSearch.containsKey("usernameByCode")) {
+                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                        sb.append(" AND uc.username like :usernameByCode");
+                                        parameters.put("usernameByCode",
+                                                formatLike((String) paramSearch.get("usernameByCode").toString()
+                                                        .toLowerCase()));
+                                    }
+
+                                }
+                            }
+                            break;
                         case "QTTD":
                             String sql_qttd = " AND trans.type IN (1,2) ";
                             sql_filter = " AND p.state NOT IN (0) ";
@@ -162,10 +188,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
                             if (paramSearch.containsKey("usernameByCode")) {
                                 if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                sb.append(" AND uct.username like :usernameByCode");
-                                parameters.put("usernameByCode",
-                                formatLike((String) paramSearch.get("usernameByCode").toString()
-                                .toLowerCase()));
+                                    sb.append(" AND uct.username like :usernameByCode");
+                                    parameters.put("usernameByCode",
+                                            formatLike((String) paramSearch.get("usernameByCode").toString()
+                                                    .toLowerCase()));
                                 }
 
                             }
@@ -204,6 +230,13 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         if (paramSearch.containsKey("defaultState")) {
             if (paramSearch.get("defaultState").equals("true")) {
                 sb.append(" AND p.state IN (4,5) ");
+                // if(!DataUtils.isNullOrEmpty(departmentCode)) {
+                //     // qlkh xem tat
+                //     if(!departmentCode.equals("QLKH")) {
+                    
+                //     }
+                // } 
+               
             } else {
                 if (paramSearch.containsKey("state")) {
                     if (!DataUtils.isNullOrEmpty(paramSearch.get("state").toString())) {
@@ -277,7 +310,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -301,7 +334,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type   \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -323,7 +356,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type    \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history    \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -348,7 +381,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type   \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -453,7 +486,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         String select = "SELECT ";
         String sql = " p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type   \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
