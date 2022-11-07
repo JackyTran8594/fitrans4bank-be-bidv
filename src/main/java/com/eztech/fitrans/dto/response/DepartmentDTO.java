@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 public class DepartmentDTO implements Serializable {
     private Long id;
     private String code;
+    private String departmentCode;
     private String name;
     private String description;
     private String createdBy;

@@ -47,7 +47,7 @@ public class DepartmentRepositoryCustomImpl extends BaseCustomRepository<Departm
             parameters.put("id", id);
         }
         if (DataUtils.notNullOrEmpty(code)) {
-            sb.append(" AND UPPER(code) = :code ");
+            sb.append(" AND UPPER(department_code) = :code ");
             parameters.put("code", code.trim().toUpperCase());
         }
         sb.append(" AND status = 'ACTIVE'");
