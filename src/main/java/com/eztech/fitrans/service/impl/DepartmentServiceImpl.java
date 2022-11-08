@@ -114,24 +114,24 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     public void validate(DepartmentDTO item) {
-        if (DataUtils.isNullOrEmpty(item.getCode())) {
+        if (DataUtils.isNullOrEmpty(item.getDepartmentCode())) {
             throw new InputInvalidException(ErrorCodeEnum.ER0003, "Mã phòng ban");
         }
 
-        if (DataUtils.notNullOrEmpty(item.getCode()) && item.getCode().length() > 50) {
-            throw new InputInvalidException(ErrorCodeEnum.ER0010, "Mã phòng ban", 50);
+        if (DataUtils.notNullOrEmpty(item.getDepartmentCode()) && item.getDepartmentCode().length() > 255) {
+            throw new InputInvalidException(ErrorCodeEnum.ER0010, "Mã phòng ban", 255);
         }
 
         if (DataUtils.isNullOrEmpty(item.getName())) {
             throw new InputInvalidException(ErrorCodeEnum.ER0003, "Tên phòng ban");
         }
 
-        if (DataUtils.notNullOrEmpty(item.getName()) && item.getName().length() > 255) {
+        if (DataUtils.notNullOrEmpty(item.getName()) && item.getName().length() > 500) {
             throw new InputInvalidException(ErrorCodeEnum.ER0010, "Tên phòng ban",
                     255);
         }
 
-        boolean checkExit = departmentRepository.checkExits(item.getId(), item.getCode());
+        boolean checkExit = departmentRepository.checkExits(item.getId(), item.getDepartmentCode());
         if (checkExit) {
             throw new InputInvalidException(ErrorCodeEnum.ER0009, "Mã phòng ban");
         }

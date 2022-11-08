@@ -20,7 +20,11 @@ public class Department extends Auditable<String> implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    // mã vai trò chức năng của phòng ban
     private String code;
+    // mã phòng ban
+    private String departmentCode;
+    
     private String name;
     private String description;
 }
