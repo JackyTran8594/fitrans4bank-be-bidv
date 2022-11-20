@@ -22,5 +22,6 @@ public class   ConfirmRequest implements Serializable {
     public Boolean isReturned;
     public Boolean isTranfered;
     public ProfileDTO profile;
+    public Long departmentId;
 }
 

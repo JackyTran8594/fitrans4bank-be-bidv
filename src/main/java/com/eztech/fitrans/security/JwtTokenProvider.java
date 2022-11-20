@@ -55,8 +55,20 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * 
+     * @param authentication
+     * @param role
+     * @param listPermission
+     * @param departmentCode
+     * @param position
+     * @param fullname
+     * @param priorityCard: số lần ưu tiên của thẻ
+     * @return
+     */
+
     public String generateToken(Authentication authentication, String role, List<String> listPermission,
-            String departmentCode, String position, String fullname) {
+            String departmentCode, String position, String fullname, Long departmentId) {
 
         // LdapUserDetailsImpl userPrincipal = (LdapUserDetailsImpl) authentication.getPrincipal();
 
@@ -75,6 +87,7 @@ public class JwtTokenProvider {
                 .claim("fullname", fullname)
                 .claim("role", role)
                 .claim("permissions", listPermission)
+                .claim("departmentId", departmentId)
                 .compact();
     }
 

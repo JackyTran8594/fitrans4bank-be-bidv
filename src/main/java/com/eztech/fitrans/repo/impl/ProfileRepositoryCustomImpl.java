@@ -108,7 +108,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "OR uc.full_name LIKE :txtSearch OR p.return_reason LIKE :txtSearch OR p.review_note LIKE :txtSearch OR p.note LIKE :txtSearch ";
         String sql_search_value = "OR CAST(p.value AS varchar(100)) LIKE :txtSearch  OR CAST(p.type AS varchar(100))  LIKE :txtSearch  OR CAST(p.number_of_bill AS varchar(100))  LIKE :txtSearch "
                 + "OR CAST(p.number_of_po AS varchar(100)) LIKE :txtSearch OR CAST(p.state AS varchar(100)) LIKE :txtSearch) \n";
-                String departmentCode = null;
+        String departmentCode = null;
         if (paramSearch.containsKey("code")) {
             departmentCode = paramSearch.get("code").toString();
 
@@ -188,10 +188,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
                             if (paramSearch.containsKey("usernameByCode")) {
                                 if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    sb.append(" AND uct.username like :usernameByCode");
-                                    parameters.put("usernameByCode",
-                                            formatLike((String) paramSearch.get("usernameByCode").toString()
-                                                    .toLowerCase()));
+                                sb.append(" AND uct.username like :usernameByCode");
+                                parameters.put("usernameByCode",
+                                formatLike((String) paramSearch.get("usernameByCode").toString()
+                                .toLowerCase()));
                                 }
 
                             }
@@ -230,13 +230,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         if (paramSearch.containsKey("defaultState")) {
             if (paramSearch.get("defaultState").equals("true")) {
                 sb.append(" AND p.state IN (4,5) ");
-                // if(!DataUtils.isNullOrEmpty(departmentCode)) {
-                //     // qlkh xem tat
-                //     if(!departmentCode.equals("QLKH")) {
-                    
-                //     }
-                // } 
-               
             } else {
                 if (paramSearch.containsKey("state")) {
                     if (!DataUtils.isNullOrEmpty(paramSearch.get("state").toString())) {
@@ -310,7 +303,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -334,7 +327,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history   \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type,  trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -356,7 +349,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history    \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type    \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -381,7 +374,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history   \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -486,7 +479,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         String select = "SELECT ";
         String sql = " p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history   \n"
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type   \n"
                 +
                 "FROM profile p left join customer c on p.customer_id = c.id \n" +
                 "left join profile_history his on p.id = his.profile_id \n" +
@@ -537,6 +530,107 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         // sb.append(" FETCH NEXT :limit ROWS ONLY ");
 
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
+    }
+
+    @Override
+    public List<Profile> countProfileInday(Integer time, Integer minutes) {
+        // TODO Auto-generated method stub
+        StringBuilder sb = new StringBuilder();
+        Map<String, Object> parameters = new HashMap<>();
+        String select = "SELECT * \n";
+        String from = "FROM profile \n";
+        String where = "WHERE 1=1 AND CAST(created_date AS DATE) = CAST(GETDATE() AS DATE)";
+        String where1 = null;
+        String where2 = null;
+        String where3 = null;
+        String where4 = null;
+        sb.append(select + from + where);
+        // parameters.put("time", time);
+        // if (minutes > 0) {
+        //     // where1 = "WHERE ((DATEPART(HOUR, real_time_received_cm) < :time AND DATEPART(MINUTE, real_time_received_cm) < :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
+        //     // where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND DATEPART(MINUTE, real_time_received_ct) < :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
+        //     // where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND DATEPART(MINUTE, real_time_received_cm) >= :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
+        //     // where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND DATEPART(MINUTE, real_time_received_ct) >= :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
+        //     parameters.put("minutes", minutes);
+        //     // sb.append(where1 + where2 + where3 + where4);
+        // } else {
+        //     where1 = " WHERE ((DATEPART(HOUR, real_time_received_cm) < :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
+        //     where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
+        //     where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
+        //     where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
+        //     sb.append(where1 + where2 + where3 + where4);
+        // }
+        return getResultList(sb.toString(), Profile.class, parameters);
+    }
+
+    @Override
+    public List<Profile> countProfileInDayByState(Integer time, Integer minutes, Integer state) {
+        // TODO Auto-generated method stub
+        StringBuilder sb = new StringBuilder();
+        Map<String, Object> parameters = new HashMap<>();
+        String select = "SELECT * \n";
+        String from = "FROM profile \n";
+        String where1 = null;
+        String where2 = null;
+        String where6 = "WHERE 1=1 AND state = :state";
+        String where3 = null;
+        String where4 = null;
+        sb.append(select + from + where6);
+        parameters.put("time", time);
+        parameters.put("state", state);
+        if (minutes > 0) {
+            where1 = " AND ((DATEPART(HOUR, real_time_received_cm) < :time AND DATEPART(MINUTE, real_time_received_cm) < :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
+            where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND DATEPART(MINUTE, real_time_received_ct) < :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
+            where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND DATEPART(MINUTE, real_time_received_cm) >= :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
+            where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND DATEPART(MINUTE, real_time_received_ct) >= :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
+            parameters.put("minutes", minutes);
+            sb.append(where1 + where2 + where3 + where4);
+        } else {
+            where1 = " AND ((DATEPART(HOUR, real_time_received_cm) < :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
+            where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
+            where3 = " OR ((DATEPART(HOUR, real_time_received_cm) > :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
+            where4 = " OR (DATEPART(HOUR, real_time_received_ct) > :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
+            sb.append(where1 + where2 + where3 + where4);
+        }
+        return getResultList(sb.toString(), Profile.class, parameters);
+    }
+
+    @Override
+    public List<Profile> countProfileExpectetWithListState(Integer time, Integer minutes, List<Integer> listState,
+            Integer transactionType) {
+        // TODO Auto-generated method stub
+        StringBuilder sb = new StringBuilder();
+        Map<String, Object> parameters = new HashMap<>();
+        String select = "SELECT p.* \n";
+
+        String from = "FROM profile AS p \n";
+
+        String join1 ="LEFT JOIN transaction_type AS trans ON p.type = trans.id \n";
+
+        String where1 = null;
+        String where2 = null;
+        String where6 = "WHERE 1=1 AND state IN :listState AND trans.type = :transactionType";
+        String where3 = null;
+        String where4 = null;
+        sb.append(select  + from + join1 + where6);
+        parameters.put("time", time);
+        parameters.put("listState", listState);
+        parameters.put("transactionType", transactionType);
+        if (minutes > 0) {
+            where1 = " AND ((DATEPART(HOUR, real_time_received_cm) < :time AND DATEPART(MINUTE, real_time_received_cm) < :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
+            where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND DATEPART(MINUTE, real_time_received_ct) < :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
+            where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND DATEPART(MINUTE, real_time_received_cm) >= :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
+            where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND DATEPART(MINUTE, real_time_received_ct) >= :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
+            parameters.put("minutes", minutes);
+            sb.append(where1 + where2 + where3 + where4);
+        } else {
+            where1 = " AND ((DATEPART(HOUR, real_time_received_cm) < :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
+            where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
+            where3 = " OR ((DATEPART(HOUR, real_time_received_cm) > :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
+            where4 = " OR (DATEPART(HOUR, real_time_received_ct) > :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
+            sb.append(where1 + where2 + where3 + where4);
+        }
+        return getResultList(sb.toString(), Profile.class, parameters);
     }
 
 }

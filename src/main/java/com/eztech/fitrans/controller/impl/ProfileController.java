@@ -3,6 +3,7 @@ package com.eztech.fitrans.controller.impl;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.controller.ProfileApi;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
+import com.eztech.fitrans.dto.response.DashboardDTO;
 import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
@@ -299,6 +300,26 @@ public class ProfileController extends BaseController implements ProfileApi {
         .collect(Collectors.toList());
     List<ProfileHistoryDTO> profilesHistory = historyService.findByIdAndState(id, state);
     return profilesHistory;
+  }
+
+  @GetMapping("/profileInday")
+  public Integer getCountProfileInday() {
+    return service.countProfileInday();
+  }
+
+  @GetMapping("/profileInDayByState/{state}")
+  public Integer getProfileInDayByState(@PathVariable(value = "state") Integer state) {
+    return service.countProfileInDayByState(state);
+  }
+
+  // @GetMapping("/profileExpecteWithListState")
+  // public Map<String, Object> countProfileExpectetWithListState(@RequestParam Integer transactionType) {
+    // }
+    //   return service.profileExpected();
+
+  @GetMapping("/profileExpected")
+  public List<DashboardDTO> countProfileExpected() {
+    return service.profileExpected();
   }
 
 }

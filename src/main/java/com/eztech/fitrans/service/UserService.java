@@ -26,6 +26,7 @@ public interface UserService {
 
   List<UserDTO> findByCode(String departmentCode);
 
-
+  Integer getNumberOfPriorityByUsername(String username);
+	
 
 }
