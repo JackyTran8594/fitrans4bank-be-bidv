@@ -1,6 +1,7 @@
 package com.eztech.fitrans.service;
 
 import com.eztech.fitrans.dto.request.ConfirmRequest;
+import com.eztech.fitrans.dto.response.DashboardDTO;
 import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 
@@ -46,5 +47,15 @@ public interface ProfileService {
   MessageDTO priorityProfile(ConfirmRequest req);
 
   long countProfile(List<Integer> listState);
+
+  Integer countProfileInday();
+
+  Integer countProfileInDayByState(Integer state);
+
+  Integer countProfileExpectetWithListState(Integer transactionType);
+
+  List<DashboardDTO> profileExpected();
+
+
 
 }

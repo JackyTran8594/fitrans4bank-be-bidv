@@ -157,19 +157,25 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		Map<String, Object> mapper = new HashMap<String, Object>();
 		String position = null;
 		String fullname = null;
+		Long departmentId = null;
 		if (DataUtils.isNullOrEmpty(user)) {
 			log.warn("User login ldap ok but not found with username in db:" + username);
 			// throw new UsernameNotFoundException("Username not found position: " + username);
 			mapper.put("position", "UNKNOWN");
 			mapper.put("fullname", "UNKNOWN");
+			mapper.put("departmentId", "UNKNOWN");
 		} else {
-		
+			// Integer priorityCard = repo.getPriorityCardByDepartmentId(user.getDepartmentId());
 			position = !DataUtils.isNullOrEmpty(user.getPosition()) ? user.getPosition() : "UNKNOWN";
 			fullname = !DataUtils.isNullOrEmpty(user.getFullName()) ? user.getFullName() : "UNKNOWN";
+			departmentId = !DataUtils.isNullOrEmpty(user.getDepartmentId()) ? user.getDepartmentId() : null;
 			mapper.put("position", position);
 			mapper.put("fullname", fullname);
+			mapper.put("departmentId", departmentId);
 		}
 		return mapper;
 
 	}
+
+
 }

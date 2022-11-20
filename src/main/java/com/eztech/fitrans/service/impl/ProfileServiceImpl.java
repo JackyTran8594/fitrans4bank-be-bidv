@@ -2,6 +2,7 @@ package com.eztech.fitrans.service.impl;
 
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
+import com.eztech.fitrans.dto.response.DashboardDTO;
 import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
@@ -12,6 +13,7 @@ import com.eztech.fitrans.event.ScheduledTasks;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Profile;
 import com.eztech.fitrans.model.ProfileHistory;
+import com.eztech.fitrans.repo.ActionLogRepository;
 import com.eztech.fitrans.repo.ProfileHistoryRepository;
 import com.eztech.fitrans.repo.ProfileRepository;
 import com.eztech.fitrans.service.DepartmentService;
@@ -24,8 +26,12 @@ import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.CalculatingTime;
 import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.unboundid.util.json.JSONObject;
 
 import lombok.extern.slf4j.Slf4j;
+import springfox.documentation.spring.web.json.Json;
 
 import org.apache.poi.xwpf.usermodel.BodyElementType;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
@@ -57,7 +63,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import javax.persistence.criteria.Predicate;
 import javax.print.DocFlavor.URL;
 
 import static com.eztech.fitrans.constants.Constants.ACTIVE;
@@ -77,13 +86,16 @@ public class ProfileServiceImpl implements ProfileService {
     private static ReadAndWriteDoc readandwrite;
 
     @Value("${app.timeConfig}")
-    private static Double timeConfig;
+    private Double timeConfig;
 
     @Autowired
     private ProfileRepository repository;
 
     @Autowired
     private CalculatingTime calculatingTime;
+
+    @Autowired
+    private ActionLogRepository actionLogRepository;
 
     // @Autowired
     // private ProfileHistoryRepository profileHistoryRepo;
@@ -197,7 +209,7 @@ public class ProfileServiceImpl implements ProfileService {
         if (DataUtils.isNullObject(user)) {
             throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
         }
-        DepartmentDTO department = departmentService.findByCode(item.getCode());
+        DepartmentDTO department = departmentService.findById(user.getDepartmentId());
         if (DataUtils.isNullObject(department)) {
             throw new ResourceNotFoundException("department " + item.getCode() + " not found");
         }
@@ -441,7 +453,7 @@ public class ProfileServiceImpl implements ProfileService {
                                         // thời gian nhận được xét với trường hợp hồ sơ đang xử lý của ngày hôm trước
                                         // và thời gian xử lý sau 16h dẫn đến phải nhảy sang ngày hôm sau
                                         // if (timeReceivedProfile.isAfter(timeMarkerValue)) {
-                                        //     timeReceivedProfile = profileHistory.getTimeReceived();
+                                        // timeReceivedProfile = profileHistory.getTimeReceived();
                                         // }
                                         break;
                                 }
@@ -536,7 +548,7 @@ public class ProfileServiceImpl implements ProfileService {
             if (DataUtils.isNullObject(user)) {
                 throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
             }
-            DepartmentDTO department = departmentService.findByCode(item.getCode());
+            DepartmentDTO department = departmentService.findById(user.getDepartmentId());
             if (DataUtils.isNullObject(department)) {
                 throw new ResourceNotFoundException("department " + department.getCode() + " not found");
             }
@@ -820,7 +832,7 @@ public class ProfileServiceImpl implements ProfileService {
             if (DataUtils.isNullObject(user)) {
                 throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
             }
-            DepartmentDTO department = departmentService.findByCode(item.getCode());
+            DepartmentDTO department = departmentService.findById(user.getDepartmentId());
             if (DataUtils.isNullObject(department)) {
                 throw new ResourceNotFoundException("department " + department.getCode() + " not found");
             }
@@ -1105,7 +1117,7 @@ public class ProfileServiceImpl implements ProfileService {
                     throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
                 }
 
-                DepartmentDTO deparment = departmentService.findByCode(item.getCode());
+                DepartmentDTO deparment = departmentService.findById(user.getDepartmentId());
                 if (DataUtils.isNullOrEmpty(deparment)) {
                     throw new ResourceNotFoundException("Deparment " + item.getCode() + " not found");
                 }
@@ -1368,7 +1380,7 @@ public class ProfileServiceImpl implements ProfileService {
                     throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
                 }
 
-                DepartmentDTO deparment = departmentService.findByCode(item.getCode());
+                DepartmentDTO deparment = departmentService.findById(user.getDepartmentId());
                 if (DataUtils.isNullOrEmpty(deparment)) {
                     throw new ResourceNotFoundException("Deparment " + item.getCode() + " not found");
                 }
@@ -1521,6 +1533,20 @@ public class ProfileServiceImpl implements ProfileService {
             ProfileDTO dto = findById(item.getProfile().getId());
             if (!DataUtils.isNullOrEmpty(dto)) {
 
+                
+
+                Integer numberOfPriority = userService.getNumberOfPriorityByUsername(item.getUsername());
+                Integer countActionLogCountPriorityProfile = actionLogRepository
+                        .countActionLogPriorityProfile("priorityProfile", item.getDepartmentId());
+
+                // kiểm tra xem số lần ưu tiên hồ sơ thành công trong ngày có lớn hơn số lần ưu
+                // tiên đã được cấu hình
+                if (countActionLogCountPriorityProfile >= numberOfPriority) {
+                    message.setMessage("Không thể ưu tiên hồ sơ do vượt quá số lần ưu tiên: " + numberOfPriority);
+                    message.setIsExist(true);
+                    return message;
+                }
+
                 TransactionTypeDTO transactionType = transactionTypeService
                         .findById(Long.parseLong(dto.getType().toString()));
 
@@ -1542,7 +1568,7 @@ public class ProfileServiceImpl implements ProfileService {
                         message.setIsExist(true);
                     } else {
                         // first record
-                        if (item.getCode().equals("QTTD")) {
+                        if (item.getCode().equals("QTTD") || item.getCode().equals("QLKH")) {
                             // LocalDateTime from = dto.getTimeReceived_CM();
                             // LocalDateTime to = dto.getProcessDate();
 
@@ -1866,7 +1892,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                         // tính lại thời gian xử lý của hồ sơ/bản ghi thứ nhất
                         // nếu thời gian thực nhận mà trước timeMarker thì update trong ngày
-                        if(first.getRealTimeReceivedCM().isBefore(timeMarkerValue)) {
+                        if (first.getRealTimeReceivedCM().isBefore(timeMarkerValue)) {
                             mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
                                     timeReceivedOfSecond,
                                     transaction.getStandardTimeCM(),
@@ -1875,7 +1901,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     first.getNumberOfPO(), first.getNumberOfBill(),
                                     transaction.getType());
                         } else {
-                             // nếu update hồ sơ từ pending (chưa giải quyết) và additional (cần bổ sung),
+                            // nếu update hồ sơ từ pending (chưa giải quyết) và additional (cần bổ sung),
                             // finished (kết thúc) thì tính update các hồ sơ tiếp theo trong ngày
                             if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())
                                     || profile.getState().equals(ProfileStateEnum.PENDING.getValue())
@@ -1899,35 +1925,35 @@ public class ProfileServiceImpl implements ProfileService {
                         }
 
                         // if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
-                        //     mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
-                        //             timeReceivedOfSecond,
-                        //             transaction.getStandardTimeCM(),
-                        //             transaction.getStandardTimeChecker(),
-                        //             first.getAdditionalTime(),
-                        //             first.getNumberOfPO(), first.getNumberOfBill(),
-                        //             transaction.getType());
+                        // mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
+                        // timeReceivedOfSecond,
+                        // transaction.getStandardTimeCM(),
+                        // transaction.getStandardTimeChecker(),
+                        // first.getAdditionalTime(),
+                        // first.getNumberOfPO(), first.getNumberOfBill(),
+                        // transaction.getType());
                         // } else {
-                        //     // nếu update hồ sơ từ pending (chưa giải quyết) và additional (cần bổ sung),
-                        //     // finished (kết thúc) thì tính update các hồ sơ tiếp theo trong ngày
-                        //     if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())
-                        //             || profile.getState().equals(ProfileStateEnum.PENDING.getValue())
-                        //             || profile.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-                        //         mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
-                        //                 timeReceivedOfSecond,
-                        //                 transaction.getStandardTimeCM(),
-                        //                 transaction.getStandardTimeChecker(),
-                        //                 first.getAdditionalTime(),
-                        //                 first.getNumberOfPO(), first.getNumberOfBill(),
-                        //                 transaction.getType());
-                        //     } else {
-                        //         mapResultNew = calculatingTime.calculatingDateFromTimeReceived(
-                        //                 timeReceivedOfSecond,
-                        //                 transaction.getStandardTimeCM(),
-                        //                 transaction.getStandardTimeChecker(),
-                        //                 first.getAdditionalTime(),
-                        //                 first.getNumberOfPO(), first.getNumberOfBill(),
-                        //                 transaction.getType());
-                        //     }
+                        // // nếu update hồ sơ từ pending (chưa giải quyết) và additional (cần bổ sung),
+                        // // finished (kết thúc) thì tính update các hồ sơ tiếp theo trong ngày
+                        // if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())
+                        // || profile.getState().equals(ProfileStateEnum.PENDING.getValue())
+                        // || profile.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                        // mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
+                        // timeReceivedOfSecond,
+                        // transaction.getStandardTimeCM(),
+                        // transaction.getStandardTimeChecker(),
+                        // first.getAdditionalTime(),
+                        // first.getNumberOfPO(), first.getNumberOfBill(),
+                        // transaction.getType());
+                        // } else {
+                        // mapResultNew = calculatingTime.calculatingDateFromTimeReceived(
+                        // timeReceivedOfSecond,
+                        // transaction.getStandardTimeCM(),
+                        // transaction.getStandardTimeChecker(),
+                        // first.getAdditionalTime(),
+                        // first.getNumberOfPO(), first.getNumberOfBill(),
+                        // transaction.getType());
+                        // }
 
                         // }
 
@@ -2060,6 +2086,9 @@ public class ProfileServiceImpl implements ProfileService {
 
     }
 
+    /**
+     * return -1 = error
+     */
     @Override
     public long countProfile(List<Integer> listState) {
         // TODO Auto-generated method stub
@@ -2068,8 +2097,186 @@ public class ProfileServiceImpl implements ProfileService {
         } catch (Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
-            return 0;
+            return -1;
 
+        }
+    }
+
+    /**
+     * return -1 = error
+     */
+    @Override
+    public Integer countProfileInday() {
+        // TODO Auto-generated method stub
+        try {
+            Integer result = null;
+            System.out.println(timeConfig);
+            // if (timeConfig instanceof Double) {
+            int intPart = (int) timeConfig.doubleValue();
+            int minutes = (int) Math.round((timeConfig.doubleValue() - intPart) * 60);
+            if (minutes > 0) {
+                result = repository.countProfileInday(Integer.valueOf(intPart), Integer.valueOf(minutes)).size();
+            } else {
+                result = repository.countProfileInday(Integer.valueOf(timeConfig.intValue()), Integer.valueOf(0))
+                        .size();
+
+            }
+            // } else {
+            // result = repository.countProfileInday(Integer.valueOf(timeConfig.intValue()),
+            // Integer.valueOf(0))
+            // .size();
+            // }
+            System.out.println("-------------------" + result);
+            return result;
+        } catch (Exception e) {
+            // TODO: handle exception
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return -1;
+        }
+    }
+
+    @Override
+    public Integer countProfileInDayByState(Integer state) {
+        // TODO Auto-generated method stub
+        try {
+            Integer result = null;
+            // if (timeConfig instanceof Double) {
+            int intPart = (int) timeConfig.doubleValue();
+            int minutes = (int) Math.round((timeConfig.doubleValue() - intPart) * 60);
+            if (minutes > 0) {
+                result = repository
+                        .countProfileInDayByState(Integer.valueOf(intPart), Integer.valueOf(minutes), state).size();
+            } else {
+                result = repository
+                        .countProfileInDayByState(Integer.valueOf(timeConfig.intValue()), Integer.valueOf(0), state)
+                        .size();
+
+            }
+            // } else {
+            // result = repository
+            // .countProfileInDayByState(Integer.valueOf(timeConfig.intValue()),
+            // Integer.valueOf(0), state)
+            // .size();
+            // }
+            System.out.println("-------------------" + result);
+            return result;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return -1;
+        }
+    }
+
+    @Override
+    public Integer countProfileExpectetWithListState(Integer transactionType) {
+        // TODO Auto-generated method stub
+        try {
+            List<Integer> listState = null;
+            Integer result = null;
+            switch (transactionType) {
+                // Luồng 1: QLKH - QTTD - GDKH: 0,1,2,3,8,9
+                case 1:
+                    listState = Arrays.asList(new Integer[] { 0, 1, 2, 3, 8, 9 });
+                    break;
+
+                // Luồng 2: QLKH - QTTD: 0, 1, 3, 8, 9
+                case 2:
+                    listState = Arrays.asList(new Integer[] { 0, 1, 3, 8, 9 });
+                    break;
+
+                // Luồng 3: QLKH - GDKH: 0, 1, 3, 8, 9
+                case 3:
+                    listState = Arrays.asList(new Integer[] {
+                            0, 1, 3, 8, 9
+                    });
+                    break;
+
+                default:
+                    // all state
+                    listState = Stream.of(ProfileStateEnum.values()).map(e -> e.getValue())
+                            .collect(Collectors.toList());
+                    break;
+            }
+
+            // if (timeConfig instanceof Double) {
+            int intPart = (int) timeConfig.doubleValue();
+            int minutes = (int) Math.round((timeConfig.doubleValue() - intPart) * 60);
+            if (minutes > 0) {
+                result = repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
+                        Integer.valueOf(minutes), listState, transactionType).size();
+            } else {
+                result = repository.countProfileExpectetWithListState(Integer.valueOf(timeConfig.intValue()),
+                        Integer.valueOf(0), listState, transactionType).size();
+
+            }
+            // } else {
+            // result = repository
+            // .countProfileExpectetWithListState(Integer.valueOf(timeConfig.intValue()),
+            // Integer.valueOf(0), listState, transactionType)
+            // .size();
+            // }
+            return result;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return -1;
+        }
+    }
+
+    @Override
+    public List<DashboardDTO> profileExpected() {
+        // TODO Auto-generated method stub
+        try {
+            // luong 1
+            List<Integer> type1 = Arrays.asList(new Integer[] { 0, 1, 2, 3, 8, 9 });
+            // luong 2
+            List<Integer> type2 = Arrays.asList(new Integer[] { 0, 1, 3, 8, 9 });
+            // luong 3
+            List<Integer> type3 = Arrays.asList(new Integer[] {
+                    0, 1, 3, 8, 9
+            });
+
+            List<DashboardDTO> dashboards = new ArrayList<>();
+
+            // if (timeConfig instanceof Double) {
+            int intPart = (int) timeConfig.doubleValue();
+            int minutes = (int) Math.round((timeConfig.doubleValue() - intPart) * 60);
+            if (minutes > 0) {
+                dashboards.add(
+                        new DashboardDTO("Luồng 1",
+                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
+                                        Integer.valueOf(minutes), type1, 1).size()));
+                dashboards.add(
+                        new DashboardDTO("Luồng 2",
+                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
+                                        Integer.valueOf(minutes), type2, 2).size()));
+                dashboards.add(
+                        new DashboardDTO("Luồng 3",
+                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
+                                        Integer.valueOf(minutes), type3, 3).size()));
+            } else {
+                dashboards.add(
+                        new DashboardDTO("Luồng 1",
+                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
+                                        Integer.valueOf(0), type1, 1).size()));
+                dashboards.add(
+                        new DashboardDTO("Luồng 2",
+                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
+                                        Integer.valueOf(0), type2, 2).size()));
+                dashboards.add(
+                        new DashboardDTO("Luồng 3",
+                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
+                                        Integer.valueOf(0), type3, 3).size()));
+
+            }
+
+            return dashboards;
+
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return null;
         }
     }
 

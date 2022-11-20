@@ -70,6 +70,7 @@ public class AuthController {
             String role = null;
             String position = null;
             String fullname = null;
+            Long departmentId = null;
             Long userId = null;
             // if (loginRequest.getIsLdap()) {
             if (loginRequest.getIsLdap()) {
@@ -110,7 +111,7 @@ public class AuthController {
 
                         position = mapper.get("position").toString();
                         fullname = mapper.get("fullname").toString();
-
+                        departmentId = DataUtils.parseToLong(mapper.get("departmentId")); 
                         departmentCode = userDetailsServiceImpl
                                 .getDepartmentCodeByUsername(userDetails.getUsername());
                         // if (DataUtils.isNullObject(departmentCode)) {
@@ -124,7 +125,7 @@ public class AuthController {
 
                         }
                         jwt = tokenProvider.generateToken(authentication, role, permissions, departmentCode,
-                        position, fullname);
+                        position, fullname, departmentId);
                     }
 
                 } else {

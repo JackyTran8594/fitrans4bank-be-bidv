@@ -33,7 +33,12 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRep
   @Query(value = "SELECT TOP  1 ur.role_id FROM  user_role ur WHERE ur.user_id = :userId", nativeQuery = true)
   Long findRoleIdByUserId(@Param("userId") Long userId);
 
-  
+  @Query(value = "SELECT pc.number_of_priority FROM priority_card as pc WHERE pc.id = :departmentId", nativeQuery = true)
+  Integer getPriorityCardByDepartmentId(@Param("departmentId") Long departmentId);
+
+  @Query(value = "SELECT pc.number_of_priority FROM priority_card as pc LEFT JOIN user_entity AS ue ON pc.id = ue.department_id WHERE ue.username = :username", nativeQuery = true)
+  Integer getNumberOfPriorityByUsername(@Param("username") String username);
+
   @Modifying
   @Query(value = "UPDATE user_role SET role_id = :roleId  WHERE user_id = :userId", nativeQuery = true)
   Integer updateUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);

@@ -66,14 +66,14 @@ public class UserServiceImpl implements UserService {
                 if (0 >= updatedRole) {
                     repository.createUserRole(dto.getId(), entity.getRoleId());
                 }
-            } 
+            }
             // else {
-            //     // repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
-            //     repository.createUserRole(dto.getId(), entity.getRoleId());
+            // // repository.deleteByRoleUser(dto.getId(), dto.getRoleId());
+            // repository.createUserRole(dto.getId(), entity.getRoleId());
             // }
 
         } else {
-           
+
             entity.setLastUpdatedDate(LocalDateTime.now());
             entity.setStatus(ACTIVE);
             oldEntity = mapper.toPersistenceBean(entity);
@@ -180,6 +180,11 @@ public class UserServiceImpl implements UserService {
         List<UserEntity> entities = repository.findByDepartmentCode(departmentCode);
         List<UserDTO> users = mapper.toDtoBean(entities);
         return users;
+    }
+
+    @Override
+    public Integer getNumberOfPriorityByUsername(String username) {
+        return repository.getNumberOfPriorityByUsername(username);
     }
 
 }
