@@ -1891,8 +1891,8 @@ public class ProfileServiceImpl implements ProfileService {
                         Map<String, Object> mapResultNew = new HashMap<>();
 
                         // tính lại thời gian xử lý của hồ sơ/bản ghi thứ nhất
-
-                        if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
+                        // nếu thời gian thực nhận mà trước timeMarker thì update trong ngày
+                        if (first.getRealTimeReceivedCM().isBefore(timeMarkerValue)) {
                             mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
                                     timeReceivedOfSecond,
                                     transaction.getStandardTimeCM(),
@@ -1901,7 +1901,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     first.getNumberOfPO(), first.getNumberOfBill(),
                                     transaction.getType());
                         } else {
-                             // nếu update hồ sơ từ pending (chưa giải quyết) và additional (cần bổ sung),
+                            // nếu update hồ sơ từ pending (chưa giải quyết) và additional (cần bổ sung),
                             // finished (kết thúc) thì tính update các hồ sơ tiếp theo trong ngày
                             if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())
                                     || profile.getState().equals(ProfileStateEnum.PENDING.getValue())
@@ -1922,8 +1922,40 @@ public class ProfileServiceImpl implements ProfileService {
                                         first.getNumberOfPO(), first.getNumberOfBill(),
                                         transaction.getType());
                             }
-
                         }
+
+                        // if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
+                        // mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
+                        // timeReceivedOfSecond,
+                        // transaction.getStandardTimeCM(),
+                        // transaction.getStandardTimeChecker(),
+                        // first.getAdditionalTime(),
+                        // first.getNumberOfPO(), first.getNumberOfBill(),
+                        // transaction.getType());
+                        // } else {
+                        // // nếu update hồ sơ từ pending (chưa giải quyết) và additional (cần bổ sung),
+                        // // finished (kết thúc) thì tính update các hồ sơ tiếp theo trong ngày
+                        // if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())
+                        // || profile.getState().equals(ProfileStateEnum.PENDING.getValue())
+                        // || profile.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                        // mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
+                        // timeReceivedOfSecond,
+                        // transaction.getStandardTimeCM(),
+                        // transaction.getStandardTimeChecker(),
+                        // first.getAdditionalTime(),
+                        // first.getNumberOfPO(), first.getNumberOfBill(),
+                        // transaction.getType());
+                        // } else {
+                        // mapResultNew = calculatingTime.calculatingDateFromTimeReceived(
+                        // timeReceivedOfSecond,
+                        // transaction.getStandardTimeCM(),
+                        // transaction.getStandardTimeChecker(),
+                        // first.getAdditionalTime(),
+                        // first.getNumberOfPO(), first.getNumberOfBill(),
+                        // transaction.getType());
+                        // }
+
+                        // }
 
                         LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
 
