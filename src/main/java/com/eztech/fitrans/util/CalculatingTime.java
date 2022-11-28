@@ -739,15 +739,21 @@ public class CalculatingTime {
                             .plusMinutes(standard + checker + additionalTime - worked - time2);
 
                 }
-                if (timeReceived.isAfter(timeMarker13h30) && timeReceived.isBefore(timeMarkerConfig)) {
-                    // thời gian từ timeMarkerConfig - thời gian xử lý => ngoài giờ hành chính
+                // 28-11-2022
 
-                    Long time3 = durationToMinute(timeMarkerConfig, processTime);
+                // bỏ đoạn này vì không tính sang hôm sau với trường hợp thời gian xử lý sau timeConfig
+                // và thời gian nhận trước timeConfig và sau 13h30
+                // if (timeReceived.isAfter(timeMarker13h30) && timeReceived.isBefore(timeMarkerConfig)) {
+                //     // thời gian từ timeMarkerConfig - thời gian xử lý => ngoài giờ hành chính
 
-                    processTime = timeMarkerTomorrow
-                            .plusMinutes(time3);
+                //     Long time3 = durationToMinute(timeMarkerConfig, processTime);
 
-                }
+                //     processTime = timeMarkerTomorrow
+                //             .plusMinutes(time3);
+
+                // }
+                
+                // end 28-11-2022
                 if (timeReceived.isAfter(timeMarkerConfig)) {
                     // thời gian xử lý tính sang ngày hôm sau
                     processTime = timeMarkerTomorrow
