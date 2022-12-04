@@ -20,27 +20,6 @@ public class CalculatingTime {
 
     }
 
-    // public LocalDateTime setTimeConfig() {
-    // if (timeConfig == null) {
-    // return LocalDateTime.of(LocalDateTime.now().getYear(),
-    // LocalDateTime.now().getMonth(),
-    // LocalDateTime.now().getDayOfMonth(), 16, 0);
-    // }
-    // double result = (double) timeConfig % 1;
-    // int hour = 0;
-    // int minutes = 0;
-    // if (result != 0) {
-    // hour = (int) timeConfig.doubleValue();
-    // minutes = Math.round((int) (result * 60));
-
-    // } else {
-    // hour = (int) timeConfig.doubleValue();
-    // }
-    // return LocalDateTime.of(LocalDateTime.now().getYear(),
-    // LocalDateTime.now().getMonth(),
-    // LocalDateTime.now().getDayOfMonth(), hour, minutes);
-    // }
-
     public LocalDateTime convertTimeMarker(Double timeMarker) {
         if (timeMarker == null) {
             return LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth(),
@@ -804,5 +783,8 @@ public class CalculatingTime {
         return Long.valueOf(minutesProcess);
     }
 
-    // public static
+
+    // public LocalDateTime calculatingTimeForAllCase() {
+
+    // }
 }
