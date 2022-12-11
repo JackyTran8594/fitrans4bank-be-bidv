@@ -239,7 +239,7 @@ public class ProfileServiceImpl implements ProfileService {
                     // lấy các hồ sơ đang có trạng thái chờ xử lý (order by process_date) - QTTD
                     Map<String, Object> params = new HashMap<>();
                     params.put("state", ProfileStateEnum.WAITING.getValue());
-                    params.put("staffIdCM", profile.getStaffId_CM());
+                    params.put("staffId_CM", profile.getStaffId_CM());
                     isAsc = true;
                     List<ProfileDTO> listData = new ArrayList<>();
                     // kiểm tra hồ sơ được bàn giao chưa
@@ -248,7 +248,8 @@ public class ProfileServiceImpl implements ProfileService {
                     } else if (profile.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
                         // type 1,2 - QTTD
                         // cập nhật listWaiting
-                        params.put("staffIdCT", "NULL");
+                        // params.put("staffId_CT", "NULL");
+                        params.put("timeReceived_CT", "NULL");
 
                         // kiểm tra xem ngày scan có phải ngày hôm nay không
                         // nếu có chỉ lấy ngày hôm nay làm mốc, nếu không thì lấy ngày scan làm mốc để
@@ -284,8 +285,9 @@ public class ProfileServiceImpl implements ProfileService {
                                     Map<String, Object> paramsWaiting = new HashMap<>();
                                     List<ProfileDTO> listDataWaittingTomorrow = new ArrayList<>();
                                     paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
-                                    paramsWaiting.put("staffIdCM", profile.getStaffId_CM());
-                                    paramsWaiting.put("staffIdCT", "NULL");
+                                    paramsWaiting.put("staffId_CM", profile.getStaffId_CM());
+                                    // paramsWaiting.put("staffId_CT", "NULL");
+                                    paramsWaiting.put("timeReceived_CT", "NULL");
                                     paramsWaiting.put("isToday", false);
 
                                     listDataWaittingTomorrow = repository.getProfileWithParams(paramsWaiting, isAsc);
@@ -338,11 +340,12 @@ public class ProfileServiceImpl implements ProfileService {
 
                         switch (item.getCode()) {
                             // transaction type : 1,2
-                            // type 1: QTTD không kết thúc giao dịch, do đó không có staffId_CT
+                            // type 1: QTTD không kết thúc giao dịch
                             // type 2 :QTTD kết thúc giao dịch, do đó không có staffId_CT
                             case "QTTD":
                                 paramsWaiting.put("staffId_CM", user.getId());
-                                paramsWaiting.put("staffId_CT", "NULL");
+                                // paramsWaiting.put("staffId_CT", "NULL");
+                                paramsWaiting.put("timeReceived_CT", "NULL");
 
                                 // kiểm tra xem ngày scan có phải ngày hôm nay không
                                 // nếu có chỉ lấy ngày hôm nay làm mốc, nếu không thì lấy ngày scan làm mốc để
@@ -381,7 +384,8 @@ public class ProfileServiceImpl implements ProfileService {
                                             paramsWaitingTomorrow.put("state", ProfileStateEnum.WAITING.getValue());
                                             paramsWaitingTomorrow.put("isToday", false);
                                             paramsWaitingTomorrow.put("staffId_CM", user.getId());
-                                            paramsWaitingTomorrow.put("staffId_CT", "NULL");
+                                            // paramsWaitingTomorrow.put("staffId_CT", "NULL");
+                                            paramsWaitingTomorrow.put("timeReceived_CT", "NULL");
                                             listProfileWaitingTomorrow = repository.getProfileWithParams(
                                                     paramsWaitingTomorrow,
                                                     isAsc);
@@ -417,7 +421,8 @@ public class ProfileServiceImpl implements ProfileService {
 
                         item.getProfile().setStaffId_CM(user.getId());
                         params.put("staffId_CM", user.getId());
-
+                        params.put("timeReceived_CT", "NULL");
+                        // params.put("staffId_CT", "NULL");
                         // calculating time for processing time for
                         LocalDateTime processTime = LocalDateTime.now();
 
@@ -634,7 +639,8 @@ public class ProfileServiceImpl implements ProfileService {
                         }
 
                         params.put("staffId_CM", user.getId());
-                        params.put("staffId_CT", "NULL");
+                        // params.put("staffId_CT", "NULL");
+                        params.put("timeReceived_CT", "NULL");
 
                         // kiểm tra xem hồ sơ có trong ngày hôm nay không
                         if (old.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue.getDayOfMonth()) {
@@ -654,26 +660,30 @@ public class ProfileServiceImpl implements ProfileService {
                             // sau 16h
                             // các hồ sơ của ngày hôm sau chỉ update trạng thái với hồ sơ đầu tiên
 
-                            // các hồ sơ nhận trong ngay nhưng bàn giao sau 16h
-                            if (old.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue.getDayOfMonth()) {
-                                if (old.getRealTimeReceivedCM().isAfter(timeMarkerValue)) {
-                                    // chỉ update những hồ sơ bàn giao trước 16h
-                                    List<ProfileDTO> listDataWaittingTomorrow = new ArrayList<>();
-                                    Map<String, Object> paramsWaiting = new HashMap<>();
-                                    paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
-                                    paramsWaiting.put("staffIdCM", user.getId());
-                                    paramsWaiting.put("staffIdCT", "NULL");
-                                    // paramsWaiting.put("isToday", false);
-                                    paramsWaiting.put("isToday", false);
+                            // if (old.getRealTimeReceivedCM().getDayOfMonth() ==
+                            // timeMarkerValue.getDayOfMonth()) {
+                            if (profileHistory.getTimeReceived().isAfter(timeMarkerValue)) {
+                                // chỉ update những hồ sơ bàn giao trước 16h
+                                List<ProfileDTO> listDataWaittingTomorrow = new ArrayList<>();
+                                Map<String, Object> paramsWaiting = new HashMap<>();
+                                paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
+                                paramsWaiting.put("staffId_CM", user.getId());
+                                // paramsWaiting.put("staffId_CT", "NULL");
+                                paramsWaiting.put("timeReceived_CT", "NULL");
 
-                                    listDataWaittingTomorrow = repository.getProfileWithParams(paramsWaiting, isAsc);
-                                    if (listDataWaittingTomorrow.size() > 0) {
-                                        ProfileDTO profileProcessingTomorrow = listDataWaittingTomorrow.get(0);
-                                        profileProcessingTomorrow.setState(ProfileStateEnum.PROCESSING.getValue());
-                                        save(profileProcessingTomorrow);
-                                    }
+                                // các hồ sơ nhận trong ngay nhưng bàn giao sau 16h
+                                if (old.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue.getDayOfMonth()) {
+                                    paramsWaiting.put("isToday", false);
+                                }
+
+                                listDataWaittingTomorrow = repository.getProfileWithParams(paramsWaiting, isAsc);
+                                if (listDataWaittingTomorrow.size() > 0) {
+                                    ProfileDTO profileProcessingTomorrow = listDataWaittingTomorrow.get(0);
+                                    profileProcessingTomorrow.setState(ProfileStateEnum.PROCESSING.getValue());
+                                    save(profileProcessingTomorrow);
                                 }
                             }
+                            // }
 
                         }
 
@@ -701,7 +711,8 @@ public class ProfileServiceImpl implements ProfileService {
                         break;
                     case "QTTD":
                         params.put("staffId_CM", user.getId());
-                        params.put("staffId_CT", "NULL");
+                        // params.put("staffId_CT", "NULL");
+                        params.put("timeReceived_CT", "NULL");
 
                         // // chỉ update những hồ sơ bàn giao trước 16h
                         // params.put("isToday", true);
@@ -722,15 +733,21 @@ public class ProfileServiceImpl implements ProfileService {
                             // lọc ra các hồ sơ của ngày hôm sau với trường hợp bàn giao trong ngày nhưng
                             // các hồ sơ của ngày hôm sau chỉ update trạng thái với hồ sơ đầu tiên
                             // các hồ sơ nhận trong ngay nhưng bàn giao sau 16h
-                            if (old.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue.getDayOfMonth()) {
-                                if (old.getRealTimeReceivedCM().isAfter(timeMarkerValue)) {
+                            // if (old.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue.getDayOfMonth()) {
+                                if (profileHistory.getTimeReceived().isAfter(timeMarkerValue)) {
                                     // chỉ update những hồ sơ bàn giao trước 16h
                                     List<ProfileDTO> listDataWaittingTomorrow = new ArrayList<>();
                                     Map<String, Object> paramsWaiting = new HashMap<>();
                                     paramsWaiting.put("state", ProfileStateEnum.WAITING.getValue());
-                                    paramsWaiting.put("staffIdCM", user.getId());
-                                    paramsWaiting.put("staffIdCT", "NULL");
-                                    paramsWaiting.put("isToday", false);
+                                    paramsWaiting.put("staffId_CM", user.getId());
+                                    // paramsWaiting.put("staffId_CT", "NULL");
+                                    paramsWaiting.put("timeReceived_CT", "NULL");
+
+                                    // các hồ sơ nhận trong ngay nhưng bàn giao sau 16h
+                                    if (old.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue
+                                            .getDayOfMonth()) {
+                                        paramsWaiting.put("isToday", false);
+                                    }
 
                                     listDataWaittingTomorrow = repository.getProfileWithParams(paramsWaiting, isAsc);
                                     if (listDataWaittingTomorrow.size() > 0) {
@@ -739,7 +756,7 @@ public class ProfileServiceImpl implements ProfileService {
                                         save(profileProcessingTomorrow);
                                     }
                                 }
-                            }
+                            // }
 
                         }
 
@@ -926,14 +943,16 @@ public class ProfileServiceImpl implements ProfileService {
                     Map<String, Object> paramProcessingOfOldUser = new HashMap<>();
                     paramWaitingOfOldUser.put("staffId_CM", old.getStaffId_CM());
                     paramWaitingOfOldUser.put("state", ProfileStateEnum.WAITING.getValue());
-                    paramWaitingOfOldUser.put("staffId_CT", "NULL");
+                    // paramWaitingOfOldUser.put("staffId_CT", "NULL");
+                    paramWaitingOfOldUser.put("timeReceived_CT", "NULL");
 
                     // ignoreId = loại bỏ hồ sơ đang chuyển
                     paramWaitingOfOldUser.put("ignoreId", old.getId());
 
                     paramProcessingOfOldUser.put("staffId_CM", old.getStaffId_CM());
                     paramProcessingOfOldUser.put("state", ProfileStateEnum.PROCESSING.getValue());
-                    paramProcessingOfOldUser.put("staffId_CT", "NULL");
+                    // paramProcessingOfOldUser.put("staffId_CT", "NULL");
+                    paramProcessingOfOldUser.put("timeReceived_CT", "NULL");
 
                     // kiểm tra xem ngày nhận có phải trong ngày hôm nay không
                     // nếu có thì kiểm tra xem có vượt 16h không
@@ -970,10 +989,12 @@ public class ProfileServiceImpl implements ProfileService {
 
                     // đã check null staffId_CM ở hàm checkTransfer
                     pHistoryInternal.setStaffId(old.getStaffId_CM());
-                    // hồ sơ luồng 1,2 : staffId_CT = null;
+                    // hồ sơ luồng 1,2 : staffId_CT = null; timeReceived_CT = NULL (khi hồ sơ chưa
+                    // bàn giao tại GDKH)
                     // hồ sơ chờ xử lý của người được chuyển
                     params.put("staffId_CM", user.getId());
-                    params.put("staffId_CT", "NULL");
+                    // params.put("staffId_CT", "NULL");
+                    params.put("timeReceived_CT", "NULL");
 
                     // kiểm tra xem ngày nhận có phải trong ngày hôm nay không
                     // nếu có thì kiểm tra xem có vượt 16h không
@@ -992,7 +1013,8 @@ public class ProfileServiceImpl implements ProfileService {
 
                     // hồ sơ đang xử lý của người quét chuyển hồ sơ - người nhận
                     paramsProcessing.put("staffId_CM", user.getId());
-                    paramsProcessing.put("staffId_CT", "NULL");
+                    // paramsProcessing.put("staffId_CT", "NULL");
+                    paramsProcessing.put("timeReceived_CT", "NULL");
                     listDataProcessing = repository.getProfileWithParams(paramsProcessing, isAsc);
 
                     if (listDataProcessing.size() == 0) {
@@ -1082,7 +1104,7 @@ public class ProfileServiceImpl implements ProfileService {
                                         old.getNumberOfPO().intValue(), old.getNumberOfBill(),
                                         transactionType.getType());
                             } else {
-                            
+
                                 mapResult = calculatingTime.calculatingDateFromTimeReceived(
                                         last.getProcessDate(), transactionType.getStandardTimeCM(),
                                         transactionType.getStandardTimeChecker(),
@@ -1202,11 +1224,13 @@ public class ProfileServiceImpl implements ProfileService {
                             // check scan
                             if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                                 if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                        || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                                // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                ) {
                                     if (!item.getIsFinished()) {
                                         if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                                || old.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                            message.setMessage("Giao dịch này đã được nhận 1 lần");
+                                        // || old.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                        ) {
+                                            message.setMessage("Hồ sơ này đã được nhận 1 lần bởi cán bộ QTTD");
                                             message.setIsExist(true);
                                         } else {
                                             message.setIsExist(false);
@@ -1245,14 +1269,22 @@ public class ProfileServiceImpl implements ProfileService {
                                 // check delivery to GDKH
                                 // state of profile: not_yet, tranfer
                                 Integer[] intArray = new Integer[] { 6 };
+                                // trường hợp trả hồ sơ thì bàn giao lại từ đầu tại qttd do đó cần check lại
+                                // trạng thái
+                                // nếu = 6 thì phải bàn giao tại qttd trước
+                                // cán bộ GDKH chưa nhận hồ sơ
                                 if (DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
                                     if (Arrays.asList(intArray).contains(dto.getState())) {
                                         message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                                         message.setIsExist(true);
-                                    } else if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                                    }
+                                    // bàn giao hồ sơ đang xử lý sang GDKH từ QTTD
+                                    else if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
+                                    // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                    ) {
                                         // nhận bàn giao từ QTTD tới máy chung - admin
                                         if (item.getUsername().contains("admin")) {
+                                            // nếu quét nhầm finish
                                             if (item.getIsFinished()) {
                                                 message.setMessage(
                                                         "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
@@ -1262,51 +1294,105 @@ public class ProfileServiceImpl implements ProfileService {
                                             }
                                         } else {
                                             // cán bộ GDKH quét QR nhầm
-                                            message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
-                                            message.setIsExist(true);
+                                            // khi chưa bàn giao hồ sơ tại giao dịch khách hàng thì thời gian = null
+                                            // do đó check thêm thời gian để biết bàn giao chưa
+                                            if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
+                                                message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                                message.setIsExist(true);
+                                            } else {
+                                                message.setIsExist(false);
+                                            }
+                                            // message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                            // message.setIsExist(true);
                                         }
-                                    } else if (dto.getState().equals(ProfileStateEnum.RECEIVED.getValue())) {
+                                    }
+                                    // hồ sơ đã nhận tại GDKH và cán bộ GDKH tiếp nhận
+                                    else if (dto.getState().equals(ProfileStateEnum.RECEIVED.getValue())) {
+                                        // quét bằng tk admin GDKH
                                         if (item.getUsername().contains("admin")) {
                                             if (item.getIsFinished()) {
                                                 message.setMessage(
-                                                        "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
+                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
                                                 message.setIsExist(true);
                                             } else {
-                                                message.setMessage("Giao dịch này đã được nhận 1 lần");
+                                                message.setMessage(
+                                                        "Hồ sơ này đã được nhận 1 lần tại phòng giao dịch khách hàng");
                                                 message.setIsExist(true);
                                             }
                                         } else {
-                                            // cán bộ GDKH quét QR nhầm
+                                            // cán bộ GDKH quét QR nhầm kết thúc giao dịch
                                             if (item.getIsFinished()) {
-                                                message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                                message.setMessage(
+                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
                                                 message.setIsExist(true);
                                             } else {
                                                 message.setIsExist(false);
                                             }
                                         }
                                     }
-                                } else {
+                                }
+                                // cán bộ GDKH đã nhận hồ sơ trong trường hợp luồng trả hồ sơ
+                                // => phải bàn giao lại rỏ chung
+                                else {
+                                    // hồ sơ đang xử lý (luồng thông thường hoặc luồng đã có trả hồ sơ)
                                     if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                        // check scan
-                                        if (item.getIsFinished()) {
-                                            message.setIsExist(false);
+                                    // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                    ) {
+                                        if (item.getUsername().contains("admin")) {
+                                            // check scan kết thúc hồ sơ
+                                            if (item.getIsFinished()) {
+                                                message.setMessage(
+                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                                                message.setIsExist(true);
+                                            } else {
+                                                message.setIsExist(false);
+                                            }
 
                                         } else {
-                                            // check bàn giao tại GDKH
-                                            if (item.getUsername().contains("admin")) {
-                                                message.setIsExist(false);
-                                            } else {
-                                                message.setMessage("Giao dịch này đã được nhận 1 lần");
+                                            // khi hồ sơ thuộc luồng trả hồ sơ tức là đã bàn giao 1 lần tại GDKH
+                                            // khi tiến hành hoàn trả hồ sơ thì thời gian bàn giao tại giao dịch khách
+                                            // hàng bị reset = null
+                                            // do đó cần check thêm thời gian bàn giao tại giao dịch khách hàng để biết
+                                            // xem đã bàn giao chưa
+                                            if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
+                                                message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
                                                 message.setIsExist(true);
+                                            } else {
+                                                message.setIsExist(false);
                                             }
                                         }
 
-                                    } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                        // // check scan kết thúc hồ sơ
+                                        // if (item.getIsFinished()) {
+                                        // // kiểm tra nhân viên GDKH quét nhầm kết thúc hồ sơ trong khi cán bộ QTTD
+                                        // đang xử lý hồ sơ và chưa bàn giao tại GDKH
+                                        // message.setIsExist(false);
+
+                                        // }
+                                        // else {
+                                        // // check bàn giao tại GDKH đối với hồ sơ đang xử lý từ QTTD bàn giao qua
+                                        // admin user của GDKH
+                                        // // nếu chưa thì tiếp tục bàn giao
+                                        // if (item.getUsername().contains("admin")) {
+                                        // message.setIsExist(false);
+                                        // }
+                                        // // nếu là user GDKH thông thường và hồ sơ đang xử lý thì không được quét/ ko
+                                        // được di chuyển nữa
+                                        // else {
+                                        // message.setMessage("Giao dịch ");
+                                        // message.setIsExist(true);
+                                        // }
+                                        // }
+
+                                    }
+                                    // hồ sơ đã kết thúc và quét nhầm
+                                    else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                         message.setMessage("Bạn đã kết thúc giao dịch này");
                                         message.setIsExist(true);
 
-                                    } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                                    }
+                                    // hồ sơ cần bổ sung thì cần bàn giao lại từ đầu
+                                    else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
                                         if (item.getIsFinished()) {
                                             message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
                                             message.setIsExist(true);
@@ -1335,13 +1421,15 @@ public class ProfileServiceImpl implements ProfileService {
                         // kiểm tra đã bàn giao tại QTTD chưa
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                             if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                            ) {
                                 if (item.getIsFinished()) {
                                     message.setIsExist(false);
                                 } else {
                                     if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                        message.setMessage("Giao dịch này đã được nhận 1 lần");
+                                    // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                    ) {
+                                        message.setMessage("Hồ sơ này đã được nhận 1 lần");
                                         message.setIsExist(true);
                                     } else {
                                         message.setIsExist(false);
@@ -1356,13 +1444,15 @@ public class ProfileServiceImpl implements ProfileService {
 
                             } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
                                 if (item.getIsFinished()) {
-                                    message.setMessage("Bàn giao tại quản trị tín dụng");
+                                    message.setMessage("Bàn giao cho cán bộ quản trị tín dụng");
                                     message.setIsExist(true);
                                 } else {
                                     message.setIsExist(false);
                                 }
                             }
-                        } else {
+                        }
+                        // hồ sơ chưa bàn giao cho cán bộ QTTD
+                        else {
                             // return false => cho phép bàn giao
                             // message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
                             message.setIsExist(false);
@@ -1377,13 +1467,16 @@ public class ProfileServiceImpl implements ProfileService {
                     if (item.getCode().equals("GDKH")) {
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
                             if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                            ) {
                                 if (item.getIsFinished()) {
                                     message.setIsExist(false);
                                 } else {
+                                    // kiểm tra hồ sơ tồn tại có đang xử lý không
                                     if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                        message.setMessage("Giao dịch này đã được nhận 1 lần");
+                                    // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                    ) {
+                                        message.setMessage("Hồ sơ này đã được nhận 1 lần");
                                         message.setIsExist(true);
                                     } else {
                                         message.setIsExist(false);
@@ -1391,9 +1484,21 @@ public class ProfileServiceImpl implements ProfileService {
                                     }
                                 }
 
-                            } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-                                message.setMessage("Bạn đã kết thúc giao dịch này");
-                                message.setIsExist(true);
+                            }
+                            // hồ sơ đẩy lên là trạng thái kết thúc
+                            else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+
+                                // kiểm tra hồ sơ tồn tại có đang xử lý không
+                                if (old.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                    message.setMessage("Bạn đã kết thúc giao dịch này");
+                                    message.setIsExist(true);
+                                } else {
+                                    message.setIsExist(false);
+
+                                }
+
+                                // message.setMessage("Bạn đã kết thúc giao dịch này");
+                                // message.setIsExist(true);
                             } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
                                 if (item.getIsFinished()) {
                                     message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
@@ -1657,7 +1762,8 @@ public class ProfileServiceImpl implements ProfileService {
                             Map<String, Object> params = new HashMap<String, Object>();
                             params.put("staffId_CM", dto.getStaffId_CM());
                             params.put("state", ProfileStateEnum.WAITING.getValue());
-                            params.put("staffId_CT", "NULL");
+                            // params.put("staffId_CT", "NULL");
+                            params.put("timeReceived_CT", "NULL");
                             // ignoreId = loại bỏ hồ sơ đang chuyển
                             params.put("ignoreId", dto.getId());
                             params.put("isToday", true);

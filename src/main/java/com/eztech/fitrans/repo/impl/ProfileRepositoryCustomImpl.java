@@ -424,6 +424,16 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 parameters.put("ignoreId", DataUtils.parseToLong(params.get("ignoreId")));
             }
         }
+
+        
+        if (params.containsKey("timeReceived_CT")) {
+            if (params.get("timeReceived_CT").toString().trim().toUpperCase().equals("NULL")) {
+                sb.append(" AND p.time_received_ct IS NULL");
+            } 
+
+        }
+
+
         if (params.containsKey("code")) {
             if (!DataUtils.isNullOrEmpty(params.get("code").toString())) {
                 if (params.get("code").toString().trim().toUpperCase().equals("QTTD")) {
