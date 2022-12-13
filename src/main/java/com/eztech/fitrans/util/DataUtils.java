@@ -426,6 +426,14 @@ public class DataUtils {
         return value.format(formatter); // "1986-04-08 12:30"
     }
 
+    public static String localDateTimeToStringSQL(LocalDateTime value) {
+        if (!notNull(value)) {
+            return null;
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return value.format(formatter); // "1986-04-08 12:30"
+    }
+
     public static void throwIf(boolean test, String message) throws Exception {
         if (test)
             throw new Exception(message);
