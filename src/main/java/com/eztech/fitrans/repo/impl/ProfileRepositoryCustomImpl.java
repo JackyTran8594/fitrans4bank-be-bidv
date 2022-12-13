@@ -7,7 +7,10 @@ import com.eztech.fitrans.constants.Constants.Department;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.model.Profile;
 import com.eztech.fitrans.repo.ProfileRepositoryCustom;
+import com.eztech.fitrans.util.CalculatingTime;
 import com.eztech.fitrans.util.DataUtils;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
@@ -22,7 +25,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     private Integer checkTime;
 
     @Value("${app.timeConfig:0}")
-    private Integer timeConfig;
+    private Double timeConfig;
+
+    @Autowired
+    private CalculatingTime calculatingTime;
 
     @Override
     public List search(Map searchDTO, Class aClass) {
@@ -139,7 +145,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             else {
                                 if (paramSearch.containsKey("usernameByCode")) {
                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                        sb.append(" AND uc.username like :usernameByCode");
+                                        sb.append(" AND uc.username like :usernameByCode ");
                                         parameters.put("usernameByCode",
                                                 formatLike((String) paramSearch.get("usernameByCode").toString()
                                                         .toLowerCase()));
@@ -158,7 +164,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
                                 if (paramSearch.containsKey("username")) {
                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
-                                    sb.append(" AND ucm.username = :username");
+                                    sb.append(" AND ucm.username = :username ");
                                     parameters.put("username",
                                     paramSearch.get("username").toString()
                                     .toLowerCase());
@@ -168,7 +174,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             } else {
                                 if (paramSearch.containsKey("usernameByCode")) {
                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    sb.append(" AND ucm.username like :usernameByCode");
+                                    sb.append(" AND ucm.username like :usernameByCode ");
                                     parameters.put("usernameByCode",
                                     formatLike((String) paramSearch.get("usernameByCode").toString()
                                     .toLowerCase()));
@@ -188,7 +194,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
                             if (paramSearch.containsKey("usernameByCode")) {
                                 if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    sb.append(" AND uct.username like :usernameByCode");
+                                    sb.append(" AND uct.username like :usernameByCode ");
                                     parameters.put("usernameByCode",
                                             formatLike((String) paramSearch.get("usernameByCode").toString()
                                                     .toLowerCase()));
@@ -300,7 +306,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 parameters.put("limit", DataUtils.parseToInt(paramSearch.get("pageSize")));
             }
         }
-
+        System.out.println("----------QUERY:" + sb.toString());
         return sb.toString();
     }
 
@@ -425,14 +431,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
         }
 
-        
         if (params.containsKey("timeReceived_CT")) {
             if (params.get("timeReceived_CT").toString().trim().toUpperCase().equals("NULL")) {
                 sb.append(" AND p.time_received_ct IS NULL");
-            } 
+            }
 
         }
-
 
         if (params.containsKey("code")) {
             if (!DataUtils.isNullOrEmpty(params.get("code").toString())) {
@@ -449,18 +453,19 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         if (params.containsKey("isToday")) {
             if (!DataUtils.isNullOrEmpty(params.get("isToday"))) {
                 // tìm những bản ghi trong ngày
+                LocalDateTime timeMarkerValue = calculatingTime.convertTimeMarker(timeConfig);
+                parameters.put("datetimeConfig", DataUtils.localDateTimeToStringSQL(timeMarkerValue));
                 if (params.get("isToday").equals(true)) {
-                    String sql_time1 = " AND CAST(p.real_time_received_cm AS DATE) = CAST(CURRENT_TIMESTAMP AS DATE)";
-                    String sql_time2 = " AND DATEPART(HOUR, p.real_time_received_cm) < " + timeConfig + " ";
+                    String sql_time1 = " AND CAST(p.real_time_received_cm AS DATE) = CAST(CURRENT_TIMESTAMP AS DATE) ";
+                    // String sql_time2 = " AND DATEPART(HOUR, p.real_time_received_cm) < " +
+                    // timeConfig + " ";
+                    String sql_time2 = " AND  p.real_time_received_cm < CONVERT(datetime,:datetimeConfig)";
                     sb.append(sql_time1 + sql_time2);
                 } else {
-                    // tìm những bản ghi sang ngày hôm sau
-                    // String sql_time = " AND DATEPART(HOUR, p.real_time_received_cm) = 16 AND
-                    // DATEPART(MINUTE, p.real_time_received_cm) > 0 ";
-                    // String sql_time2 = "AND DATEPART(DAY, p.real_time_received_cm) >=
-                    // DATEPART(DAY, CURRENT_TIMESTAMP) ";
-                    String sql_time1 = " AND CAST(p.time_received_cm AS DATE) > CAST(CURRENT_TIMESTAMP AS DATE) AND DATEPART(HOUR, p.real_time_received_cm) >= "
-                            + timeConfig + " ";
+                    // tìm những bản ghi sang ngày hôm sau nhưng bàn giao trong ngày)
+                    // String sql_time1 = " AND CAST(p.time_received_cm AS DATE) > CAST(CURRENT_TIMESTAMP AS DATE) AND DATEPART(HOUR, p.real_time_received_cm) >= "
+                    //         + timeConfig + " ";
+                    String sql_time1 = " AND CAST(p.time_received_cm AS DATE) > CAST(CURRENT_TIMESTAMP AS DATE) AND ( CAST(p.real_time_received_cm AS DATE) = CAST(CURRENT_TIMESTAMP AS DATE) AND  p.real_time_received_cm >= CONVERT(datetime,:datetimeConfig) ) ";
                     sb.append(sql_time1);
                 }
 
@@ -564,18 +569,30 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         sb.append(select + from + where);
         // parameters.put("time", time);
         // if (minutes > 0) {
-        //     // where1 = "WHERE ((DATEPART(HOUR, real_time_received_cm) < :time AND DATEPART(MINUTE, real_time_received_cm) < :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
-        //     // where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND DATEPART(MINUTE, real_time_received_ct) < :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
-        //     // where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND DATEPART(MINUTE, real_time_received_cm) >= :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
-        //     // where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND DATEPART(MINUTE, real_time_received_ct) >= :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
-        //     parameters.put("minutes", minutes);
-        //     // sb.append(where1 + where2 + where3 + where4);
+        // // where1 = "WHERE ((DATEPART(HOUR, real_time_received_cm) < :time AND
+        // DATEPART(MINUTE, real_time_received_cm) < :minutes AND
+        // CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
+        // // where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND
+        // DATEPART(MINUTE, real_time_received_ct) < :minutes AND
+        // CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
+        // // where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND
+        // DATEPART(MINUTE, real_time_received_cm) >= :minutes AND
+        // CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
+        // // where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND
+        // DATEPART(MINUTE, real_time_received_ct) >= :minutes AND
+        // CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
+        // parameters.put("minutes", minutes);
+        // // sb.append(where1 + where2 + where3 + where4);
         // } else {
-        //     where1 = " WHERE ((DATEPART(HOUR, real_time_received_cm) < :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
-        //     where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
-        //     where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
-        //     where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
-        //     sb.append(where1 + where2 + where3 + where4);
+        // where1 = " WHERE ((DATEPART(HOUR, real_time_received_cm) < :time AND
+        // CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
+        // where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND
+        // CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
+        // where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND
+        // CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
+        // where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND
+        // CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
+        // sb.append(where1 + where2 + where3 + where4);
         // }
         return getResultList(sb.toString(), Profile.class, parameters);
     }
@@ -622,14 +639,14 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String from = "FROM profile AS p \n";
 
-        String join1 ="LEFT JOIN transaction_type AS trans ON p.type = trans.id \n";
+        String join1 = "LEFT JOIN transaction_type AS trans ON p.type = trans.id \n";
 
         String where1 = null;
         String where2 = null;
         String where6 = "WHERE 1=1 AND state IN :listState AND trans.type = :transactionType";
         String where3 = null;
         String where4 = null;
-        sb.append(select  + from + join1 + where6);
+        sb.append(select + from + join1 + where6);
         parameters.put("time", time);
         parameters.put("listState", listState);
         parameters.put("transactionType", transactionType);
