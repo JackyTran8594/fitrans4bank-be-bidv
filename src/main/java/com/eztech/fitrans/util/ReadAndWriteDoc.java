@@ -280,9 +280,9 @@ public class ReadAndWriteDoc {
 
                                     String strUtf8 = null;
                                     if (!DataUtils.isNullOrEmpty(profile.getId())) {
-                                        strUtf8 = profile.getId().toString() + "-Start";
+                                        strUtf8 = profile.getId().toString() + "-Begin";
                                     } else {
-                                        strUtf8 = username + "Start";
+                                        strUtf8 = username + "-Begin";
                                     }
 
                                     byte[] imageByteArray = generateQRCode(strUtf8, 100, 100);
@@ -347,7 +347,7 @@ public class ReadAndWriteDoc {
                                     XWPFTable tableQRCode = docDes.createTable(1, 2);
                                     tableQRCode.removeBorders();
                                     tableQRCode.setWidth("100%");
-                                    String strUtf8 = profile.getId().toString() + "-Finish";
+                                    String strUtf8 = profile.getId().toString() + "-End";
                                     byte[] imageByteArray = generateQRCode(strUtf8, 100, 100);
 
                                     try (InputStream inputByteArrayStream = new ByteArrayInputStream(imageByteArray)) {
@@ -377,7 +377,7 @@ public class ReadAndWriteDoc {
                                         paraImage.setAlignment(ParagraphAlignment.LEFT);
                                         XWPFRun runImage = paraImage.createRun();
                                         runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
-                                                "qrReturned", Units.toEMU(70), Units.toEMU(70));
+                                                "qrMoved", Units.toEMU(70), Units.toEMU(70));
                                         inputByteArrayStream.close();
                                     } catch (Exception e) {
                                         // TODO: handle exception
