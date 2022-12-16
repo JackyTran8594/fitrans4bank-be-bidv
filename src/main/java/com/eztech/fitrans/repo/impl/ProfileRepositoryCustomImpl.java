@@ -5,6 +5,7 @@ import com.eztech.fitrans.constants.PositionTypeEnum;
 import com.eztech.fitrans.constants.UserTypeEnum;
 import com.eztech.fitrans.constants.Constants.Department;
 import com.eztech.fitrans.dto.response.ProfileDTO;
+import com.eztech.fitrans.dto.response.dashboard.ProfileListDashBoardDTO;
 import com.eztech.fitrans.model.Profile;
 import com.eztech.fitrans.repo.ProfileRepositoryCustom;
 import com.eztech.fitrans.util.CalculatingTime;
@@ -46,7 +47,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     @Override
     public Integer updateStatus(Long id, String status, String lastUpdatedBy,
-            LocalDateTime lastUpdateDate) {
+                                LocalDateTime lastUpdateDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         sb.append(
@@ -77,7 +78,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     @Override
     public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
-            boolean count) {
+                             boolean count) {
         StringBuilder sb = new StringBuilder();
 
         String sql_select = "SELECT p.*, " +
@@ -163,22 +164,22 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                 // QTTD view theo username đối với chuyên viên
 
                                 if (paramSearch.containsKey("username")) {
-                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
-                                    sb.append(" AND ucm.username = :username ");
-                                    parameters.put("username",
-                                    paramSearch.get("username").toString()
-                                    .toLowerCase());
-                                    }
+                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
+                                     sb.append(" AND ucm.username = :username");
+                                     parameters.put("username",
+                                     paramSearch.get("username").toString()
+                                     .toLowerCase());
+                                     }
 
                                 }
                             } else {
                                 if (paramSearch.containsKey("usernameByCode")) {
-                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    sb.append(" AND ucm.username like :usernameByCode ");
-                                    parameters.put("usernameByCode",
-                                    formatLike((String) paramSearch.get("usernameByCode").toString()
-                                    .toLowerCase()));
-                                    }
+                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                     sb.append(" AND ucm.username like :usernameByCode");
+                                     parameters.put("usernameByCode",
+                                     formatLike((String) paramSearch.get("usernameByCode").toString()
+                                     .toLowerCase()));
+                                     }
 
                                 }
                             }
@@ -248,12 +249,22 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     if (!DataUtils.isNullOrEmpty(paramSearch.get("state").toString())) {
                         Integer state = DataUtils.parseToInt(paramSearch.get("state"));
                         if (state > 0) {
-                            sb.append(" AND p.state = :state ");
+                            sb.append(" AND p.state IN :state ");
                             parameters.put("state", state);
                         }
                     }
 
                 }
+//                if (paramSearch.containsKey("listState")) {
+//                    if (!DataUtils.isNullOrEmpty(paramSearch.get("listState").toString())) {
+//                        Integer state = DataUtils.parseToInt(paramSearch.get("state"));
+//                        if (state > 0) {
+//                            sb.append(" AND p.state IN :state ");
+//                            parameters.put("state", state);
+//                        }
+//                    }
+//
+//                }
             }
         }
 
@@ -326,8 +337,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
                 "left join transaction_type trans on trans.id = p.type \n" +
                 "where p.id = :id AND p.state = :state AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)"
-        // + " ORDER BY his.time_received ASC"
-        ;
+                // + " ORDER BY his.time_received ASC"
+                ;
         parameters.put("id", id);
         parameters.put("state", state);
         ProfileDTO profileDTO = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
@@ -463,8 +474,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     sb.append(sql_time1 + sql_time2);
                 } else {
                     // tìm những bản ghi sang ngày hôm sau nhưng bàn giao trong ngày)
-                    // String sql_time1 = " AND CAST(p.time_received_cm AS DATE) > CAST(CURRENT_TIMESTAMP AS DATE) AND DATEPART(HOUR, p.real_time_received_cm) >= "
-                    //         + timeConfig + " ";
+                    // String sql_time1 = " AND CAST(p.time_received_cm AS DATE) >
+                    // CAST(CURRENT_TIMESTAMP AS DATE) AND DATEPART(HOUR, p.real_time_received_cm)
+                    // >= "
+                    // + timeConfig + " ";
                     String sql_time1 = " AND CAST(p.time_received_cm AS DATE) > CAST(CURRENT_TIMESTAMP AS DATE) AND ( CAST(p.real_time_received_cm AS DATE) = CAST(CURRENT_TIMESTAMP AS DATE) AND  p.real_time_received_cm >= CONVERT(datetime,:datetimeConfig) ) ";
                     sb.append(sql_time1);
                 }
@@ -476,6 +489,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             sb.append(" AND p.state = :state ");
             parameters.put("state", DataUtils.parseToInt(params.get("state")));
         }
+
 
         if (params.containsKey("profileId")) {
             sb.append(" AND p.id = :profileId");
@@ -539,18 +553,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
         }
 
-        // sb.append(sql).append(
-        // "WHERE 1=1 AND p.state IN (4,5) AND his.time_received = (select
-        // MAX(his.time_received) from profile_history his where his.profile_id = p.id)
-        // \n")
-        // .append("ORDER BY p.process_date ASC");
-
-        // Map<String, Object> parameters = new HashMap<>();
-        // parameters.put("topNumber", topNumber);
-
-        // sb.append(" OFFSET :offset ROWS ");
-        // sb.append(" FETCH NEXT :limit ROWS ONLY ");
-
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
     }
 
@@ -567,33 +569,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         String where3 = null;
         String where4 = null;
         sb.append(select + from + where);
-        // parameters.put("time", time);
-        // if (minutes > 0) {
-        // // where1 = "WHERE ((DATEPART(HOUR, real_time_received_cm) < :time AND
-        // DATEPART(MINUTE, real_time_received_cm) < :minutes AND
-        // CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
-        // // where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND
-        // DATEPART(MINUTE, real_time_received_ct) < :minutes AND
-        // CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
-        // // where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND
-        // DATEPART(MINUTE, real_time_received_cm) >= :minutes AND
-        // CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
-        // // where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND
-        // DATEPART(MINUTE, real_time_received_ct) >= :minutes AND
-        // CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
-        // parameters.put("minutes", minutes);
-        // // sb.append(where1 + where2 + where3 + where4);
-        // } else {
-        // where1 = " WHERE ((DATEPART(HOUR, real_time_received_cm) < :time AND
-        // CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
-        // where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND
-        // CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
-        // where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND
-        // CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
-        // where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND
-        // CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
-        // sb.append(where1 + where2 + where3 + where4);
-        // }
+
         return getResultList(sb.toString(), Profile.class, parameters);
     }
 
@@ -630,41 +606,189 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     }
 
     @Override
-    public List<Profile> countProfileExpectetWithListState(Integer time, Integer minutes, List<Integer> listState,
-            Integer transactionType) {
+    public List<ProfileDTO> countProfileInDayByListState(List<Integer> state,
+                                                         List<Integer> transactionType, String code, Map<String, Object> params) {
         // TODO Auto-generated method stub
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
-        String select = "SELECT p.* \n";
+        String select = "SELECT p.*, ";
+
+        String column = " u.full_name as staff_name_last, c.name as customer_name," +
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, " +
+                "trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, " +
+                "his.time_received as time_received_history   \n";
 
         String from = "FROM profile AS p \n";
 
         String join1 = "LEFT JOIN transaction_type AS trans ON p.type = trans.id \n";
+        String join2 = "LEFT JOIN customer AS c ON p.customer_id = c.id \n";
+        String join3 = "LEFT JOIN  user_entity uc on p.staff_id = uc.id \n";
+        String join4 = "LEFT JOIN  user_entity ucm on p.staff_id_cm = ucm.id \n";
+        String join5 = "LEFT JOIN  user_entity uct on p.staff_id_ct = uct.id \n";
+        String join6 = "LEFT JOIN  profile_history his on p.id = his.profile_id \n";
+        String join7 = "LEFT JOIN  user_entity u on his.staff_id = u.id \n";
 
         String where1 = null;
         String where2 = null;
-        String where6 = "WHERE 1=1 AND state IN :listState AND trans.type = :transactionType";
-        String where3 = null;
-        String where4 = null;
-        sb.append(select + from + join1 + where6);
-        parameters.put("time", time);
-        parameters.put("listState", listState);
+        String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType " +
+                "AND his.state IN :listState \n";
+        sb.append(select + column + from + join1 + join2 + join3 + join4 + join5 + join6 + join7 + where6);
+//        sb.append(select + from + join1 + where6);
+        // parameters.put("time", time);
+        // parameters.put("minutes", minutes);
+        parameters.put("listState", state);
         parameters.put("transactionType", transactionType);
-        if (minutes > 0) {
-            where1 = " AND ((DATEPART(HOUR, real_time_received_cm) < :time AND DATEPART(MINUTE, real_time_received_cm) < :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
-            where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND DATEPART(MINUTE, real_time_received_ct) < :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
-            where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND DATEPART(MINUTE, real_time_received_cm) >= :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
-            where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND DATEPART(MINUTE, real_time_received_ct) >= :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
-            parameters.put("minutes", minutes);
-            sb.append(where1 + where2 + where3 + where4);
-        } else {
-            where1 = " AND ((DATEPART(HOUR, real_time_received_cm) < :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
-            where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
-            where3 = " OR ((DATEPART(HOUR, real_time_received_cm) > :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
-            where4 = " OR (DATEPART(HOUR, real_time_received_ct) > :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
-            sb.append(where1 + where2 + where3 + where4);
+
+
+        if (code.equals(Constants.Department.QTTD)) {
+            where1 = " AND  CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)";
+            if(params.containsKey("username")) {
+                if(DataUtils.notNull(params.get("username"))) {
+                    String where = " AND ucm.username = :username ";
+                    parameters.put("username", params.get("username").toString().toLowerCase());
+                    sb.append(where);
+                }
+            }
+
+
+            if (params.containsKey("isToday")) {
+                if (params.get("isToday").toString().equals("true")) {
+                    String where = " AND CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    sb.append(where);
+                }
+
+            }
+
+            sb.append(where1);
         }
-        return getResultList(sb.toString(), Profile.class, parameters);
+        if (code.equals(Constants.Department.GDKH)) {
+            where2 = " AND  CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)";
+            sb.append(where2);
+
+            if (params.containsKey("time_received_ct")) {
+                if (params.get("time_received_ct").toString().equals("NULL")) {
+                    String where = " AND p.time_received_ct is NULL ";
+                    sb.append(where);
+                }
+
+            }
+
+
+            if (params.containsKey("isToday")) {
+                if (params.get("isToday").toString().equals("true")) {
+                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    sb.append(where);
+                }
+
+            }
+
+            if(params.containsKey("username")) {
+                if(DataUtils.notNull(params.get("username"))) {
+                    String where = " AND uct.username = :username";
+                    parameters.put("username", params.get("username").toString().toLowerCase());
+                    sb.append(where);
+                }
+            }
+
+        }
+
+
+        return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
     }
 
+    @Override
+    public List<ProfileDTO> countProfileByListState(List<Integer> state, List<Integer> transactionType, String code,
+                                                    Map<String, Object> params) {
+        // TODO Auto-generated method stub
+        StringBuilder sb = new StringBuilder();
+        Map<String, Object> parameters = new HashMap<>();
+        String select = "SELECT p.*, ";
+
+        String column = " u.full_name as staff_name_last, c.name as customer_name," +
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, " +
+                "trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, " +
+                "his.time_received as time_received_history   \n";
+
+
+        String from = "FROM profile AS p \n";
+
+        String join1 = "LEFT JOIN transaction_type AS trans ON p.type = trans.id \n";
+        String join2 = "LEFT JOIN customer AS c ON p.customer_id = c.id \n";
+        String join3 = "LEFT JOIN  user_entity uc on p.staff_id = uc.id \n";
+        String join4 = "LEFT JOIN  user_entity ucm on p.staff_id_cm = ucm.id \n";
+        String join5 = "LEFT JOIN  user_entity uct on p.staff_id_ct = uct.id \n";
+        String join6 = "LEFT JOIN  profile_history his on p.id = his.profile_id \n";
+        String join7 = "LEFT JOIN  user_entity u on his.staff_id = u.id \n";
+
+        String where1 = null;
+        String where2 = null;
+        String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType " +
+                "AND his.state IN :listState \n";
+        sb.append(select + column + from + join1 + join2 + join3 + join4 + join5 + join6 + join7 + where6);
+//        sb.append(select  + from + join1 +  where6);
+        parameters.put("listState", state);
+        parameters.put("transactionType", transactionType);
+
+
+
+        if (code.equals(Constants.Department.QTTD)) {
+            // hồ sơ đẫ nhận
+            if (params.containsKey("real_time_received_cm")) {
+                if (params.get("real_time_received_cm").toString().equals("NOTNULL")) {
+                    String where = " AND p.real_time_received_cm IS NOT NULL ";
+                    sb.append(where);
+                }
+
+            }
+
+            if (params.containsKey("isToday")) {
+                if (params.get("isToday").toString().equals("true")) {
+                    String where = " AND CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    sb.append(where);
+                }
+
+            }
+
+
+            if(params.containsKey("username")) {
+                if(DataUtils.notNull(params.get("username"))) {
+                    String where = " AND ucm.username = :username";
+                    parameters.put("username", params.get("username").toString().toLowerCase());
+                    sb.append(where);
+                }
+            }
+        }
+        if (code.equals(Constants.Department.GDKH)) {
+            // hồ sơ đẫ nhận
+            if (params.containsKey("real_time_received_ct")) {
+                if (params.get("real_time_received_ct").toString().equals("NOTNULL")) {
+                    String where = " AND p.real_time_received_ct IS NOT NULL ";
+                    sb.append(where);
+                }
+
+            }
+
+            if (params.containsKey("isToday")) {
+                if (params.get("isToday").toString().equals("true")) {
+                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    sb.append(where);
+                }
+
+            }
+
+            if(params.containsKey("username")) {
+                if(DataUtils.notNull(params.get("username"))) {
+                    String where = " AND uct.username = :username";
+                    parameters.put("username", params.get("username").toString().toLowerCase());
+                    sb.append(where);
+                }
+            }
+        }
+
+        return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
+    }
+
+
 }
+
+

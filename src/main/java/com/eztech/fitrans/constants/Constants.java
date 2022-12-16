@@ -68,9 +68,9 @@ public class Constants {
     }
 
     public static final class Department {
-        public static String QTTD = "QTTD";
-        public static String QLKH = "QLKH";
-        public static String GDKH = "GDKH";
+        public static final String QTTD = "QTTD";
+        public static final String QLKH = "QLKH";
+        public static final String GDKH = "GDKH";
     }
 
 }

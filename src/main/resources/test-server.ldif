@@ -235,7 +235,7 @@ objectclass: inetOrgPerson
 cn: cvqttd
 sn: cvqttd
 uid: cvqttd
-userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+userPassword:  123456a@
 mailNickName: cvqttdbidv
 distinguishedName: cvqttdbidv
 
@@ -324,4 +324,117 @@ uid: admin_qtht3
 userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: admin_qtht3bidv
 distinguishedName: admin_qtht3bidv
+
+
+dn: uid=duongtq,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: duongtq
+sn: duongtq
+uid: duongtq
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: duongtq
+distinguishedName: duongtq
+
+dn: uid=quannh3,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: quannh3
+sn: quannh3
+uid: quannh3
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: quannh3
+distinguishedName: quannh3
+
+dn: uid=nhungdth2,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: nhungdth2
+sn: nhungdth2
+uid: nhungdth2
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: nhungdth2
+distinguishedName: nhungdth2
+
+dn: uid=hangdtt1,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: hangdtt1
+sn: hangdtt1
+uid: hangdtt1
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: hangdtt1
+distinguishedName: hangdtt1
+
+dn: uid=luonglx,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: luonglx
+sn: luonglx
+uid: luonglx
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: luonglx
+distinguishedName: luonglx
+
+
+dn: uid=syth,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: syth
+sn: syth
+uid: syth
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: syth
+distinguishedName: syth
+
+dn: uid=ngocdtb5,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: ngocdtb5
+sn: ngocdtb5
+uid: ngocdtb5
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: ngocdtb5
+distinguishedName: ngocdtb5
+
+dn: uid=hiennt10,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: hiennt10
+sn: hiennt10
+uid: hiennt10
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: hiennt10
+distinguishedName: hiennt10
+
+dn: uid=lannt7,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: lannt7
+sn: lannt7
+uid: lannt7
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: lannt7
+distinguishedName: lannt7
+
+
+
 
