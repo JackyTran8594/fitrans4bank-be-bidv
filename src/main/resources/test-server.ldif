@@ -423,4 +423,18 @@ userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: hiennt10
 distinguishedName: hiennt10
 
+dn: uid=lannt7,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: lannt7
+sn: lannt7
+uid: lannt7
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: lannt7
+distinguishedName: lannt7
+
+
+
 

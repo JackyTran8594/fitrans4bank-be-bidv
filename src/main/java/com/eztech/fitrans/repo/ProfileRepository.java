@@ -34,8 +34,22 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, Profile
         @Query(value = "SELECT COUNT(*) FROM profile WHERE state IN :listState", nativeQuery = true)
         long count(@Param("listState") List<Integer> listState);
 
-        @Query(value = "SELECT COUNT(*) FROM profile WHERE state = :state", nativeQuery = true)
-        Integer countByState(@Param("state") Integer state);
+        @Query(value = "SELECT COUNT(*) FROM profile AS p LEFT JOIN transaction_type AS trans ON trans.id = p.type" +
+                " WHERE 1=1 AND state = :state AND trans.type IN :transactionType ", nativeQuery = true)
+        Integer countByStateAndType(@Param("state") Integer state, @Param("transactionType") List<Integer> transactionType);
+
+        /**
+         * hàm dùng cho đếm số lượng hò sơ theo state đối với QTTD
+         * @param state
+         * @param username
+         * @param transactionType
+         * @return
+         */
+        @Query(value = "SELECT COUNT(*) FROM profile AS p " +
+                "LEFT JOIN transaction_type AS trans ON trans.id = p.type \n" +
+                "LEFT JOIN user_entity AS ue ON ue.id = p.staff_id_cm \n" +
+                "WHERE 1=1 AND state = :state AND trans.type IN :transactionType AND ue.username = :username ", nativeQuery = true)
+        Integer countInDayByStateAndUsername(@Param("state") Integer state, @Param("username") String username, @Param("transactionType") List<Integer> transactionType);
 
        
        

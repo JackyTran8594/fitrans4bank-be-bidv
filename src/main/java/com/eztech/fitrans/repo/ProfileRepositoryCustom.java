@@ -1,6 +1,7 @@
 package com.eztech.fitrans.repo;
 
 import com.eztech.fitrans.dto.response.ProfileDTO;
+import com.eztech.fitrans.dto.response.dashboard.ProfileListDashBoardDTO;
 import com.eztech.fitrans.model.Profile;
 
 import java.time.LocalDateTime;
@@ -33,14 +34,12 @@ public interface ProfileRepositoryCustom extends BaseRepositoryCustom {
      * Số bộ đã bàn giao đang chờ phòng xử lý trong ngày
      * Số bộ đã trả lại chờ hoàn thiện HS trong ngày
      */
-    List<Profile> countProfileInDayByListState(List<Integer> state,
+    List<ProfileDTO> countProfileInDayByListState(List<Integer> state,
                                                List<Integer> transactionType, String code, Map<String, Object> parameters);
 
-    List<Profile> countProfileByListState(List<Integer> state, List<Integer> transactionType, String code, Map<String, Object> parameters);
+    List<ProfileDTO> countProfileByListState(List<Integer> state, List<Integer> transactionType, String code, Map<String, Object> parameters);
 
-    List<ProfileDTO> profileInDayByListState(List<Integer> state, List<Integer> transactionType, String code, Map<String, Object> parameters);
 
-    List<ProfileDTO> profileByListState(List<Integer> state, List<Integer> transactionType, String code, Map<String, Object> parameters);
 
 
 }

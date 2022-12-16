@@ -1,5 +1,6 @@
 package com.eztech.fitrans.service.impl;
 
+import com.eztech.fitrans.constants.Constants;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.DepartmentDTO;
@@ -9,6 +10,7 @@ import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.dto.response.TransactionTypeDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.dto.response.dashboard.DashboardDTO;
+import com.eztech.fitrans.dto.response.dashboard.ProfileListDashBoardDTO;
 import com.eztech.fitrans.event.ScheduledTasks;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Profile;
@@ -561,7 +563,7 @@ public class ProfileServiceImpl implements ProfileService {
             return profile;
         } catch (
 
-        Exception e) {
+                Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
             return null;
@@ -571,7 +573,7 @@ public class ProfileServiceImpl implements ProfileService {
     /**
      * chỉ dùng trong các trường hợp chuyển hồ sơ - mới tạo, chuyển nội bộ, tạo mới
      * hồ sơ, trả hồ sơ, đưa vào luồng chờ giải quyết
-     * 
+     *
      * @param ConfirmRequest
      */
     @Override
@@ -936,7 +938,7 @@ public class ProfileServiceImpl implements ProfileService {
             LocalDateTime timeMarkerValue = calculatingTime.convertTimeMarker(timeConfig);
 
             // luồng giao dịch
-            Integer[] intArray = new Integer[] { 1, 2 };
+            Integer[] intArray = new Integer[]{1, 2};
 
             if (Arrays.asList(intArray).contains(transactionType.getType())) {
                 if (item.getCode().trim().toUpperCase().equals("QTTD")) {
@@ -1269,7 +1271,7 @@ public class ProfileServiceImpl implements ProfileService {
                             if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                                 // check delivery to GDKH
                                 // state of profile: not_yet, tranfer
-                                Integer[] intArray = new Integer[] { 6 };
+                                Integer[] intArray = new Integer[]{6};
                                 // trường hợp trả hồ sơ thì bàn giao lại từ đầu tại qttd do đó cần check lại
                                 // trạng thái
                                 // nếu = 6 thì phải bàn giao tại qttd trước
@@ -1677,8 +1679,8 @@ public class ProfileServiceImpl implements ProfileService {
                     throw new ResourceNotFoundException("Deparment " + item.getCode() + " not found");
                 }
                 // state of profile: not_yet, tranfer
-                Integer[] intArray = new Integer[] { 0, 1 };
-                Integer[] intArray2 = new Integer[] { 6 };
+                Integer[] intArray = new Integer[]{0, 1};
+                Integer[] intArray2 = new Integer[]{6};
                 if (transactionType.getType().equals(1)) {
 
                     switch (item.getCode()) {
@@ -2095,6 +2097,7 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     // dùng cho update hồ sơ: pending, additional, finised, bàn giao
+
     /**
      * các hồ sơ sẽ được update tuần tự dựa vào hồ sơ trước đó
      * vì vậy mà các list hồ sơ đưa vào phải tuân thủ:
@@ -2103,7 +2106,7 @@ public class ProfileServiceImpl implements ProfileService {
      * - là hồ sơ chờ không phân biệt trước sau nhưng phải tuần tự
      */
     private void updateProfileList(List<ProfileDTO> listData, ProfileDTO profile, UserDTO user,
-            ProfileHistoryDTO profileHistory, Long departmentId, String code, TransactionTypeDTO transactionType) {
+                                   ProfileHistoryDTO profileHistory, Long departmentId, String code, TransactionTypeDTO transactionType) {
         try {
             LocalDateTime timeMarkerValue = calculatingTime.convertTimeMarker(timeConfig);
             if (listData.size() >= 1) {
@@ -2427,16 +2430,17 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
+
     @Override
     public List<DashboardDTO> profileExpected() {
         // TODO Auto-generated method stub
         try {
             // luong 1
-            List<Integer> type1 = Arrays.asList(new Integer[] { 0, 1, 2, 3, 8, 9 });
+            List<Integer> type1 = Arrays.asList(new Integer[]{0, 1, 2, 3, 8, 9});
             // luong 2
-            List<Integer> type2 = Arrays.asList(new Integer[] { 0, 1, 3, 8, 9 });
+            List<Integer> type2 = Arrays.asList(new Integer[]{0, 1, 3, 8, 9});
             // luong 3
-            List<Integer> type3 = Arrays.asList(new Integer[] {
+            List<Integer> type3 = Arrays.asList(new Integer[]{
                     0, 1, 3, 8, 9
             });
 
@@ -2455,39 +2459,6 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
-    /**
-     * lấy danh sách cán bộ theo trạng thái
-     * @param state
-     * @param code
-     * @param transactionType
-     * @param parameters
-     * @return
-     */
-    @Override
-    public List<ProfileDTO> profileInDayByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters) {
-        try {
-            List<ProfileDTO>  listData = new ArrayList<>();
-            return listData;
-        } catch (Exception e) {
-            // TODO: handle exception
-            logger.error(e.getMessage(), e);
-            return null;
-        }
-    }
-
-    @Override
-    public List<ProfileDTO> profileByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters) {
-        try {
-            List<ProfileDTO>  listData = new ArrayList<>();
-            return listData;
-        } catch (Exception e) {
-            // TODO: handle exception
-            logger.error(e.getMessage(), e);
-            return null;
-        }
-
-    }
-
     @Override
     public Integer count() {
         // TODO Auto-generated method stub
@@ -2498,46 +2469,62 @@ public class ProfileServiceImpl implements ProfileService {
      * hàm dùng cho các card còn lại: gọi theo trạng thái, mã vai trò, luồng
      */
     @Override
-    public List<ProfileDTO>  countProfileInDayByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String,Object> parameters) {
+    public List<ProfileDTO> countProfileInDayByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters) {
         // TODO Auto-generated method stub
         try {
-            List<ProfileDTO>  listData = new ArrayList<>();
-            List<Profile> profiles = repository.countProfileInDayByListState(state, transactionType, code, parameters);
-            if(DataUtils.notNullOrEmpty(profiles)) {
-                listData = mapper.toDtoBean(repository.countProfileInDayByListState(state, transactionType, code, parameters));
-            }
+            List<ProfileDTO> listData = new ArrayList<>();
+//            List<Profile> profiles = repository.countProfileInDayByListState(state, transactionType, code, parameters);
+            listData = repository.countProfileInDayByListState(state, transactionType, code, parameters);
+//            if(DataUtils.notNullOrEmpty(profiles)) {
+//                listData = mapper.toDtoBean(repository.countProfileInDayByListState(state, transactionType, code, parameters));
+//            }
             return listData;
         } catch (Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
             return null;
         }
-       
+
     }
 
     @Override
-    public Integer countByState(Integer state) {
+    public Integer countByStateAndType(Integer state, List<Integer> transactionType) {
         // TODO Auto-generated method stub
         try {
-            Integer count = repository.countByState(state);
+            Integer count = repository.countByStateAndType(state, transactionType);
             return count;
         } catch (Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
             return null;
         }
-       
+
     }
 
     @Override
-    public List<ProfileDTO> countProfileByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String,Object> parameters) {
+    public Integer countInDayByStateAndUsername(Integer state, String username, List<Integer> transactionType) {
         // TODO Auto-generated method stub
         try {
-            List<ProfileDTO>  listData = new ArrayList<>();
-            List<Profile> profiles = repository.countProfileByListState(state, transactionType, code, parameters);
-            if(DataUtils.notNullOrEmpty(profiles)) {
-                listData = mapper.toDtoBean(repository.countProfileByListState(state, transactionType, code, parameters));
-            }
+            Integer count = repository.countInDayByStateAndUsername(state, username, transactionType);
+            return count;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+
+    @Override
+    public List<ProfileDTO> countProfileByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters) {
+        // TODO Auto-generated method stub
+        try {
+            List<ProfileDTO> listData = new ArrayList<>();
+//            List<Profile> profiles = repository.countProfileByListState(state, transactionType, code, parameters);
+            listData = repository.countProfileByListState(state, transactionType, code, parameters);
+//            if(DataUtils.notNullOrEmpty(profiles)) {
+//                listData = mapper.toDtoBean(repository.countProfileByListState(state, transactionType, code, parameters));
+//            }
             return listData;
         } catch (Exception e) {
             // TODO: handle exception
@@ -2545,5 +2532,38 @@ public class ProfileServiceImpl implements ProfileService {
             return null;
         }
     }
+
+//    @Override
+//    public List<ProfileDTO> profileByStateInDashboard(String code, Integer typeChart) {
+//        // TODO Auto-generated method stub
+//        try {
+//            List<ProfileDTO>  listData = new ArrayList<>();
+//            if(code.equals(Constants.Department.QTTD)) {
+//                List<Integer> transactionType = Arrays.asList(new Integer[]{1, 2});
+//                switch (typeChart) {
+//                    case 2:
+//                        List<Integer> stateExpect = Arrays.asList(new Integer[]{0, 1});
+//                        Map<String, Object> paramsExpect = new HashMap<String, Object>();
+//                        listData = countProfileInDayByListState(stateExpect, Constants.Department.QTTD, transactionType, paramsExpect);
+//                    case 3:
+//                        // cả trong và quá hạn
+//                        List<Integer> stateProcessing = Arrays.asList(new Integer[]{0, 1});
+//                        Map<String, Object> paramsProcessing = new HashMap<String, Object>();
+//                        listData = countProfileInDayByListState(stateProcessing, Constants.Department.QTTD, transactionType, paramsProcessing);
+//                }
+//
+//            }
+//            List<Profile> profiles = repository.countProfileByListState(state, transactionType, code, parameters);
+//            if(DataUtils.notNullOrEmpty(profiles)) {
+//                listData = mapper.toDtoBean(repository.countProfileByListState(state, transactionType, code, parameters));
+//            }
+//            return listData;
+//        } catch (Exception e) {
+//            // TODO: handle exception
+//            logger.error(e.getMessage(), e);
+//            return null;
+//        }
+//    }
+
 
 }

@@ -6,6 +6,7 @@ import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.dashboard.DashboardDTO;
 
+import com.eztech.fitrans.dto.response.dashboard.ProfileListDashBoardDTO;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -55,7 +56,16 @@ public interface ProfileService {
 
     Integer countProfileInDayByState(Integer state);
 
-    Integer countByState(Integer state);
+    Integer countByStateAndType(Integer state, List<Integer> transactionType);
+
+    /**
+     * hàm dùng cho đếm số lượng hò sơ theo state đối với QTTD
+     * @param state
+     * @param username
+     * @param transactionType
+     * @return
+     */
+    Integer countInDayByStateAndUsername(Integer state, String username, List<Integer> transactionType);
 
     List<ProfileDTO> countProfileByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters);
 
@@ -63,8 +73,7 @@ public interface ProfileService {
 
     List<DashboardDTO> profileExpected();
 
-    List<ProfileDTO> profileInDayByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters);
 
-    List<ProfileDTO> profileByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters);
+
 
 }
