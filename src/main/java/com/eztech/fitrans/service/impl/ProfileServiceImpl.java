@@ -1238,11 +1238,11 @@ public class ProfileServiceImpl implements ProfileService {
                             // check scan
                             if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                                 if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
                                 ) {
                                     if (!item.getIsFinished()) {
                                         if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                        // || old.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                        || old.getState().equals(ProfileStateEnum.WAITING.getValue())
                                         ) {
                                             message.setMessage("Giao dịch này đã được nhận 1 lần");
                                             message.setIsExist(true);
@@ -1294,7 +1294,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     }
                                     // bàn giao hồ sơ đang xử lý sang GDKH từ QTTD
                                     else if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
                                     ) {
                                         // nhận bàn giao từ QTTD tới máy chung - admin
                                         if (item.getUsername().contains("admin")) {
@@ -1350,7 +1350,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 else {
                                     // hồ sơ đang xử lý (luồng thông thường hoặc luồng đã có trả hồ sơ)
                                     if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
                                     ) {
                                         if (item.getUsername().contains("admin")) {
                                             // check scan kết thúc hồ sơ
@@ -1435,13 +1435,13 @@ public class ProfileServiceImpl implements ProfileService {
                         // kiểm tra đã bàn giao tại QTTD chưa
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                             if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
                             ) {
                                 if (item.getIsFinished()) {
                                     message.setIsExist(false);
                                 } else {
                                     if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
                                     ) {
                                         message.setMessage("Hồ sơ này đã được nhận 1 lần");
                                         message.setIsExist(true);
@@ -1481,14 +1481,14 @@ public class ProfileServiceImpl implements ProfileService {
                     if (item.getCode().equals("GDKH")) {
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
                             if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
                             ) {
                                 if (item.getIsFinished()) {
                                     message.setIsExist(false);
                                 } else {
                                     // kiểm tra hồ sơ tồn tại có đang xử lý không
                                     if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
+                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
                                     ) {
                                         message.setMessage("Hồ sơ này đã được nhận 1 lần");
                                         message.setIsExist(true);

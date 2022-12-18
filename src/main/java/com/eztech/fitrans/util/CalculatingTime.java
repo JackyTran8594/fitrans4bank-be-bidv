@@ -543,7 +543,7 @@ public class CalculatingTime {
             processTimeCase = 4;
             // thời gian xử lý tính sang ngày hôm sau
             // processTime = timeMarkerTomorrow
-            //         .plusMinutes(standard + checker + additionalTime - worked);
+            // .plusMinutes(standard + checker + additionalTime - worked);
 
             processTime = calculatingTimeProcess(processTime, timeReceived, timeMarker11h30, timeMarker13h30,
                     timeMarkerConfig, timeMarkerTomorrow, processTimeCase, standard, checker, additionalTime, worked);
@@ -603,13 +603,41 @@ public class CalculatingTime {
                 if (processTime.isAfter(timeMarkerConfig)) {
                     // thời gian chênh lệch giữa thời gian nhận và mốc timeMarkerConfig => thời gian
                     // ngoài giờ
+                    // SATURDAY, SUNDAY = [6,7]
+                    // kiểm tra xem có phải t7, cn không
+                    // SATURDAY,
+
+                    LocalDateTime timeMarker11h30Tomorrow = null;
+                    LocalDateTime timeMarker13h30Tomorrow = null;
+                    LocalDateTime timeMarkerConfigTomorrow = null;
+
+                    switch (processTime.getDayOfWeek().getValue()) {
+                        // SATURDAY
+                        case 6:
+                            timeMarkerTomorrow = timeMarkerTomorrow.plusDays(1);
+                            // thời gian xử lý 11h30-13h30 ngày hôm sau (thứ 2)
+                            timeMarker11h30Tomorrow = timeMarker11h30.plusDays(2);
+                            timeMarker13h30Tomorrow = timeMarker13h30.plusDays(2);
+                            timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(2);
+                            break;
+                        // SUNDAY
+                        case 7:
+                            // thời gian xử lý 11h30-13h30 ngày hôm sau (thứ 2)
+                            timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                            timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                            timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
+                            break;
+                        // REMAIN
+                        default:
+                            // thời gian xử lý 11h30-13h30 ngày hôm sau
+                            timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                            timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                            timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
+                            break;
+                    }
+
                     Long time4 = durationToMinute(timeMarkerConfig, processTime);
                     processTime = timeMarkerTomorrow.plusMinutes(time4);
-
-                    // thời gian xử lý 11h30-13h30 ngày hôm sau
-                    LocalDateTime timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
-                    LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
-                    LocalDateTime timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
 
                     if (processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
                         Long time5 = durationToMinute(processTime, timeMarker11h30Tomorrow);
@@ -658,13 +686,47 @@ public class CalculatingTime {
                 // tính lại thời gian xử lý nếu quá timeMarkerConfigTomorrow
                 if (processTime.isAfter(timeMarkerConfig)) {
                     // thời gian chênh lệch giữa thời gian nhận và mốc 17h
+
+                    // SATURDAY, SUNDAY = [6,7]
+                    // kiểm tra xem có phải t7, cn không
+                    // SATURDAY,
+
+                    LocalDateTime timeMarker11h30Tomorrow = null;
+                    LocalDateTime timeMarker13h30Tomorrow = null;
+                    LocalDateTime timeMarkerConfigTomorrow = null;
+
+                    switch (processTime.getDayOfWeek().getValue()) {
+                        // SATURDAY
+                        case 6:
+                            timeMarkerTomorrow = timeMarkerTomorrow.plusDays(1);
+                            // thời gian xử lý 11h30-13h30 ngày hôm sau (thứ 2)
+                            timeMarker11h30Tomorrow = timeMarker11h30.plusDays(2);
+                            timeMarker13h30Tomorrow = timeMarker13h30.plusDays(2);
+                            timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(2);
+                            break;
+                        // SUNDAY
+                        case 7:
+                            // thời gian xử lý 11h30-13h30 ngày hôm sau (thứ 2)
+                            timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                            timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                            timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
+                            break;
+                        // REMAIN
+                        default:
+                            // thời gian xử lý 11h30-13h30 ngày hôm sau
+                            timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                            timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                            timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
+                            break;
+                    }
+
                     Long time4 = durationToMinute(timeMarkerConfig, processTime);
                     processTime = timeMarkerTomorrow.plusMinutes(time4);
 
                     // thời gian xử lý 11h30-13h30 ngày hôm sau
-                    LocalDateTime timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
-                    LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
-                    LocalDateTime timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
+                    // LocalDateTime timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                    // LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                    // LocalDateTime timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
 
                     if (processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
                         Long time5 = durationToMinute(processTime, timeMarker11h30Tomorrow);
@@ -720,18 +782,20 @@ public class CalculatingTime {
                 }
                 // 28-11-2022
 
-                // bỏ đoạn này vì không tính sang hôm sau với trường hợp thời gian xử lý sau timeConfig
+                // bỏ đoạn này vì không tính sang hôm sau với trường hợp thời gian xử lý sau
+                // timeConfig
                 // và thời gian nhận trước timeConfig và sau 13h30
-                // if (timeReceived.isAfter(timeMarker13h30) && timeReceived.isBefore(timeMarkerConfig)) {
-                //     // thời gian từ timeMarkerConfig - thời gian xử lý => ngoài giờ hành chính
+                // if (timeReceived.isAfter(timeMarker13h30) &&
+                // timeReceived.isBefore(timeMarkerConfig)) {
+                // // thời gian từ timeMarkerConfig - thời gian xử lý => ngoài giờ hành chính
 
-                //     Long time3 = durationToMinute(timeMarkerConfig, processTime);
+                // Long time3 = durationToMinute(timeMarkerConfig, processTime);
 
-                //     processTime = timeMarkerTomorrow
-                //             .plusMinutes(time3);
+                // processTime = timeMarkerTomorrow
+                // .plusMinutes(time3);
 
                 // }
-                
+
                 // end 28-11-2022
                 if (timeReceived.isAfter(timeMarkerConfig)) {
                     // thời gian xử lý tính sang ngày hôm sau
@@ -740,10 +804,42 @@ public class CalculatingTime {
 
                 }
 
-                // thời gian xử lý 11h30-13h30 ngày hôm sau
-                LocalDateTime timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
-                LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
-                LocalDateTime timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
+                // SATURDAY, SUNDAY = [6,7]
+                // kiểm tra xem có phải t7, cn không
+                // SATURDAY,
+                LocalDateTime timeMarker11h30Tomorrow = null;
+                LocalDateTime timeMarker13h30Tomorrow = null;
+                LocalDateTime timeMarkerConfigTomorrow = null;
+
+                switch (processTime.getDayOfWeek().getValue()) {
+                    // SATURDAY
+                    case 6:
+                        timeMarkerTomorrow = timeMarkerTomorrow.plusDays(1);
+                        // thời gian xử lý 11h30-13h30 ngày hôm sau (thứ 2)
+                        timeMarker11h30Tomorrow = timeMarker11h30.plusDays(2);
+                        timeMarker13h30Tomorrow = timeMarker13h30.plusDays(2);
+                        timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(2);
+                        break;
+                    // SUNDAY
+                    case 7:
+                        // thời gian xử lý 11h30-13h30 ngày hôm sau (thứ 2)
+                        timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                        timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                        timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
+                        break;
+                    // REMAIN
+                    default:
+                        // thời gian xử lý 11h30-13h30 ngày hôm sau
+                        timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                        timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                        timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
+                        break;
+                }
+
+                // // thời gian xử lý 11h30-13h30 ngày hôm sau
+                // LocalDateTime timeMarker11h30Tomorrow = timeMarker11h30.plusDays(1);
+                // LocalDateTime timeMarker13h30Tomorrow = timeMarker13h30.plusDays(1);
+                // LocalDateTime timeMarkerConfigTomorrow = timeMarkerConfig.plusDays(1);
 
                 if (processTime.isAfter(timeMarker11h30Tomorrow) && processTime.isBefore(timeMarker13h30Tomorrow)) {
                     Long time5 = durationToMinute(timeMarker11h30Tomorrow, processTime);
@@ -782,7 +878,6 @@ public class CalculatingTime {
 
         return Long.valueOf(minutesProcess);
     }
-
 
     // public LocalDateTime calculatingTimeForAllCase() {
 

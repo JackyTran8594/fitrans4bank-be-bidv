@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileListDTO;
 import com.eztech.fitrans.dto.response.QRCodeDTO;
@@ -65,7 +64,8 @@ public class ReadAndWriteDoc {
 
         try {
 
-//            InputStream resource = getClass().getClassLoader().getResourceAsStream("template/BIDV_Template.docx");
+            // InputStream resource =
+            // getClass().getClassLoader().getResourceAsStream("template/BIDV_Template.docx");
             InputStream resource = readInputStreamResource("template/BIDV_Template.docx");
 
             File file = File.createTempFile("BIDV_Template_", ".docx");
@@ -96,7 +96,9 @@ public class ReadAndWriteDoc {
                                 XWPFParagraph para1 = cell1.getParagraphs().get(0);
                                 para1.setAlignment(ParagraphAlignment.CENTER);
                                 XWPFRun run = para1.createRun();
-                                String staffName = (!DataUtils.isNullOrEmpty(profile.getStaffName())) ? profile.getStaffName().toString() : "";
+                                String staffName = (!DataUtils.isNullOrEmpty(profile.getStaffName()))
+                                        ? profile.getStaffName().toString()
+                                        : "";
                                 run.setText(staffName);
                                 run.setFontSize(12);
 
@@ -203,7 +205,9 @@ public class ReadAndWriteDoc {
                                     XWPFParagraph para = cell2.getParagraphs().get(0);
                                     para.setAlignment(ParagraphAlignment.CENTER);
                                     XWPFRun run = para.createRun();
-                                    String type = (!DataUtils.isNullOrEmpty(profile.getTypeEnum())) ? profile.getTypeEnum()  : "";
+                                    String type = (!DataUtils.isNullOrEmpty(profile.getTypeEnum()))
+                                            ? profile.getTypeEnum()
+                                            : "";
                                     run.setText(type);
                                     run.setFontSize(12);
                                     // cell2.setText(profile.getTypeEnum());
@@ -307,20 +311,20 @@ public class ReadAndWriteDoc {
                                     // byte[] imageByteArrayTransfer = generateQRCode(strTranfer, 100, 100);
 
                                     // try (InputStream inputByteArrayStream = new ByteArrayInputStream(
-                                    //         imageByteArrayTransfer)) {
+                                    // imageByteArrayTransfer)) {
 
-                                    //     // XWPFTableRow row = tableQRCode.getRows().get(0);
-                                    //     // XWPFTableCell cell = row.getCell(1);
-                                    //     // XWPFParagraph paraImage = cell.getParagraphs().get(0);
-                                    //     XWPFParagraph paraImage = docDes.createParagraph();
-                                    //     paraImage.setAlignment(ParagraphAlignment.RIGHT);
-                                    //     XWPFRun runImage = paraImage.createRun();
-                                    //     runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
-                                    //             "qrTranfered", Units.toEMU(70), Units.toEMU(70));
-                                    //     inputByteArrayStream.close();
+                                    // // XWPFTableRow row = tableQRCode.getRows().get(0);
+                                    // // XWPFTableCell cell = row.getCell(1);
+                                    // // XWPFParagraph paraImage = cell.getParagraphs().get(0);
+                                    // XWPFParagraph paraImage = docDes.createParagraph();
+                                    // paraImage.setAlignment(ParagraphAlignment.RIGHT);
+                                    // XWPFRun runImage = paraImage.createRun();
+                                    // runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
+                                    // "qrTranfered", Units.toEMU(70), Units.toEMU(70));
+                                    // inputByteArrayStream.close();
                                     // } catch (Exception e) {
-                                    //     // TODO: handle exception
-                                    //     logger.error(e.getMessage(), e);
+                                    // // TODO: handle exception
+                                    // logger.error(e.getMessage(), e);
                                     // }
 
                                     // title
@@ -451,8 +455,10 @@ public class ReadAndWriteDoc {
             // Charset charset = Charset.forName("UTF-8");
             // CharsetEncoder encoder = charset.newEncoder();
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            // qrCodeWriter.
             BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, BarcodeFormat.QR_CODE, width, height);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            
             MatrixToImageWriter.writeToStream(bitMatrix, "png", byteArrayOutputStream);
             // String pathStr = "D:\\";
             // File outputFile = new File("filen");
