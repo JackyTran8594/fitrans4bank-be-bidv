@@ -1399,6 +1399,30 @@ public class ProfileServiceImpl implements ProfileService {
                                         // }
 
                                     }
+                                    // hồ sơ đã nhận tại GDKH và cán bộ GDKH tiếp nhận
+                                    else if (dto.getState().equals(ProfileStateEnum.RECEIVED.getValue())) {
+                                        // quét bằng tk admin GDKH
+                                        if (item.getUsername().contains("admin")) {
+                                            if (item.getIsFinished()) {
+                                                message.setMessage(
+                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                                                message.setIsExist(true);
+                                            } else {
+                                                message.setMessage(
+                                                        "Hồ sơ này đã được nhận 1 lần tại phòng giao dịch khách hàng");
+                                                message.setIsExist(true);
+                                            }
+                                        } else {
+                                            // cán bộ GDKH quét QR nhầm kết thúc giao dịch
+                                            if (item.getIsFinished()) {
+                                                message.setMessage(
+                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                                                message.setIsExist(true);
+                                            } else {
+                                                message.setIsExist(false);
+                                            }
+                                        }
+                                    }
                                     // hồ sơ đã kết thúc và quét nhầm
                                     else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
                                         message.setMessage("Bạn đã kết thúc giao dịch này");
