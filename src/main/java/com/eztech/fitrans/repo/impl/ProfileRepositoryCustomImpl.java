@@ -46,7 +46,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     @Override
     public Integer updateStatus(Long id, String status, String lastUpdatedBy,
-            LocalDateTime lastUpdateDate) {
+                                LocalDateTime lastUpdateDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         sb.append(
@@ -77,7 +77,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     @Override
     public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
-            boolean count) {
+                             boolean count) {
         StringBuilder sb = new StringBuilder();
 
         String sql_select = "SELECT p.*, " +
@@ -326,8 +326,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
                 "left join transaction_type trans on trans.id = p.type \n" +
                 "where p.id = :id AND p.state = :state AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)"
-        // + " ORDER BY his.time_received ASC"
-        ;
+                // + " ORDER BY his.time_received ASC"
+                ;
         parameters.put("id", id);
         parameters.put("state", state);
         ProfileDTO profileDTO = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
@@ -463,8 +463,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     sb.append(sql_time1 + sql_time2);
                 } else {
                     // tìm những bản ghi sang ngày hôm sau nhưng bàn giao trong ngày)
-                    // String sql_time1 = " AND CAST(p.time_received_cm AS DATE) > CAST(CURRENT_TIMESTAMP AS DATE) AND DATEPART(HOUR, p.real_time_received_cm) >= "
-                    //         + timeConfig + " ";
+                    // String sql_time1 = " AND CAST(p.time_received_cm AS DATE) >
+                    // CAST(CURRENT_TIMESTAMP AS DATE) AND DATEPART(HOUR, p.real_time_received_cm)
+                    // >= "
+                    // + timeConfig + " ";
                     String sql_time1 = " AND CAST(p.time_received_cm AS DATE) > CAST(CURRENT_TIMESTAMP AS DATE) AND ( CAST(p.real_time_received_cm AS DATE) = CAST(CURRENT_TIMESTAMP AS DATE) AND  p.real_time_received_cm >= CONVERT(datetime,:datetimeConfig) ) ";
                     sb.append(sql_time1);
                 }
@@ -630,8 +632,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
     }
 
     @Override
-    public List<Profile> countProfileExpectetWithListState(Integer time, Integer minutes, List<Integer> listState,
-            Integer transactionType) {
+    public List<Profile> countProfileInDayByListState(List<Integer> state,
+                                                      List<Integer> transactionType, String code, Map<String, Object> params) {
         // TODO Auto-generated method stub
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
@@ -643,28 +645,159 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String where1 = null;
         String where2 = null;
-        String where6 = "WHERE 1=1 AND state IN :listState AND trans.type = :transactionType";
+        String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType";
         String where3 = null;
         String where4 = null;
         sb.append(select + from + join1 + where6);
-        parameters.put("time", time);
-        parameters.put("listState", listState);
+        // parameters.put("time", time);
+        // parameters.put("minutes", minutes);
+        parameters.put("listState", state);
         parameters.put("transactionType", transactionType);
-        if (minutes > 0) {
-            where1 = " AND ((DATEPART(HOUR, real_time_received_cm) < :time AND DATEPART(MINUTE, real_time_received_cm) < :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
-            where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND DATEPART(MINUTE, real_time_received_ct) < :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
-            where3 = " OR ((DATEPART(HOUR, real_time_received_cm) >= :time AND DATEPART(MINUTE, real_time_received_cm) >= :minutes AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
-            where4 = " OR (DATEPART(HOUR, real_time_received_ct) >= :time AND DATEPART(MINUTE, real_time_received_ct) >= :minutes AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
-            parameters.put("minutes", minutes);
-            sb.append(where1 + where2 + where3 + where4);
-        } else {
-            where1 = " AND ((DATEPART(HOUR, real_time_received_cm) < :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE))";
-            where2 = " OR (DATEPART(HOUR, real_time_received_ct) < :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)))";
-            where3 = " OR ((DATEPART(HOUR, real_time_received_cm) > :time AND CAST(real_time_received_cm AS DATE) = CAST(GETDATE() - 1 AS DATE))";
-            where4 = " OR (DATEPART(HOUR, real_time_received_ct) > :time AND CAST(real_time_received_ct AS DATE) = CAST(GETDATE() - 1 AS DATE)))";
-            sb.append(where1 + where2 + where3 + where4);
+
+
+        if (code.equals(Constants.Department.QTTD)) {
+            where1 = " AND  CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)";
+            sb.append(where1);
         }
+        if (code.equals(Constants.Department.GDKH)) {
+            where2 = " AND  CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)";
+            sb.append(where2);
+
+            if (params.containsKey("time_received_ct")) {
+                if (params.get("time_received_ct").toString().equals("NULL")) {
+                    String where = " AND p.time_received_ct is NULL ";
+                    sb.append(where);
+                }
+
+            }
+
+        }
+
+
         return getResultList(sb.toString(), Profile.class, parameters);
     }
+
+    @Override
+    public List<Profile> countProfileByListState(List<Integer> state, List<Integer> transactionType, String code,
+                                                 Map<String, Object> params) {
+        // TODO Auto-generated method stub
+        StringBuilder sb = new StringBuilder();
+        Map<String, Object> parameters = new HashMap<>();
+        String select = "SELECT p.* \n";
+
+        String from = "FROM profile AS p \n";
+
+        String join1 = "LEFT JOIN transaction_type AS trans ON p.type = trans.id \n";
+
+        String where1 = null;
+        String where2 = null;
+        String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType";
+        sb.append(select + from + join1 + where6);
+        parameters.put("listState", state);
+        parameters.put("transactionType", transactionType);
+
+
+        if (code.equals(Constants.Department.QTTD)) {
+            // hồ sơ đẫ nhận
+            if (params.containsKey("real_time_received_cm")) {
+                if (params.get("real_time_received_cm").toString().equals("NOTNULL")) {
+                    String where = " AND p.real_time_received_cm IS NOT NULL ";
+                    sb.append(where);
+                }
+
+            }
+        }
+        if (code.equals(Constants.Department.GDKH)) {
+            // hồ sơ đẫ nhận
+            if (params.containsKey("real_time_received_ct")) {
+                if (params.get("real_time_received_ct").toString().equals("NOTNULL")) {
+                    String where = " AND p.real_time_received_ct IS NOT NULL ";
+                    sb.append(where);
+                }
+
+            }
+        }
+
+        return getResultList(sb.toString(), Profile.class, parameters);
+    }
+
+    @Override
+    public List<ProfileDTO> profileInDayByListState(List<Integer> state, List<Integer> transactionType, String code, Map<String, Object> params) {
+        // TODO Auto-generated method stub
+        StringBuilder sb = new StringBuilder();
+        Map<String, Object> parameters = new HashMap<>();
+        String select = "SELECT p.* \n";
+        String from = "FROM profile AS p \n";
+        String join1 = "LEFT JOIN transaction_type AS trans ON p.type = trans.id \n";
+        String join2 = "LEFT JOIN profile_history AS his ON his.profile_id = p.id \n";
+        String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType";
+        sb.append(select + from + join1 + join2 + where6);
+        parameters.put("listState", state);
+        parameters.put("transactionType", transactionType);
+
+
+        if (code.equals(Constants.Department.QTTD)) {
+            // hồ sơ đẫ nhận
+            if (params.containsKey("real_time_received_cm")) {
+                if (params.get("real_time_received_cm").toString().equals("NOTNULL")) {
+                    String where = " AND p.real_time_received_cm IS NOT NULL ";
+                    sb.append(where);
+                }
+
+            }
+        }
+        if (code.equals(Constants.Department.GDKH)) {
+            // hồ sơ đẫ nhận
+            if (params.containsKey("real_time_received_ct")) {
+                if (params.get("real_time_received_ct").toString().equals("NOTNULL")) {
+                    String where = " AND p.real_time_received_ct IS NOT NULL ";
+                    sb.append(where);
+                }
+
+            }
+        }
+
+        return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
+    }
+
+    @Override
+    public List<ProfileDTO> profileByListState(List<Integer> state, List<Integer> transactionType, String code, Map<String, Object> params) {
+        // TODO Auto-generated method stub
+        StringBuilder sb = new StringBuilder();
+        Map<String, Object> parameters = new HashMap<>();
+        String select = "SELECT p.* \n";
+        String from = "FROM profile AS p \n";
+        String join1 = "LEFT JOIN transaction_type AS trans ON p.type = trans.id \n";
+        String join2 = "LEFT JOIN profile_history AS his ON his.profile_id = p.id \n";
+        String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType";
+        sb.append(select + from + join1 + join2 + where6);
+        parameters.put("listState", state);
+        parameters.put("transactionType", transactionType);
+
+
+        if (code.equals(Constants.Department.QTTD)) {
+            // hồ sơ đẫ nhận
+            if (params.containsKey("real_time_received_cm")) {
+                if (params.get("real_time_received_cm").toString().equals("NOTNULL")) {
+                    String where = " AND p.real_time_received_cm IS NOT NULL ";
+                    sb.append(where);
+                }
+
+            }
+        }
+        if (code.equals(Constants.Department.GDKH)) {
+            // hồ sơ đẫ nhận
+            if (params.containsKey("real_time_received_ct")) {
+                if (params.get("real_time_received_ct").toString().equals("NOTNULL")) {
+                    String where = " AND p.real_time_received_ct IS NOT NULL ";
+                    sb.append(where);
+                }
+
+            }
+        }
+
+        return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
+    }
+
 
 }

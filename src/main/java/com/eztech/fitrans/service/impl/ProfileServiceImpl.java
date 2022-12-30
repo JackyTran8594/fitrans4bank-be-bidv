@@ -2,72 +2,45 @@ package com.eztech.fitrans.service.impl;
 
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
-import com.eztech.fitrans.dto.response.DashboardDTO;
 import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.dto.response.TransactionTypeDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
+import com.eztech.fitrans.dto.response.dashboard.DashboardDTO;
 import com.eztech.fitrans.event.ScheduledTasks;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Profile;
 import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.repo.ActionLogRepository;
-import com.eztech.fitrans.repo.ProfileHistoryRepository;
 import com.eztech.fitrans.repo.ProfileRepository;
 import com.eztech.fitrans.service.DepartmentService;
 import com.eztech.fitrans.service.ProfileHistoryService;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.service.TransactionTypeService;
-import com.eztech.fitrans.service.UserDetailsServiceImpl;
 import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.CalculatingTime;
 import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.unboundid.util.json.JSONObject;
 
 import lombok.extern.slf4j.Slf4j;
-import springfox.documentation.spring.web.json.Json;
 
-import org.apache.poi.xwpf.usermodel.BodyElementType;
-import org.apache.poi.xwpf.usermodel.IBodyElement;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-// import java.io.FileInputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Date;
-import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import javax.persistence.criteria.Predicate;
-import javax.print.DocFlavor.URL;
 
 import static com.eztech.fitrans.constants.Constants.ACTIVE;
 
@@ -443,17 +416,20 @@ public class ProfileServiceImpl implements ProfileService {
                             // update lại state trong hashmap
                             params.put("state", ProfileStateEnum.WAITING.getValue());
 
-                            // if (profile.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue
-                            // .getDayOfMonth()) {
-                            // kiểm tra xem thời gian nhận có vượt 16h hôm nay ko
-                            if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
-                                params.put("isToday", true);
-                            } else {
-                                params.put("isToday", false);
+                            // kiểm tra thời gian nhận có phải hôm nay không
+                            if (profile.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue
+                                    .getDayOfMonth()) {
+                                // kiểm tra xem thời gian nhận có vượt 16h hôm nay ko
+                                if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
+                                    // isToday = true => tìm tất cả các hồ sơ chờ từ 8h ngày hôm sau
+                                    params.put("isToday", true);
+                                } else {
+                                    // isToday = false => tìm tất cả các hồ sơ chờ từ 8h ngày hôm sau
+                                    params.put("isToday", false);
+                                }
                             }
-                            // }
 
-                            // isAsc = true
+                            // isAsc = false
                             List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params, isAsc);
                             // nếu hồ sơ chờ lớn hơn 1
                             if (listDataWaiting.size() >= 1) {
@@ -466,22 +442,37 @@ public class ProfileServiceImpl implements ProfileService {
                                 profile_first = listData.get(0);
                             }
 
-                            // LocalDate markerDate = timeMarkerValue.toLocalDate();
-                            // LocalDate today = profile_first.getProcessDate().toLocalDate();
-
                             // kiểm tra xem thời gian nhận có vượt 16h hôm nay ko để chọn hàm tính thời gian
+                            // ngày của thời gian scan và thời gian marker luôn bằng nhau
                             if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
                                 // kiểm tra xem thời gian xử lý (ngày xử lý) của hồ ơ đang xử lý có nằm sau
                                 // timeMarkerValue không, nếu có thì trường hợp này là đang xử lý vào
                                 // ngày hôm sau (8h sáng)
                                 // nếu thời gian xử lý trong ngày
                                 // tính toán theo hàm trong ngày
+                                int dayOfMonth_profile = profile_first.getRealTimeReceivedCM().getDayOfMonth();
+                                int dayOfMonth_marker = profileHistory.getTimeReceived().getDayOfMonth();
 
-                                mapResult = calculatingTime.calculatingDateFromRealTimeReceived(
-                                        profile_first.getProcessDate(), transactionType.getStandardTimeCM(),
-                                        transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
-                                        profile.getNumberOfPO(),
-                                        profile.getNumberOfBill(), transactionType.getType());
+                                // kiểm tra xem có scan trong ngày với thời gian thực nhận không
+                                // có: thời gian nhận bằng thời gian của hồ sơ liên trước đó (đang xử lý/chờ xử
+                                // lý)
+                                // không: thời gian nhận bằng thời gian hiện tại (thời gian quét hồ sơ)
+
+                                if (dayOfMonth_profile == dayOfMonth_marker) {
+
+                                    mapResult = calculatingTime.calculatingDateFromRealTimeReceived(
+                                            profile_first.getProcessDate(), transactionType.getStandardTimeCM(),
+                                            transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
+                                            profile.getNumberOfPO(),
+                                            profile.getNumberOfBill(), transactionType.getType());
+                                } else {
+
+                                    mapResult = calculatingTime.calculatingDateFromRealTimeReceived(
+                                            profileHistory.getTimeReceived(), transactionType.getStandardTimeCM(),
+                                            transactionType.getStandardTimeChecker(), profile.getAdditionalTime(),
+                                            profile.getNumberOfPO(),
+                                            profile.getNumberOfBill(), transactionType.getType());
+                                }
 
                             } else {
 
@@ -489,9 +480,7 @@ public class ProfileServiceImpl implements ProfileService {
 
                                 switch (listDataWaiting.size()) {
                                     case 0:
-                                        // thời gian nhận bằng thời gian xử lý của hồ sơ đang xử lý
-                                        // timeReceivedProfile = profile_first.getProcessDate();
-
+                                        // thời gian nhận bằng thời gian scan của hồ sơ đang xử lý
                                         timeReceivedProfile = profileHistory.getTimeReceived();
                                         // }
                                         break;
@@ -820,7 +809,7 @@ public class ProfileServiceImpl implements ProfileService {
                 throw new ResourceNotFoundException("User " + item.getUsername() + " not found");
             }
 
-            if (!old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+            if (old.getState().equals(ProfileStateEnum.WAITING.getValue())) {
                 switch (transactionType.getType()) {
                     case 1:
                         if (item.getCode().trim().toUpperCase().equals("QTTD")) {
@@ -889,7 +878,7 @@ public class ProfileServiceImpl implements ProfileService {
                 }
 
             } else {
-                message.setMessage("Hồ sơ đang trong quá trình xử lý");
+                message.setMessage("Hồ sơ không bàn giao được do không trong trạng thái chờ xử lý");
                 message.setIsExist(true);
             }
 
@@ -1238,12 +1227,10 @@ public class ProfileServiceImpl implements ProfileService {
                             // check scan
                             if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                                 if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
-                                ) {
+                                        || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
                                     if (!item.getIsFinished()) {
                                         if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                        || old.getState().equals(ProfileStateEnum.WAITING.getValue())
-                                        ) {
+                                                || old.getState().equals(ProfileStateEnum.WAITING.getValue())) {
                                             message.setMessage("Giao dịch này đã được nhận 1 lần");
                                             message.setIsExist(true);
                                         } else {
@@ -1294,8 +1281,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     }
                                     // bàn giao hồ sơ đang xử lý sang GDKH từ QTTD
                                     else if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
-                                    ) {
+                                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
                                         // nhận bàn giao từ QTTD tới máy chung - admin
                                         if (item.getUsername().contains("admin")) {
                                             // nếu quét nhầm finish
@@ -1350,8 +1336,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 else {
                                     // hồ sơ đang xử lý (luồng thông thường hoặc luồng đã có trả hồ sơ)
                                     if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
-                                    ) {
+                                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
                                         if (item.getUsername().contains("admin")) {
                                             // check scan kết thúc hồ sơ
                                             if (item.getIsFinished()) {
@@ -1458,36 +1443,86 @@ public class ProfileServiceImpl implements ProfileService {
                     if (item.getCode().equals("QTTD")) {
                         // kiểm tra đã bàn giao tại QTTD chưa
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
-                            if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
-                            ) {
-                                if (item.getIsFinished()) {
-                                    message.setIsExist(false);
-                                } else {
-                                    if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
-                                    ) {
-                                        message.setMessage("Hồ sơ này đã được nhận 1 lần");
+
+                            switch (dto.getState()) {
+                                // Kết thúc giao dịch
+                                case 7:
+                                    message.setMessage("Bạn đã kết thúc giao dịch này");
+                                    message.setIsExist(true);
+                                    break;
+                                // Cần bổ sung
+                                case 6:
+                                    if (item.getIsFinished()) {
+                                        message.setMessage("Bàn giao cho cán bộ quản trị tín dụng");
                                         message.setIsExist(true);
                                     } else {
                                         message.setIsExist(false);
-
                                     }
-                                }
+                                    break;
 
-                            } else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-                                message.setMessage("Bạn đã kết thúc giao dịch này");
+                                // Đang xử lý
+                                case 5:
+                                    if (item.getIsFinished()) {
+                                        message.setIsExist(false);
+                                    } else {
+                                        if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                            message.setMessage("Hồ sơ này đã được nhận 1 lần");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setIsExist(false);
 
-                                message.setIsExist(true);
+                                        }
+                                    }
+                                    break;
+                                // Chờ xử lý
+                                case 4:
+                                    if (item.getIsFinished()) {
+                                        message.setMessage("Hồ sơ này đã đang chờ xử lý");
+                                        message.setIsExist(true);
+                                    } else {
+                                        if (dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                                            message.setMessage("Hồ sơ này đã được nhận 1 lần");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setIsExist(false);
 
-                            } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                                if (item.getIsFinished()) {
-                                    message.setMessage("Bàn giao cho cán bộ quản trị tín dụng");
-                                    message.setIsExist(true);
-                                } else {
+                                        }
+                                    }
+                                    break;
+                                default:
                                     message.setIsExist(false);
-                                }
+                                    break;
                             }
+                            // if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
+                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                            // if (item.getIsFinished()) {
+                            // message.setIsExist(false);
+                            // } else {
+                            // if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
+                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                            // message.setMessage("Hồ sơ này đã được nhận 1 lần");
+                            // message.setIsExist(true);
+                            // } else {
+                            // message.setIsExist(false);
+
+                            // }
+                            // }
+
+                            // }
+
+                            // else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                            // message.setMessage("Bạn đã kết thúc giao dịch này");
+
+                            // message.setIsExist(true);
+
+                            // } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                            // if (item.getIsFinished()) {
+                            // message.setMessage("Bàn giao cho cán bộ quản trị tín dụng");
+                            // message.setIsExist(true);
+                            // } else {
+                            // message.setIsExist(false);
+                            // }
+                            // }
                         }
                         // hồ sơ chưa bàn giao cho cán bộ QTTD
                         else {
@@ -1503,48 +1538,88 @@ public class ProfileServiceImpl implements ProfileService {
                 }
                 if (transactionType.getType().equals(3)) {
                     if (item.getCode().equals("GDKH")) {
+
                         if (!DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
-                            if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
-                            ) {
-                                if (item.getIsFinished()) {
-                                    message.setIsExist(false);
-                                } else {
+
+                            switch (dto.getState()) {
+                                // Kết thúc giao dịch
+                                case 7:
                                     // kiểm tra hồ sơ tồn tại có đang xử lý không
-                                    if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                    || dto.getState().equals(ProfileStateEnum.WAITING.getValue())
-                                    ) {
-                                        message.setMessage("Hồ sơ này đã được nhận 1 lần");
+                                    message.setMessage("Bạn đã kết thúc giao dịch này");
+                                    message.setIsExist(true);
+
+                                    break;
+                                // Cần bổ sung
+                                case 6:
+                                    if (item.getIsFinished()) {
+                                        message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
                                         message.setIsExist(true);
                                     } else {
                                         message.setIsExist(false);
-
                                     }
-                                }
+                                    break;
 
-                            }
-                            // hồ sơ đẩy lên là trạng thái kết thúc
-                            else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                                // Đang xử lý
+                                case 5:
+                                    if (item.getIsFinished()) {
+                                        message.setIsExist(false);
+                                    } else {
+                                        // kiểm tra hồ sơ tồn tại có đang xử lý không, giao dịch khách hàng ko có chờ xử
+                                        // lý
+                                        if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())) {
+                                            message.setMessage("Hồ sơ này đã được nhận 1 lần");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setIsExist(false);
 
-                                // kiểm tra hồ sơ tồn tại có đang xử lý không
-                                if (old.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-                                    message.setMessage("Bạn đã kết thúc giao dịch này");
-                                    message.setIsExist(true);
-                                } else {
+                                        }
+                                    }
+                                    break;
+
+                                default:
                                     message.setIsExist(false);
-
-                                }
-
-                                // message.setMessage("Bạn đã kết thúc giao dịch này");
-                                // message.setIsExist(true);
-                            } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                                if (item.getIsFinished()) {
-                                    message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
-                                    message.setIsExist(true);
-                                } else {
-                                    message.setIsExist(false);
-                                }
+                                    break;
                             }
+
+                            // if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
+                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                            // if (item.getIsFinished()) {
+                            // message.setIsExist(false);
+                            // } else {
+                            // // kiểm tra hồ sơ tồn tại có đang xử lý không
+                            // if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
+                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                            // message.setMessage("Hồ sơ này đã được nhận 1 lần");
+                            // message.setIsExist(true);
+                            // } else {
+                            // message.setIsExist(false);
+
+                            // }
+                            // }
+
+                            // }
+                            // // hồ sơ đẩy lên là trạng thái kết thúc
+                            // else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+
+                            // // kiểm tra hồ sơ tồn tại có đang xử lý không
+                            // if (old.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                            // message.setMessage("Bạn đã kết thúc giao dịch này");
+                            // message.setIsExist(true);
+                            // } else {
+                            // message.setIsExist(false);
+
+                            // }
+
+                            // // message.setMessage("Bạn đã kết thúc giao dịch này");
+                            // // message.setIsExist(true);
+                            // } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                            // if (item.getIsFinished()) {
+                            // message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                            // message.setIsExist(true);
+                            // } else {
+                            // message.setIsExist(false);
+                            // }
+                            // }
                         } else {
                             // kiểm tra cán bộ GDKH đã quét chưa
                             if (!DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
@@ -2121,23 +2196,23 @@ public class ProfileServiceImpl implements ProfileService {
                             // // nếu update hồ sơ từ pending (chưa giải quyết) và additional (cần bổ sung),
                             // // finished (kết thúc) thì tính update các hồ sơ tiếp theo trong ngày
                             // if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())
-                            //         || profile.getState().equals(ProfileStateEnum.PENDING.getValue())
-                            //         || profile.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-                            //     mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
-                            //             timeReceivedOfSecond,
-                            //             transaction.getStandardTimeCM(),
-                            //             transaction.getStandardTimeChecker(),
-                            //             first.getAdditionalTime(),
-                            //             first.getNumberOfPO(), first.getNumberOfBill(),
-                            //             transaction.getType());
+                            // || profile.getState().equals(ProfileStateEnum.PENDING.getValue())
+                            // || profile.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                            // mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
+                            // timeReceivedOfSecond,
+                            // transaction.getStandardTimeCM(),
+                            // transaction.getStandardTimeChecker(),
+                            // first.getAdditionalTime(),
+                            // first.getNumberOfPO(), first.getNumberOfBill(),
+                            // transaction.getType());
                             // } else {
-                            //     mapResultNew = calculatingTime.calculatingDateFromTimeReceived(
-                            //             timeReceivedOfSecond,
-                            //             transaction.getStandardTimeCM(),
-                            //             transaction.getStandardTimeChecker(),
-                            //             first.getAdditionalTime(),
-                            //             first.getNumberOfPO(), first.getNumberOfBill(),
-                            //             transaction.getType());
+                            // mapResultNew = calculatingTime.calculatingDateFromTimeReceived(
+                            // timeReceivedOfSecond,
+                            // transaction.getStandardTimeCM(),
+                            // transaction.getStandardTimeChecker(),
+                            // first.getAdditionalTime(),
+                            // first.getNumberOfPO(), first.getNumberOfBill(),
+                            // transaction.getType());
                             // }
                         }
 
@@ -2212,33 +2287,33 @@ public class ProfileServiceImpl implements ProfileService {
                         // tính lại thời gian xử lý của hồ sơ/bản ghi tiếp sau
 
                         mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
-                        timeReceivedOfSecond,
-                        transaction.getStandardTimeCM(),
-                        transaction.getStandardTimeChecker(),
-                        second.getAdditionalTime(),
-                        second.getNumberOfPO(), second.getNumberOfBill(),
-                        transaction.getType());
+                                timeReceivedOfSecond,
+                                transaction.getStandardTimeCM(),
+                                transaction.getStandardTimeChecker(),
+                                second.getAdditionalTime(),
+                                second.getNumberOfPO(), second.getNumberOfBill(),
+                                transaction.getType());
 
                         // // nếu update hồ sơ từ pending (chưa giải quyết) và additional (cần bổ sung),
                         // // finished (kết thúc) thì tính update các hồ sơ tiếp theo trong ngày
                         // if (profile.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())
-                        //         || profile.getState().equals(ProfileStateEnum.PENDING.getValue())
-                        //         || profile.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-                        //     mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
-                        //             timeReceivedOfSecond,
-                        //             transaction.getStandardTimeCM(),
-                        //             transaction.getStandardTimeChecker(),
-                        //             second.getAdditionalTime(),
-                        //             second.getNumberOfPO(), second.getNumberOfBill(),
-                        //             transaction.getType());
+                        // || profile.getState().equals(ProfileStateEnum.PENDING.getValue())
+                        // || profile.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                        // mapResultNew = calculatingTime.calculatingDateFromRealTimeReceived(
+                        // timeReceivedOfSecond,
+                        // transaction.getStandardTimeCM(),
+                        // transaction.getStandardTimeChecker(),
+                        // second.getAdditionalTime(),
+                        // second.getNumberOfPO(), second.getNumberOfBill(),
+                        // transaction.getType());
                         // } else {
-                        //     mapResultNew = calculatingTime.calculatingDateFromTimeReceived(
-                        //             timeReceivedOfSecond,
-                        //             transaction.getStandardTimeCM(),
-                        //             transaction.getStandardTimeChecker(),
-                        //             second.getAdditionalTime(),
-                        //             second.getNumberOfPO(), second.getNumberOfBill(),
-                        //             transaction.getType());
+                        // mapResultNew = calculatingTime.calculatingDateFromTimeReceived(
+                        // timeReceivedOfSecond,
+                        // transaction.getStandardTimeCM(),
+                        // transaction.getStandardTimeChecker(),
+                        // second.getAdditionalTime(),
+                        // second.getNumberOfPO(), second.getNumberOfBill(),
+                        // transaction.getType());
                         // }
 
                         LocalDateTime date = (LocalDateTime) mapResultNew.get("processTime");
@@ -2353,62 +2428,6 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public Integer countProfileExpectetWithListState(Integer transactionType) {
-        // TODO Auto-generated method stub
-        try {
-            List<Integer> listState = null;
-            Integer result = null;
-            switch (transactionType) {
-                // Luồng 1: QLKH - QTTD - GDKH: 0,1,2,3,8,9
-                case 1:
-                    listState = Arrays.asList(new Integer[] { 0, 1, 2, 3, 8, 9 });
-                    break;
-
-                // Luồng 2: QLKH - QTTD: 0, 1, 3, 8, 9
-                case 2:
-                    listState = Arrays.asList(new Integer[] { 0, 1, 3, 8, 9 });
-                    break;
-
-                // Luồng 3: QLKH - GDKH: 0, 1, 3, 8, 9
-                case 3:
-                    listState = Arrays.asList(new Integer[] {
-                            0, 1, 3, 8, 9
-                    });
-                    break;
-
-                default:
-                    // all state
-                    listState = Stream.of(ProfileStateEnum.values()).map(e -> e.getValue())
-                            .collect(Collectors.toList());
-                    break;
-            }
-
-            // if (timeConfig instanceof Double) {
-            int intPart = (int) timeConfig.doubleValue();
-            int minutes = (int) Math.round((timeConfig.doubleValue() - intPart) * 60);
-            if (minutes > 0) {
-                result = repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
-                        Integer.valueOf(minutes), listState, transactionType).size();
-            } else {
-                result = repository.countProfileExpectetWithListState(Integer.valueOf(timeConfig.intValue()),
-                        Integer.valueOf(0), listState, transactionType).size();
-
-            }
-            // } else {
-            // result = repository
-            // .countProfileExpectetWithListState(Integer.valueOf(timeConfig.intValue()),
-            // Integer.valueOf(0), listState, transactionType)
-            // .size();
-            // }
-            return result;
-        } catch (Exception e) {
-            // TODO: handle exception
-            logger.error(e.getMessage(), e);
-            return -1;
-        }
-    }
-
-    @Override
     public List<DashboardDTO> profileExpected() {
         // TODO Auto-generated method stub
         try {
@@ -2426,37 +2445,100 @@ public class ProfileServiceImpl implements ProfileService {
             // if (timeConfig instanceof Double) {
             int intPart = (int) timeConfig.doubleValue();
             int minutes = (int) Math.round((timeConfig.doubleValue() - intPart) * 60);
-            if (minutes > 0) {
-                dashboards.add(
-                        new DashboardDTO("Luồng 1",
-                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
-                                        Integer.valueOf(minutes), type1, 1).size()));
-                dashboards.add(
-                        new DashboardDTO("Luồng 2",
-                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
-                                        Integer.valueOf(minutes), type2, 2).size()));
-                dashboards.add(
-                        new DashboardDTO("Luồng 3",
-                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
-                                        Integer.valueOf(minutes), type3, 3).size()));
-            } else {
-                dashboards.add(
-                        new DashboardDTO("Luồng 1",
-                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
-                                        Integer.valueOf(0), type1, 1).size()));
-                dashboards.add(
-                        new DashboardDTO("Luồng 2",
-                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
-                                        Integer.valueOf(0), type2, 2).size()));
-                dashboards.add(
-                        new DashboardDTO("Luồng 3",
-                                repository.countProfileExpectetWithListState(Integer.valueOf(intPart),
-                                        Integer.valueOf(0), type3, 3).size()));
-
-            }
 
             return dashboards;
 
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * lấy danh sách cán bộ theo trạng thái
+     * @param state
+     * @param code
+     * @param transactionType
+     * @param parameters
+     * @return
+     */
+    @Override
+    public List<ProfileDTO> profileInDayByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters) {
+        try {
+            List<ProfileDTO>  listData = new ArrayList<>();
+            return listData;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<ProfileDTO> profileByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters) {
+        try {
+            List<ProfileDTO>  listData = new ArrayList<>();
+            return listData;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+
+    }
+
+    @Override
+    public Integer count() {
+        // TODO Auto-generated method stub
+        return Integer.valueOf((int) repository.count());
+    }
+
+    /**
+     * hàm dùng cho các card còn lại: gọi theo trạng thái, mã vai trò, luồng
+     */
+    @Override
+    public List<ProfileDTO>  countProfileInDayByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String,Object> parameters) {
+        // TODO Auto-generated method stub
+        try {
+            List<ProfileDTO>  listData = new ArrayList<>();
+            List<Profile> profiles = repository.countProfileInDayByListState(state, transactionType, code, parameters);
+            if(DataUtils.notNullOrEmpty(profiles)) {
+                listData = mapper.toDtoBean(repository.countProfileInDayByListState(state, transactionType, code, parameters));
+            }
+            return listData;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+       
+    }
+
+    @Override
+    public Integer countByState(Integer state) {
+        // TODO Auto-generated method stub
+        try {
+            Integer count = repository.countByState(state);
+            return count;
+        } catch (Exception e) {
+            // TODO: handle exception
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+       
+    }
+
+    @Override
+    public List<ProfileDTO> countProfileByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String,Object> parameters) {
+        // TODO Auto-generated method stub
+        try {
+            List<ProfileDTO>  listData = new ArrayList<>();
+            List<Profile> profiles = repository.countProfileByListState(state, transactionType, code, parameters);
+            if(DataUtils.notNullOrEmpty(profiles)) {
+                listData = mapper.toDtoBean(repository.countProfileByListState(state, transactionType, code, parameters));
+            }
+            return listData;
         } catch (Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);

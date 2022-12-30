@@ -3,7 +3,6 @@ package com.eztech.fitrans.controller.impl;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.controller.ProfileApi;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
-import com.eztech.fitrans.dto.response.DashboardDTO;
 import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
@@ -11,6 +10,7 @@ import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.dto.response.ProfileListDTO;
 import com.eztech.fitrans.dto.response.TransactionTypeDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
+import com.eztech.fitrans.dto.response.dashboard.DashboardDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.service.DepartmentService;
@@ -52,6 +52,7 @@ import org.apache.poi.xwpf.usermodel.BodyElementType;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/profiles")
 public class ProfileController extends BaseController implements ProfileApi {
-
+  private static Logger logger = LoggerFactory.getLogger(ProfileController.class);
   @Autowired
   private ProfileService service;
 
@@ -98,8 +99,6 @@ public class ProfileController extends BaseController implements ProfileApi {
 
   @Autowired
   private TransactionTypeService transactionTypeService;
-
-  private static Logger logger = LoggerFactory.getLogger(ProfileController.class);
 
   @Autowired
   private ReadAndWriteDoc readandwrite;
@@ -212,7 +211,7 @@ public class ProfileController extends BaseController implements ProfileApi {
     System.out.println(item.toString());
     System.out.println(username.toString());
     System.out.println(mapParams.toString());
-    
+
     File file = readandwrite.ExportDocFile(item, username, mapParams);
 
     HttpHeaders respHeaders = new HttpHeaders();
@@ -313,13 +312,20 @@ public class ProfileController extends BaseController implements ProfileApi {
   }
 
   // @GetMapping("/profileExpecteWithListState")
-  // public Map<String, Object> countProfileExpectetWithListState(@RequestParam Integer transactionType) {
-    // }
-    //   return service.profileExpected();
+  // public Map<String, Object> countProfileExpectetWithListState(@RequestParam
+  // Integer transactionType) {
+  // }
+  // return service.profileExpected();
 
   @GetMapping("/profileExpected")
   public List<DashboardDTO> countProfileExpected() {
     return service.profileExpected();
   }
+
+//  @GetMapping("/listUserProcessingInDay")
+//  public List<ProfileDTO> listUserProcessingInDay() {
+//
+//    return
+//  }
 
 }
