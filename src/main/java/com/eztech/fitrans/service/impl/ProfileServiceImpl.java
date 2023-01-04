@@ -419,17 +419,34 @@ public class ProfileServiceImpl implements ProfileService {
                             params.put("state", ProfileStateEnum.WAITING.getValue());
 
                             // kiểm tra thời gian nhận có phải hôm nay không
-                            if (profile.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue
+
+//                            if (DataUtils.notNull(profile.getRealTimeReceivedCM())) {
+                            ProfileDTO profileProcessing = listData.get(0);
+                            // nếu thời gian xử lý của hồ sơ đang xử lý là trong ngày thực tế tồn tại: bàn giao lại trong th trả hồ sơ
+                            if (profileProcessing.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue
                                     .getDayOfMonth()) {
-                                // kiểm tra xem thời gian nhận có vượt 16h hôm nay ko
-                                if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
-                                    // isToday = true => tìm tất cả các hồ sơ chờ từ 8h ngày hôm sau
-                                    params.put("isToday", true);
-                                } else {
-                                    // isToday = false => tìm tất cả các hồ sơ chờ từ 8h ngày hôm sau
-                                    params.put("isToday", false);
+                                // kiểm tra xem thời gian xử lý có vượt sang ngày hôm sau không
+                                // nếu không thì check trong ngày : bàn giao trước và sau 16h
+                                if (profileProcessing.getProcessDate().getDayOfMonth() == profileHistory.getTimeReceived()
+                                        .getDayOfMonth()) {
+                                    if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
+                                        // isToday = true => tìm tất cả các hồ sơ chờ trong ngày
+                                        params.put("isToday", true);
+                                    }
+//                                    else {
+//                                        // isToday = false => tìm tất cả các hồ sơ chờ từ 8h ngày hôm sau
+//                                        params.put("isToday", false);
+//                                    }
+                                    if (profileHistory.getTimeReceived().isAfter(timeMarkerValue)) {
+                                        // isToday = true => tìm tất cả các hồ sơ chờ trong ngày
+                                        params.put("isToday", false);
+                                    }
                                 }
+
+
                             }
+//                            }
+
 
                             // isAsc = false
                             List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params, isAsc);
@@ -482,13 +499,14 @@ public class ProfileServiceImpl implements ProfileService {
 
                                 switch (listDataWaiting.size()) {
                                     case 0:
-                                        // thời gian nhận bằng thời gian scan của hồ sơ đang xử lý
-                                        timeReceivedProfile = profileHistory.getTimeReceived();
+                                        // thời gian nhận bằng thời gian xử lý của hồ sơ đang xử lý
+//                                        timeReceivedProfile = profileHistory.getTimeReceived();
+                                        timeReceivedProfile = profile_first.getProcessDate();
                                         // }
                                         break;
                                     default:
-                                        // thời gian nhận bằng thời gian xử lý của hồ sơ chờ
-                                        timeReceivedProfile = profile_first.getProcessDate();
+                                        // thời gian nhận bằng thời gian scan hồ sơ
+                                        timeReceivedProfile = profileHistory.getTimeReceived();
 
                                         break;
                                 }
