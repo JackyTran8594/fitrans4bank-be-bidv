@@ -104,10 +104,11 @@ public class WebsocketController {
 
 
         // hồ sơ trả lại trong ngày
-        dashboard.profileReturn.profiles = service.countProfileInDayByState(6);
-        List<Integer> stateReturn = Arrays.asList(new Integer[]{7});
+        List<Integer> stateReturn = Arrays.asList(new Integer[]{6});
         Map<String, Object> paramsReturn = new HashMap<String, Object>();
-        dashboard.profileReturn.profilesAll = service.countProfileByListState(stateReturn, user.getCode(), transactionType, paramsReturn);
+        List<ProfileDTO> profileReturnList = service.countProfileInDayByListState(stateReturn, user.getCode(), transactionType, paramsReturn);
+        dashboard.profileReturn.profiles = profileReturnList.size();
+        dashboard.profileReturn.profilesAll = profileReturnList;
 
         // tổng hồ sơ GDKH đã nhận
         List<Integer> state = Arrays.asList(new Integer[]{4, 5, 6, 7, 8, 9});
@@ -125,8 +126,8 @@ public class WebsocketController {
         Map<String, Object> paramsListCTProcessing = new HashMap<String, Object>();
         dashboard.profileListCTProcessing = dashboardService.profileInDayByListStateCT(stateCTProcessing, user.getCode(), transactionType, paramsListCTProcessing);
 
-        // danh sách cán bộ giao dịch khách hàng để hồ sơ tồn trước đó
-        List<Integer> stateCTExist = Arrays.asList(new Integer[]{4});
+        // danh sách cán bộ giao dịch khách hàng để hồ sơ tồn trước đó => trạng thái là đã nhận
+        List<Integer> stateCTExist = Arrays.asList(new Integer[]{2});
         Map<String, Object> paramsListCTExist = new HashMap<String, Object>();
         dashboard.profileListCTExist = dashboardService.profileInDayByListStateCT(stateCTExist, user.getCode(), transactionType, paramsListCTExist);
 
@@ -180,10 +181,11 @@ public class WebsocketController {
 
 
         // hồ sơ trả lại trong ngày
-        dashboard.profileReturn.profiles = service.countProfileInDayByState(6);
-        List<Integer> stateReturn = Arrays.asList(new Integer[]{7});
+        List<Integer> stateReturn = Arrays.asList(new Integer[]{6});
         Map<String, Object> paramsReturn = new HashMap<String, Object>();
-        dashboard.profileReturn.profilesAll = service.countProfileByListState(stateReturn, user.getCode(), transactionType, paramsReturn);
+        List<ProfileDTO> profileReturnList = service.countProfileInDayByListState(stateReturn, user.getCode(), transactionType, paramsReturn);
+        dashboard.profileReturn.profiles = profileReturnList.size();
+        dashboard.profileReturn.profilesAll = profileReturnList;
 
         // tổng hồ sơ QTTD đã nhận
         List<Integer> state = Arrays.asList(new Integer[]{4, 5, 6, 7, 8, 9});

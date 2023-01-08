@@ -134,6 +134,7 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 		// Enable CORS and disable CSRF
 		http = http.cors().and().csrf().disable();
 
+		http.headers().frameOptions().sameOrigin();
 		// Set session management to stateless
 		http = http
 				.sessionManagement()
@@ -173,6 +174,7 @@ public class LdapAuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		// Add JWT token filter
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
 	}
 	
 
