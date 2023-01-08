@@ -82,10 +82,15 @@ public class DashboardRepositoryImpl extends BaseCustomRepository<ProfileListDas
         String select = "SELECT ROW_NUMBER() OVER (ORDER BY temptbl.username) as id, temptbl.full_name, temptbl.username, Max(temptbl.process_date) as process_date, " +
                 "SUM(temptbl.standard_time_checker) as time_checker, SUM(temptbl.standard_time_ct) as standard_time_ct, " +
                 "SUM(temptbl.standard_time_cm) as standard_time_cm, " +
-                "COUNT(*) as profile_processing \n";
+                "COUNT(*) as number_of_profile, " +
+                "SUM(temptbl.expired_time) as total_time_expired \n";
+
         String from = "FROM \n";
+
         String subSelect = " SELECT ue.full_name, ue.username , p.id, p.state, p.process_date, p.time_received_ct, " +
-                "trans.standard_time_checker, trans.standard_time_ct,trans.standard_time_cm \n";
+                "trans.standard_time_checker, trans.standard_time_ct,trans.standard_time_cm, " +
+                "DATEDIFF(MINUTE, CURRENT_TIMESTAMP , CONVERT(DATETIME, p.process_date)) as expired_time \n";
+
         String fromSub = "FROM profile AS p \n";
         String join1 = "LEFT JOIN transaction_type AS trans ON p.type = trans.id \n";
         String join2 = "LEFT JOIN user_entity AS ue ON p.staff_id_ct = ue.id \n";
@@ -102,18 +107,30 @@ public class DashboardRepositoryImpl extends BaseCustomRepository<ProfileListDas
 
         if (code.equals(Constants.Department.GDKH)) {
 
-            sb.append(select + from + "(" + subSelect + fromSub + join1 + join2 + join3 + where6 + where7);
+            String where1 = " AND  CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE) ";
+            String whereAll = where6 + where7 + where1;
+
+//            sb.append(select + from + "(" + subSelect + fromSub + join1 + join2 + join3 + where6 + where7);
 
             if (params.containsKey("real_time_received_ct")) {
 
                 if (params.get("real_time_received_ct").toString().equals("NOTNULL")) {
                     String where = " AND p.real_time_received_ct IS NOT NULL ";
-                    sb.append(where);
+                    whereAll += where;
                 }
 
             }
 
-            sb.append(groupByOfSub + ")" + tempTable + groupByOfTempTable);
+            if(params.containsKey("username")) {
+                if(DataUtils.notNull(params.get("username"))) {
+                    String where = " AND ue.username =: username";
+                    parameters.put("username", params.get("username").toString().toLowerCase());
+                    whereAll += where;
+                }
+            }
+
+            sb.append(select + from + "(" + subSelect + fromSub + join1 + join2 + join3 + whereAll + groupByOfSub + ")" + tempTable + groupByOfTempTable);
+//            sb.append(groupByOfSub + ")" + tempTable + groupByOfTempTable);
         }
 
 
