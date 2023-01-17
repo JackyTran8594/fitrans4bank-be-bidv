@@ -194,12 +194,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                     .append(sql_filter);
 
                             if (paramSearch.containsKey("usernameByCode")) {
-                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    sb.append(" AND uct.username like :usernameByCode ");
-                                    parameters.put("usernameByCode",
-                                            formatLike((String) paramSearch.get("usernameByCode").toString()
-                                                    .toLowerCase()));
-                                }
+//                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+//                                    sb.append(" AND uct.username like :usernameByCode ");
+//                                    parameters.put("usernameByCode",
+//                                            formatLike((String) paramSearch.get("usernameByCode").toString()
+//                                                    .toLowerCase()));
+//                                }
 
                             }
                             break;
@@ -302,9 +302,20 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         } else {
             if (!count) {
                 if (paramSearch.containsKey("sort")) {
-                    sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.time_received_cm ASC"));
+                    if(departmentCode.equals(Department.QLKH)) {
+                        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.created_date DESC"));
+
+                    } else {
+                        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.time_received_cm ASC"));
+                    }
+
                 } else {
-                    sb.append(" ORDER BY p.time_received_cm ASC ");
+                    if(departmentCode.equals(Department.QLKH)) {
+                        sb.append(" ORDER BY p.created_date DESC ");
+                    } else {
+                        sb.append(" ORDER BY p.time_received_cm ASC ");
+
+                    }
                 }
             }
 
