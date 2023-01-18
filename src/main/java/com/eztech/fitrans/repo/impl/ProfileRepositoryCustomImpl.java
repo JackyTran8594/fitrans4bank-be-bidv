@@ -164,22 +164,22 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                 // QTTD view theo username đối với chuyên viên
 
                                 if (paramSearch.containsKey("username")) {
-                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
-                                     sb.append(" AND ucm.username = :username");
-                                     parameters.put("username",
-                                     paramSearch.get("username").toString()
-                                     .toLowerCase());
-                                     }
+                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
+                                    // sb.append(" AND ucm.username = :username");
+                                    // parameters.put("username",
+                                    // paramSearch.get("username").toString()
+                                    // .toLowerCase());
+                                    // }
 
                                 }
                             } else {
                                 if (paramSearch.containsKey("usernameByCode")) {
-                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                     sb.append(" AND ucm.username like :usernameByCode");
-                                     parameters.put("usernameByCode",
-                                     formatLike((String) paramSearch.get("usernameByCode").toString()
-                                     .toLowerCase()));
-                                     }
+                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                    // sb.append(" AND ucm.username like :usernameByCode");
+                                    // parameters.put("usernameByCode",
+                                    // formatLike((String) paramSearch.get("usernameByCode").toString()
+                                    // .toLowerCase()));
+                                    // }
 
                                 }
                             }
@@ -194,12 +194,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                     .append(sql_filter);
 
                             if (paramSearch.containsKey("usernameByCode")) {
-                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    sb.append(" AND uct.username like :usernameByCode ");
-                                    parameters.put("usernameByCode",
-                                            formatLike((String) paramSearch.get("usernameByCode").toString()
-                                                    .toLowerCase()));
-                                }
+//                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+//                                    sb.append(" AND uct.username like :usernameByCode ");
+//                                    parameters.put("usernameByCode",
+//                                            formatLike((String) paramSearch.get("usernameByCode").toString()
+//                                                    .toLowerCase()));
+//                                }
 
                             }
                             break;
@@ -220,16 +220,18 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         if (paramSearch.containsKey("fromDate")) {
             if (!DataUtils.isNullOrEmpty(paramSearch.get("fromDate"))) {
-                sb.append(" AND p.created_date >= convert(date,:fromDate)");
-                parameters.put("fromDate", paramSearch.get("fromDate").toString().toLowerCase());
+                sb.append(" AND convert(date,p.created_date) >= convert(date,:fromDate)");
+                parameters.put("fromDate", paramSearch.get("fromDate").toString());
+
             }
 
         }
 
         if (paramSearch.containsKey("toDate")) {
             if (!DataUtils.isNullOrEmpty(paramSearch.get("toDate"))) {
-                sb.append(" AND p.created_date <= convert(date,:toDate)");
-                parameters.put("toDate", paramSearch.get("toDate").toString().toLowerCase());
+                sb.append(" AND convert(date,p.created_date) <= convert(date,:toDate)");
+                parameters.put("toDate", paramSearch.get("toDate").toString());
+
             }
 
         }
@@ -302,9 +304,20 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         } else {
             if (!count) {
                 if (paramSearch.containsKey("sort")) {
-                    sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.time_received_cm ASC"));
+                    if(departmentCode.equals(Department.QLKH)) {
+                        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.created_date DESC"));
+
+                    } else {
+                        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.time_received_cm ASC"));
+                    }
+
                 } else {
-                    sb.append(" ORDER BY p.time_received_cm ASC ");
+                    if(departmentCode.equals(Department.QLKH)) {
+                        sb.append(" ORDER BY p.created_date DESC ");
+                    } else {
+                        sb.append(" ORDER BY p.time_received_cm ASC ");
+
+                    }
                 }
             }
 
