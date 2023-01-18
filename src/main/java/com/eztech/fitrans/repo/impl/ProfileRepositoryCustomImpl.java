@@ -220,16 +220,18 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         if (paramSearch.containsKey("fromDate")) {
             if (!DataUtils.isNullOrEmpty(paramSearch.get("fromDate"))) {
-                sb.append(" AND p.created_date >= convert(date,:fromDate)");
-                parameters.put("fromDate", paramSearch.get("fromDate").toString().toLowerCase());
+                sb.append(" AND convert(date,p.created_date) >= convert(date,:fromDate)");
+                parameters.put("fromDate", paramSearch.get("fromDate").toString());
+
             }
 
         }
 
         if (paramSearch.containsKey("toDate")) {
             if (!DataUtils.isNullOrEmpty(paramSearch.get("toDate"))) {
-                sb.append(" AND p.created_date <= convert(date,:toDate)");
-                parameters.put("toDate", paramSearch.get("toDate").toString().toLowerCase());
+                sb.append(" AND convert(date,p.created_date) <= convert(date,:toDate)");
+                parameters.put("toDate", paramSearch.get("toDate").toString());
+
             }
 
         }

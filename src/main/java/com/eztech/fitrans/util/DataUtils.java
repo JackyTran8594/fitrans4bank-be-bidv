@@ -17,10 +17,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -416,6 +413,22 @@ public class DataUtils {
             value = value.substring(0, value.indexOf('.'));
         }
         return LocalDate.parse(value, formatter);
+    }
+
+    public static String convertStringToSQLDate(String value, String format, String format2) {
+        try {
+            if (value == null || value.trim().isEmpty()) {
+                return null;
+            }
+
+            Date date = new SimpleDateFormat(format2).parse(value);
+            String date2 = new SimpleDateFormat(format).format(date);
+            return date2;
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+            return null;
+        }
+
     }
 
     public static String localDateTimeToString(LocalDateTime value) {
