@@ -131,7 +131,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     switch (departmentCode) {
                         case "QLKH":
                             if (PositionTypeEnum.CHUYENVIEN.getName().equals(position)) {
-                                // QKH view theo username đối với chuyên viên
+                                // QHKH view theo username đối với chuyên viên
                                 if (paramSearch.containsKey("username")) {
                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
                                         sb.append(" AND uc.username = :username");
@@ -164,23 +164,24 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                 // QTTD view theo username đối với chuyên viên
 
                                 if (paramSearch.containsKey("username")) {
-                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
-                                    // sb.append(" AND ucm.username = :username");
-                                    // parameters.put("username",
-                                    // paramSearch.get("username").toString()
-                                    // .toLowerCase());
-                                    // }
+                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("username"))) {
+                                        sb.append(" AND ucm.username = :username");
+                                        parameters.put("username",
+                                                paramSearch.get("username").toString()
+                                                        .toLowerCase());
+                                    }
 
                                 }
-                            } else {
+                            }
+                            // view theo phong - username by code doi voi truong phong/giam doc
+                            else {
                                 if (paramSearch.containsKey("usernameByCode")) {
-                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    // sb.append(" AND ucm.username like :usernameByCode");
-                                    // parameters.put("usernameByCode",
-                                    // formatLike((String) paramSearch.get("usernameByCode").toString()
-                                    // .toLowerCase()));
-                                    // }
-
+                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                     sb.append(" AND ucm.username like :usernameByCode");
+                                     parameters.put("usernameByCode",
+                                     formatLike((String) paramSearch.get("usernameByCode").toString()
+                                     .toLowerCase()));
+                                     }
                                 }
                             }
 
@@ -304,7 +305,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         } else {
             if (!count) {
                 if (paramSearch.containsKey("sort")) {
-                    if(departmentCode.equals(Department.QLKH)) {
+                    if (departmentCode.equals(Department.QLKH)) {
                         sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.created_date DESC"));
 
                     } else {
@@ -312,7 +313,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     }
 
                 } else {
-                    if(departmentCode.equals(Department.QLKH)) {
+                    if (departmentCode.equals(Department.QLKH)) {
                         sb.append(" ORDER BY p.created_date DESC ");
                     } else {
                         sb.append(" ORDER BY p.time_received_cm ASC ");
@@ -655,8 +656,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         if (code.equals(Constants.Department.QTTD)) {
             where1 = " AND  CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)";
-            if(params.containsKey("username")) {
-                if(DataUtils.notNull(params.get("username"))) {
+            if (params.containsKey("username")) {
+                if (DataUtils.notNull(params.get("username"))) {
                     String where = " AND ucm.username = :username ";
                     parameters.put("username", params.get("username").toString().toLowerCase());
                     sb.append(where);
@@ -695,8 +696,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             }
 
-            if(params.containsKey("username")) {
-                if(DataUtils.notNull(params.get("username"))) {
+            if (params.containsKey("username")) {
+                if (DataUtils.notNull(params.get("username"))) {
                     String where = " AND uct.username = :username";
                     parameters.put("username", params.get("username").toString().toLowerCase());
                     sb.append(where);
@@ -743,7 +744,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         parameters.put("transactionType", transactionType);
 
 
-
         if (code.equals(Constants.Department.QTTD)) {
             // hồ sơ đẫ nhận
             if (params.containsKey("real_time_received_cm")) {
@@ -763,8 +763,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
 
 
-            if(params.containsKey("username")) {
-                if(DataUtils.notNull(params.get("username"))) {
+            if (params.containsKey("username")) {
+                if (DataUtils.notNull(params.get("username"))) {
                     String where = " AND ucm.username = :username";
                     parameters.put("username", params.get("username").toString().toLowerCase());
                     sb.append(where);
@@ -789,8 +789,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             }
 
-            if(params.containsKey("username")) {
-                if(DataUtils.notNull(params.get("username"))) {
+            if (params.containsKey("username")) {
+                if (DataUtils.notNull(params.get("username"))) {
                     String where = " AND uct.username = :username";
                     parameters.put("username", params.get("username").toString().toLowerCase());
                     sb.append(where);
