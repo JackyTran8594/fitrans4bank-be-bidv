@@ -435,6 +435,64 @@ userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
 mailNickName: lannt7
 distinguishedName: lannt7
 
+dn: uid=phunv2,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: phunv2
+sn: phunv2
+uid: phunv2
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: phunv2
+distinguishedName: phunv2
 
+dn: uid=thinhnv3,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: thinhnv3
+sn: thinhnv3
+uid: thinhnv3
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: thinhnv3
+distinguishedName: thinhnv3
+
+dn: uid=uyenntt,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: uyenntt
+sn: uyenntt
+uid: uyenntt
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: uyenntt
+distinguishedName: uyenntt
+
+dn: uid=xuantt1,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: xuantt1
+sn: xuantt1
+uid: xuantt1
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: xuantt1
+distinguishedName: xuantt1
+
+dn: uid=hiennv1,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: hiennv1
+sn: hiennv1
+uid: hiennv1
+userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+mailNickName: hiennv1
+distinguishedName: hiennv1
 
 
