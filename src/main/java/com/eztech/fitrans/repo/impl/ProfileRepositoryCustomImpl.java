@@ -47,7 +47,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     @Override
     public Integer updateStatus(Long id, String status, String lastUpdatedBy,
-                                LocalDateTime lastUpdateDate) {
+            LocalDateTime lastUpdateDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         sb.append(
@@ -78,7 +78,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     @Override
     public String buildQuery(Map<String, Object> paramSearch, Map<String, Object> parameters,
-                             boolean count) {
+            boolean count) {
         StringBuilder sb = new StringBuilder();
 
         String sql_select = "SELECT p.*, " +
@@ -144,22 +144,31 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             }
                             // view theo phong - username by code doi voi truong phong/giam doc
                             else {
-                                if (paramSearch.containsKey("usernameByCode")) {
-                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                        sb.append(" AND uc.username like :usernameByCode ");
-                                        parameters.put("usernameByCode",
-                                                formatLike((String) paramSearch.get("usernameByCode").toString()
-                                                        .toLowerCase()));
+                                if (paramSearch.containsKey("departmentId")) {
+                                    if (!DataUtils.isNullOrEmpty(paramSearch.get("departmentId"))) {
+                                        sb.append(" AND uc.department_id = :departmentId ");
+                                        Integer departmentId = DataUtils.parseToInt(paramSearch.get("departmentId"));
+                                        parameters.put("departmentId", departmentId);
                                     }
 
                                 }
+                                // if (paramSearch.containsKey("usernameByCode")) {
+                                //     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                //         sb.append(" AND uc.username like :usernameByCode ");
+                                //         parameters.put("usernameByCode",
+                                //                 formatLike((String) paramSearch.get("usernameByCode").toString()
+                                //                         .toLowerCase()));
+                                //     }
+
+                                // }
                             }
                             break;
                         case "QTTD":
                             String sql_qttd = " AND trans.type IN (1,2) ";
                             sql_filter = " AND p.state NOT IN (0) ";
-                            sb.append(sql_qttd)
-                                    .append(sql_filter);
+
+                            sb.append(sql_qttd);
+                            sb.append(sql_filter);
                             if (PositionTypeEnum.CHUYENVIEN.getName().equals(position)) {
                                 // QTTD view theo username đối với chuyên viên
 
@@ -172,16 +181,15 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                     }
 
                                 }
-                            }
-                            // view theo phong - username by code doi voi truong phong/giam doc
-                            else {
+                            } else {
                                 if (paramSearch.containsKey("usernameByCode")) {
-                                     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                     sb.append(" AND ucm.username like :usernameByCode");
-                                     parameters.put("usernameByCode",
-                                     formatLike((String) paramSearch.get("usernameByCode").toString()
-                                     .toLowerCase()));
-                                     }
+                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                    // sb.append(" AND ucm.username like :usernameByCode");
+                                    // parameters.put("usernameByCode",
+                                    // formatLike((String) paramSearch.get("usernameByCode").toString()
+                                    // .toLowerCase()));
+                                    // }
+
                                 }
                             }
 
@@ -190,19 +198,21 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             // transaction - type : GDKH có 2 luồng
                             // GDKH nhìn thấy hết, bỏ phân công
                             String sql_gdkh = " AND trans.type IN (1,3) ";
-                            sql_filter = " AND p.state NOT IN (0) ";
+
+                            // bổ sung filter = 1,3,4,8,9 cho GDKH
+                            sql_filter = " AND p.state NOT IN (0,1,3,4,8,9) ";
                             sb.append(sql_gdkh)
                                     .append(sql_filter);
 
-                            if (paramSearch.containsKey("usernameByCode")) {
-//                                if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-//                                    sb.append(" AND uct.username like :usernameByCode ");
-//                                    parameters.put("usernameByCode",
-//                                            formatLike((String) paramSearch.get("usernameByCode").toString()
-//                                                    .toLowerCase()));
-//                                }
+                            // if (paramSearch.containsKey("usernameByCode")) {
+                            //     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                            //         sb.append(" AND uct.username like :usernameByCode ");
+                            //         parameters.put("usernameByCode",
+                            //                 formatLike((String) paramSearch.get("usernameByCode").toString()
+                            //                         .toLowerCase()));
+                            //     }
 
-                            }
+                            // }
                             break;
                         default:
                             break;
@@ -252,22 +262,22 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     if (!DataUtils.isNullOrEmpty(paramSearch.get("state").toString())) {
                         Integer state = DataUtils.parseToInt(paramSearch.get("state"));
                         if (state > 0) {
-                            sb.append(" AND p.state IN :state ");
+                            sb.append(" AND p.state = :state ");
                             parameters.put("state", state);
                         }
                     }
 
                 }
-//                if (paramSearch.containsKey("listState")) {
-//                    if (!DataUtils.isNullOrEmpty(paramSearch.get("listState").toString())) {
-//                        Integer state = DataUtils.parseToInt(paramSearch.get("state"));
-//                        if (state > 0) {
-//                            sb.append(" AND p.state IN :state ");
-//                            parameters.put("state", state);
-//                        }
-//                    }
-//
-//                }
+                // if (paramSearch.containsKey("listState")) {
+                // if (!DataUtils.isNullOrEmpty(paramSearch.get("listState").toString())) {
+                // Integer state = DataUtils.parseToInt(paramSearch.get("state"));
+                // if (state > 0) {
+                // sb.append(" AND p.state IN :state ");
+                // parameters.put("state", state);
+                // }
+                // }
+                //
+                // }
             }
         }
 
@@ -351,8 +361,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 "left join user_entity uct on p.staff_id_ct = uct.id AND uct.status = 'ACTIVE' \n" +
                 "left join transaction_type trans on trans.id = p.type \n" +
                 "where p.id = :id AND p.state = :state AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id)"
-                // + " ORDER BY his.time_received ASC"
-                ;
+        // + " ORDER BY his.time_received ASC"
+        ;
         parameters.put("id", id);
         parameters.put("state", state);
         ProfileDTO profileDTO = getSingleResult(sql, Constants.ResultSetMapping.PROFILE_DTO, parameters);
@@ -504,7 +514,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             parameters.put("state", DataUtils.parseToInt(params.get("state")));
         }
 
-
         if (params.containsKey("profileId")) {
             sb.append(" AND p.id = :profileId");
             parameters.put("profileId", DataUtils.parseToLong(params.get("profileId")));
@@ -621,15 +630,17 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
     @Override
     public List<ProfileDTO> countProfileInDayByListState(List<Integer> state,
-                                                         List<Integer> transactionType, String code, Map<String, Object> params) {
+            List<Integer> transactionType, String code, Map<String, Object> params) {
         // TODO Auto-generated method stub
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         String select = "SELECT p.*, ";
 
         String column = " u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, " +
-                "trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, " +
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, "
+                +
+                "trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, "
+                +
                 "his.time_received as time_received_history   \n";
 
         String from = "FROM profile AS p \n";
@@ -647,12 +658,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType " +
                 "AND his.state IN :listState \n";
         sb.append(select + column + from + join1 + join2 + join3 + join4 + join5 + join6 + join7 + where6);
-//        sb.append(select + from + join1 + where6);
+        // sb.append(select + from + join1 + where6);
         // parameters.put("time", time);
         // parameters.put("minutes", minutes);
         parameters.put("listState", state);
         parameters.put("transactionType", transactionType);
-
 
         if (code.equals(Constants.Department.QTTD)) {
             where1 = " AND  CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)";
@@ -663,7 +673,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     sb.append(where);
                 }
             }
-
 
             if (params.containsKey("isToday")) {
                 if (params.get("isToday").toString().equals("true")) {
@@ -687,7 +696,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             }
 
-
             if (params.containsKey("isToday")) {
                 if (params.get("isToday").toString().equals("true")) {
                     String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  ";
@@ -705,24 +713,53 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
 
         }
+        if (code.equals(Constants.Department.QLKH)) {
+            where2 = " AND  CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)";
+            sb.append(where2);
 
+            if (params.containsKey("time_received_ct")) {
+                if (params.get("time_received_ct").toString().equals("NULL")) {
+                    String where = " AND p.time_received_ct is NULL ";
+                    sb.append(where);
+                }
+
+            }
+
+            if (params.containsKey("isToday")) {
+                if (params.get("isToday").toString().equals("true")) {
+                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    sb.append(where);
+                }
+
+            }
+
+            // if (params.containsKey("username")) {
+            //     if (DataUtils.notNull(params.get("username"))) {
+            //         String where = " AND uct.username = :username";
+            //         parameters.put("username", params.get("username").toString().toLowerCase());
+            //         sb.append(where);
+            //     }
+            // }
+
+        }
 
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
     }
 
     @Override
     public List<ProfileDTO> countProfileByListState(List<Integer> state, List<Integer> transactionType, String code,
-                                                    Map<String, Object> params) {
+            Map<String, Object> params) {
         // TODO Auto-generated method stub
         StringBuilder sb = new StringBuilder();
         Map<String, Object> parameters = new HashMap<>();
         String select = "SELECT p.*, ";
 
         String column = " u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, " +
-                "trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, " +
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, "
+                +
+                "trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, "
+                +
                 "his.time_received as time_received_history   \n";
-
 
         String from = "FROM profile AS p \n";
 
@@ -739,9 +776,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType " +
                 "AND his.state IN :listState \n";
         sb.append(select + column + from + join1 + join2 + join3 + join4 + join5 + join6 + join7 + where6);
-//        sb.append(select  + from + join1 +  where6);
+        // sb.append(select + from + join1 + where6);
         parameters.put("listState", state);
         parameters.put("transactionType", transactionType);
+
 
 
         if (code.equals(Constants.Department.QTTD)) {
@@ -763,8 +801,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
 
 
-            if (params.containsKey("username")) {
-                if (DataUtils.notNull(params.get("username"))) {
+            if(params.containsKey("username")) {
+                if(DataUtils.notNull(params.get("username"))) {
                     String where = " AND ucm.username = :username";
                     parameters.put("username", params.get("username").toString().toLowerCase());
                     sb.append(where);
@@ -798,10 +836,34 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
         }
 
+        if (code.equals(Constants.Department.QLKH)) {
+            // hồ sơ đẫ nhận
+            if (params.containsKey("real_time_received_ct")) {
+                if (params.get("real_time_received_ct").toString().equals("NOTNULL")) {
+                    String where = " AND p.real_time_received_ct IS NOT NULL ";
+                    sb.append(where);
+                }
+
+            }
+
+            if (params.containsKey("isToday")) {
+                if (params.get("isToday").toString().equals("true")) {
+                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    sb.append(where);
+                }
+
+            }
+
+            // if (params.containsKey("username")) {
+            //     if (DataUtils.notNull(params.get("username"))) {
+            //         String where = " AND uct.username = :username";
+            //         parameters.put("username", params.get("username").toString().toLowerCase());
+            //         sb.append(where);
+            //     }
+            // }
+        }
+
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
     }
 
-
 }
-
-
