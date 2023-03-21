@@ -48,7 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		this.isLdap = isLdap;
 	}
 
-	public Boolean getIsLdap(Boolean isLdap) {
+	public Boolean getIsLdap() {
 		return this.isLdap;
 	}
 
@@ -56,7 +56,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		this.isAdmin = isAdmin;
 	}
 
-	public Boolean getIsAdmin(Boolean isAdmin) {
+	public Boolean getIsAdmin() {
 		return this.isAdmin;
 	}
 
@@ -80,39 +80,43 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				role = repo.getRoleDetail(listRole);
 			}
 			return new User(user.getUsername(), user.getPassword(), buildSimpleGrantedAuthorities(roles, role));
-		} else {
-			if (isLdap) {
-				log.warn("User login ldap ok but not found with username in db {} ---> Create in db", username);
-				user = new UserEntity();
-				user.setEmail(username + "@bidv.com.vn");
-				user.setFullName(username);
-				user.setUsername(username);
-				user.setStatus("ACTIVE");
-				user.setPassword("$2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS");
-				// user.setPosition(PositionTypeEnum.UNKNOWN.getName());
-				// user.
-				repo.save(user);
-				return new User(user.getUsername(), user.getPassword(),
-						buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
-			} else {
-				// add lần đầu
-				if (isAdmin) {
-					user = new UserEntity();
-					user.setEmail(username + "@bidv.com.vn");
-					user.setFullName(username);
-					user.setUsername(username);
-					user.setStatus("ACTIVE");
-					user.setPassword("$2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS");
-					// user.setPosition(PositionTypeEnum.UNKNOWN.getName());
-					repo.save(user);
-					return new User(user.getUsername(), user.getPassword(),
-							buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
-				} else {
-					throw new UsernameNotFoundException("User not login LDAP - User not found with username: " + username);
-				}
-			}
-
+		} 
+		else {
+			throw new UsernameNotFoundException("User not found: " + username);
 		}
+		// else {
+		// 	if (isLdap) {
+		// 		log.warn("User login ldap ok but not found with username in db {} ---> Create in db", username);
+		// 		user = new UserEntity();
+		// 		user.setEmail(username + "@bidv.com.vn");
+		// 		user.setFullName(username);
+		// 		user.setUsername(username);
+		// 		user.setStatus("ACTIVE");
+		// 		user.setPassword("$2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS");
+		// 		// user.setPosition(PositionTypeEnum.UNKNOWN.getName());
+		// 		// user.
+		// 		repo.save(user);
+		// 		return new User(user.getUsername(), user.getPassword(),
+		// 				buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
+		// 	} else {
+		// 		// add lần đầu
+		// 		if (isAdmin) {
+		// 			user = new UserEntity();
+		// 			user.setEmail(username + "@bidv.com.vn");
+		// 			user.setFullName(username);
+		// 			user.setUsername(username);
+		// 			user.setStatus("ACTIVE");
+		// 			user.setPassword("$2a$10$xgMeNxDvGTeI2u/MwPqKV.oIq8O1OeDEhcy8k19V.dTvLpWe88xRS");
+		// 			// user.setPosition(PositionTypeEnum.UNKNOWN.getName());
+		// 			repo.save(user);
+		// 			return new User(user.getUsername(), user.getPassword(),
+		// 					buildSimpleGrantedAuthorities(new ArrayList<>(), new ArrayList<>()));
+		// 		} else {
+		// 			throw new UsernameNotFoundException("User not login LDAP - User not found with username: " + username);
+		// 		}
+		// 	}
+
+		// }
 	}
 
 	private static List<SimpleGrantedAuthority> buildSimpleGrantedAuthorities(final List<Role> roles,

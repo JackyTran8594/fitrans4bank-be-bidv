@@ -161,6 +161,9 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public List<ProfileDTO> search(Map<String, Object> mapParam) {
+        // String code = mapParam.get("code").toString();
+        // DepartmentDTO department = departmentService.findByCode(code);
+        // mapParam.put("deparmentId", department.getId());
         return repository.search(mapParam, Profile.class);
 
     }

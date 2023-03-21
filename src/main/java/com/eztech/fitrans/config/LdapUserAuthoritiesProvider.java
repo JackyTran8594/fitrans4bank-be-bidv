@@ -26,8 +26,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.security.core.userdetails.User;
 
+import com.eztech.fitrans.dto.request.LoginRequest;
+import com.eztech.fitrans.dto.shareData.ShareDataComponent;
 import com.eztech.fitrans.repo.UserRepository;
+import com.eztech.fitrans.util.DataUtils;
 
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
-    private static final Logger logger = LoggerFactory.getLogger(LdapUserAuthoritiesProvider.class);
+    private Logger logger = LoggerFactory.getLogger(LdapUserAuthoritiesProvider.class);
 
     private Environment environment;
 
@@ -54,6 +58,16 @@ public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
 
     public String password;
 
+    public Boolean isLdap;
+
+    public void setIsLdap(Boolean isLdap) {
+        this.isLdap = isLdap;
+    }
+
+    public Boolean getIsLdap() {
+        return this.isLdap;
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -70,6 +84,10 @@ public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
         return this.password;
     }
 
+
+    // @Autowired
+    // public ShareDataComponent shareDataComponent;
+
     private LdapContextSource contextSource;
     private LdapTemplate ldapTemplate;
 
@@ -80,6 +98,7 @@ public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
         contextSource.setPassword(managerPassword);
         contextSource.afterPropertiesSet();
         ldapTemplate = new LdapTemplate(contextSource);
+
     }
 
     public LdapUserAuthoritiesProvider(Environment environment, String ldapUrl, String dnPatterns, String managerDn,
@@ -93,6 +112,8 @@ public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
         this.userDetailsService = userDetailsService;
     }
 
+    
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // TODO Auto-generated method stub
@@ -101,17 +122,17 @@ public class LdapUserAuthoritiesProvider implements AuthenticationProvider {
         SearchScope searchScope = SearchScope.SUBTREE;
         LdapQuery query = LdapQueryBuilder.query().base(base).searchScope(searchScope).filter(filterLdap);
 
-        try {
-            ldapTemplate.authenticate(query, authentication.getCredentials().toString());
-            UserDetails userDetails = userDetailsService.loadUserByUsername(authentication.getName());
-            Authentication auth = new UsernamePasswordAuthenticationToken(userDetails,
-                    authentication.getCredentials().toString(), new ArrayList<>());
-            return auth;
-        } catch (Exception e) {
-            //TODO: handle exception
-            logger.error(e.getMessage(), e);
-            return null;
-        }
+        // try {
+        ldapTemplate.authenticate(query, authentication.getCredentials().toString());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(authentication.getName());
+        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails,
+                authentication.getCredentials().toString(), new ArrayList<>());
+        return auth;
+        // } catch (Exception e) {
+        // // TODO: handle exception
+        // logger.error(e.getMessage(), e);
+        // return null;
+        // }
 
     }
 

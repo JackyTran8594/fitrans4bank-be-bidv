@@ -213,4 +213,80 @@ public class WebsocketController {
         return dashboard;
     }
 
+
+    // hồ sơ của quản lý khách hàng
+    @MessageMapping("/init_profiles_CusMan")
+    @SendTo("/topic/profiles_CusMan")
+    public DashboardDTO profiles_CusMan(ChatMessage user) throws Exception {
+        DashboardDTO dashboard = new DashboardDTO();
+        List<Integer> transactionType = Arrays.asList(new Integer[]{1,3});
+        // dự kiến xử lý chưa tới rổ chung : 0,1 - QLKH chưa bàn giao ; 4,5 - QTTD đang và chờ xử lý + time_received_ct = NUll;
+        // 6: trả hồ sơ
+        List<Integer> stateExpect = Arrays.asList(new Integer[]{0, 1, 4, 5, 6});
+        Map<String, Object> paramsExpect = new HashMap<String, Object>();
+        paramsExpect.put("time_received_ct", "NULL");
+        List<ProfileDTO> profileExptect = service
+                .countProfileInDayByListState(stateExpect, user.getCode(), transactionType, paramsExpect);
+        dashboard.profileExpect.profilesAll = profileExptect;
+        dashboard.profileExpect.profilesInDay = (DataUtils.notNullOrEmpty(profileExptect)) ? profileExptect.size() : 0;
+
+        // đang ở rổ chung trong ngày
+        List<Integer> stateReceived = Arrays.asList(new Integer[]{2});
+        Map<String, Object> paramsRecevied = new HashMap<String, Object>();
+        List<ProfileDTO> profileExptectReceived = service
+                .countProfileInDayByListState(stateReceived, user.getCode(), transactionType, paramsRecevied);
+        dashboard.profileReceived.profiles = (DataUtils.notNullOrEmpty(profileExptectReceived)) ? profileExptectReceived.size() : 0;
+        dashboard.profileReceived.profilesAll = profileExptectReceived;
+
+
+        // đang xử lý (bao gồm ca quá hạn và chưa quá hạn)
+        List<Integer> stateProcessing = Arrays.asList(new Integer[]{5});
+        Map<String, Object> paramsProcessing = new HashMap<String, Object>();
+        dashboard.profileProcessing.profilesAll = service
+                .countProfileInDayByListState(stateProcessing, user.getCode(), transactionType, paramsProcessing);
+
+        // đã hoàn thành trong ngày (bao gồm ca quá hạn và chưa quá hạn)
+        List<Integer> stateFinished = Arrays.asList(new Integer[]{7});
+        Map<String, Object> paramsFinished = new HashMap<String, Object>();
+        dashboard.profileToDayFinished.profilesAll = service
+                .countProfileInDayByListState(stateFinished, user.getCode(), transactionType, paramsFinished);
+
+        // đã hoàn thành lũy kế
+        dashboard.profileFinished.profiles = service.countByStateAndType(7, transactionType);
+        List<Integer> stateFinishedAll = Arrays.asList(new Integer[]{7});
+        Map<String, Object> paramsFinishedAll = new HashMap<String, Object>();
+        dashboard.profileFinished.profilesAll = service.countProfileByListState(stateFinishedAll, user.getCode(), transactionType, paramsFinishedAll);
+
+
+        // hồ sơ trả lại trong ngày
+        List<Integer> stateReturn = Arrays.asList(new Integer[]{6});
+        Map<String, Object> paramsReturn = new HashMap<String, Object>();
+        List<ProfileDTO> profileReturnList = service.countProfileInDayByListState(stateReturn, user.getCode(), transactionType, paramsReturn);
+        dashboard.profileReturn.profiles = profileReturnList.size();
+        dashboard.profileReturn.profilesAll = profileReturnList;
+
+        // tổng hồ sơ GDKH đã nhận
+        List<Integer> state = Arrays.asList(new Integer[]{4, 5, 6, 7, 8, 9});
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("real_time_received_ct", "NOTNULL");
+        dashboard.totalProfile.profilesInDay = (DataUtils.notNullOrEmpty(service.countProfileInDayByListState(state, user.getCode(), transactionType, params)))
+                ? service.countProfileInDayByListState(state, user.getCode(), transactionType, params).size() : 0;
+        // lũy kế
+        dashboard.totalProfile.profiles = (DataUtils.notNullOrEmpty(service.countProfileByListState(state, user.getCode(), transactionType, params)))
+                ? service.countProfileByListState(state, user.getCode(), transactionType, params).size() : 0;
+        System.out.println(dashboard);
+
+        // danh sách cán bộ giao dịch khách hàng đang xử lý hồ sơ
+        List<Integer> stateCTProcessing = Arrays.asList(new Integer[]{5});
+        Map<String, Object> paramsListCTProcessing = new HashMap<String, Object>();
+        dashboard.profileListCTProcessing = dashboardService.profileInDayByListStateCT(stateCTProcessing, "GDKH", transactionType, paramsListCTProcessing);
+
+        // danh sách cán bộ giao dịch khách hàng để hồ sơ tồn trước đó => trạng thái là đã nhận
+        List<Integer> stateCTExist = Arrays.asList(new Integer[]{2});
+        Map<String, Object> paramsListCTExist = new HashMap<String, Object>();
+        dashboard.profileListCTExist = dashboardService.profileInDayByListStateCT(stateCTExist, "GDKH", transactionType, paramsListCTExist);
+
+        return dashboard;
+    }
+
 }

@@ -25,10 +25,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import com.eztech.fitrans.config.LdapUserAuthoritiesProvider;
 import com.eztech.fitrans.config.Profiles;
+import com.eztech.fitrans.dto.shareData.ShareDataComponent;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -54,6 +56,12 @@ public class AuthController {
     @Value("${app.admin.user}")
     private String superAdmin;
 
+    @Autowired
+    public LdapUserAuthoritiesProvider ldapUserAuthoritiesProvider;
+
+    @Autowired
+    public ShareDataComponent shareDataComponent;
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -72,11 +80,16 @@ public class AuthController {
             String fullname = null;
             Long departmentId = null;
             Long userId = null;
+            ldapUserAuthoritiesProvider = new LdapUserAuthoritiesProvider();
             // if (loginRequest.getIsLdap()) {
             if (loginRequest.getIsLdap()) {
                 userDetailsServiceImpl.setIsLdap(true);
+                ldapUserAuthoritiesProvider.setIsLdap(true);
+                shareDataComponent.setIsLdap(true);
             } else {
                 userDetailsServiceImpl.setIsLdap(false);
+                ldapUserAuthoritiesProvider.setIsLdap(false);
+                shareDataComponent.setIsLdap(false);
 
             }
             if (loginRequest.getUsername().equals(superAdmin)) {
@@ -105,17 +118,17 @@ public class AuthController {
                     } else {
                         role = userDetailsServiceImpl.getRoleByUsername(userDetails.getUsername());
                         // if (DataUtils.isNullObject(role)) {
-                        //     role = Role.ROLE_USER;
+                        // role = Role.ROLE_USER;
                         // }
                         mapper = userDetailsServiceImpl.getPositionByUsername(userDetails.getUsername());
 
                         position = mapper.get("position").toString();
                         fullname = mapper.get("fullname").toString();
-                        departmentId = DataUtils.parseToLong(mapper.get("departmentId")); 
+                        departmentId = DataUtils.parseToLong(mapper.get("departmentId"));
                         departmentCode = userDetailsServiceImpl
                                 .getDepartmentCodeByUsername(userDetails.getUsername());
                         // if (DataUtils.isNullObject(departmentCode)) {
-                        //     departmentCode = "UNKNOWN";
+                        // departmentCode = "UNKNOWN";
                         // }
                         log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
                         if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
@@ -125,7 +138,94 @@ public class AuthController {
 
                         }
                         jwt = tokenProvider.generateToken(authentication, role, permissions, departmentCode,
-                        position, fullname, departmentId);
+                                position, fullname, departmentId);
+                    }
+
+                } else {
+                    log.info("===SecurityContextHolder getPrincipal: "
+                            + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+                }
+            }
+            // } else {
+
+            // }
+
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt, userDetails));
+        } catch (BadCredentialsException ex) {
+            log.error(ex.getMessage(), ex);
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_INVALID),
+                    HttpStatus.BAD_REQUEST);
+        } catch (UsernameNotFoundException ex) {
+            log.error(ex.getMessage(), ex);
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_INACTIVE),
+                    HttpStatus.BAD_REQUEST);
+        } catch (Exception ex) {
+            log.error(ex.getMessage(), ex);
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.SYSTEM_ERROR), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @PostMapping("/loginWithoutLdap")
+    public ResponseEntity<?> authenticateUserWithoutLdap(@RequestBody LoginRequest loginRequest) {
+        if (loginRequest.getUsername().isEmpty() || loginRequest.getPassword().isEmpty()) {
+            return new ResponseEntity(new ApiResponse(false, MessageConstants.USERNAME_OR_PASSWORD_EMPTY),
+                    HttpStatus.BAD_REQUEST);
+        }
+        try {
+
+            String jwt = null;
+            String departmentCode = null;
+            Map<String, Object> mapper = null;
+            List<String> permissions = new ArrayList<>();
+            String role = null;
+            String position = null;
+            String fullname = null;
+            Long departmentId = null;
+            Long userId = null;
+
+            UserDetails userDetails = null;
+            // userDetailsServiceImpl.loadUserByUsername(loginRequest.getUsername());
+
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    loginRequest.getUsername(),
+                    loginRequest.getPassword()));
+
+            // Authentication authentication = authenticationManager.
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (principal instanceof UserDetails) {
+                    userDetails = (UserDetails) principal;
+                    if (userDetails.getUsername().equals(superAdmin)) {
+                        role = "ADMIN";
+                        jwt = tokenProvider.generateToken(userDetails.getUsername(), role);
+                    } else {
+                        role = userDetailsServiceImpl.getRoleByUsername(userDetails.getUsername());
+                        // if (DataUtils.isNullObject(role)) {
+                        // role = Role.ROLE_USER;
+                        // }
+                        mapper = userDetailsServiceImpl.getPositionByUsername(userDetails.getUsername());
+
+                        position = mapper.get("position").toString();
+                        fullname = mapper.get("fullname").toString();
+                        departmentId = DataUtils.parseToLong(mapper.get("departmentId"));
+                        departmentCode = userDetailsServiceImpl
+                                .getDepartmentCodeByUsername(userDetails.getUsername());
+                        // if (DataUtils.isNullObject(departmentCode)) {
+                        // departmentCode = "UNKNOWN";
+                        // }
+                        log.info("===SecurityContextHolder getPrincipal UserDetails: " + userDetails.getUsername());
+                        if (DataUtils.notNullOrEmpty(userDetails.getAuthorities())) {
+                            permissions = userDetails.getAuthorities().stream()
+                                    .map(GrantedAuthority::getAuthority)
+                                    .collect(Collectors.toList());
+
+                        }
+                        jwt = tokenProvider.generateToken(authentication, role, permissions, departmentCode,
+                                position, fullname, departmentId);
                     }
 
                 } else {
