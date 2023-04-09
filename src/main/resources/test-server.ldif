@@ -321,7 +321,7 @@ objectclass: inetOrgPerson
 cn: admin_qtht3
 sn: admin_qtht3
 uid: admin_qtht3
-userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+userPassword:  123456a@
 mailNickName: admin_qtht3bidv
 distinguishedName: admin_qtht3bidv
 
@@ -381,7 +381,7 @@ objectclass: inetOrgPerson
 cn: nhungdth2
 sn: nhungdth2
 uid: nhungdth2
-userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+userPassword:  123456a@
 mailNickName: nhungdth2
 distinguishedName: nhungdth2
 
@@ -457,7 +457,7 @@ objectclass: inetOrgPerson
 cn: thu_vth
 sn: thu_vth
 uid: thu_vth
-userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+userPassword:  123456a@
 mailNickName: thu_vth
 distinguishedName: thu_vth
 

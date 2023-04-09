@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -274,13 +275,47 @@ public class ReadAndWriteDoc {
                             if (i == 0) {
                                 if (profile != null) {
 
-                                    // String strUtf8 = convertJsonStringToUTF8(profile);
-                                    // set table for image
-                                    // XWPFTable tableQRCode = docDes.createTable(1, 2);
+                                    // add ngày tháng năm
+                                    LocalDateTime date = LocalDateTime.now();
 
-                                    // // XWPFTable tableQRCode = docDes.getTableArray(1);
-                                    // tableQRCode.removeBorders();
-                                    // tableQRCode.setWidth("100%");
+                                    String dmy = "Hà Nội, ngày " + date.getDayOfMonth() + " tháng " + date.getMonthValue() + " năm " + date.getYear();
+                                    XWPFTableRow row2 = table.getRow(1);
+                                    XWPFTableCell cell2 = row2.getCell(1);
+                                    XWPFParagraph para = cell2.addParagraph();
+                                    para.setAlignment(ParagraphAlignment.CENTER);
+                                    XWPFRun run1 = para.createRun();
+                                    run1.setText(dmy);
+                                    run1.setBold(true);
+                                    run1.setItalic(true);
+                                    run1.setFontSize(11);
+
+                                    // for (XWPFParagraph p : cell2.getParagraphs()) {
+                                    //     LocalDateTime date = LocalDateTime.now();
+                                    //     for (XWPFRun r : p.getRuns()) {
+                                    //         String text = r.getText(0);
+                                    //         if (DataUtils.notNull(text)) {
+
+                                    //             if (text.contains(_dd)) {
+                                    //                 text = text.replace(_dd, String.valueOf(date.getDayOfMonth()));
+                                    //                 // p.createRun().setText(text);
+                                    //                 // XWPFParagraph paragraph2 = docDes.createParagraph();
+                                    //                 // XWPFRun run2 = paragraph2.createRun();
+                                    //                 r.setText(String.valueOf(date.getDayOfMonth()), 0);
+
+                                    //             }
+                                    //             if (text.contains(_mm)) {
+                                    //                 text = text.replace(_mm, String.valueOf(date.getMonthValue()));
+                                    //                 r.setText(text, 0);
+
+                                    //             }
+                                    //             if (text.contains(_yyyy)) {
+                                    //                 text = text.replace(_yyyy, String.valueOf(date.getYear()));
+                                    //                 r.setText(text, 0);
+                                    //             }
+
+                                    //         }
+                                    //     }
+                                    // }
 
                                     String strUtf8 = null;
                                     if (!DataUtils.isNullOrEmpty(profile.getId())) {
@@ -458,7 +493,7 @@ public class ReadAndWriteDoc {
             // qrCodeWriter.
             BitMatrix bitMatrix = qrCodeWriter.encode(qrContent, BarcodeFormat.QR_CODE, width, height);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            
+
             MatrixToImageWriter.writeToStream(bitMatrix, "png", byteArrayOutputStream);
             // String pathStr = "D:\\";
             // File outputFile = new File("filen");

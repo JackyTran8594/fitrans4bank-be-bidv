@@ -579,9 +579,7 @@ public class ProfileServiceImpl implements ProfileService {
             profileHistory.setProfileId(profile.getId());
             profileHistoryService.save(profileHistory);
             return profile;
-        } catch (
-
-                Exception e) {
+        } catch (Exception e) {
             // TODO: handle exception
             logger.error(e.getMessage(), e);
             return null;
@@ -2114,7 +2112,7 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
-    // dùng cho update hồ sơ: pending, additional, finised, bàn giao
+    // dùng cho update hồ sơ: pending, additional, finished, bàn giao
 
     /**
      * các hồ sơ sẽ được update tuần tự dựa vào hồ sơ trước đó

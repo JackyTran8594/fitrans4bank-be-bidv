@@ -153,12 +153,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
                                 }
                                 // if (paramSearch.containsKey("usernameByCode")) {
-                                //     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                //         sb.append(" AND uc.username like :usernameByCode ");
-                                //         parameters.put("usernameByCode",
-                                //                 formatLike((String) paramSearch.get("usernameByCode").toString()
-                                //                         .toLowerCase()));
-                                //     }
+                                // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
+                                // sb.append(" AND uc.username like :usernameByCode ");
+                                // parameters.put("usernameByCode",
+                                // formatLike((String) paramSearch.get("usernameByCode").toString()
+                                // .toLowerCase()));
+                                // }
 
                                 // }
                             }
@@ -213,6 +213,14 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             //     }
 
                             // }
+                            if (paramSearch.containsKey("departmentId")) {
+                                if (!DataUtils.isNullOrEmpty(paramSearch.get("departmentId"))) {
+                                    sb.append(" AND his.department_id = :departmentId ");
+                                    Integer departmentId = DataUtils.parseToInt(paramSearch.get("departmentId"));
+                                    parameters.put("departmentId", departmentId);
+                                }
+
+                            }
                             break;
                         default:
                             break;
@@ -317,18 +325,33 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 if (paramSearch.containsKey("sort")) {
                     if (departmentCode.equals(Department.QLKH)) {
                         sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.created_date DESC"));
-
-                    } else {
+                    }
+                    if (departmentCode.equals(Department.QTTD)) {
                         sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.time_received_cm ASC"));
                     }
+                    if (departmentCode.equals(Department.GDKH)) {
+                        sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.time_received_ct DESC"));
+                    }
+
+                    // else {
+                    // sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY
+                    // p.time_received_cm ASC"));
+                    // }
 
                 } else {
                     if (departmentCode.equals(Department.QLKH)) {
                         sb.append(" ORDER BY p.created_date DESC ");
-                    } else {
-                        sb.append(" ORDER BY p.time_received_cm ASC ");
-
                     }
+                    if (departmentCode.equals(Department.QTTD)) {
+                        sb.append(" ORDER BY p.time_received_cm ASC ");
+                    }
+                    if (departmentCode.equals(Department.GDKH)) {
+                        sb.append(" ORDER BY p.time_received_ct DESC ");
+                    }
+                    // else {
+                    // sb.append(" ORDER BY p.time_received_cm ASC ");
+
+                    // }
                 }
             }
 
@@ -734,11 +757,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
 
             // if (params.containsKey("username")) {
-            //     if (DataUtils.notNull(params.get("username"))) {
-            //         String where = " AND uct.username = :username";
-            //         parameters.put("username", params.get("username").toString().toLowerCase());
-            //         sb.append(where);
-            //     }
+            // if (DataUtils.notNull(params.get("username"))) {
+            // String where = " AND uct.username = :username";
+            // parameters.put("username", params.get("username").toString().toLowerCase());
+            // sb.append(where);
+            // }
             // }
 
         }
@@ -780,8 +803,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         parameters.put("listState", state);
         parameters.put("transactionType", transactionType);
 
-
-
         if (code.equals(Constants.Department.QTTD)) {
             // hồ sơ đẫ nhận
             if (params.containsKey("real_time_received_cm")) {
@@ -800,9 +821,8 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             }
 
-
-            if(params.containsKey("username")) {
-                if(DataUtils.notNull(params.get("username"))) {
+            if (params.containsKey("username")) {
+                if (DataUtils.notNull(params.get("username"))) {
                     String where = " AND ucm.username = :username";
                     parameters.put("username", params.get("username").toString().toLowerCase());
                     sb.append(where);
@@ -855,11 +875,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             }
 
             // if (params.containsKey("username")) {
-            //     if (DataUtils.notNull(params.get("username"))) {
-            //         String where = " AND uct.username = :username";
-            //         parameters.put("username", params.get("username").toString().toLowerCase());
-            //         sb.append(where);
-            //     }
+            // if (DataUtils.notNull(params.get("username"))) {
+            // String where = " AND uct.username = :username";
+            // parameters.put("username", params.get("username").toString().toLowerCase());
+            // sb.append(where);
+            // }
             // }
         }
 
