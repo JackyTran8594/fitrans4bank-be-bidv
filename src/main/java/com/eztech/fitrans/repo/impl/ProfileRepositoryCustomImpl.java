@@ -640,7 +640,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             if (params.containsKey("isToday")) {
                 if (params.get("isToday").toString().equals("true")) {
-                    String where = " AND CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    String where = " AND CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)  \n";
                     sb.append(where);
                 }
 
@@ -654,7 +654,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             if (params.containsKey("time_received_ct")) {
                 if (params.get("time_received_ct").toString().equals("NULL")) {
-                    String where = " AND p.time_received_ct is NULL ";
+                    String where = " AND p.time_received_ct is NULL \n";
                     sb.append(where);
                 }
 
@@ -662,7 +662,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             if (params.containsKey("isToday")) {
                 if (params.get("isToday").toString().equals("true")) {
-                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  \n";
                     sb.append(where);
                 }
 
@@ -683,7 +683,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             if (params.containsKey("time_received_ct")) {
                 if (params.get("time_received_ct").toString().equals("NULL")) {
-                    String where = " AND p.time_received_ct is NULL ";
+                    String where = " AND p.time_received_ct is NULL \n";
                     sb.append(where);
                 }
 
@@ -691,13 +691,16 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             if (params.containsKey("isToday")) {
                 if (params.get("isToday").toString().equals("true")) {
-                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  \n";
                     sb.append(where);
                 }
 
             }
 
         }
+
+        String order = " ORDER BY p.time_received_ct DESC";
+        sb.append(order);
 
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
     }
@@ -749,7 +752,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             if (params.containsKey("isToday")) {
                 if (params.get("isToday").toString().equals("true")) {
-                    String where = " AND CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    String where = " AND CAST(p.real_time_received_cm AS DATE) = CAST(GETDATE() AS DATE)  \n";
                     sb.append(where);
                 }
 
@@ -767,7 +770,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             // hồ sơ đẫ nhận
             if (params.containsKey("real_time_received_ct")) {
                 if (params.get("real_time_received_ct").toString().equals("NOTNULL")) {
-                    String where = " AND p.real_time_received_ct IS NOT NULL ";
+                    String where = " AND p.real_time_received_ct IS NOT NULL \n";
                     sb.append(where);
                 }
 
@@ -775,7 +778,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             if (params.containsKey("isToday")) {
                 if (params.get("isToday").toString().equals("true")) {
-                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  \n";
                     sb.append(where);
                 }
 
@@ -802,7 +805,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             if (params.containsKey("isToday")) {
                 if (params.get("isToday").toString().equals("true")) {
-                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  ";
+                    String where = " AND CAST(p.real_time_received_ct AS DATE) = CAST(GETDATE() AS DATE)  \n";
                     sb.append(where);
                 }
 
@@ -816,6 +819,9 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
             // }
             // }
         }
+
+        String order = " ORDER BY p.time_received_ct DESC";
+        sb.append(order);
 
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
     }

@@ -15,4 +15,5 @@ public class ChatMessage {
     private String name;
     private String code;
     private List<Integer> state;
+    private Integer panelType;
 }

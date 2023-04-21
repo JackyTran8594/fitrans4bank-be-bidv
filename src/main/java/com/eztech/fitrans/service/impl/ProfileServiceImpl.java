@@ -1379,27 +1379,7 @@ public class ProfileServiceImpl implements ProfileService {
                                             }
                                         }
 
-                                        // // check scan kết thúc hồ sơ
-                                        // if (item.getIsFinished()) {
-                                        // // kiểm tra nhân viên GDKH quét nhầm kết thúc hồ sơ trong khi cán bộ QTTD
-                                        // đang xử lý hồ sơ và chưa bàn giao tại GDKH
-                                        // message.setIsExist(false);
-
-                                        // }
-                                        // else {
-                                        // // check bàn giao tại GDKH đối với hồ sơ đang xử lý từ QTTD bàn giao qua
-                                        // admin user của GDKH
-                                        // // nếu chưa thì tiếp tục bàn giao
-                                        // if (item.getUsername().contains("admin")) {
-                                        // message.setIsExist(false);
-                                        // }
-                                        // // nếu là user GDKH thông thường và hồ sơ đang xử lý thì không được quét/ ko
-                                        // được di chuyển nữa
-                                        // else {
-                                        // message.setMessage("Giao dịch ");
-                                        // message.setIsExist(true);
-                                        // }
-                                        // }
+                                     
 
                                     }
                                     // hồ sơ đã nhận tại GDKH và cán bộ GDKH tiếp nhận
@@ -1511,36 +1491,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     message.setIsExist(false);
                                     break;
                             }
-                            // if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                            // if (item.getIsFinished()) {
-                            // message.setIsExist(false);
-                            // } else {
-                            // if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                            // message.setMessage("Hồ sơ này đã được nhận 1 lần");
-                            // message.setIsExist(true);
-                            // } else {
-                            // message.setIsExist(false);
-
-                            // }
-                            // }
-
-                            // }
-
-                            // else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-                            // message.setMessage("Bạn đã kết thúc giao dịch này");
-
-                            // message.setIsExist(true);
-
-                            // } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                            // if (item.getIsFinished()) {
-                            // message.setMessage("Bàn giao cho cán bộ quản trị tín dụng");
-                            // message.setIsExist(true);
-                            // } else {
-                            // message.setIsExist(false);
-                            // }
-                            // }
+                           
                         }
                         // hồ sơ chưa bàn giao cho cán bộ QTTD
                         else {
@@ -1599,45 +1550,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     break;
                             }
 
-                            // if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                            // if (item.getIsFinished()) {
-                            // message.setIsExist(false);
-                            // } else {
-                            // // kiểm tra hồ sơ tồn tại có đang xử lý không
-                            // if (old.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                            // || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                            // message.setMessage("Hồ sơ này đã được nhận 1 lần");
-                            // message.setIsExist(true);
-                            // } else {
-                            // message.setIsExist(false);
-
-                            // }
-                            // }
-
-                            // }
-                            // // hồ sơ đẩy lên là trạng thái kết thúc
-                            // else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-
-                            // // kiểm tra hồ sơ tồn tại có đang xử lý không
-                            // if (old.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-                            // message.setMessage("Bạn đã kết thúc giao dịch này");
-                            // message.setIsExist(true);
-                            // } else {
-                            // message.setIsExist(false);
-
-                            // }
-
-                            // // message.setMessage("Bạn đã kết thúc giao dịch này");
-                            // // message.setIsExist(true);
-                            // } else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
-                            // if (item.getIsFinished()) {
-                            // message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
-                            // message.setIsExist(true);
-                            // } else {
-                            // message.setIsExist(false);
-                            // }
-                            // }
+                            
                         } else {
                             // kiểm tra cán bộ GDKH đã quét chưa
                             if (!DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
