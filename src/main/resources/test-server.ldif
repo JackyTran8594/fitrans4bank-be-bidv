@@ -313,18 +313,6 @@ distinguishedName: admin_qtht2bidv
 
 
 
-dn: uid=admin_qtht3,ou=people,dc=springframework,dc=org
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-objectclass: inetOrgPerson
-cn: admin_qtht3
-sn: admin_qtht3
-uid: admin_qtht3
-userPassword:  123456a@
-mailNickName: admin_qtht3bidv
-distinguishedName: admin_qtht3bidv
-
 dn: uid=yennh19,ou=people,dc=springframework,dc=org
 objectclass: top
 objectclass: person
@@ -357,7 +345,7 @@ objectclass: inetOrgPerson
 cn: duongtq
 sn: duongtq
 uid: duongtq
-userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+userPassword:  123456a@
 mailNickName: duongtq
 distinguishedName: duongtq
 
@@ -443,10 +431,9 @@ objectclass: inetOrgPerson
 cn: ngocctb
 sn: ngocctb
 uid: ngocctb
-userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+userPassword:  123456a@
 mailNickName: ngocctb
 distinguishedName: ngocctb
-
 
 
 dn: uid=thu_vth,ou=people,dc=springframework,dc=org
@@ -493,9 +480,21 @@ objectclass: inetOrgPerson
 cn: phunv2
 sn: phunv2
 uid: phunv2
-userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+userPassword:  123456a@
 mailNickName: phunv2
 distinguishedName: phunv2
+
+dn: uid=phuongnq3,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: phuongnq3
+sn: phuongnq3
+uid: phuongnq3
+userPassword:  123456a@
+mailNickName: phuongnq3
+distinguishedName: phuongnq3
 
 dn: uid=thinhnv3,ou=people,dc=springframework,dc=org
 objectclass: top
@@ -568,4 +567,30 @@ uid: nhantt4
 userPassword:  123456a@
 mailNickName: nhantt4
 distinguishedName: nhantt4
+
+
+dn: uid=hoangnv5,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: hoangnv5
+sn: hoangnv5
+uid: hoangnv5
+userPassword:  123456a@
+mailNickName: hoangnv5
+distinguishedName: hoangnv5
+
+dn: uid=huongltt5,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: huongltt5
+sn: huongltt5
+uid: huongltt5
+userPassword:  123456a@
+mailNickName: huongltt5
+distinguishedName: huongltt5
+
 

@@ -110,8 +110,8 @@ public class WebsocketController {
         dashboard.profileReturn.profiles = profileReturnList.size();
         dashboard.profileReturn.profilesAll = profileReturnList;
 
-        // tổng hồ sơ GDKH đã nhận
-        List<Integer> state = Arrays.asList(new Integer[]{4, 5, 6, 7, 8, 9});
+        // tổng hồ sơ GDKH đã nhận: state = 2,5,7
+        List<Integer> state = Arrays.asList(new Integer[]{ 2, 5, 7});
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("real_time_received_ct", "NOTNULL");
         dashboard.totalProfile.profilesInDay = (DataUtils.notNullOrEmpty(service.countProfileInDayByListState(state, user.getCode(), transactionType, params)))

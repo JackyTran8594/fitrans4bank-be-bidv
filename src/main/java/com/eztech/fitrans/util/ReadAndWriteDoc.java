@@ -278,44 +278,18 @@ public class ReadAndWriteDoc {
                                     // add ngày tháng năm
                                     LocalDateTime date = LocalDateTime.now();
 
-                                    String dmy = "Hà Nội, ngày " + date.getDayOfMonth() + " tháng " + date.getMonthValue() + " năm " + date.getYear();
-                                    XWPFTableRow row2 = table.getRow(1);
-                                    XWPFTableCell cell2 = row2.getCell(1);
-                                    XWPFParagraph para = cell2.addParagraph();
-                                    para.setAlignment(ParagraphAlignment.CENTER);
+                                    String dmy = "Hà Nội, ngày " + date.getDayOfMonth() + " tháng "
+                                            + date.getMonthValue() + " năm " + date.getYear();
+                                    // XWPFTableRow row2 = table.getRow(1);
+                                    // XWPFTableCell cell2 = row2.getCell(1);
+                                    XWPFParagraph para = docDes.createParagraph();
+                                    para.setAlignment(ParagraphAlignment.RIGHT);
                                     XWPFRun run1 = para.createRun();
                                     run1.setText(dmy);
                                     run1.setBold(true);
                                     run1.setItalic(true);
-                                    run1.setFontSize(11);
+                                    run1.setFontSize(10);
 
-                                    // for (XWPFParagraph p : cell2.getParagraphs()) {
-                                    //     LocalDateTime date = LocalDateTime.now();
-                                    //     for (XWPFRun r : p.getRuns()) {
-                                    //         String text = r.getText(0);
-                                    //         if (DataUtils.notNull(text)) {
-
-                                    //             if (text.contains(_dd)) {
-                                    //                 text = text.replace(_dd, String.valueOf(date.getDayOfMonth()));
-                                    //                 // p.createRun().setText(text);
-                                    //                 // XWPFParagraph paragraph2 = docDes.createParagraph();
-                                    //                 // XWPFRun run2 = paragraph2.createRun();
-                                    //                 r.setText(String.valueOf(date.getDayOfMonth()), 0);
-
-                                    //             }
-                                    //             if (text.contains(_mm)) {
-                                    //                 text = text.replace(_mm, String.valueOf(date.getMonthValue()));
-                                    //                 r.setText(text, 0);
-
-                                    //             }
-                                    //             if (text.contains(_yyyy)) {
-                                    //                 text = text.replace(_yyyy, String.valueOf(date.getYear()));
-                                    //                 r.setText(text, 0);
-                                    //             }
-
-                                    //         }
-                                    //     }
-                                    // }
 
                                     String strUtf8 = null;
                                     if (!DataUtils.isNullOrEmpty(profile.getId())) {
@@ -342,26 +316,7 @@ public class ReadAndWriteDoc {
                                         logger.error(e.getMessage(), e);
                                     }
 
-                                    // String strTranfer = profile.getId().toString() + "-Tranfer";
-                                    // byte[] imageByteArrayTransfer = generateQRCode(strTranfer, 100, 100);
-
-                                    // try (InputStream inputByteArrayStream = new ByteArrayInputStream(
-                                    // imageByteArrayTransfer)) {
-
-                                    // // XWPFTableRow row = tableQRCode.getRows().get(0);
-                                    // // XWPFTableCell cell = row.getCell(1);
-                                    // // XWPFParagraph paraImage = cell.getParagraphs().get(0);
-                                    // XWPFParagraph paraImage = docDes.createParagraph();
-                                    // paraImage.setAlignment(ParagraphAlignment.RIGHT);
-                                    // XWPFRun runImage = paraImage.createRun();
-                                    // runImage.addPicture(inputByteArrayStream, Document.PICTURE_TYPE_PNG,
-                                    // "qrTranfered", Units.toEMU(70), Units.toEMU(70));
-                                    // inputByteArrayStream.close();
-                                    // } catch (Exception e) {
-                                    // // TODO: handle exception
-                                    // logger.error(e.getMessage(), e);
-                                    // }
-
+                                    
                                     // title
                                     XWPFParagraph paragraph = docDes.createParagraph();
                                     paragraph.setAlignment(ParagraphAlignment.CENTER);

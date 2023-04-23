@@ -110,11 +110,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         }
 
-        String sql_search_name = "AND (p.cif LIKE :txtSearch OR c.name LIKE :txtSearch OR u.full_name LIKE :txtSearch OR uct.full_name LIKE :txtSearch OR ucm.full_name LIKE :txtSearch "
+        String sql_search_name = " AND (p.cif LIKE :txtSearch OR c.name LIKE :txtSearch OR u.full_name LIKE :txtSearch OR uct.full_name LIKE :txtSearch OR ucm.full_name LIKE :txtSearch "
                 +
-                "OR uc.full_name LIKE :txtSearch OR p.return_reason LIKE :txtSearch OR p.review_note LIKE :txtSearch OR p.note LIKE :txtSearch ";
-        String sql_search_value = "OR CAST(p.value AS varchar(100)) LIKE :txtSearch  OR CAST(p.type AS varchar(100))  LIKE :txtSearch  OR CAST(p.number_of_bill AS varchar(100))  LIKE :txtSearch "
-                + "OR CAST(p.number_of_po AS varchar(100)) LIKE :txtSearch OR CAST(p.state AS varchar(100)) LIKE :txtSearch) \n";
+                " OR uc.full_name LIKE :txtSearch OR p.return_reason LIKE :txtSearch OR p.review_note LIKE :txtSearch OR p.note LIKE :txtSearch ";
+        String sql_search_value = " OR CAST(p.value AS varchar(100)) LIKE :txtSearch  OR CAST(p.type AS varchar(100))  LIKE :txtSearch  OR CAST(p.number_of_bill AS varchar(100))  LIKE :txtSearch "
+                + " OR CAST(p.number_of_po AS varchar(100)) LIKE :txtSearch OR CAST(p.state AS varchar(100)) LIKE :txtSearch) \n";
         String departmentCode = null;
         if (paramSearch.containsKey("code")) {
             departmentCode = paramSearch.get("code").toString();
@@ -152,15 +152,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                     }
 
                                 }
-                                // if (paramSearch.containsKey("usernameByCode")) {
-                                // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                // sb.append(" AND uc.username like :usernameByCode ");
-                                // parameters.put("usernameByCode",
-                                // formatLike((String) paramSearch.get("usernameByCode").toString()
-                                // .toLowerCase()));
-                                // }
-
-                                // }
+                               
                             }
                             break;
                         case "QTTD":
@@ -183,12 +175,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                                 }
                             } else {
                                 if (paramSearch.containsKey("usernameByCode")) {
-                                    // if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                                    // sb.append(" AND ucm.username like :usernameByCode");
-                                    // parameters.put("usernameByCode",
-                                    // formatLike((String) paramSearch.get("usernameByCode").toString()
-                                    // .toLowerCase()));
-                                    // }
+                                
 
                                 }
                             }
@@ -204,15 +191,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                             sb.append(sql_gdkh)
                                     .append(sql_filter);
 
-                            // if (paramSearch.containsKey("usernameByCode")) {
-                            //     if (!DataUtils.isNullOrEmpty(paramSearch.get("usernameByCode"))) {
-                            //         sb.append(" AND uct.username like :usernameByCode ");
-                            //         parameters.put("usernameByCode",
-                            //                 formatLike((String) paramSearch.get("usernameByCode").toString()
-                            //                         .toLowerCase()));
-                            //     }
-
-                            // }
                             if (paramSearch.containsKey("departmentId")) {
                                 if (!DataUtils.isNullOrEmpty(paramSearch.get("departmentId"))) {
                                     sb.append(" AND his.department_id = :departmentId ");
@@ -258,12 +236,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         if (paramSearch.containsKey("defaultState")) {
             if (paramSearch.get("defaultState").equals("true")) {
                 sb.append(" AND p.state IN (4,5) ");
-                // if(!DataUtils.isNullOrEmpty(departmentCode)) {
-                // // qlkh xem tat
-                // if(!departmentCode.equals("QLKH")) {
-
-                // }
-                // }
+             
 
             } else {
                 if (paramSearch.containsKey("state")) {
@@ -276,50 +249,18 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     }
 
                 }
-                // if (paramSearch.containsKey("listState")) {
-                // if (!DataUtils.isNullOrEmpty(paramSearch.get("listState").toString())) {
-                // Integer state = DataUtils.parseToInt(paramSearch.get("state"));
-                // if (state > 0) {
-                // sb.append(" AND p.state IN :state ");
-                // parameters.put("state", state);
-                // }
-                // }
-                //
-                // }
+             
             }
         }
 
-        // if (paramSearch.containsKey("state")) {
-        // if (!DataUtils.isNullOrEmpty(paramSearch.get("state"))) {
-        // sb.append(" AND p.state = :state");
-        // parameters.put("state",
-        // DataUtils.parseToInt(paramSearch.get("state").toString()));
-        // }
-
-        // }
+     
 
         if (paramSearch.containsKey("dashboard")) {
-            // sb.append(
-            // " AND ((p.state = 7 AND p.process_date >= DATEADD(minute, -5,
-            // CURRENT_TIMESTAMP)) OR p.state NOT IN (7)) ORDER BY p.process_date ASC OFFSET
-            // 0 ROWS FETCH NEXT 20 ROWS ONLY");
-
-            // bỏ p.state NOT IN (7)
-            // sb.append(
-            // " AND ((p.state IN (4,5,7) AND p.process_date >= DATEADD(minute, -5,
-            // CURRENT_TIMESTAMP))) ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH
-            // NEXT 20 ROWS ONLY");
-            // parameters.put("offset",
-            // DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
-
+          
             sb.append(
                     " AND p.state IN (4,5) ORDER BY p.process_date ASC OFFSET :offset ROWS FETCH NEXT 20 ROWS ONLY");
             parameters.put("offset", DataUtils.parseToInt(paramSearch.get("dashboard").toString()));
 
-            // sb.append(" AND p.process_date >= DATEADD(minute, -5, CURRENT_TIMESTAMP)
-            // ORDER BY p.process_date ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
-            // sb.append(" AND p.process_date <= CURRENT_TIMESTAMP ORDER BY p.process_date
-            // ASC OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY");
         } else {
             if (!count) {
                 if (paramSearch.containsKey("sort")) {
@@ -333,11 +274,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                         sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY p.time_received_ct DESC"));
                     }
 
-                    // else {
-                    // sb.append(formatSort((String) paramSearch.get("sort"), " ORDER BY
-                    // p.time_received_cm ASC"));
-                    // }
-
                 } else {
                     if (departmentCode.equals(Department.QLKH)) {
                         sb.append(" ORDER BY p.created_date DESC ");
@@ -345,13 +281,11 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                     if (departmentCode.equals(Department.QTTD)) {
                         sb.append(" ORDER BY p.time_received_cm ASC ");
                     }
+                    // GDKH sắp xếp theo thời gian quét QR code => nhận-kết thúc
                     if (departmentCode.equals(Department.GDKH)) {
-                        sb.append(" ORDER BY p.time_received_ct DESC ");
+                        sb.append(" ORDER BY his.time_received DESC ");
                     }
-                    // else {
-                    // sb.append(" ORDER BY p.time_received_cm ASC ");
-
-                    // }
+                
                 }
             }
 
@@ -659,12 +593,17 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         Map<String, Object> parameters = new HashMap<>();
         String select = "SELECT p.*, ";
 
-        String column = " u.full_name as staff_name_last, c.name as customer_name," +
+        String column = 
+        " u.full_name as staff_name_last," + 
+        " c.name as customer_name," +
                 "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, "
                 +
-                "trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type, "
+                "trans.transaction_detail as transaction_detail,  trans.additional_time_max as additional_time_max, c.type as customer_type" 
+                + ", "
                 +
-                "his.time_received as time_received_history   \n";
+                "his.time_received as time_received_history  " 
+                +  "\n"
+                ;
 
         String from = "FROM profile AS p \n";
 
@@ -680,10 +619,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         String where2 = null;
         String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType " +
                 "AND his.state IN :listState \n";
-        sb.append(select + column + from + join1 + join2 + join3 + join4 + join5 + join6 + join7 + where6);
-        // sb.append(select + from + join1 + where6);
-        // parameters.put("time", time);
-        // parameters.put("minutes", minutes);
+        String where7 = " AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n";
+
+        sb.append(select + column + from + join1 + join2 + join3 + join4 + join5 + join6 + join7 + where6 + where7);
+        // sb.append(select + column + from + join1 + join2 + join3 + join4 + join5 + where6);
+
+   
         parameters.put("listState", state);
         parameters.put("transactionType", transactionType);
 
@@ -756,14 +697,6 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
             }
 
-            // if (params.containsKey("username")) {
-            // if (DataUtils.notNull(params.get("username"))) {
-            // String where = " AND uct.username = :username";
-            // parameters.put("username", params.get("username").toString().toLowerCase());
-            // sb.append(where);
-            // }
-            // }
-
         }
 
         return getResultList(sb.toString(), Constants.ResultSetMapping.PROFILE_DTO, parameters);
@@ -794,11 +727,12 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
         String join6 = "LEFT JOIN  profile_history his on p.id = his.profile_id \n";
         String join7 = "LEFT JOIN  user_entity u on his.staff_id = u.id \n";
 
-        String where1 = null;
-        String where2 = null;
         String where6 = "WHERE 1=1 AND p.state IN :listState AND trans.type IN :transactionType " +
                 "AND his.state IN :listState \n";
-        sb.append(select + column + from + join1 + join2 + join3 + join4 + join5 + join6 + join7 + where6);
+
+        String where7 = " AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n";
+
+        sb.append(select + column + from + join1 + join2 + join3 + join4 + join5 + join6 + join7 + where6 + where7);
         // sb.append(select + from + join1 + where6);
         parameters.put("listState", state);
         parameters.put("transactionType", transactionType);

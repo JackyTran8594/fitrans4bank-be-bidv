@@ -78,7 +78,7 @@ public class OptionSetController extends BaseController implements OptionSetApi 
 
   @Override
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  // @PreAuthorize("hasRole('ROLE_ADMIN')")
   public OptionSetDTO update(@PathVariable(value = "id") Long id, @RequestBody OptionSetDTO item) {
     item.setId(id);
     return service.save(item);

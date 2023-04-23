@@ -2489,11 +2489,8 @@ public class ProfileServiceImpl implements ProfileService {
         // TODO Auto-generated method stub
         try {
             List<ProfileDTO> listData = new ArrayList<>();
-//            List<Profile> profiles = repository.countProfileInDayByListState(state, transactionType, code, parameters);
             listData = repository.countProfileInDayByListState(state, transactionType, code, parameters);
-//            if(DataUtils.notNullOrEmpty(profiles)) {
-//                listData = mapper.toDtoBean(repository.countProfileInDayByListState(state, transactionType, code, parameters));
-//            }
+
             return listData;
         } catch (Exception e) {
             // TODO: handle exception
@@ -2548,38 +2545,6 @@ public class ProfileServiceImpl implements ProfileService {
             return null;
         }
     }
-
-//    @Override
-//    public List<ProfileDTO> profileByStateInDashboard(String code, Integer typeChart) {
-//        // TODO Auto-generated method stub
-//        try {
-//            List<ProfileDTO>  listData = new ArrayList<>();
-//            if(code.equals(Constants.Department.QTTD)) {
-//                List<Integer> transactionType = Arrays.asList(new Integer[]{1, 2});
-//                switch (typeChart) {
-//                    case 2:
-//                        List<Integer> stateExpect = Arrays.asList(new Integer[]{0, 1});
-//                        Map<String, Object> paramsExpect = new HashMap<String, Object>();
-//                        listData = countProfileInDayByListState(stateExpect, Constants.Department.QTTD, transactionType, paramsExpect);
-//                    case 3:
-//                        // cả trong và quá hạn
-//                        List<Integer> stateProcessing = Arrays.asList(new Integer[]{0, 1});
-//                        Map<String, Object> paramsProcessing = new HashMap<String, Object>();
-//                        listData = countProfileInDayByListState(stateProcessing, Constants.Department.QTTD, transactionType, paramsProcessing);
-//                }
-//
-//            }
-//            List<Profile> profiles = repository.countProfileByListState(state, transactionType, code, parameters);
-//            if(DataUtils.notNullOrEmpty(profiles)) {
-//                listData = mapper.toDtoBean(repository.countProfileByListState(state, transactionType, code, parameters));
-//            }
-//            return listData;
-//        } catch (Exception e) {
-//            // TODO: handle exception
-//            logger.error(e.getMessage(), e);
-//            return null;
-//        }
-//    }
 
 
 }
