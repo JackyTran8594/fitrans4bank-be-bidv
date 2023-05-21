@@ -15,4 +15,6 @@ public interface DashboardRepository extends ReadOnlyRepository<ProfileListDashB
     List<ProfileListDashBoard> profileInDayByListStateCM(List<Integer> state, List<Integer> transactionType, String code, Map<String, Object> parameters);
 
     List<ProfileListDashBoard> profileInDayByListStateCT(List<Integer> state, List<Integer> transactionType, String code, Map<String, Object> parameters);
+
+    List<ProfileListDashBoard> profileInDayByListStateCusMan(List<Integer> state, List<Integer> transactionType, String code, Integer departmentId, Map<String, Object> parameters);
 }

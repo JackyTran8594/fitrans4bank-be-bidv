@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
 import static com.eztech.fitrans.constants.Constants.ACTIVE;
 
 @Service
@@ -420,33 +419,33 @@ public class ProfileServiceImpl implements ProfileService {
 
                             // kiểm tra thời gian nhận có phải hôm nay không
 
-//                            if (DataUtils.notNull(profile.getRealTimeReceivedCM())) {
+                            // if (DataUtils.notNull(profile.getRealTimeReceivedCM())) {
                             ProfileDTO profileProcessing = listData.get(0);
-                            // nếu thời gian xử lý của hồ sơ đang xử lý là trong ngày thực tế tồn tại: bàn giao lại trong th trả hồ sơ
+                            // nếu thời gian xử lý của hồ sơ đang xử lý là trong ngày thực tế tồn tại: bàn
+                            // giao lại trong th trả hồ sơ
                             if (profileProcessing.getRealTimeReceivedCM().getDayOfMonth() == timeMarkerValue
                                     .getDayOfMonth()) {
                                 // kiểm tra xem thời gian xử lý có vượt sang ngày hôm sau không
                                 // nếu không thì check trong ngày : bàn giao trước và sau 16h
-                                if (profileProcessing.getProcessDate().getDayOfMonth() == profileHistory.getTimeReceived()
+                                if (profileProcessing.getProcessDate().getDayOfMonth() == profileHistory
+                                        .getTimeReceived()
                                         .getDayOfMonth()) {
                                     if (profileHistory.getTimeReceived().isBefore(timeMarkerValue)) {
                                         // isToday = true => tìm tất cả các hồ sơ chờ trong ngày
                                         params.put("isToday", true);
                                     }
-//                                    else {
-//                                        // isToday = false => tìm tất cả các hồ sơ chờ từ 8h ngày hôm sau
-//                                        params.put("isToday", false);
-//                                    }
+                                    // else {
+                                    // // isToday = false => tìm tất cả các hồ sơ chờ từ 8h ngày hôm sau
+                                    // params.put("isToday", false);
+                                    // }
                                     if (profileHistory.getTimeReceived().isAfter(timeMarkerValue)) {
                                         // isToday = true => tìm tất cả các hồ sơ chờ trong ngày
                                         params.put("isToday", false);
                                     }
                                 }
 
-
                             }
-//                            }
-
+                            // }
 
                             // isAsc = false
                             List<ProfileDTO> listDataWaiting = repository.getProfileWithParams(params, isAsc);
@@ -500,7 +499,7 @@ public class ProfileServiceImpl implements ProfileService {
                                 switch (listDataWaiting.size()) {
                                     case 0:
                                         // thời gian nhận bằng thời gian xử lý của hồ sơ đang xử lý
-//                                        timeReceivedProfile = profileHistory.getTimeReceived();
+                                        // timeReceivedProfile = profileHistory.getTimeReceived();
                                         timeReceivedProfile = profile_first.getProcessDate();
                                         // }
                                         break;
@@ -954,7 +953,7 @@ public class ProfileServiceImpl implements ProfileService {
             LocalDateTime timeMarkerValue = calculatingTime.convertTimeMarker(timeConfig);
 
             // luồng giao dịch
-            Integer[] intArray = new Integer[]{1, 2};
+            Integer[] intArray = new Integer[] { 1, 2 };
 
             if (Arrays.asList(intArray).contains(transactionType.getType())) {
                 if (item.getCode().trim().toUpperCase().equals("QTTD")) {
@@ -1283,11 +1282,86 @@ public class ProfileServiceImpl implements ProfileService {
                                 }
                             }
                             break;
+
+                        case "GDKH-test":
+                            // đã bàn giao tại quản trị tín dụng
+                            if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
+                                // check bàn giao tại GDKH
+                                if (DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
+                                    switch (dto.getState()) {
+                                        // Kết thúc giao dịch
+                                        case 7:
+                                            message.setMessage("Bạn đã kết thúc giao dịch này");
+                                            message.setIsExist(true);
+                                            break;
+                                        // Cần bổ sung
+                                        case 6:
+                                            if (item.getIsFinished()) {
+                                                message.setMessage("Hồ sơ phải được bàn giao tại rổ chung của Giao dịch khách hàng");
+                                                message.setIsExist(true);
+                                            } else {
+                                                message.setIsExist(false);
+                                            }
+                                            break;
+
+                                        // Đang xử lý
+                                        case 5:
+                                            // nhận bàn giao từ QTTD tới máy chung - admin
+                                            if (item.getUsername().contains("admin")) {
+                                                // nếu quét nhầm finish
+                                                if (item.getIsFinished()) {
+                                                    message.setMessage(
+                                                            "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
+                                                    message.setIsExist(true);
+                                                } else {
+                                                    message.setIsExist(false);
+                                                }
+                                            } else {
+                                                // cán bộ GDKH quét QR nhầm
+                                                // khi chưa bàn giao hồ sơ tại giao dịch khách hàng thì thời gian = null
+                                                // do đó check thêm thời gian để biết bàn giao chưa
+                                                if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
+                                                    message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                                                    message.setIsExist(true);
+                                                } else {
+                                                    message.setIsExist(false);
+                                                }
+                                              
+                                            }
+                                            break;
+                                        // Chờ xử lý
+                                        case 4:
+                                            if (item.getIsFinished()) {
+                                                message.setMessage("Hồ sơ này đã đang chờ xử lý");
+                                                message.setIsExist(true);
+                                            } else {
+                                                if (dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                                                    message.setMessage("Hồ sơ này đã được nhận 1 lần");
+                                                    message.setIsExist(true);
+                                                } else {
+                                                    message.setIsExist(false);
+
+                                                }
+                                            }
+                                            break;
+                                        default:
+                                            message.setIsExist(false);
+                                            break;
+                                    }
+                                }
+
+                            } else {
+                                message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                                message.setIsExist(true);
+                            }
+
+                            break;
+
                         case "GDKH":
                             if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
                                 // check delivery to GDKH
                                 // state of profile: not_yet, tranfer
-                                Integer[] intArray = new Integer[]{6};
+                                Integer[] intArray = new Integer[] { 6 };
                                 // trường hợp trả hồ sơ thì bàn giao lại từ đầu tại qttd do đó cần check lại
                                 // trạng thái
                                 // nếu = 6 thì phải bàn giao tại qttd trước
@@ -1378,8 +1452,6 @@ public class ProfileServiceImpl implements ProfileService {
                                                 message.setIsExist(false);
                                             }
                                         }
-
-                                     
 
                                     }
                                     // hồ sơ đã nhận tại GDKH và cán bộ GDKH tiếp nhận
@@ -1491,7 +1563,7 @@ public class ProfileServiceImpl implements ProfileService {
                                     message.setIsExist(false);
                                     break;
                             }
-                           
+
                         }
                         // hồ sơ chưa bàn giao cho cán bộ QTTD
                         else {
@@ -1550,7 +1622,6 @@ public class ProfileServiceImpl implements ProfileService {
                                     break;
                             }
 
-                            
                         } else {
                             // kiểm tra cán bộ GDKH đã quét chưa
                             if (!DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
@@ -1608,8 +1679,8 @@ public class ProfileServiceImpl implements ProfileService {
                     throw new ResourceNotFoundException("Deparment " + item.getCode() + " not found");
                 }
                 // state of profile: not_yet, tranfer
-                Integer[] intArray = new Integer[]{0, 1};
-                Integer[] intArray2 = new Integer[]{6};
+                Integer[] intArray = new Integer[] { 0, 1 };
+                Integer[] intArray2 = new Integer[] { 6 };
                 if (transactionType.getType().equals(1)) {
 
                     switch (item.getCode()) {
@@ -2035,7 +2106,7 @@ public class ProfileServiceImpl implements ProfileService {
      * - là hồ sơ chờ không phân biệt trước sau nhưng phải tuần tự
      */
     private void updateProfileList(List<ProfileDTO> listData, ProfileDTO profile, UserDTO user,
-                                   ProfileHistoryDTO profileHistory, Long departmentId, String code, TransactionTypeDTO transactionType) {
+            ProfileHistoryDTO profileHistory, Long departmentId, String code, TransactionTypeDTO transactionType) {
         try {
             LocalDateTime timeMarkerValue = calculatingTime.convertTimeMarker(timeConfig);
             if (listData.size() >= 1) {
@@ -2359,17 +2430,16 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
-
     @Override
     public List<DashboardDTO> profileExpected() {
         // TODO Auto-generated method stub
         try {
             // luong 1
-            List<Integer> type1 = Arrays.asList(new Integer[]{0, 1, 2, 3, 8, 9});
+            List<Integer> type1 = Arrays.asList(new Integer[] { 0, 1, 2, 3, 8, 9 });
             // luong 2
-            List<Integer> type2 = Arrays.asList(new Integer[]{0, 1, 3, 8, 9});
+            List<Integer> type2 = Arrays.asList(new Integer[] { 0, 1, 3, 8, 9 });
             // luong 3
-            List<Integer> type3 = Arrays.asList(new Integer[]{
+            List<Integer> type3 = Arrays.asList(new Integer[] {
                     0, 1, 3, 8, 9
             });
 
@@ -2398,7 +2468,8 @@ public class ProfileServiceImpl implements ProfileService {
      * hàm dùng cho các card còn lại: gọi theo trạng thái, mã vai trò, luồng
      */
     @Override
-    public List<ProfileDTO> countProfileInDayByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters) {
+    public List<ProfileDTO> countProfileInDayByListState(List<Integer> state, String code,
+            List<Integer> transactionType, Map<String, Object> parameters) {
         // TODO Auto-generated method stub
         try {
             List<ProfileDTO> listData = new ArrayList<>();
@@ -2440,17 +2511,19 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
-
     @Override
-    public List<ProfileDTO> countProfileByListState(List<Integer> state, String code, List<Integer> transactionType, Map<String, Object> parameters) {
+    public List<ProfileDTO> countProfileByListState(List<Integer> state, String code, List<Integer> transactionType,
+            Map<String, Object> parameters) {
         // TODO Auto-generated method stub
         try {
             List<ProfileDTO> listData = new ArrayList<>();
-//            List<Profile> profiles = repository.countProfileByListState(state, transactionType, code, parameters);
+            // List<Profile> profiles = repository.countProfileByListState(state,
+            // transactionType, code, parameters);
             listData = repository.countProfileByListState(state, transactionType, code, parameters);
-//            if(DataUtils.notNullOrEmpty(profiles)) {
-//                listData = mapper.toDtoBean(repository.countProfileByListState(state, transactionType, code, parameters));
-//            }
+            // if(DataUtils.notNullOrEmpty(profiles)) {
+            // listData = mapper.toDtoBean(repository.countProfileByListState(state,
+            // transactionType, code, parameters));
+            // }
             return listData;
         } catch (Exception e) {
             // TODO: handle exception
@@ -2458,6 +2531,5 @@ public class ProfileServiceImpl implements ProfileService {
             return null;
         }
     }
-
 
 }

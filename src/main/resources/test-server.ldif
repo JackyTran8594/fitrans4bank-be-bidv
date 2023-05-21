@@ -357,7 +357,7 @@ objectclass: inetOrgPerson
 cn: quannh3
 sn: quannh3
 uid: quannh3
-userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+userPassword:  123456a@
 mailNickName: quannh3
 distinguishedName: quannh3
 
@@ -372,6 +372,18 @@ uid: nhungdth2
 userPassword:  123456a@
 mailNickName: nhungdth2
 distinguishedName: nhungdth2
+
+dn: uid=ld_qttd,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: ld_qttd
+sn: ld_qttd
+uid: ld_qttd
+userPassword:  123456a@
+mailNickName: ld_qttd
+distinguishedName: ld_qttd
 
 dn: uid=hangdtt1,ou=people,dc=springframework,dc=org
 objectclass: top
@@ -593,4 +605,28 @@ userPassword:  123456a@
 mailNickName: huongltt5
 distinguishedName: huongltt5
 
+
+dn: uid=vantt88,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: vantt88
+sn: vantt88
+uid: vantt88
+userPassword:  123456a@
+mailNickName: vantt88
+distinguishedName: vantt88
+
+dn: uid=trangnt12,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: trangnt12
+sn: trangnt12
+uid: trangnt12
+userPassword:  123456a@
+mailNickName: trangnt12
+distinguishedName: trangnt12
 

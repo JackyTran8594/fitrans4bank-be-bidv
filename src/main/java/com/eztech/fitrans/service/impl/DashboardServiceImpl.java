@@ -50,4 +50,13 @@ public class DashboardServiceImpl implements DashboardService {
         return mapper.toDtoBean(listData);
     }
 
+    @Override
+    public List<ProfileListDashBoardDTO> profileInDayByListStateCusMan(List<Integer> state, String code,
+            List<Integer> transactionType,  Integer departmentId, Map<String, Object> parameters) {
+        // TODO Auto-generated method stub
+        List<ProfileListDashBoard> listData = new ArrayList<>();
+        listData = repository.profileInDayByListStateCusMan(state, transactionType, code, departmentId, parameters);
+        return mapper.toDtoBean(listData);
+    }
+
 }

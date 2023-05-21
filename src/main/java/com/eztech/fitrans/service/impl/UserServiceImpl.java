@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
             dto.setPhoneNumber(entity.getPhoneNumber());
             dto.setLastUpdatedDate(LocalDateTime.now());
             dto.setRoleId(entity.getRoleId());
-
+            dto.setUsername(entity.getUsername());
             oldEntity = mapper.toPersistenceBean(dto);
 
             if (DataUtils.isNullOrEmpty(oldEntity.getPassword())) {

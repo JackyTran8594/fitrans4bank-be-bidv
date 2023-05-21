@@ -68,7 +68,7 @@ public class UsersController extends BaseController implements UserApi {
 
   @Override
   @PutMapping("/{id}")
-  // @PreAuthorize("hasRole('ROLE_ADMIN')")
+  // @PreAuthorize("hasRole('ROLE_ADMIN')")q
   public UserDTO update(@PathVariable(value = "id") Long id, @RequestBody UserDTO item) {
     item.setId(id);
     return userService.save(item);

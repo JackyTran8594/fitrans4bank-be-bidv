@@ -22,6 +22,7 @@ public class DashboardDTO implements Serializable {
     public ProfileWithStateDTO profileReturn;
     public ProfileWithStateDTO profileFinished;
     public ProfileWithStateDTO profileReceived;
+
     public TotalProfileDTO profileExpect; // => hồ sơ dự kiến xử lý
     public TotalProfileDTO totalProfile;
     public List<ProfileListDashBoardDTO> profileListCMExist;
@@ -29,7 +30,14 @@ public class DashboardDTO implements Serializable {
     public List<ProfileListDashBoardDTO> profileListCTExist;
     public List<ProfileListDashBoardDTO> profileListCTProcessing;
 
-    public DashboardDTO () {
+    // QLKH
+    public ProfileWithStateDTO profileCreated;
+    public ProfileWithStateDTO profileWaiting;
+    // hồ sơ chưa bàn giao
+    public ProfileWithStateDTO profileNotReceived;
+    public List<ProfileListDashBoardDTO> profileListCusManInDay;
+
+    public DashboardDTO() {
         this.title = "";
         this.value = 0;
         this.profileProcessing = new ProfileWithStateDTO();
@@ -43,7 +51,10 @@ public class DashboardDTO implements Serializable {
         this.profileListCMProcessing = new ArrayList<>();
         this.profileListCTExist = new ArrayList<>();
         this.profileListCTProcessing = new ArrayList<>();
+        this.profileCreated = new ProfileWithStateDTO();
+        this.profileWaiting = new ProfileWithStateDTO();
+        this.profileNotReceived = new ProfileWithStateDTO();
+        this.profileListCusManInDay = new ArrayList<>();
     }
-    
-}
 
+}

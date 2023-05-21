@@ -14,6 +14,8 @@ import lombok.Setter;
 public class ChatMessage {
     private String name;
     private String code;
+    private Integer departmentId;
+    private String position;
     private List<Integer> state;
     private Integer panelType;
 }
