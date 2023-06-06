@@ -148,14 +148,12 @@ public class ProfileController extends BaseController implements ProfileApi {
 
     @Override
     @PostMapping("")
-    // @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ProfileDTO create(@RequestBody ConfirmRequest item) {
         return service.saveHistory(item);
     }
 
     @Override
     @PutMapping("/{id}")
-    // @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ProfileDTO update(@PathVariable(value = "id") Long id, @RequestBody ProfileDTO item) {
         item.setId(id);
         return service.save(item);
@@ -169,7 +167,6 @@ public class ProfileController extends BaseController implements ProfileApi {
     }
 
     @PostMapping("/deleteList")
-    // @PreAuthorize("hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')")
     public Boolean deleteList(@RequestBody List<Long> ids) {
         Boolean delete = service.deleteList(ids);
         return delete;
@@ -312,11 +309,6 @@ public class ProfileController extends BaseController implements ProfileApi {
         return service.countProfileInDayByState(state);
     }
 
-    // @GetMapping("/profileExpecteWithListState")
-    // public Map<String, Object> countProfileExpectetWithListState(@RequestParam
-    // Integer transactionType) {
-    // }
-    // return service.profileExpected();
 
     @GetMapping("/profileExpected")
     public List<DashboardDTO> countProfileExpected() {

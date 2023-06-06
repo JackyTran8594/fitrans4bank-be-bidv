@@ -1,39 +1,36 @@
-package com.eztech.fitrans.dto.response;
+package com.eztech.fitrans.dto.response.report;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import com.eztech.fitrans.config.formatdate.LocalDateTimeDeserializer;
 import com.eztech.fitrans.config.formatdate.LocalDateTimeSerializer;
-import com.eztech.fitrans.constants.ProfilePriorityEnum;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.constants.ProfileTypeEnum;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.math.BigDecimal;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-// @JsonInclude(JsonInclude.Include.NON_NULL)
+@Getter
+@Setter
+// @AllArgsConstructor
 @NoArgsConstructor
-@AllArgsConstructor
-public class ProfileDTO implements Serializable {
+public class ReportProfileDTO {
 
     public Long id;
-    public Long customerid;
+    public Long customerId;
     public String customerName;
     public String cif;
+
     public Integer type; // Loai giao dich
     public String typeEnum; // Mức độ
-    // public Integer priority; // Mức độ
-    // public ProfilePriorityEnum priorityValue; // Mức độ
-    public Integer transactionType;
-    // private String companyName;
 
+    public Integer transactionType;
     // Tinh trang ho so
     public Integer state;
     public String stateEnum;
@@ -44,6 +41,10 @@ public class ProfileDTO implements Serializable {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime processDate; // Ngày phát sinh
+
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    public LocalDateTime processDateCT; // Ngày phát sinh
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -59,15 +60,23 @@ public class ProfileDTO implements Serializable {
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime realTimeReceivedCM; // Ngày thực tế nhận tại QTTD
+    public LocalDateTime endTimeCM; // Ngày kết thúc giao dịch QTTD
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime realTimeReceivedCT; // Ngày thực tế nhận tại GDKH
+    public LocalDateTime endTimeCT; // Ngày kết thúc giao dịch GDKH
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime timeReceivedHistory; // Ngày nhận tại bảng history, dùng để lưu lịch sử các lần quét
+    public LocalDateTime realTimeReceivedCM; // Ngày thực tế nhận tại QTTD
+
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    public LocalDateTime realTimeReceivedCT; // Ngày thực tế nhận tại GDKH
+
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    public LocalDateTime timeReceivedHistory; // Ngày nhận tại bảng history, dùng để lưu lịch sử các lần quét
 
     public Integer numberOfBill; // Số lượng hóa đơn
 
@@ -76,143 +85,155 @@ public class ProfileDTO implements Serializable {
     public Long staffId_CM; // Cán bộ phòng QTTD
 
     public Long staffId_CT; // Cán bộ phòng GDKH
+
     public String returnReason; // Cán bộ phòng GDKH
+
     public String categoryProfile;
+
     public BigDecimal value; // Giá trị
 
     public String transactionDetail; // Chi tiết giao dịch
+
+    public Integer review;
+
+    public String reviewNote;
+
+    public String note;
+
+    public String pendingNote;
+
+    public Boolean notifyByEmail;
+
+    public String othersProfile;
+
+    public String currency;
+
+    public Integer additionalTimeMax;
+
+    public String staffNameCM;
+
+    public String staffNameCT;
+
+    public String staffNameLast;
+
+    public String description;
+
+    public Integer customerType;
+
+    public Integer no;
+
     public String createdBy;
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime createdDate;
     public String lastUpdatedBy;
+
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime lastUpdatedDate;
     public String status;
-    public Integer review;
-    public String reviewNote;
-    public String note;
-    public String pendingNote;
-    public Boolean notifyByEmail;
 
-    public Integer standardTimeCM;
-    public Integer standardTimeCT;
-    public Integer standardTimeChecker;
-    public Integer additionalTime;
-    public String othersProfile;
-    public String currency;
-    public Integer additionalTimeMax;
-
-    public String username;
-
-    public String staffNameCM;
-    public String staffNameCT;
-    public String staffNameLast;
-    public String description;
-    public Integer customerType;
-
-    public ProfileDTO(
+    public ReportProfileDTO(
             Long id,
-            Long customerid,
-            Long staffId,
+            Long customerId,
+            String customerName,
+            String cif,
             Integer type,
+            String typeEnum,
+            Integer transactionType,
+            Integer state,
+            String stateEnum,
+            Long staffId,
+            String staffName,
             LocalDateTime processDate,
+            LocalDateTime timeReceived_CM,
+            LocalDateTime timeReceived_CT,
+            LocalDateTime endTime,
+            LocalDateTime realTimeReceivedCM,
+            LocalDateTime realTimeReceivedCT,
+            LocalDateTime timeReceivedHistory,
+            Integer numberOfBill,
+            Integer numberOfPO,
+            Long staffId_CM,
+            Long staffId_CT,
+            String returnReason,
+            String categoryProfile,
+            BigDecimal value,
+            String transactionDetail,
+            Integer review,
+            String reviewNote,
+            String note,
+            String pendingNote,
+            Boolean notifyByEmail,
+            String othersProfile,
+            String currency,
+            Integer additionalTimeMax,
+            String staffNameCM,
+            String staffNameCT,
+            String staffNameLast,
+            String description,
+            Integer customerType,
+            Integer no,
             String createdBy,
             LocalDateTime createdDate,
             String lastUpdatedBy,
             LocalDateTime lastUpdatedDate,
-            String status,
-            Integer state,
-            Integer review,
-            Boolean notifyByEmail,
-            Long staffId_CM,
-            Long staffId_CT,
-            Integer numberOfBill,
-            Integer numberOfPO,
-            BigDecimal value,
-            LocalDateTime timeReceived_CM,
-            LocalDateTime timeReceived_CT,
-            LocalDateTime endTime,
-            String returnReason,
-            String categoryProfile,
-            String cif,
-            String reviewNote,
-            String note,
-            Integer additionalTime,
-            String othersProfile,
-            String currency,
-            String description,
-            LocalDateTime realTimeReceivedCM,
-            LocalDateTime realTimeReceivedCT,
-            String pendingNote,
-            String staffNameLast,
-            String customerName,
-            String staffName,
-            String staffNameCM,
-            String staffNameCT,
-            Integer transactionType,
-            String transactionDetail,
-            Integer additionalTimeMax,
-            Integer customerType,
-            LocalDateTime timeReceivedHistory) {
+            LocalDateTime endTimeCM,
+            LocalDateTime endTimeCT,
+            LocalDateTime processDateCT,
+            String status) {
         this.id = id;
-        this.customerid = customerid;
-        this.cif = cif;
+        this.customerId = customerId;
         this.customerName = customerName;
+        this.cif = cif;
         this.type = type;
-        if (type != null) {
-            this.typeEnum = "";
+        if (this.type != null) {
+            this.typeEnum = ProfileTypeEnum.of(this.type).getName();
         }
-
+        this.transactionType = transactionType;
         this.state = state;
-        if (state != null) {
-            this.stateEnum = ProfileStateEnum.of(state).getName();
+        if (this.state != null) {
+            this.stateEnum = ProfileStateEnum.of(this.state).getName();
         }
-
         this.staffId = staffId;
         this.staffName = staffName;
         this.processDate = processDate;
-        this.createdBy = createdBy;
-        this.createdDate = createdDate;
-        this.lastUpdatedBy = lastUpdatedBy;
-        this.lastUpdatedDate = lastUpdatedDate;
-        this.status = status;
-        this.review = review;
-        this.notifyByEmail = notifyByEmail;
         this.timeReceived_CM = timeReceived_CM;
         this.timeReceived_CT = timeReceived_CT;
         this.endTime = endTime;
+        this.realTimeReceivedCM = realTimeReceivedCM;
+        this.realTimeReceivedCT = realTimeReceivedCT;
+        this.timeReceivedHistory = timeReceivedHistory;
         this.numberOfBill = numberOfBill;
         this.numberOfPO = numberOfPO;
         this.staffId_CM = staffId_CM;
         this.staffId_CT = staffId_CT;
         this.returnReason = returnReason;
-        this.value = value;
         this.categoryProfile = categoryProfile;
+        this.value = value;
+        this.transactionDetail = transactionDetail;
+        this.review = review;
         this.reviewNote = reviewNote;
         this.note = note;
-        this.additionalTime = additionalTime;
+        this.pendingNote = pendingNote;
+        this.notifyByEmail = notifyByEmail;
         this.othersProfile = othersProfile;
         this.currency = currency;
-        this.description = description;
+        this.additionalTimeMax = additionalTimeMax;
         this.staffNameCM = staffNameCM;
         this.staffNameCT = staffNameCT;
-        this.transactionType = transactionType;
         this.staffNameLast = staffNameLast;
-        this.transactionDetail = transactionDetail;
-        this.additionalTimeMax = additionalTimeMax;
+        this.description = description;
         this.customerType = customerType;
-        this.realTimeReceivedCT = realTimeReceivedCT;
-        this.realTimeReceivedCM = realTimeReceivedCM;
-        this.pendingNote = pendingNote;
-        this.timeReceivedHistory = timeReceivedHistory;
+        this.createdBy = createdBy;
+        this.createdDate = createdDate;
+        this.lastUpdatedBy = lastUpdatedBy;
+        this.lastUpdatedDate = lastUpdatedDate;
+        this.status = status;
+        this.no = no;
+        this.processDateCT = processDateCT;
+        this.endTimeCM = endTimeCM;
+        this.endTimeCT = endTimeCT;
     }
 
-    public void fillTransient() {
-        if (state != null) {
-            this.stateEnum = ProfileStateEnum.of(state).getName();
-        }
-        ;
-    }
 }

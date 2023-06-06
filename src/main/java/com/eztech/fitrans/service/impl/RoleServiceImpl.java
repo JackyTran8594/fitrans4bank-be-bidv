@@ -3,7 +3,6 @@ package com.eztech.fitrans.service.impl;
 import com.eztech.fitrans.dto.response.*;
 import com.eztech.fitrans.exception.BusinessException;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
-import com.eztech.fitrans.locale.Translator;
 import com.eztech.fitrans.model.Role;
 import com.eztech.fitrans.model.RoleList;
 import com.eztech.fitrans.model.RoleMap;

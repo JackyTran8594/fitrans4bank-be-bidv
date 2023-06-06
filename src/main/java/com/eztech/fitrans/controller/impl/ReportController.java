@@ -13,15 +13,18 @@ import com.eztech.fitrans.dto.response.ProfileListDTO;
 import com.eztech.fitrans.dto.response.TransactionTypeDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.dto.response.dashboard.DashboardDTO;
+import com.eztech.fitrans.dto.response.report.ReportProfileDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.service.DepartmentService;
 import com.eztech.fitrans.service.ProfileHistoryService;
 import com.eztech.fitrans.service.ProfileListService;
 import com.eztech.fitrans.service.ProfileService;
+import com.eztech.fitrans.service.ReportService;
 import com.eztech.fitrans.service.TransactionTypeService;
 import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.DataUtils;
+import com.eztech.fitrans.util.ExcelFileWriter;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
 
 import java.io.ByteArrayInputStream;
@@ -37,7 +40,7 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.Timestamp;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -45,10 +48,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.xwpf.usermodel.BodyElementType;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
@@ -88,26 +93,12 @@ public class ReportController extends BaseController implements ReportApi {
     private ProfileService service;
 
     @Autowired
-    private UserService userService;
+    private ReportService reportService;
 
-    @Autowired
-    private ProfileHistoryService historyService;
-
-    @Autowired
-    private DepartmentService departmentService;
-
-    @Autowired
-    private ProfileListService profileListService;
-
-    @Autowired
-    private TransactionTypeService transactionTypeService;
-
-    @Autowired
-    private ReadAndWriteDoc readandwrite;
 
     @Override
     @GetMapping("")
-    public Page<ProfileDTO> getList(
+    public Page<ReportProfileDTO> getList(
             @RequestParam Map<String, Object> mapParam,
             @RequestParam int pageNumber,
             @RequestParam int pageSize) {
@@ -117,62 +108,44 @@ public class ReportController extends BaseController implements ReportApi {
         mapParam.put("pageNumber", pageNumber);
         mapParam.put("pageSize", pageSize);
         Pageable pageable = pageRequest(new ArrayList<>(), pageSize, pageNumber);
-        List<ProfileDTO> listData = service.search(mapParam);
-        Long total = 0L;
-        if (!mapParam.containsKey("dashboard")) {
-            total = service.count(mapParam);
-        }
+        List<ReportProfileDTO> listData = reportService.search(mapParam);
+        Long total = service.count(mapParam);
         return new PageImpl<>(listData, pageable, total);
     }
-
-    
 
   
 
 
-    @PostMapping("/exportExcel")
-    public ResponseEntity<InputStreamResource> exportDoc(@RequestParam Map<String, Object> mapParam,
-                                                         @RequestBody ProfileDTO item) throws FileNotFoundException, IOException {
+    @GetMapping("/exportExcel")
+    public ResponseEntity<InputStreamResource> exportDoc(@RequestParam Map<String, Object> mapParam) throws FileNotFoundException, IOException {
 
-        String username = mapParam.get("username").toString();
-        Map<String, ProfileListDTO> mapParams = new HashMap<>();
-        if (!DataUtils.isNullOrEmpty(item.getCategoryProfile())) {
-            String[] categoryId = item.categoryProfile.split(",");
-            for (String str : categoryId) {
-                ProfileListDTO profileListDTO = profileListService.findById(Long.parseLong(str));
-                // listData.add(profileListDTO);
-                if (profileListDTO != null) {
-                    mapParams.put(profileListDTO.id.toString(), profileListDTO);
-                }
-            }
-        }
-        if (!DataUtils.isNullOrEmpty(item.getOthersProfile())) {
-            String id = Integer.valueOf(mapParams.size() + 1).toString();
-            ProfileListDTO dto = new ProfileListDTO();
-            dto.setType(item.getOthersProfile());
-            mapParams.put(id, dto);
-        }
+        List<ReportProfileDTO> data = reportService.exportExcel(mapParam);
 
-        TransactionTypeDTO typeEnum = transactionTypeService.findById(item.getType().longValue());
-        if (DataUtils.isNullOrEmpty(typeEnum)) {
-            throw new ResourceNotFoundException("transactionType " + typeEnum.getId() + " not found");
-        }
-        item.setTypeEnum(typeEnum.getTransactionDetail() + " - Luồng " + typeEnum.getType());
-        System.out.println(item.toString());
-        System.out.println(username.toString());
-        System.out.println(mapParams.toString());
+        String[] headers = new String[] { "STT", "CIF", "Tên khách hàng", "Giá trị",
+                "Tình trạng hồ sơ", "Cán bộ QLKH tạo", "TG QLKH tạo hồ sơ",
+                "TG QTTD nhận thực tế", "TG bắt đầu tính giờ cho QTTD",
+                "TG QTTD xử lý muộn nhất", "TG QTTD hoàn thành thực tế",
+                "Cán bộ QTTD xử lý", "TG GDKH nhận thực tế ", "TG bắt đầu tính giờ cho GDKH", "TG GDKH xử lý muộn nhất",
+                "TG GDKH hoàn thành thực tế", "Cán bộ GDKH xử lý " };
 
-        File file = readandwrite.ExportDocFile(item, username, mapParams);
-
+        String[] listField = new String[] { "no", "cif", "customerName", "value",
+        "stateEnum", "staffName", "createdDate",
+        "realTimeReceivedCM", "timeReceived_CM",
+        "processDate", "endTimeCM",
+        "staffNameCM", "realTimeReceivedCT", "timeReceived_CT", "processDateCT",
+        "endTimeCT", "staffNameCT" };
+        
+        byte[] bytes = ExcelFileWriter.writeToExcelFile(Arrays.asList(headers), Arrays.asList(listField), data, Optional.of("Báo cáo danh sách hồ sơ"), mapParam);
+        
         HttpHeaders respHeaders = new HttpHeaders();
         // respHeaders.setContentType(new MediaType("text", "json"));
         respHeaders.setCacheControl("must-revalidate, post-check=0, pre-check=0");
-        respHeaders.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
-        InputStreamResource inputStreamResource = new InputStreamResource(new FileInputStream(file));
+        respHeaders.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "Báo cáo_" + Timestamp.valueOf(LocalDateTime.now()).getTime() + ".xlsx");
+        InputStreamResource inputStreamResource = new InputStreamResource(new ByteArrayInputStream(bytes));
         return ResponseEntity.ok()
                 .headers(respHeaders)
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .contentLength(file.length())
+                .contentLength(bytes.length)
                 .body(inputStreamResource);
 
     }

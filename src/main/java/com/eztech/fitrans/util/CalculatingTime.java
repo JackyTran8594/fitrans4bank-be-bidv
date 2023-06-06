@@ -20,6 +20,25 @@ public class CalculatingTime {
 
     }
 
+    public LocalDateTime convertTimeMarkerWithTimeReceived(Double timeMarker, LocalDateTime timeReceived) {
+        double result = (double) timeMarker % 1;
+        int hour = 0;
+        int minutes = 0;
+        int year = timeReceived.getYear();
+        Month month = timeReceived.getMonth();
+        int day = timeReceived.getDayOfMonth();
+        if (result != 0) {
+            hour = (int) timeMarker.doubleValue();
+            minutes = Math.round((int) (result * 60));
+
+        } else {
+            hour = (int) timeMarker.doubleValue();
+        }
+        timeReceived = LocalDateTime.of(year, month, day, hour, minutes);
+        return timeReceived;
+
+    }
+
     public LocalDateTime convertTimeMarker(Double timeMarker) {
         if (timeMarker == null) {
             return LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth(),

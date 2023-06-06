@@ -307,7 +307,7 @@ objectclass: inetOrgPerson
 cn: admin_qtht2
 sn: admin_qtht2
 uid: admin_qtht2
-userPassword:  $2a$10$m2S.Cvn2xKFAOVwlevqTSurIYY7EvdidVkrXT8lwFqm56cEKYlK5G
+userPassword:  123456a@
 mailNickName: admin_qtht2bidv
 distinguishedName: admin_qtht2bidv
 
