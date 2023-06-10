@@ -239,7 +239,7 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
                 if (paramSearch.containsKey("state")) {
                     if (!DataUtils.isNullOrEmpty(paramSearch.get("state").toString())) {
                         Integer state = DataUtils.parseToInt(paramSearch.get("state"));
-                        if (state > 0) {
+                        if (state >= 0) {
                             sb.append(" AND p.state = :state ");
                             parameters.put("state", state);
                         }
