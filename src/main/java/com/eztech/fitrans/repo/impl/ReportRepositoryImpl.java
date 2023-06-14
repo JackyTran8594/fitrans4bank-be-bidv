@@ -157,7 +157,8 @@ public class ReportRepositoryImpl extends BaseCustomRepository<ReportProfileView
                     .append("left join user_entity ucm on p.staff_id_cm = ucm.id  \n")
                     .append("left join user_entity uct on p.staff_id_ct = uct.id  \n")
                     .append("join transaction_type trans on trans.id = p.type \n")
-                    .append("WHERE 1=1 ");
+                    .append("WHERE 1=1 \n")
+                    .append("AND his.time_received = (select MAX(his.time_received) from profile_history his where his.profile_id = p.id) \n");
         } else {
             sb.append(sql_select)
                     .append(
@@ -181,7 +182,7 @@ public class ReportRepositoryImpl extends BaseCustomRepository<ReportProfileView
 
         // check xem có phải admin ko, nếu admin thì xem tất
         if (!DataUtils.isNullOrEmpty(username) && !username.contains("admin") && !username.contains("qtht")) {
-            
+
             if (paramSearch.containsKey("code")) {
                 // nếu là QLKH thì phòng nào xem phòng nấy
                 if (!DataUtils.isNullOrEmpty(paramSearch.get("code"))
@@ -274,6 +275,17 @@ public class ReportRepositoryImpl extends BaseCustomRepository<ReportProfileView
 
         }
 
+        if (paramSearch.containsKey("transactionType")) {
+            if (!DataUtils.isNullOrEmpty(paramSearch.get("transactionType").toString())) {
+                Integer transactionType = DataUtils.parseToInt(paramSearch.get("transactionType"));
+                if (transactionType >= 0) {
+                    sb.append(" AND trans.type = :transactionType ");
+                    parameters.put("transactionType", transactionType);
+                }
+            }
+
+        }
+
         if (paramSearch.containsKey("defaultState")) {
             if (paramSearch.get("defaultState").equals("true")) {
                 sb.append(" AND p.state IN (4,5) ");
@@ -282,7 +294,8 @@ public class ReportRepositoryImpl extends BaseCustomRepository<ReportProfileView
                 if (paramSearch.containsKey("state")) {
                     if (!DataUtils.isNullOrEmpty(paramSearch.get("state").toString())) {
                         Integer state = DataUtils.parseToInt(paramSearch.get("state"));
-                        if (state > 0) {
+                        // kiểm tra xem có underfined ko
+                        if (state >= 0) {
                             sb.append(" AND p.state = :state ");
                             parameters.put("state", state);
                         }
@@ -323,7 +336,9 @@ public class ReportRepositoryImpl extends BaseCustomRepository<ReportProfileView
     @Override
     public Long count(Map searchDTO) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'count'");
+        Map<String, Object> parameters = new HashMap<>();
+        String sql = buildQuery(searchDTO, parameters, true);
+        return getCountResult(sql, parameters);
     }
 
     @Override

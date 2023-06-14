@@ -3,37 +3,16 @@ package com.eztech.fitrans.service.impl;
 import com.eztech.fitrans.constants.Constants;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.constants.ProfileTypeEnum;
-import com.eztech.fitrans.dto.request.ConfirmRequest;
-import com.eztech.fitrans.dto.response.DepartmentDTO;
-import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.OptionSetValueDTO;
-import com.eztech.fitrans.dto.response.ProfileDTO;
-import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
-import com.eztech.fitrans.dto.response.TransactionTypeDTO;
-import com.eztech.fitrans.dto.response.UserDTO;
-import com.eztech.fitrans.dto.response.dashboard.DashboardDTO;
-import com.eztech.fitrans.dto.response.dashboard.ProfileListDashBoardDTO;
 import com.eztech.fitrans.dto.response.report.ReportProfileDTO;
-import com.eztech.fitrans.event.ScheduledTasks;
-import com.eztech.fitrans.exception.ResourceNotFoundException;
-import com.eztech.fitrans.model.Profile;
-import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.model.ReportProfileView;
-import com.eztech.fitrans.repo.ActionLogRepository;
 import com.eztech.fitrans.repo.ProfileRepository;
 import com.eztech.fitrans.repo.ReportRepository;
-import com.eztech.fitrans.service.DepartmentService;
 import com.eztech.fitrans.service.OptionSetService;
-import com.eztech.fitrans.service.ProfileHistoryService;
-import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.service.ReportService;
-import com.eztech.fitrans.service.TransactionTypeService;
-import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.BaseMapper;
 import com.eztech.fitrans.util.CalculatingTime;
 import com.eztech.fitrans.util.DataUtils;
-import com.eztech.fitrans.util.ExcelFileWriter;
-import com.eztech.fitrans.util.ReadAndWriteDoc;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,16 +23,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 @Service
 @Slf4j
@@ -68,8 +41,6 @@ public class ReportServiceImpl implements ReportService {
     @Value("${app.timeConfig}")
     private Double timeConfig;
 
-    @Autowired
-    private ProfileRepository repository;
 
     @Qualifier("ReportRepository")
     @Autowired
@@ -196,20 +167,20 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime processDate = null;
 
         // T0 => today - thời gian nhận nhỏ hơn T0 -> hoàn thành trước T2
-        if(timeReceived.isBefore(T0)) {
+        if (timeReceived.isBefore(T0)) {
             processDate = T2;
         }
         // [T0;T1] => today - thời gian nhận từ T0 - T1 -> hoàn thành trước T3
-        if(timeReceived.isBefore(T1) && timeReceived.isAfter(T0)) {
+        if (timeReceived.isBefore(T1) && timeReceived.isAfter(T0)) {
             processDate = T3;
         }
         // (T1;...] => next day
-        if(timeReceived.isAfter(T1)) {
+        if (timeReceived.isAfter(T1)) {
             // 1 (Sunday) to 7 (Saturday).
             // friday = 6
-            if(timeReceived.getDayOfWeek().equals(6)) {
+            if (timeReceived.getDayOfWeek().equals(6)) {
                 processDate = T2.plusDays(3);
-            } else if(timeReceived.getDayOfWeek().equals(7)) {
+            } else if (timeReceived.getDayOfWeek().equals(7)) {
                 processDate = T2.plusDays(2);
             } else {
                 processDate = T2.plusDays(1);
@@ -218,6 +189,12 @@ public class ReportServiceImpl implements ReportService {
         }
 
         return processDate;
+    }
+
+    @Override
+    public Long count(Map<String, Object> mapParam) {
+        // TODO Auto-generated method stub
+        return reportRepository.count(mapParam);
     }
 
 }

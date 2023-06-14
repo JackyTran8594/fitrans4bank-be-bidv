@@ -1,36 +1,12 @@
 package com.eztech.fitrans.controller.impl;
 
-import com.eztech.fitrans.constants.Constants;
-import com.eztech.fitrans.constants.ProfileStateEnum;
-import com.eztech.fitrans.controller.ProfileApi;
 import com.eztech.fitrans.controller.ReportApi;
-import com.eztech.fitrans.dto.request.ConfirmRequest;
-import com.eztech.fitrans.dto.response.DepartmentDTO;
-import com.eztech.fitrans.dto.response.MessageDTO;
-import com.eztech.fitrans.dto.response.ProfileDTO;
-import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
-import com.eztech.fitrans.dto.response.ProfileListDTO;
-import com.eztech.fitrans.dto.response.TransactionTypeDTO;
-import com.eztech.fitrans.dto.response.UserDTO;
-import com.eztech.fitrans.dto.response.dashboard.DashboardDTO;
 import com.eztech.fitrans.dto.response.report.ReportProfileDTO;
-import com.eztech.fitrans.exception.ResourceNotFoundException;
-import com.eztech.fitrans.model.ProfileHistory;
-import com.eztech.fitrans.service.DepartmentService;
-import com.eztech.fitrans.service.ProfileHistoryService;
-import com.eztech.fitrans.service.ProfileListService;
 import com.eztech.fitrans.service.ProfileService;
 import com.eztech.fitrans.service.ReportService;
-import com.eztech.fitrans.service.TransactionTypeService;
-import com.eztech.fitrans.service.UserService;
-import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.ExcelFileWriter;
-import com.eztech.fitrans.util.ReadAndWriteDoc;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -53,33 +29,17 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.xwpf.usermodel.BodyElementType;
-import org.apache.poi.xwpf.usermodel.IBodyElement;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -89,8 +49,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/report")
 public class ReportController extends BaseController implements ReportApi {
     private static Logger logger = LoggerFactory.getLogger(ReportController.class);
-    @Autowired
-    private ProfileService service;
 
     @Autowired
     private ReportService reportService;
@@ -109,7 +67,7 @@ public class ReportController extends BaseController implements ReportApi {
         mapParam.put("pageSize", pageSize);
         Pageable pageable = pageRequest(new ArrayList<>(), pageSize, pageNumber);
         List<ReportProfileDTO> listData = reportService.search(mapParam);
-        Long total = service.count(mapParam);
+        Long total = reportService.count(mapParam);
         return new PageImpl<>(listData, pageable, total);
     }
 

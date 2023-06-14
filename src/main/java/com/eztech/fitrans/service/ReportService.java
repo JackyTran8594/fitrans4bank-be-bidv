@@ -18,5 +18,6 @@ import java.util.Map;
 public interface ReportService {
 
     List<ReportProfileDTO> search(Map<String, Object> mapParam);
+    Long count(Map<String, Object> mapParam);
     List<ReportProfileDTO> exportExcel(Map<String, Object> mapParam);
 }
