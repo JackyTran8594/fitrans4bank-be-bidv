@@ -1,7 +1,6 @@
 package com.eztech.fitrans.service.impl;
 
 import com.eztech.fitrans.constants.Constants;
-import com.eztech.fitrans.dto.response.OptionSetDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.UserEntity;
