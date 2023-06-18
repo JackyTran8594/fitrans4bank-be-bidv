@@ -1,7 +1,5 @@
 package com.eztech.fitrans.service;
 
-import com.eztech.fitrans.constants.PositionTypeEnum;
-import com.eztech.fitrans.model.Department;
 import com.eztech.fitrans.model.Role;
 import com.eztech.fitrans.model.UserEntity;
 import com.eztech.fitrans.repo.DepartmentRepository;
@@ -25,7 +23,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j

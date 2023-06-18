@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -68,7 +67,6 @@ public class UsersController extends BaseController implements UserApi {
 
   @Override
   @PutMapping("/{id}")
-  // @PreAuthorize("hasRole('ROLE_ADMIN')")q
   public UserDTO update(@PathVariable(value = "id") Long id, @RequestBody UserDTO item) {
     item.setId(id);
     return userService.save(item);
@@ -89,7 +87,6 @@ public class UsersController extends BaseController implements UserApi {
   }
 
   @PostMapping("/deleteList")
-  // @PreAuthorize("hasRole('ROLE_ADMIN')")
   public Boolean deleteList(@RequestBody List<UserDTO> listData) {
       // TODO Auto-generated method stub
       for (var item : listData) {
