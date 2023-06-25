@@ -1,7 +1,6 @@
 package com.eztech.fitrans.repo.impl;
 
 import com.eztech.fitrans.constants.Constants;
-import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.model.UserEntity;
 import com.eztech.fitrans.repo.UserRepositoryCustom;
 import com.eztech.fitrans.util.DataUtils;
@@ -81,6 +80,7 @@ public class UserRepositoryCustomImpl extends BaseCustomRepository<UserEntity> i
 
         if (paramNotNullOrEmpty(paramSearch, "txtSearch")) {
             sb.append(" AND (UPPER(os.username) LIKE :txtSearch OR UPPER(os.email) LIKE :txtSearch OR UPPER(os.full_name) LIKE :txtSearch) ");
+            sb.append(" OR (UPPER(r.name) LIKE :txtSearch OR UPPER(d.name) LIKE :txtSearch OR UPPER(os.position) LIKE :txtSearch) ");
             parameters.put("txtSearch", formatLike((String) paramSearch.get("txtSearch")).toUpperCase());
         }
 
