@@ -1,19 +1,15 @@
 package com.eztech.fitrans.controller.impl;
 
 import com.eztech.fitrans.constants.Constants;
-import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.controller.ProfileApi;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
-import com.eztech.fitrans.dto.response.DepartmentDTO;
 import com.eztech.fitrans.dto.response.MessageDTO;
 import com.eztech.fitrans.dto.response.ProfileDTO;
 import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.dto.response.ProfileListDTO;
 import com.eztech.fitrans.dto.response.TransactionTypeDTO;
-import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.dto.response.dashboard.DashboardDTO;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
-import com.eztech.fitrans.model.ProfileHistory;
 import com.eztech.fitrans.service.DepartmentService;
 import com.eztech.fitrans.service.ProfileHistoryService;
 import com.eztech.fitrans.service.ProfileListService;
@@ -23,22 +19,13 @@ import com.eztech.fitrans.service.UserService;
 import com.eztech.fitrans.util.DataUtils;
 import com.eztech.fitrans.util.ReadAndWriteDoc;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,26 +35,16 @@ import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.xwpf.usermodel.BodyElementType;
-import org.apache.poi.xwpf.usermodel.IBodyElement;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFTable;
-import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -93,9 +70,6 @@ public class ProfileController extends BaseController implements ProfileApi {
     private ProfileHistoryService historyService;
 
     @Autowired
-    private DepartmentService departmentService;
-
-    @Autowired
     private ProfileListService profileListService;
 
     @Autowired
@@ -116,11 +90,18 @@ public class ProfileController extends BaseController implements ProfileApi {
         mapParam.put("pageNumber", pageNumber);
         mapParam.put("pageSize", pageSize);
         Pageable pageable = pageRequest(new ArrayList<>(), pageSize, pageNumber);
+        long start = System.currentTimeMillis();
+        System.out.println("------BEGIN SEARCH: " + start);
         List<ProfileDTO> listData = service.search(mapParam);
         Long total = 0L;
         if (!mapParam.containsKey("dashboard")) {
             total = service.count(mapParam);
         }
+        long end = System.currentTimeMillis();
+        System.out.println("------END SEARCH: "
+                + end);
+        System.out.println("------DIFF SEARCH: "
+                + (start - end));
         return new PageImpl<>(listData, pageable, total);
     }
 
@@ -180,7 +161,7 @@ public class ProfileController extends BaseController implements ProfileApi {
 
     @PostMapping("/exportDoc")
     public ResponseEntity<InputStreamResource> exportDoc(@RequestParam Map<String, Object> mapParam,
-                                                         @RequestBody ProfileDTO item) throws FileNotFoundException, IOException {
+            @RequestBody ProfileDTO item) throws FileNotFoundException, IOException {
 
         String username = mapParam.get("username").toString();
         Map<String, ProfileListDTO> mapParams = new HashMap<>();
@@ -309,7 +290,6 @@ public class ProfileController extends BaseController implements ProfileApi {
         return service.countProfileInDayByState(state);
     }
 
-
     @GetMapping("/profileExpected")
     public List<DashboardDTO> countProfileExpected() {
         return service.profileExpected();
@@ -320,18 +300,17 @@ public class ProfileController extends BaseController implements ProfileApi {
             @RequestParam String isToday,
             @RequestParam Integer state,
             @RequestParam String code,
-            @RequestParam String username
-    ) {
-        Map<String,Object> params = new HashMap<>();
+            @RequestParam String username) {
+        Map<String, Object> params = new HashMap<>();
         params.put("username", username);
         List<ProfileDTO> listData = new ArrayList<>();
-        List<Integer> listState = Arrays.asList(new Integer[]{state});
+        List<Integer> listState = Arrays.asList(new Integer[] { state });
         List<Integer> transactionType = new ArrayList<>();
         if (code.equals(Constants.Department.QTTD)) {
-            transactionType = Arrays.asList(new Integer[]{1, 2});
+            transactionType = Arrays.asList(new Integer[] { 1, 2 });
         }
         if (code.equals(Constants.Department.GDKH)) {
-            transactionType = Arrays.asList(new Integer[]{1, 3});
+            transactionType = Arrays.asList(new Integer[] { 1, 3 });
         }
         if (isToday.equals("true")) {
             params.put("isToday", true);

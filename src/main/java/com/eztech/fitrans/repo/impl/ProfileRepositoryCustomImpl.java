@@ -5,7 +5,6 @@ import com.eztech.fitrans.constants.PositionTypeEnum;
 import com.eztech.fitrans.constants.UserTypeEnum;
 import com.eztech.fitrans.constants.Constants.Department;
 import com.eztech.fitrans.dto.response.ProfileDTO;
-import com.eztech.fitrans.dto.response.dashboard.ProfileListDashBoardDTO;
 import com.eztech.fitrans.model.Profile;
 import com.eztech.fitrans.repo.ProfileRepositoryCustom;
 import com.eztech.fitrans.util.CalculatingTime;
@@ -83,7 +82,10 @@ public class ProfileRepositoryCustomImpl extends BaseCustomRepository<Profile> i
 
         String sql_select = "SELECT p.*, " +
                 "u.full_name as staff_name_last, c.name as customer_name," +
-                "uc.full_name as staff_name, ucm.full_name as staff_name_cm, uct.full_name as staff_name_ct, trans.type as transaction_type, trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, c.type as customer_type, his.time_received as time_received_history  \n";
+                "uc.full_name as staff_name, ucm.full_name as staff_name_cm," + 
+                "uct.full_name as staff_name_ct, trans.type as transaction_type, " +
+                "trans.transaction_detail as transaction_detail, trans.additional_time_max as additional_time_max, "+
+                "c.type as customer_type, his.time_received as time_received_history  \n";
 
         if (count) {
             sb.append("SELECT COUNT(p.id) \n")

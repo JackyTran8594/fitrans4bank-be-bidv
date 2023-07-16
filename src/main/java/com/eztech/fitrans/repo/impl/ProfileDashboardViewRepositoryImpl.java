@@ -1,10 +1,7 @@
 package com.eztech.fitrans.repo.impl;
 
 import com.eztech.fitrans.constants.Constants;
-import com.eztech.fitrans.model.ProfileListDashBoard;
 import com.eztech.fitrans.model.view.ProfileDashBoardView;
-import com.eztech.fitrans.repo.DashboardRepository;
-import com.eztech.fitrans.repo.DashboardRepositoryCustom;
 import com.eztech.fitrans.repo.ProfileDashboardViewRepository;
 import com.eztech.fitrans.util.DataUtils;
 

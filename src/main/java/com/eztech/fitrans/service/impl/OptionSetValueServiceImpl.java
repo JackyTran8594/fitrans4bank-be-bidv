@@ -2,7 +2,6 @@ package com.eztech.fitrans.service.impl;
 
 import com.eztech.fitrans.constants.Constants;
 import com.eztech.fitrans.dto.response.ErrorCodeEnum;
-import com.eztech.fitrans.dto.response.OptionSetDTO;
 import com.eztech.fitrans.dto.response.OptionSetValueDTO;
 import com.eztech.fitrans.exception.InputInvalidException;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
