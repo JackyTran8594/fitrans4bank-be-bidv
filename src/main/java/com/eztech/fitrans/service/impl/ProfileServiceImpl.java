@@ -1,6 +1,5 @@
 package com.eztech.fitrans.service.impl;
 
-import com.eztech.fitrans.constants.Constants;
 import com.eztech.fitrans.constants.ProfileStateEnum;
 import com.eztech.fitrans.dto.request.ConfirmRequest;
 import com.eztech.fitrans.dto.response.DepartmentDTO;
@@ -10,7 +9,6 @@ import com.eztech.fitrans.dto.response.ProfileHistoryDTO;
 import com.eztech.fitrans.dto.response.TransactionTypeDTO;
 import com.eztech.fitrans.dto.response.UserDTO;
 import com.eztech.fitrans.dto.response.dashboard.DashboardDTO;
-import com.eztech.fitrans.dto.response.dashboard.ProfileListDashBoardDTO;
 import com.eztech.fitrans.event.ScheduledTasks;
 import com.eztech.fitrans.exception.ResourceNotFoundException;
 import com.eztech.fitrans.model.Profile;
@@ -71,12 +69,6 @@ public class ProfileServiceImpl implements ProfileService {
     @Autowired
     private ActionLogRepository actionLogRepository;
 
-    // @Autowired
-    // private ProfileHistoryRepository profileHistoryRepo;
-
-    // @Autowired
-    // private UserDetailsServiceImpl userDetailsServiceImpl;
-
     @Autowired
     private ProfileHistoryService profileHistoryService;
 
@@ -121,12 +113,7 @@ public class ProfileServiceImpl implements ProfileService {
             throw new ResourceNotFoundException("Profile " + id + " not found");
         }
         repository.deleteById(id);
-        // List<ProfileHistoryDTO> profileHis =
-        // profileHistoryService.findByProfileId(id);
-        // if (profileHis != null) {
         profileHistoryService.deleteByProfileId(id);
-        // }
-        // profileHistoryService.deleteByProfileId(id);
     }
 
     @Override
@@ -1283,222 +1270,226 @@ public class ProfileServiceImpl implements ProfileService {
                             }
                             break;
 
-                        case "GDKH-test":
-                            // đã bàn giao tại quản trị tín dụng
-                            if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
-                                // check bàn giao tại GDKH
-                                if (DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
-                                    switch (dto.getState()) {
-                                        // Kết thúc giao dịch
-                                        case 7:
-                                            message.setMessage("Bạn đã kết thúc giao dịch này");
-                                            message.setIsExist(true);
-                                            break;
-                                        // Cần bổ sung
-                                        case 6:
-                                            if (item.getIsFinished()) {
-                                                message.setMessage("Hồ sơ phải được bàn giao tại rổ chung của Giao dịch khách hàng");
-                                                message.setIsExist(true);
-                                            } else {
-                                                message.setIsExist(false);
-                                            }
-                                            break;
-
-                                        // Đang xử lý
-                                        case 5:
-                                            // nhận bàn giao từ QTTD tới máy chung - admin
-                                            if (item.getUsername().contains("admin")) {
-                                                // nếu quét nhầm finish
-                                                if (item.getIsFinished()) {
-                                                    message.setMessage(
-                                                            "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
-                                                    message.setIsExist(true);
-                                                } else {
-                                                    message.setIsExist(false);
-                                                }
-                                            } else {
-                                                // cán bộ GDKH quét QR nhầm
-                                                // khi chưa bàn giao hồ sơ tại giao dịch khách hàng thì thời gian = null
-                                                // do đó check thêm thời gian để biết bàn giao chưa
-                                                if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
-                                                    message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
-                                                    message.setIsExist(true);
-                                                } else {
-                                                    message.setIsExist(false);
-                                                }
-                                              
-                                            }
-                                            break;
-                                        // Chờ xử lý
-                                        case 4:
-                                            if (item.getIsFinished()) {
-                                                message.setMessage("Hồ sơ này đã đang chờ xử lý");
-                                                message.setIsExist(true);
-                                            } else {
-                                                if (dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                                    message.setMessage("Hồ sơ này đã được nhận 1 lần");
-                                                    message.setIsExist(true);
-                                                } else {
-                                                    message.setIsExist(false);
-
-                                                }
-                                            }
-                                            break;
-                                        default:
-                                            message.setIsExist(false);
-                                            break;
-                                    }
-                                }
-
-                            } else {
-                                message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
-                                message.setIsExist(true);
-                            }
-
-                            break;
-
                         case "GDKH":
-                            if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
-                                // check delivery to GDKH
-                                // state of profile: not_yet, tranfer
-                                Integer[] intArray = new Integer[] { 6 };
-                                // trường hợp trả hồ sơ thì bàn giao lại từ đầu tại qttd do đó cần check lại
-                                // trạng thái
-                                // nếu = 6 thì phải bàn giao tại qttd trước
-                                // cán bộ GDKH chưa nhận hồ sơ
-                                if (DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
-                                    if (Arrays.asList(intArray).contains(dto.getState())) {
-                                        message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                            switch (dto.getState()) {
+                                case 7:
+                                    message.setMessage("Bạn đã kết thúc giao dịch này");
+                                    message.setIsExist(true);
+                                    break;
+                                case 6:
+                                    if (item.getIsFinished()) {
+                                        message.setMessage("Hồ sơ chưa bàn giao tại Giao dịch khách hàng");
                                         message.setIsExist(true);
+                                    } else {
+                                        message.setIsExist(false);
                                     }
-                                    // bàn giao hồ sơ đang xử lý sang GDKH từ QTTD
-                                    else if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                        // nhận bàn giao từ QTTD tới máy chung - admin
-                                        if (item.getUsername().contains("admin")) {
-                                            // nếu quét nhầm finish
-                                            if (item.getIsFinished()) {
-                                                message.setMessage(
-                                                        "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
-                                                message.setIsExist(true);
-                                            } else {
-                                                message.setIsExist(false);
-                                            }
-                                        } else {
-                                            // cán bộ GDKH quét QR nhầm
-                                            // khi chưa bàn giao hồ sơ tại giao dịch khách hàng thì thời gian = null
-                                            // do đó check thêm thời gian để biết bàn giao chưa
-                                            if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
-                                                message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
-                                                message.setIsExist(true);
-                                            } else {
-                                                message.setIsExist(false);
-                                            }
-                                            // message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
-                                            // message.setIsExist(true);
-                                        }
-                                    }
-                                    // hồ sơ đã nhận tại GDKH và cán bộ GDKH tiếp nhận
-                                    else if (dto.getState().equals(ProfileStateEnum.RECEIVED.getValue())) {
-                                        // quét bằng tk admin GDKH
-                                        if (item.getUsername().contains("admin")) {
-                                            if (item.getIsFinished()) {
-                                                message.setMessage(
-                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
-                                                message.setIsExist(true);
-                                            } else {
-                                                message.setMessage(
-                                                        "Hồ sơ này đã được nhận 1 lần tại phòng giao dịch khách hàng");
-                                                message.setIsExist(true);
-                                            }
-                                        } else {
-                                            // cán bộ GDKH quét QR nhầm kết thúc giao dịch
-                                            if (item.getIsFinished()) {
-                                                message.setMessage(
-                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
-                                                message.setIsExist(true);
-                                            } else {
-                                                message.setIsExist(false);
-                                            }
-                                        }
-                                    }
-                                }
-                                // cán bộ GDKH đã nhận hồ sơ trong trường hợp luồng trả hồ sơ
-                                // => phải bàn giao lại rỏ chung
-                                else {
-                                    // hồ sơ đang xử lý (luồng thông thường hoặc luồng đã có trả hồ sơ)
-                                    if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
-                                            || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
-                                        if (item.getUsername().contains("admin")) {
-                                            // check scan kết thúc hồ sơ
-                                            if (item.getIsFinished()) {
-                                                message.setMessage(
-                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
-                                                message.setIsExist(true);
-                                            } else {
-                                                message.setIsExist(false);
-                                            }
-
-                                        } else {
-                                            // khi hồ sơ thuộc luồng trả hồ sơ tức là đã bàn giao 1 lần tại GDKH
-                                            // khi tiến hành hoàn trả hồ sơ thì thời gian bàn giao tại giao dịch khách
-                                            // hàng bị reset = null
-                                            // do đó cần check thêm thời gian bàn giao tại giao dịch khách hàng để biết
-                                            // xem đã bàn giao chưa
-                                            if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
-                                                message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
-                                                message.setIsExist(true);
-                                            } else {
-                                                message.setIsExist(false);
-                                            }
-                                        }
-
-                                    }
-                                    // hồ sơ đã nhận tại GDKH và cán bộ GDKH tiếp nhận
-                                    else if (dto.getState().equals(ProfileStateEnum.RECEIVED.getValue())) {
-                                        // quét bằng tk admin GDKH
-                                        if (item.getUsername().contains("admin")) {
-                                            if (item.getIsFinished()) {
-                                                message.setMessage(
-                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
-                                                message.setIsExist(true);
-                                            } else {
-                                                message.setMessage(
-                                                        "Hồ sơ này đã được nhận 1 lần tại phòng giao dịch khách hàng");
-                                                message.setIsExist(true);
-                                            }
-                                        } else {
-                                            // cán bộ GDKH quét QR nhầm kết thúc giao dịch
-                                            if (item.getIsFinished()) {
-                                                message.setMessage(
-                                                        "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
-                                                message.setIsExist(true);
-                                            } else {
-                                                message.setIsExist(false);
-                                            }
-                                        }
-                                    }
-                                    // hồ sơ đã kết thúc và quét nhầm
-                                    else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
-                                        message.setMessage("Bạn đã kết thúc giao dịch này");
-                                        message.setIsExist(true);
-
-                                    }
-                                    // hồ sơ cần bổ sung thì cần bàn giao lại từ đầu
-                                    else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                                    break;
+                                case 5:
+                                    // nhận bàn giao từ QTTD tới máy chung - admin
+                                    if (item.getUsername().contains("admin")) {
+                                        // nếu quét nhầm finish
                                         if (item.getIsFinished()) {
+                                            message.setMessage(
+                                                    "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setIsExist(false);
+                                        }
+                                    } else {
+                                        // cán bộ GDKH quét QR nhầm
+                                        // khi chưa bàn giao hồ sơ tại giao dịch khách hàng thì thời gian = null
+                                        // do đó check thêm thời gian để biết bàn giao chưa
+                                        if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
                                             message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
                                             message.setIsExist(true);
                                         } else {
                                             message.setIsExist(false);
                                         }
                                     }
-                                }
+                                    break;
+                                case 4:
+                                    if (item.getIsFinished()) {
+                                        message.setMessage("Hồ sơ này đã đang chờ xử lý");
+                                        message.setIsExist(true);
+                                    } else {
+                                        if (dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                                            message.setMessage("Hồ sơ này đã được nhận 1 lần");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setIsExist(false);
 
-                            } else {
-                                message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
-                                message.setIsExist(true);
+                                        }
+                                    }
+                                    break;
+                                case 2:
+                                    // quét bằng tk admin GDKH
+                                    if (item.getUsername().contains("admin")) {
+                                        if (item.getIsFinished()) {
+                                            message.setMessage(
+                                                    "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setMessage(
+                                                    "Hồ sơ này đã được nhận 1 lần tại phòng giao dịch khách hàng");
+                                            message.setIsExist(true);
+                                        }
+                                    } else {
+                                        // cán bộ GDKH quét QR nhầm kết thúc giao dịch
+                                        if (item.getIsFinished()) {
+                                            message.setMessage(
+                                                    "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                                            message.setIsExist(true);
+                                        } else {
+                                            message.setIsExist(false);
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    message.setIsExist(false);
+                                    break;
                             }
+
+                            // if (!DataUtils.isNullOrEmpty(dto.getStaffId_CM())) {
+                            //     // check delivery to GDKH
+                            //     // state of profile: not_yet, tranfer
+                            //     Integer[] intArray = new Integer[] { 6 };
+                            //     // trường hợp trả hồ sơ thì bàn giao lại từ đầu tại qttd do đó cần check lại
+                            //     // trạng thái
+                            //     // nếu = 6 thì phải bàn giao tại qttd trước
+                            //     // cán bộ GDKH chưa nhận hồ sơ
+                            //     if (DataUtils.isNullOrEmpty(dto.getStaffId_CT())) {
+                            //         if (Arrays.asList(intArray).contains(dto.getState())) {
+                            //             message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                            //             message.setIsExist(true);
+                            //         }
+                            //         // bàn giao hồ sơ đang xử lý sang GDKH từ QTTD
+                            //         else if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
+                            //                 || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                            //             // nhận bàn giao từ QTTD tới máy chung - admin
+                            //             if (item.getUsername().contains("admin")) {
+                            //                 // nếu quét nhầm finish
+                            //                 if (item.getIsFinished()) {
+                            //                     message.setMessage(
+                            //                             "Không thể kết thúc giao dịch do cán bộ chưa nhận hồ sơ");
+                            //                     message.setIsExist(true);
+                            //                 } else {
+                            //                     message.setIsExist(false);
+                            //                 }
+                            //             } else {
+                            //                 // cán bộ GDKH quét QR nhầm
+                            //                 // khi chưa bàn giao hồ sơ tại giao dịch khách hàng thì thời gian = null
+                            //                 // do đó check thêm thời gian để biết bàn giao chưa
+                            //                 if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
+                            //                     message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                            //                     message.setIsExist(true);
+                            //                 } else {
+                            //                     message.setIsExist(false);
+                            //                 }
+                            //                 // message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                            //                 // message.setIsExist(true);
+                            //             }
+                            //         }
+                            //         // hồ sơ đã nhận tại GDKH và cán bộ GDKH tiếp nhận
+                            //         else if (dto.getState().equals(ProfileStateEnum.RECEIVED.getValue())) {
+                            //             // quét bằng tk admin GDKH
+                            //             if (item.getUsername().contains("admin")) {
+                            //                 if (item.getIsFinished()) {
+                            //                     message.setMessage(
+                            //                             "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                            //                     message.setIsExist(true);
+                            //                 } else {
+                            //                     message.setMessage(
+                            //                             "Hồ sơ này đã được nhận 1 lần tại phòng giao dịch khách hàng");
+                            //                     message.setIsExist(true);
+                            //                 }
+                            //             } else {
+                            //                 // cán bộ GDKH quét QR nhầm kết thúc giao dịch
+                            //                 if (item.getIsFinished()) {
+                            //                     message.setMessage(
+                            //                             "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                            //                     message.setIsExist(true);
+                            //                 } else {
+                            //                     message.setIsExist(false);
+                            //                 }
+                            //             }
+                            //         }
+                            //     }
+                            //     // cán bộ GDKH đã nhận hồ sơ trong trường hợp luồng trả hồ sơ
+                            //     // => phải bàn giao lại rỏ chung
+                            //     else {
+                            //         // hồ sơ đang xử lý (luồng thông thường hoặc luồng đã có trả hồ sơ)
+                            //         if (dto.getState().equals(ProfileStateEnum.PROCESSING.getValue())
+                            //                 || dto.getState().equals(ProfileStateEnum.WAITING.getValue())) {
+                            //             if (item.getUsername().contains("admin")) {
+                            //                 // check scan kết thúc hồ sơ
+                            //                 if (item.getIsFinished()) {
+                            //                     message.setMessage(
+                            //                             "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                            //                     message.setIsExist(true);
+                            //                 } else {
+                            //                     message.setIsExist(false);
+                            //                 }
+
+                            //             } else {
+                            //                 // khi hồ sơ thuộc luồng trả hồ sơ tức là đã bàn giao 1 lần tại GDKH
+                            //                 // khi tiến hành hoàn trả hồ sơ thì thời gian bàn giao tại giao dịch khách
+                            //                 // hàng bị reset = null
+                            //                 // do đó cần check thêm thời gian bàn giao tại giao dịch khách hàng để biết
+                            //                 // xem đã bàn giao chưa
+                            //                 if (DataUtils.isNullOrEmpty(dto.getTimeReceived_CT())) {
+                            //                     message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                            //                     message.setIsExist(true);
+                            //                 } else {
+                            //                     message.setIsExist(false);
+                            //                 }
+                            //             }
+
+                            //         }
+                            //         // hồ sơ đã nhận tại GDKH và cán bộ GDKH tiếp nhận
+                            //         else if (dto.getState().equals(ProfileStateEnum.RECEIVED.getValue())) {
+                            //             // quét bằng tk admin GDKH
+                            //             if (item.getUsername().contains("admin")) {
+                            //                 if (item.getIsFinished()) {
+                            //                     message.setMessage(
+                            //                             "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                            //                     message.setIsExist(true);
+                            //                 } else {
+                            //                     message.setMessage(
+                            //                             "Hồ sơ này đã được nhận 1 lần tại phòng giao dịch khách hàng");
+                            //                     message.setIsExist(true);
+                            //                 }
+                            //             } else {
+                            //                 // cán bộ GDKH quét QR nhầm kết thúc giao dịch
+                            //                 if (item.getIsFinished()) {
+                            //                     message.setMessage(
+                            //                             "Không thể kết thúc giao dịch do cán bộ GDKH chưa nhận hồ sơ");
+                            //                     message.setIsExist(true);
+                            //                 } else {
+                            //                     message.setIsExist(false);
+                            //                 }
+                            //             }
+                            //         }
+                            //         // hồ sơ đã kết thúc và quét nhầm
+                            //         else if (dto.getState().equals(ProfileStateEnum.FINISHED.getValue())) {
+                            //             message.setMessage("Bạn đã kết thúc giao dịch này");
+                            //             message.setIsExist(true);
+
+                            //         }
+                            //         // hồ sơ cần bổ sung thì cần bàn giao lại từ đầu
+                            //         else if (dto.getState().equals(ProfileStateEnum.ADDITIONAL.getValue())) {
+                            //             if (item.getIsFinished()) {
+                            //                 message.setMessage("Hồ sơ chưa bàn giao tại giao dịch khách hàng");
+                            //                 message.setIsExist(true);
+                            //             } else {
+                            //                 message.setIsExist(false);
+                            //             }
+                            //         }
+                            //     }
+
+                            // } else {
+                            //     message.setMessage("Hồ sơ chưa bàn giao tại quản trị tín dụng");
+                            //     message.setIsExist(true);
+                            // }
 
                             break;
                         default:
